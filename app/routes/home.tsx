@@ -1,13 +1,20 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
+export function meta() {
+    return [
+        { title: 'TWS Foundations' },
+        {
+            name: 'description',
+            content:
+                'Modern full-stack boilerplate with authentication, billing, and AI'
+        }
+    ];
 }
 
 export default function Home() {
-  return <Welcome />;
+    return (
+        <div className="p-8">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-8">
+                TWS Foundations
+            </h1>
+        </div>
+    );
 }
