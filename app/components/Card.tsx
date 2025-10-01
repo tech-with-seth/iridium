@@ -1,20 +1,44 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 import type { ReactNode } from 'react';
 
-interface CardProps {
-    children: ReactNode;
-    title?: string;
+export const cardVariants = cva({
+    base: 'card',
+    variants: {
+        variant: {
+            border: 'card-border',
+            dash: 'card-dash'
+        },
+        size: {
+            xs: 'card-xs',
+            sm: 'card-sm',
+            md: 'card-md',
+            lg: 'card-lg',
+            xl: 'card-xl'
+        },
+        side: {
+            true: 'card-side'
+        },
+        imageFull: {
+            true: 'image-full'
+        }
+    },
+    defaultVariants: {
+        size: 'md'
+    },
+    compoundVariants: []
+});
+
+interface CardProps
+    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'>,
+        VariantProps<typeof cardVariants> {
+    title?: ReactNode;
     actions?: ReactNode;
     image?: {
         src: string;
         alt: string;
         position?: 'top' | 'bottom';
     };
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    style?: 'border' | 'dash';
-    modifier?: 'side' | 'image-full';
-    width?: 'auto' | 'full' | 'fit';
-    className?: string;
 }
 
 export function Card({
@@ -22,32 +46,27 @@ export function Card({
     title,
     actions,
     image,
-    size = 'md',
-    style,
-    modifier,
-    width = 'auto',
+    size,
+    variant,
+    side,
+    imageFull,
     className,
-    ...rest
+    ...props
 }: CardProps) {
-    const widthClass = {
-        auto: 'w-96',
-        full: 'w-full',
-        fit: 'w-fit'
-    }[width];
-
     const imageAtBottom = image?.position === 'bottom';
 
     return (
         <div
             className={cx(
-                'card bg-base-100',
-                size !== 'md' && `card-${size}`,
-                style && `card-${style}`,
-                modifier && `card-${modifier}`,
-                widthClass,
+                cardVariants({
+                    size,
+                    variant,
+                    side,
+                    imageFull
+                }),
                 className
             )}
-            {...rest}
+            {...props}
         >
             {image && !imageAtBottom && (
                 <figure>

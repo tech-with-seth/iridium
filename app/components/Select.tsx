@@ -1,4 +1,35 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
+
+export const selectVariants = cva({
+    base: 'select',
+    variants: {
+        variant: {
+            ghost: 'select-ghost'
+        },
+        color: {
+            neutral: 'select-neutral',
+            primary: 'select-primary',
+            secondary: 'select-secondary',
+            accent: 'select-accent',
+            info: 'select-info',
+            success: 'select-success',
+            warning: 'select-warning',
+            error: 'select-error'
+        },
+        size: {
+            xs: 'select-xs',
+            sm: 'select-sm',
+            md: 'select-md',
+            lg: 'select-lg',
+            xl: 'select-xl'
+        }
+    },
+    defaultVariants: {
+        size: 'md'
+    },
+    compoundVariants: []
+});
 
 interface SelectOption {
     value: string;
@@ -6,29 +37,17 @@ interface SelectOption {
     disabled?: boolean;
 }
 
-interface SelectProps {
-    label?: string;
+interface SelectProps
+    extends Omit<
+            React.SelectHTMLAttributes<HTMLSelectElement>,
+            'size' | 'color'
+        >,
+        VariantProps<typeof selectVariants> {
+    label?: React.ReactNode;
     placeholder?: string;
     error?: string;
     helperText?: string;
-    required?: boolean;
-    disabled?: boolean;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    color?:
-        | 'neutral'
-        | 'primary'
-        | 'secondary'
-        | 'accent'
-        | 'info'
-        | 'success'
-        | 'warning'
-        | 'error';
-    id?: string;
-    name?: string;
-    value?: string;
     options: SelectOption[];
-    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-    className?: string;
 }
 
 export function Select({
@@ -36,24 +55,19 @@ export function Select({
     placeholder = 'Choose an option',
     error,
     helperText,
-    required = false,
-    disabled = false,
-    size = 'md',
+    required,
+    disabled,
+    size,
     color,
-    id,
-    name,
-    value,
+    variant,
     options,
-    onChange,
     className,
-    ...rest
+    ...props
 }: SelectProps) {
-    const selectId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
-
     return (
         <div className="form-control w-full">
             {label && (
-                <label className="label" htmlFor={selectId}>
+                <label className="label">
                     <span className="label-text">
                         {label}
                         {required && <span className="text-error ml-1">*</span>}
@@ -62,19 +76,17 @@ export function Select({
             )}
 
             <select
-                id={selectId}
-                name={name}
-                value={value}
-                onChange={onChange}
                 disabled={disabled}
                 required={required}
                 className={cx(
-                    'select w-full',
-                    size !== 'md' && `select-${size}`,
-                    error ? 'select-error' : color && `select-${color}`,
+                    selectVariants({
+                        size,
+                        color: error ? 'error' : color,
+                        variant
+                    }),
                     className
                 )}
-                {...rest}
+                {...props}
             >
                 {placeholder && (
                     <option value="" disabled>

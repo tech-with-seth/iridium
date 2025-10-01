@@ -1,53 +1,63 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 
-interface TextInputProps {
-    label?: string;
-    placeholder?: string;
+export const textInputVariants = cva({
+    base: 'input',
+    variants: {
+        variant: {
+            ghost: 'input-ghost'
+        },
+        color: {
+            neutral: 'input-neutral',
+            primary: 'input-primary',
+            secondary: 'input-secondary',
+            accent: 'input-accent',
+            info: 'input-info',
+            success: 'input-success',
+            warning: 'input-warning',
+            error: 'input-error'
+        },
+        size: {
+            xs: 'input-xs',
+            sm: 'input-sm',
+            md: 'input-md',
+            lg: 'input-lg',
+            xl: 'input-xl'
+        }
+    },
+    defaultVariants: {
+        size: 'md'
+    },
+    compoundVariants: []
+});
+
+interface TextInputProps
+    extends Omit<
+            React.InputHTMLAttributes<HTMLInputElement>,
+            'size' | 'color'
+        >,
+        VariantProps<typeof textInputVariants> {
+    label?: React.ReactNode;
     error?: string;
     helperText?: string;
-    required?: boolean;
-    disabled?: boolean;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    color?:
-        | 'neutral'
-        | 'primary'
-        | 'secondary'
-        | 'accent'
-        | 'info'
-        | 'success'
-        | 'warning'
-        | 'error';
-    type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search';
-    id?: string;
-    name?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    className?: string;
 }
 
 export function TextInput({
     label,
-    placeholder,
     error,
     helperText,
-    required = false,
-    disabled = false,
-    size = 'md',
+    required,
+    disabled,
+    size,
     color,
-    type = 'text',
-    id,
-    name,
-    value,
-    onChange,
+    variant,
     className,
-    ...rest
+    ...props
 }: TextInputProps) {
-    const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
-
     return (
         <div className="form-control w-full">
             {label && (
-                <label className="label" htmlFor={inputId}>
+                <label className="label">
                     <span className="label-text">
                         {label}
                         {required && <span className="text-error ml-1">*</span>}
@@ -56,21 +66,17 @@ export function TextInput({
             )}
 
             <input
-                id={inputId}
-                name={name}
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
                 disabled={disabled}
                 required={required}
                 className={cx(
-                    'input w-full',
-                    size !== 'md' && `input-${size}`,
-                    error ? 'input-error' : color && `input-${color}`,
+                    textInputVariants({
+                        size,
+                        color: error ? 'error' : color,
+                        variant
+                    }),
                     className
                 )}
-                {...rest}
+                {...props}
             />
 
             {(error || helperText) && (

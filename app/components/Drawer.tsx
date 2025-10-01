@@ -1,15 +1,28 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 import { Link } from 'react-router';
 
-interface DrawerProps {
+export const drawerVariants = cva({
+    base: 'drawer',
+    variants: {
+        placement: {
+            end: 'drawer-end'
+        },
+        open: {
+            true: 'drawer-open'
+        }
+    },
+    defaultVariants: {},
+    compoundVariants: []
+});
+
+interface DrawerProps
+    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'open'>,
+        VariantProps<typeof drawerVariants> {
     id: string;
-    children: React.ReactNode;
     sidebar: React.ReactNode;
     open?: boolean;
     onToggle?: (open: boolean) => void;
-    placement?: 'start' | 'end';
-    openOnLarge?: boolean;
-    className?: string;
     sidebarClassName?: string;
     contentClassName?: string;
 }
@@ -20,12 +33,11 @@ export function Drawer({
     sidebar,
     open = false,
     onToggle,
-    placement = 'start',
-    openOnLarge = false,
+    placement,
     className,
     sidebarClassName,
     contentClassName,
-    ...rest
+    ...props
 }: DrawerProps) {
     const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
         onToggle?.(e.target.checked);
@@ -34,12 +46,13 @@ export function Drawer({
     return (
         <div
             className={cx(
-                'drawer',
-                placement === 'end' && 'drawer-end',
-                openOnLarge && 'lg:drawer-open',
+                drawerVariants({
+                    placement,
+                    open
+                }),
                 className
             )}
-            {...rest}
+            {...props}
         >
             <input
                 id={id}
@@ -59,12 +72,7 @@ export function Drawer({
                     className="drawer-overlay"
                     aria-label="Close drawer"
                 />
-                <div
-                    className={cx(
-                        'p-4 w-80 min-h-full bg-base-100 text-base-content',
-                        sidebarClassName
-                    )}
-                >
+                <div className={cx('menu p-4 w-80 min-h-full bg-base-100 text-base-content', sidebarClassName)}>
                     {sidebar}
                 </div>
             </div>
@@ -72,29 +80,39 @@ export function Drawer({
     );
 }
 
-interface DrawerToggleProps {
+export const drawerToggleVariants = cva({
+    base: 'drawer-button',
+    variants: {
+        variant: {
+            hamburger: 'btn btn-square btn-ghost'
+        }
+    },
+    defaultVariants: {},
+    compoundVariants: []
+});
+
+interface DrawerToggleProps
+    extends React.LabelHTMLAttributes<HTMLLabelElement>,
+        VariantProps<typeof drawerToggleVariants> {
     drawerId: string;
-    children?: React.ReactNode;
-    className?: string;
-    variant?: 'button' | 'hamburger';
 }
 
 export function DrawerToggle({
     drawerId,
     children,
     className,
-    variant = 'button',
-    ...rest
+    variant,
+    ...props
 }: DrawerToggleProps) {
     if (variant === 'hamburger') {
         return (
             <label
                 htmlFor={drawerId}
                 className={cx(
-                    'btn btn-square btn-ghost drawer-button',
+                    drawerToggleVariants({ variant }),
                     className
                 )}
-                {...rest}
+                {...props}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -116,50 +134,82 @@ export function DrawerToggle({
     return (
         <label
             htmlFor={drawerId}
-            className={cx('btn drawer-button', className)}
-            {...rest}
+            className={cx(drawerToggleVariants({ variant }), 'btn', className)}
+            {...props}
         >
             {children || 'Open drawer'}
         </label>
     );
 }
 
-interface DrawerMenuProps {
-    children: React.ReactNode;
-    className?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    horizontal?: boolean;
-}
+export const drawerMenuVariants = cva({
+    base: 'menu',
+    variants: {
+        size: {
+            xs: 'menu-xs',
+            sm: 'menu-sm',
+            md: 'menu-md',
+            lg: 'menu-lg',
+            xl: 'menu-xl'
+        },
+        direction: {
+            horizontal: 'menu-horizontal',
+            vertical: 'menu-vertical'
+        }
+    },
+    defaultVariants: {
+        size: 'md',
+        direction: 'vertical'
+    },
+    compoundVariants: []
+});
+
+interface DrawerMenuProps
+    extends React.HTMLAttributes<HTMLUListElement>,
+        VariantProps<typeof drawerMenuVariants> {}
 
 export function DrawerMenu({
     children,
     className,
-    size = 'md',
-    horizontal = false,
-    ...rest
+    size,
+    direction,
+    ...props
 }: DrawerMenuProps) {
     return (
         <ul
             className={cx(
-                'menu',
-                size !== 'md' && `menu-${size}`,
-                horizontal && 'menu-horizontal',
+                drawerMenuVariants({
+                    size,
+                    direction
+                }),
                 className
             )}
-            {...rest}
+            {...props}
         >
             {children}
         </ul>
     );
 }
 
-interface DrawerMenuItemProps {
+export const drawerMenuItemVariants = cva({
+    base: '',
+    variants: {
+        active: {
+            true: 'active'
+        },
+        disabled: {
+            true: 'disabled'
+        }
+    },
+    defaultVariants: {},
+    compoundVariants: []
+});
+
+interface DrawerMenuItemProps extends VariantProps<typeof drawerMenuItemVariants> {
     children: React.ReactNode;
     to?: string;
     href?: string;
     onClick?: () => void;
-    active?: boolean;
-    disabled?: boolean;
     className?: string;
 }
 
@@ -168,15 +218,20 @@ export function DrawerMenuItem({
     to,
     href,
     onClick,
-    active = false,
-    disabled = false,
+    active,
+    disabled,
     className,
-    ...rest
+    ...props
 }: DrawerMenuItemProps) {
+    const itemClassName = cx(
+        drawerMenuItemVariants({ active, disabled }),
+        className
+    );
+
     if (disabled) {
         return (
-            <li className="disabled">
-                <span className={className} {...rest}>
+            <li className={drawerMenuItemVariants({ disabled })}>
+                <span className={className} {...props}>
                     {children}
                 </span>
             </li>
@@ -186,11 +241,7 @@ export function DrawerMenuItem({
     if (to) {
         return (
             <li>
-                <Link
-                    to={to}
-                    className={cx(active && 'active', className)}
-                    {...rest}
-                >
+                <Link to={to} className={itemClassName} {...props}>
                     {children}
                 </Link>
             </li>
@@ -202,10 +253,10 @@ export function DrawerMenuItem({
             <li>
                 <a
                     href={href}
-                    className={cx(active && 'active', className)}
+                    className={itemClassName}
                     target="_blank"
                     rel="noopener noreferrer"
-                    {...rest}
+                    {...props}
                 >
                     {children}
                 </a>
@@ -219,8 +270,8 @@ export function DrawerMenuItem({
                 <button
                     type="button"
                     onClick={onClick}
-                    className={cx(active && 'active', className)}
-                    {...rest}
+                    className={itemClassName}
+                    {...props}
                 >
                     {children}
                 </button>
@@ -230,7 +281,7 @@ export function DrawerMenuItem({
 
     return (
         <li>
-            <span className={className} {...rest}>
+            <span className={className} {...props}>
                 {children}
             </span>
         </li>

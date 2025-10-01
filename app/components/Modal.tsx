@@ -1,31 +1,45 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 import { useEffect, useRef } from 'react';
 
-interface ModalProps {
-    id: string;
-    children: React.ReactNode;
-    title?: string;
+export const modalVariants = cva({
+    base: 'modal',
+    variants: {
+        placement: {
+            top: 'modal-top',
+            middle: 'modal-middle',
+            bottom: 'modal-bottom'
+        },
+        open: {
+            true: 'modal-open'
+        }
+    },
+    defaultVariants: {
+        placement: 'middle'
+    },
+    compoundVariants: []
+});
+
+interface ModalProps
+    extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'open'>,
+        VariantProps<typeof modalVariants> {
     open?: boolean;
     onClose?: () => void;
-    className?: string;
-    placement?: 'top' | 'middle' | 'bottom' | 'start' | 'end';
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    title?: React.ReactNode;
     closeOnBackdropClick?: boolean;
     showCloseButton?: boolean;
 }
 
 export function Modal({
-    id,
     children,
     title,
     open = false,
     onClose,
     className,
-    placement = 'middle',
-    size = 'md',
+    placement,
     closeOnBackdropClick = true,
     showCloseButton = true,
-    ...rest
+    ...props
 }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -58,22 +72,18 @@ export function Modal({
     return (
         <dialog
             ref={dialogRef}
-            id={id}
             className={cx(
-                'modal',
-                placement !== 'middle' && `modal-${placement}`,
+                modalVariants({
+                    placement,
+                    open
+                }),
                 className
             )}
             onClick={handleBackdropClick}
             onClose={handleClose}
-            {...rest}
+            {...props}
         >
-            <div
-                className={cx(
-                    'modal-box',
-                    size !== 'md' && `modal-box-${size}` // Note: DaisyUI doesn't have size variants for modal-box, using custom classes
-                )}
-            >
+            <div className="modal-box">
                 {title && (
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg">{title}</h3>
@@ -115,16 +125,15 @@ export function Modal({
     );
 }
 
+interface ModalActionsProps extends React.HTMLAttributes<HTMLDivElement> {}
+
 export function ModalActions({
     children,
     className,
-    ...rest
-}: {
-    children: React.ReactNode;
-    className?: string;
-}) {
+    ...props
+}: ModalActionsProps) {
     return (
-        <div className={cx('modal-action', className)} {...rest}>
+        <div className={cx('modal-action', className)} {...props}>
             {children}
         </div>
     );
