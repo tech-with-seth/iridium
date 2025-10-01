@@ -1,28 +1,28 @@
 import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
 
-export const textInputVariants = cva({
-    base: 'input',
+export const textareaVariants = cva({
+    base: 'textarea',
     variants: {
         variant: {
-            ghost: 'input-ghost'
+            ghost: 'textarea-ghost'
         },
         color: {
-            neutral: 'input-neutral',
-            primary: 'input-primary',
-            secondary: 'input-secondary',
-            accent: 'input-accent',
-            info: 'input-info',
-            success: 'input-success',
-            warning: 'input-warning',
-            error: 'input-error'
+            neutral: 'textarea-neutral',
+            primary: 'textarea-primary',
+            secondary: 'textarea-secondary',
+            accent: 'textarea-accent',
+            info: 'textarea-info',
+            success: 'textarea-success',
+            warning: 'textarea-warning',
+            error: 'textarea-error'
         },
         size: {
-            xs: 'input-xs',
-            sm: 'input-sm',
-            md: 'input-md',
-            lg: 'input-lg',
-            xl: 'input-xl'
+            xs: 'textarea-xs',
+            sm: 'textarea-sm',
+            md: 'textarea-md',
+            lg: 'textarea-lg',
+            xl: 'textarea-xl'
         }
     },
     defaultVariants: {
@@ -31,15 +31,15 @@ export const textInputVariants = cva({
     compoundVariants: []
 });
 
-interface TextInputProps
-    extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'color'>,
-        VariantProps<typeof textInputVariants> {
+interface TextareaProps
+    extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size' | 'color'>,
+        VariantProps<typeof textareaVariants> {
     label?: React.ReactNode;
     error?: string;
     helperText?: string;
 }
 
-export function TextInput({
+export function Textarea({
     label,
     error,
     helperText,
@@ -50,7 +50,7 @@ export function TextInput({
     variant,
     className,
     ...props
-}: TextInputProps) {
+}: TextareaProps) {
     return (
         <div className="form-control w-full">
             {label && (
@@ -62,11 +62,11 @@ export function TextInput({
                 </label>
             )}
 
-            <input
+            <textarea
                 disabled={disabled}
                 required={required}
                 className={cx(
-                    textInputVariants({
+                    textareaVariants({
                         size,
                         color: error ? 'error' : color,
                         variant

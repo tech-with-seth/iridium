@@ -17,12 +17,12 @@ export const drawerVariants = cva({
 });
 
 interface DrawerProps
-    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'open'>,
+    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onToggle'>,
         VariantProps<typeof drawerVariants> {
     id: string;
     sidebar: React.ReactNode;
-    open?: boolean;
-    onToggle?: (open: boolean) => void;
+    isOpen?: boolean;
+    onToggle?: (isOpen: boolean) => void;
     sidebarClassName?: string;
     contentClassName?: string;
 }
@@ -31,7 +31,7 @@ export function Drawer({
     id,
     children,
     sidebar,
-    open = false,
+    isOpen = false,
     onToggle,
     placement,
     className,
@@ -48,7 +48,7 @@ export function Drawer({
             className={cx(
                 drawerVariants({
                     placement,
-                    open
+                    open: isOpen
                 }),
                 className
             )}
@@ -58,7 +58,7 @@ export function Drawer({
                 id={id}
                 type="checkbox"
                 className="drawer-toggle"
-                checked={open}
+                checked={isOpen}
                 onChange={handleToggle}
             />
 
