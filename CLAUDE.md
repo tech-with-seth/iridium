@@ -38,6 +38,12 @@ This is a modern full-stack boilerplate using **React Router 7** (not v6) with B
 - Database singleton pattern prevents connection pooling issues
 - BetterAuth adapter configured for PostgreSQL
 
+### CVA Configuration for Styling
+- **CVA (Class Variance Authority)** configured in `app/cva.config.ts` with `tailwind-merge` integration
+- Use `cx()` for className merging (replaces traditional `cn()` utility)
+- Use `cva()` for creating component variants with type-safe props
+- Use `compose()` for composing multiple CVA variants together
+
 ## Key Development Patterns
 
 ### Adding Protected Routes
@@ -106,8 +112,8 @@ Components should follow this established paradigm using the `TextInput` compone
 
 #### Component Structure
 - **Comprehensive Props Interface**: Include all relevant props with proper TypeScript types
-- **DaisyUI Integration**: Use DaisyUI class names for consistent styling
-- **Proper className Handling**: Always use `cn()` utility for className merging
+- **DaisyUI Integration**: Use DaisyUI class names for consistent styling (access docs via MCP tool `mcp__daisyui__fetch_daisyui_documentation`)
+- **Proper className Handling**: Always use `cx()` utility from `~/cva.config` for className merging
 - **Accessibility**: Include proper ARIA attributes, labels, and semantic HTML
 
 #### Required Features for Form Components
@@ -121,7 +127,7 @@ Components should follow this established paradigm using the `TextInput` compone
 
 #### Example Pattern (TextInput Reference)
 ```typescript
-import { cn } from "~/lib/utils";
+import { cx } from "~/cva.config";
 
 interface ComponentProps {
   // Core functionality props
@@ -160,7 +166,7 @@ export function Component({
       )}
 
       <element
-        className={cn(
+        className={cx(
           'base-daisyui-classes',
           size !== 'md' && `component-${size}`,
           error ? 'component-error' : color && `component-${color}`,
@@ -171,7 +177,7 @@ export function Component({
 
       {(error || helperText) && (
         <label className="label">
-          <span className={cn(
+          <span className={cx(
             'label-text-alt',
             error ? 'text-error' : 'text-base-content/70'
           )}>
@@ -204,5 +210,7 @@ import { authClient } from "~/lib/auth-client";
 
 // Utilities and validation
 import { userSchema } from "~/lib/validations";
-import { cn } from "~/lib/utils";
+
+// CVA utilities for className merging
+import { cx, cva, compose } from "~/cva.config";
 ```

@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils';
+import { cx } from '~/cva.config';
 import type { ReactNode } from 'react';
 
 interface NavbarProps {
@@ -8,7 +8,14 @@ interface NavbarProps {
     end?: ReactNode;
     sticky?: boolean;
     shadow?: boolean;
-    backgroundColor?: 'base-100' | 'base-200' | 'base-300' | 'primary' | 'secondary' | 'accent' | 'neutral';
+    backgroundColor?:
+        | 'base-100'
+        | 'base-200'
+        | 'base-300'
+        | 'primary'
+        | 'secondary'
+        | 'accent'
+        | 'neutral';
     className?: string;
 }
 
@@ -25,7 +32,7 @@ export function Navbar({
 }: NavbarProps) {
     return (
         <div
-            className={cn(
+            className={cx(
                 'navbar',
                 `bg-${backgroundColor}`,
                 sticky && 'sticky top-0 z-50',
@@ -35,32 +42,16 @@ export function Navbar({
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}
-            {brand && (
-                <div className="navbar-start">
-                    {brand}
-                </div>
-            )}
+            {brand && <div className="navbar-start">{brand}</div>}
 
             {/* Start section - left side content when no brand */}
-            {!brand && start && (
-                <div className="navbar-start">
-                    {start}
-                </div>
-            )}
+            {!brand && start && <div className="navbar-start">{start}</div>}
 
             {/* Center section */}
-            {center && (
-                <div className="navbar-center">
-                    {center}
-                </div>
-            )}
+            {center && <div className="navbar-center">{center}</div>}
 
             {/* End section - right side content */}
-            {end && (
-                <div className="navbar-end">
-                    {end}
-                </div>
-            )}
+            {end && <div className="navbar-end">{end}</div>}
         </div>
     );
 }
@@ -77,7 +68,7 @@ export function NavbarBrand({
     className?: string;
 }) {
     const content = (
-        <span className={cn('btn btn-ghost text-xl', className)} {...rest}>
+        <span className={cx('btn btn-ghost text-xl', className)} {...rest}>
             {children}
         </span>
     );
@@ -101,7 +92,7 @@ export function NavbarMenu({
 }) {
     return (
         <ul
-            className={cn(
+            className={cx(
                 'menu',
                 horizontal ? 'menu-horizontal' : 'menu-vertical',
                 'px-1',
@@ -127,8 +118,10 @@ export function NavbarMenuItem({
     className?: string;
 }) {
     return (
-        <li className={cn(active && 'menu-active', disabled && 'menu-disabled')}>
-            <span className={cn(className)} {...rest}>
+        <li
+            className={cx(active && 'menu-active', disabled && 'menu-disabled')}
+        >
+            <span className={cx(className)} {...rest}>
                 {children}
             </span>
         </li>
@@ -148,13 +141,13 @@ export function NavbarDropdown({
     className?: string;
 }) {
     return (
-        <div className={cn('dropdown', end && 'dropdown-end')}>
+        <div className={cx('dropdown', end && 'dropdown-end')}>
             <div tabIndex={0} role="button" className="btn btn-ghost">
                 {trigger}
             </div>
             <ul
                 tabIndex={0}
-                className={cn(
+                className={cx(
                     'menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow',
                     className
                 )}

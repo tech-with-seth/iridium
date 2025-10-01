@@ -41,24 +41,27 @@ export default function SignUp() {
                 <h2>Sign Up</h2>
                 <Form onSubmit={signUp} className="space-y-4">
                     <TextInput
+                        label="Name"
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Name"
                     />
                     <TextInput
+                        label="Email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                     />
                     <TextInput
+                        label="Password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password"
                     />
-                    <Button type="submit" loading={isLoading}>
+                    <Button type="submit" loading={isLoading} color="secondary">
                         Sign Up
                     </Button>
                 </Form>

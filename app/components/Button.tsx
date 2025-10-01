@@ -1,64 +1,55 @@
-import { cn } from "~/lib/utils";
-import type { ReactNode } from "react";
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 
-interface ButtonProps {
-    children: ReactNode;
-    type?: 'button' | 'submit' | 'reset';
-    disabled?: boolean;
+export const buttonVariants = cva({
+    base: 'btn',
+    variants: {
+        variant: {
+            outline: 'btn-outline',
+            dash: 'btn-dash',
+            soft: 'btn-soft',
+            ghost: 'btn-ghost',
+            link: 'btn-link'
+        },
+        size: {
+            sm: 'btn-sm',
+            md: 'btn-md',
+            lg: 'btn-lg',
+            xl: 'btn-xl'
+        },
+        active: {
+            true: 'btn-active'
+        },
+        disabled: {
+            true: 'btn-disabled'
+        }
+    },
+    defaultVariants: {
+        size: 'md'
+    },
+    compoundVariants: []
+});
+
+interface ButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+        VariantProps<typeof buttonVariants> {
     loading?: boolean;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
-    style?: 'outline' | 'dash' | 'soft' | 'ghost' | 'link';
-    modifier?: 'wide' | 'block' | 'square' | 'circle';
-    active?: boolean;
-    id?: string;
-    name?: string;
-    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-    className?: string;
 }
 
 export function Button({
     children,
-    type = 'button',
-    disabled = false,
-    loading = false,
-    size = 'md',
-    color,
-    style,
-    modifier,
-    active = false,
-    id,
-    name,
-    onClick,
     className,
-    ...rest
+    loading,
+    variant,
+    ...props
 }: ButtonProps) {
-    const isDisabled = disabled || loading;
-
     return (
         <button
-            id={id}
-            name={name}
-            type={type}
-            disabled={isDisabled}
-            onClick={onClick}
-            className={cn(
-                'btn',
-                size !== 'md' && `btn-${size}`,
-                color && `btn-${color}`,
-                style && `btn-${style}`,
-                modifier && `btn-${modifier}`,
-                active && 'btn-active',
-                loading && 'loading',
-                className
-            )}
-            {...rest}
+            className={cx(buttonVariants({ variant }), className)}
+            {...props}
         >
             {loading ? (
-                <>
-                    <span className="loading loading-spinner loading-sm"></span>
-                    {children}
-                </>
+                <span className="loading loading-spinner loading-md"></span>
             ) : (
                 children
             )}

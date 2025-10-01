@@ -1,4 +1,4 @@
-import { cn } from "~/lib/utils";
+import { cx } from '~/cva.config';
 
 interface TextInputProps {
     label?: string;
@@ -8,7 +8,15 @@ interface TextInputProps {
     required?: boolean;
     disabled?: boolean;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+    color?:
+        | 'neutral'
+        | 'primary'
+        | 'secondary'
+        | 'accent'
+        | 'info'
+        | 'success'
+        | 'warning'
+        | 'error';
     type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search';
     id?: string;
     name?: string;
@@ -56,7 +64,7 @@ export function TextInput({
                 onChange={onChange}
                 disabled={disabled}
                 required={required}
-                className={cn(
+                className={cx(
                     'input w-full',
                     size !== 'md' && `input-${size}`,
                     error ? 'input-error' : color && `input-${color}`,
@@ -67,10 +75,12 @@ export function TextInput({
 
             {(error || helperText) && (
                 <label className="label">
-                    <span className={cn(
-                        'label-text-alt',
-                        error ? 'text-error' : 'text-base-content/70'
-                    )}>
+                    <span
+                        className={cx(
+                            'label-text-alt',
+                            error ? 'text-error' : 'text-base-content/70'
+                        )}
+                    >
                         {error || helperText}
                     </span>
                 </label>

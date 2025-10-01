@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a modern full-stack SaaS boilerplate built with **React Router 7** (not v6), **BetterAuth**, **Polar.sh billing**, and **OpenAI integration**. The architecture uses config-based routing, singleton patterns, and a credit-based billing system.
+This is a modern full-stack SaaS boilerplate built with **React Router 7** (not v6), **BetterAuth**, **Polar.sh billing**, and **OpenAI integration**. The architecture uses config-based routing, middleware patterns, and singleton services.
 
 ## Critical Architecture Patterns
 
@@ -16,33 +16,36 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 ```tsx
 // app/routes.ts - Single source of truth for routing
 export default [
+    index('routes/home.tsx'),
+    route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
     layout('routes/authenticated.tsx', [
         route('dashboard', 'routes/dashboard.tsx'),
-        route('chat', 'routes/chat.tsx')
-    ])
+        route('profile', 'routes/profile.tsx')
+    ]),
+    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')])
 ] satisfies RouteConfig;
 ```
 
-### Authentication Flow
+### Middleware-Based Architecture
 
-- **BetterAuth** with Prisma adapter handles all auth logic
-- `requireUser()` for protected routes, `requireAnonymous()` for auth pages
-- Session helpers in `app/lib/session.server.ts`
-- Layout-based protection in `routes/authenticated.tsx`
+- **Authentication**: `app/middleware/auth.ts` - Protects routes using `authMiddleware`
+- **Logging**: `app/middleware/logging.ts` - Request/response logging with unique IDs
+- **Context**: `app/middleware/context.ts` - React Router contexts for user and request ID
+- Applied in layout routes like `routes/authenticated.tsx`
 
 ### Singleton Pattern Usage
 
-- **Database**: `app/db.server.ts` - Global Prisma client
-- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance with Polar integration
-- **AI**: `app/lib/ai.ts` - OpenAI client singleton
-- **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL support
+- **Database**: `app/db.server.ts` - Global Prisma client with custom output path
+- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance with PostgreSQL adapter
+- **AI**: `app/lib/ai.ts` - OpenAI client singleton (renamed from `openai` to `ai`)
+- **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL and user-scoped keys
 
-### Billing & Credits System
+### Authentication & Session Management
 
-- **Polar.sh** integration with BetterAuth plugin
-- Credit-based usage model (users start with 10 credits)
-- Subscription tiers: starter (50), power (200), pro (500)
-- Check `user.credits > 0` before AI operations
+- **BetterAuth** with Prisma adapter, 7-day sessions, no email verification required
+- Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUser()`, `requireAnonymous()`
+- Client-side: `authClient` from `app/lib/auth-client.ts` with Better Auth React
+- Protected routes use middleware pattern in layout files
 
 ## Development Workflows
 
@@ -52,8 +55,10 @@ export default [
 npm run dev           # Start dev server (auto-generates types)
 npm run typecheck     # Generate types + run TypeScript check
 npm run build         # Production build
+npm start             # Start production server
+npm run seed          # Seed database with initial data
 npx prisma generate   # Regenerate Prisma client (after schema changes)
-npx prisma migrate dev # Apply database migrations
+npx prisma migrate dev --name <description> # Apply database migrations
 ```
 
 ### Adding New Features
@@ -61,15 +66,16 @@ npx prisma migrate dev # Apply database migrations
 #### 1. Protected Routes
 
 ```tsx
-// 1. Add to app/routes.ts
+// 1. Add to app/routes.ts using constants
+import { Paths } from './constants';
 layout('routes/authenticated.tsx', [
     route('new-feature', 'routes/new-feature.tsx')
 ]);
 
-// 2. Create route file with loader protection
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await requireUser(request);
-    return { user, data: await fetchData() };
+// 2. Create route file - middleware handles auth automatically
+export default function NewFeature() {
+    const { user } = useAuthenticatedContext();
+    return <div>Welcome {user.email}</div>;
 }
 ```
 
@@ -81,13 +87,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   route('new-endpoint', 'routes/api/new-endpoint.ts')
 ])
 
-// API route with authentication
+// API route with manual auth (no middleware)
 export async function action({ request }: Route.ActionArgs) {
   const user = await requireUser(request);
-  // Check credits for paid features
-  if (user.credits <= 0) {
-    return json({ error: "Insufficient credits" }, { status: 400 });
-  }
+  return json({ data: "success" });
 }
 ```
 
@@ -97,40 +100,51 @@ export async function action({ request }: Route.ActionArgs) {
 2. Run `npx prisma migrate dev --name description`
 3. Run `npx prisma generate` to update client
 4. Import from `~/generated/prisma/client` (custom output path)
+5. Restart dev server after schema changes
 
 ## Key Integrations
 
 ### AI Features (OpenAI + Vercel AI SDK)
 
-- Credit consumption required for all AI operations
+- OpenAI client in `app/lib/ai.ts` (imported as `ai`, not `openai`)
 - Streaming responses using `streamText()` from `ai` package
-- Client-side integration with `useChat()` hook
+- Client-side integration with `useChat()` hook from `@ai-sdk/react`
 
 ### Caching Strategy
 
 - File-based caching with TTL support via `flat-cache`
 - User-scoped keys: `getUserScopedKey(userId, key)`
 - Check expiration: `isCacheExpired(key)`
+- Cache saved to file system automatically
 
 ### Validation Pattern
 
 - **Zod schemas** in `app/lib/validations.ts`
 - Type inference with `z.infer<typeof schema>`
 - Consistent error messaging
+- Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
 
 ## File Organization
 
 ```
 app/
 ├── lib/              # Singleton services & utilities
-│   ├── auth.server.ts    # BetterAuth + Polar configuration
+│   ├── auth.server.ts    # BetterAuth configuration
+│   ├── auth-client.ts    # Client-side auth
 │   ├── session.server.ts # Session helpers (requireUser, getUser)
 │   ├── ai.ts            # OpenAI client
 │   ├── cache.ts         # FlatCache with TTL
 │   └── validations.ts   # Zod schemas
+├── middleware/       # Request middleware
+│   ├── auth.ts          # Authentication middleware
+│   ├── context.ts       # React Router contexts
+│   └── logging.ts       # Request logging
 ├── routes/           # Route components (descriptive naming)
 │   ├── authenticated.tsx # Layout with Outlet for protected routes
 │   ├── api/             # API endpoints
+├── constants/        # App constants (Paths enum)
+├── components/       # UI components
+├── hooks/           # Custom React hooks
 └── generated/        # Prisma client output (never edit)
 ```
 
@@ -144,7 +158,7 @@ All UI components should follow the established `TextInput` paradigm:
 
 - **Comprehensive TypeScript Interface**: Define all props with proper types
 - **DaisyUI Integration**: Use DaisyUI class names for consistent theming
-- **className Merging**: Always use `cn()` utility from `~/lib/utils`
+- **className Merging**: Always use `cx()` utility from `~/cva.config`
 - **Accessibility First**: Proper labels, ARIA attributes, semantic HTML
 
 #### Form Component Standards
@@ -158,7 +172,7 @@ All UI components should follow the established `TextInput` paradigm:
 #### Component Template
 
 ```typescript
-import { cn } from "~/lib/utils";
+import { cx } from "~/cva.config";
 
 interface ComponentProps {
   label?: string;
@@ -190,7 +204,7 @@ export function Component({
       )}
 
       <element
-        className={cn(
+        className={cx(
           'base-daisyui-classes',
           size !== 'md' && `component-${size}`,
           error ? 'component-error' : color && `component-${color}`,
@@ -201,7 +215,7 @@ export function Component({
 
       {(error || helperText) && (
         <label className="label">
-          <span className={cn(
+          <span className={cx(
             'label-text-alt',
             error ? 'text-error' : 'text-base-content/70'
           )}>
@@ -213,19 +227,6 @@ export function Component({
   );
 }
 ```
-
-## Anti-Patterns to Avoid
-
-- ❌ Using React Router v6 patterns or `react-router-dom`
-- ❌ Manual session management (use session helpers)
-- ❌ File-based routing assumptions (routes.ts is source of truth)
-- ❌ Bypassing credit checks for AI features
-- ❌ Direct Prisma imports (use singleton from `~/db.server`)
-- ❌ Missing type generation (`npm run typecheck` after route changes)
-- ❌ Components without proper TypeScript interfaces
-- ❌ Hard-coded className strings (use `cn()` utility)
-- ❌ Missing accessibility attributes in form components
-- ❌ Inconsistent component prop patterns
 
 ## Environment Dependencies
 

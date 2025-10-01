@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils';
+import { cx } from '~/cva.config';
 import { Link } from 'react-router';
 
 interface DrawerProps {
@@ -33,7 +33,7 @@ export function Drawer({
 
     return (
         <div
-            className={cn(
+            className={cx(
                 'drawer',
                 placement === 'end' && 'drawer-end',
                 openOnLarge && 'lg:drawer-open',
@@ -49,7 +49,7 @@ export function Drawer({
                 onChange={handleToggle}
             />
 
-            <div className={cn('drawer-content', contentClassName)}>
+            <div className={cx('drawer-content', contentClassName)}>
                 {children}
             </div>
 
@@ -60,7 +60,7 @@ export function Drawer({
                     aria-label="Close drawer"
                 />
                 <div
-                    className={cn(
+                    className={cx(
                         'p-4 w-80 min-h-full bg-base-100 text-base-content',
                         sidebarClassName
                     )}
@@ -90,7 +90,7 @@ export function DrawerToggle({
         return (
             <label
                 htmlFor={drawerId}
-                className={cn(
+                className={cx(
                     'btn btn-square btn-ghost drawer-button',
                     className
                 )}
@@ -116,7 +116,7 @@ export function DrawerToggle({
     return (
         <label
             htmlFor={drawerId}
-            className={cn('btn drawer-button', className)}
+            className={cx('btn drawer-button', className)}
             {...rest}
         >
             {children || 'Open drawer'}
@@ -140,7 +140,7 @@ export function DrawerMenu({
 }: DrawerMenuProps) {
     return (
         <ul
-            className={cn(
+            className={cx(
                 'menu',
                 size !== 'md' && `menu-${size}`,
                 horizontal && 'menu-horizontal',
@@ -188,7 +188,7 @@ export function DrawerMenuItem({
             <li>
                 <Link
                     to={to}
-                    className={cn(active && 'active', className)}
+                    className={cx(active && 'active', className)}
                     {...rest}
                 >
                     {children}
@@ -202,7 +202,7 @@ export function DrawerMenuItem({
             <li>
                 <a
                     href={href}
-                    className={cn(active && 'active', className)}
+                    className={cx(active && 'active', className)}
                     target="_blank"
                     rel="noopener noreferrer"
                     {...rest}
@@ -219,7 +219,7 @@ export function DrawerMenuItem({
                 <button
                     type="button"
                     onClick={onClick}
-                    className={cn(active && 'active', className)}
+                    className={cx(active && 'active', className)}
                     {...rest}
                 >
                     {children}

@@ -1,5 +1,5 @@
-import { cn } from "~/lib/utils";
-import { useEffect, useRef } from "react";
+import { cx } from '~/cva.config';
+import { useEffect, useRef } from 'react';
 
 interface ModalProps {
     id: string;
@@ -59,7 +59,7 @@ export function Modal({
         <dialog
             ref={dialogRef}
             id={id}
-            className={cn(
+            className={cx(
                 'modal',
                 placement !== 'middle' && `modal-${placement}`,
                 className
@@ -68,10 +68,12 @@ export function Modal({
             onClose={handleClose}
             {...rest}
         >
-            <div className={cn(
-                'modal-box',
-                size !== 'md' && `modal-box-${size}` // Note: DaisyUI doesn't have size variants for modal-box, using custom classes
-            )}>
+            <div
+                className={cx(
+                    'modal-box',
+                    size !== 'md' && `modal-box-${size}` // Note: DaisyUI doesn't have size variants for modal-box, using custom classes
+                )}
+            >
                 {title && (
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg">{title}</h3>
@@ -102,19 +104,27 @@ export function Modal({
                 {children}
             </div>
 
-            <form method="dialog" className="modal-backdrop" onSubmit={handleFormSubmit}>
+            <form
+                method="dialog"
+                className="modal-backdrop"
+                onSubmit={handleFormSubmit}
+            >
                 <button type="submit">close</button>
             </form>
         </dialog>
     );
 }
 
-export function ModalActions({ children, className, ...rest }: {
+export function ModalActions({
+    children,
+    className,
+    ...rest
+}: {
     children: React.ReactNode;
     className?: string;
 }) {
     return (
-        <div className={cn('modal-action', className)} {...rest}>
+        <div className={cx('modal-action', className)} {...rest}>
             {children}
         </div>
     );

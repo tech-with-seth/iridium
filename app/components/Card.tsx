@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils';
+import { cx } from '~/cva.config';
 import type { ReactNode } from 'react';
 
 interface CardProps {
@@ -39,7 +39,7 @@ export function Card({
 
     return (
         <div
-            className={cn(
+            className={cx(
                 'card bg-base-100',
                 size !== 'md' && `card-${size}`,
                 style && `card-${style}`,

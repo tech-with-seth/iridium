@@ -1,4 +1,4 @@
-import { cn } from "~/lib/utils";
+import { cx } from '~/cva.config';
 
 interface SelectOption {
     value: string;
@@ -14,7 +14,15 @@ interface SelectProps {
     required?: boolean;
     disabled?: boolean;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+    color?:
+        | 'neutral'
+        | 'primary'
+        | 'secondary'
+        | 'accent'
+        | 'info'
+        | 'success'
+        | 'warning'
+        | 'error';
     id?: string;
     name?: string;
     value?: string;
@@ -25,7 +33,7 @@ interface SelectProps {
 
 export function Select({
     label,
-    placeholder = "Choose an option",
+    placeholder = 'Choose an option',
     error,
     helperText,
     required = false,
@@ -60,7 +68,7 @@ export function Select({
                 onChange={onChange}
                 disabled={disabled}
                 required={required}
-                className={cn(
+                className={cx(
                     'select w-full',
                     size !== 'md' && `select-${size}`,
                     error ? 'select-error' : color && `select-${color}`,
@@ -86,10 +94,12 @@ export function Select({
 
             {(error || helperText) && (
                 <label className="label">
-                    <span className={cn(
-                        'label-text-alt',
-                        error ? 'text-error' : 'text-base-content/70'
-                    )}>
+                    <span
+                        className={cx(
+                            'label-text-alt',
+                            error ? 'text-error' : 'text-base-content/70'
+                        )}
+                    >
                         {error || helperText}
                     </span>
                 </label>
