@@ -1,3 +1,6 @@
+import { Card } from '~/components/Card';
+import { Container } from '~/components/Container';
+
 export function meta() {
     return [
         { title: 'TWS Foundations' },
@@ -11,10 +14,12 @@ export function meta() {
 
 export default function Home() {
     return (
-        <div className="p-8">
-            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-8">
-                TWS Foundations
-            </h1>
-        </div>
+        <>
+            <Container className="pt-12">
+                <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-8">
+                    TWS Foundations
+                </h1>
+            </Container>
+        </>
     );
 }

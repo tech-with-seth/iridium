@@ -1,24 +1,17 @@
-import { authMiddleware } from '~/middleware/auth';
-import type { Route } from './+types/dashboard';
-import { userContext } from '~/context';
+import { Container } from '~/components/Container';
+import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 
-export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+export default function Dashboard() {
+    const { user } = useAuthenticatedContext();
 
-export async function loader({ context }: Route.LoaderArgs) {
-    return { user: context.get(userContext) };
-}
-
-export default function Dashboard({ loaderData }: Route.ComponentProps) {
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Welcome, {loaderData.user?.name || loaderData.user?.email}!
-                </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                    This is your dashboard
-                </p>
-            </div>
-        </div>
+        <Container className="pt-12">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Welcome, {user?.name || user?.email}!
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+                This is your dashboard
+            </p>
+        </Container>
     );
 }

@@ -134,6 +134,86 @@ app/
 └── generated/        # Prisma client output (never edit)
 ```
 
+## Component Development Standards
+
+### UI Component Paradigm (DaisyUI + TypeScript)
+
+All UI components should follow the established `TextInput` paradigm:
+
+#### Core Requirements
+
+- **Comprehensive TypeScript Interface**: Define all props with proper types
+- **DaisyUI Integration**: Use DaisyUI class names for consistent theming
+- **className Merging**: Always use `cn()` utility from `~/lib/utils`
+- **Accessibility First**: Proper labels, ARIA attributes, semantic HTML
+
+#### Form Component Standards
+
+- **Label with Required Indicator**: Optional label with `*` for required fields
+- **Error/Helper States**: Error prop changes styling + shows error text
+- **DaisyUI Variants**: Support size (xs-xl) and color variants
+- **Disabled State**: Proper disabled styling and behavior
+- **Custom Styling**: Accept `className` prop for additional styles
+
+#### Component Template
+
+```typescript
+import { cn } from "~/lib/utils";
+
+interface ComponentProps {
+  label?: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  disabled?: boolean;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+  className?: string;
+}
+
+export function Component({
+  size = 'md',
+  required = false,
+  disabled = false,
+  className,
+  ...rest
+}: ComponentProps) {
+  return (
+    <div className="form-control w-full">
+      {label && (
+        <label className="label">
+          <span className="label-text">
+            {label}
+            {required && <span className="text-error ml-1">*</span>}
+          </span>
+        </label>
+      )}
+
+      <element
+        className={cn(
+          'base-daisyui-classes',
+          size !== 'md' && `component-${size}`,
+          error ? 'component-error' : color && `component-${color}`,
+          className
+        )}
+        {...rest}
+      />
+
+      {(error || helperText) && (
+        <label className="label">
+          <span className={cn(
+            'label-text-alt',
+            error ? 'text-error' : 'text-base-content/70'
+          )}>
+            {error || helperText}
+          </span>
+        </label>
+      )}
+    </div>
+  );
+}
+```
+
 ## Anti-Patterns to Avoid
 
 - ❌ Using React Router v6 patterns or `react-router-dom`
@@ -142,6 +222,10 @@ app/
 - ❌ Bypassing credit checks for AI features
 - ❌ Direct Prisma imports (use singleton from `~/db.server`)
 - ❌ Missing type generation (`npm run typecheck` after route changes)
+- ❌ Components without proper TypeScript interfaces
+- ❌ Hard-coded className strings (use `cn()` utility)
+- ❌ Missing accessibility attributes in form components
+- ❌ Inconsistent component prop patterns
 
 ## Environment Dependencies
 

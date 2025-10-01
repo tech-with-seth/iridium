@@ -11,7 +11,9 @@ import {
 import type { Route } from './+types/root';
 
 import './app.css';
-import { Navbar } from './components/Navbar';
+import { Navbar, NavbarMenu, NavbarMenuItem } from './components/Navbar';
+import { Container } from './components/Container';
+import { Paths } from './constants';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -22,7 +24,7 @@ export const links: Route.LinksFunction = () => [
     },
     {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'
+        href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap'
     }
 ];
 
@@ -39,8 +41,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body>
-                <header>
-                    <Navbar />
+                <header className="my-4">
+                    <Container>
+                        <Navbar
+                            sticky
+                            className="rounded-xl bg-sky-900"
+                            shadow
+                            brand={
+                                <Link
+                                    to="/"
+                                    className="btn btn-ghost text-xl font-bold"
+                                >
+                                    {`<TWS />`}
+                                </Link>
+                            }
+                            center={
+                                <NavbarMenu>
+                                    <NavbarMenuItem>
+                                        <Link to="/">Home</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to="/dashboard">Dashboard</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to="/profile">Profile</Link>
+                                    </NavbarMenuItem>
+                                </NavbarMenu>
+                            }
+                            end={
+                                <NavbarMenu>
+                                    <NavbarMenuItem>
+                                        <Link to={Paths.SIGN_IN}>Sign In</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to={Paths.SIGN_UP}>Sign Up</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to={Paths.SIGN_OUT}>
+                                            Sign Out
+                                        </Link>
+                                    </NavbarMenuItem>
+                                </NavbarMenu>
+                            }
+                        />
+                    </Container>
                 </header>
                 <main>{children}</main>
                 <ScrollRestoration />

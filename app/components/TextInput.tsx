@@ -1,12 +1,6 @@
 import { cn } from "~/lib/utils";
 
-interface SelectOption {
-    value: string;
-    label: string;
-    disabled?: boolean;
-}
-
-interface SelectProps {
+interface TextInputProps {
     label?: string;
     placeholder?: string;
     error?: string;
@@ -15,37 +9,37 @@ interface SelectProps {
     disabled?: boolean;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+    type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search';
     id?: string;
     name?: string;
     value?: string;
-    options: SelectOption[];
-    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     className?: string;
 }
 
-export function Select({
+export function TextInput({
     label,
-    placeholder = "Choose an option",
+    placeholder,
     error,
     helperText,
     required = false,
     disabled = false,
     size = 'md',
     color,
+    type = 'text',
     id,
     name,
     value,
-    options,
     onChange,
     className,
     ...rest
-}: SelectProps) {
-    const selectId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
+}: TextInputProps) {
+    const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
         <div className="form-control w-full">
             {label && (
-                <label className="label" htmlFor={selectId}>
+                <label className="label" htmlFor={inputId}>
                     <span className="label-text">
                         {label}
                         {required && <span className="text-error ml-1">*</span>}
@@ -53,36 +47,23 @@ export function Select({
                 </label>
             )}
 
-            <select
-                id={selectId}
+            <input
+                id={inputId}
                 name={name}
+                type={type}
+                placeholder={placeholder}
                 value={value}
                 onChange={onChange}
                 disabled={disabled}
                 required={required}
                 className={cn(
-                    'select w-full',
-                    size !== 'md' && `select-${size}`,
-                    error ? 'select-error' : color && `select-${color}`,
+                    'input w-full',
+                    size !== 'md' && `input-${size}`,
+                    error ? 'input-error' : color && `input-${color}`,
                     className
                 )}
                 {...rest}
-            >
-                {placeholder && (
-                    <option value="" disabled>
-                        {placeholder}
-                    </option>
-                )}
-                {options.map((option) => (
-                    <option
-                        key={option.value}
-                        value={option.value}
-                        disabled={option.disabled}
-                    >
-                        {option.label}
-                    </option>
-                ))}
-            </select>
+            />
 
             {(error || helperText) && (
                 <label className="label">

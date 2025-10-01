@@ -1,76 +1,167 @@
-import { Link } from 'react-router';
+import { cn } from '~/lib/utils';
+import type { ReactNode } from 'react';
 
-export function Navbar() {
+interface NavbarProps {
+    brand?: ReactNode;
+    start?: ReactNode;
+    center?: ReactNode;
+    end?: ReactNode;
+    sticky?: boolean;
+    shadow?: boolean;
+    backgroundColor?: 'base-100' | 'base-200' | 'base-300' | 'primary' | 'secondary' | 'accent' | 'neutral';
+    className?: string;
+}
+
+export function Navbar({
+    brand,
+    start,
+    center,
+    end,
+    sticky = false,
+    shadow = false,
+    backgroundColor = 'base-100',
+    className,
+    ...rest
+}: NavbarProps) {
     return (
-        <div className="navbar bg-base-100 shadow-sm">
-            <div className="navbar-start">
-                <div className="dropdown">
-                    <div
-                        tabIndex={0}
-                        role="button"
-                        className="btn btn-ghost lg:hidden"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            {' '}
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 6h16M4 12h8m-8 6h16"
-                            />{' '}
-                        </svg>
-                    </div>
-                    <ul
-                        tabIndex={0}
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
-                    >
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/dashboard">Dashboard</Link>
-                        </li>
-                        <li>
-                            <Link to="/profile">Profile</Link>
-                        </li>
-                        <li>
-                            <Link to="/sign-in">Sign In</Link>
-                        </li>
-                        <li>
-                            <Link to="/sign-up">Sign Up</Link>
-                        </li>
-                    </ul>
+        <div
+            className={cn(
+                'navbar',
+                `bg-${backgroundColor}`,
+                sticky && 'sticky top-0 z-50',
+                shadow && 'shadow-lg',
+                className
+            )}
+            {...rest}
+        >
+            {/* Brand/Logo - typically on the left */}
+            {brand && (
+                <div className="navbar-start">
+                    {brand}
                 </div>
-                <a className="btn btn-ghost text-xl">{`<TWS />`}</a>
+            )}
+
+            {/* Start section - left side content when no brand */}
+            {!brand && start && (
+                <div className="navbar-start">
+                    {start}
+                </div>
+            )}
+
+            {/* Center section */}
+            {center && (
+                <div className="navbar-center">
+                    {center}
+                </div>
+            )}
+
+            {/* End section - right side content */}
+            {end && (
+                <div className="navbar-end">
+                    {end}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// Convenience components for common navbar patterns
+export function NavbarBrand({
+    children,
+    href,
+    className,
+    ...rest
+}: {
+    children: ReactNode;
+    href?: string;
+    className?: string;
+}) {
+    const content = (
+        <span className={cn('btn btn-ghost text-xl', className)} {...rest}>
+            {children}
+        </span>
+    );
+
+    if (href) {
+        return <a href={href}>{content}</a>;
+    }
+
+    return content;
+}
+
+export function NavbarMenu({
+    children,
+    horizontal = true,
+    className,
+    ...rest
+}: {
+    children: ReactNode;
+    horizontal?: boolean;
+    className?: string;
+}) {
+    return (
+        <ul
+            className={cn(
+                'menu',
+                horizontal ? 'menu-horizontal' : 'menu-vertical',
+                'px-1',
+                className
+            )}
+            {...rest}
+        >
+            {children}
+        </ul>
+    );
+}
+
+export function NavbarMenuItem({
+    children,
+    active = false,
+    disabled = false,
+    className,
+    ...rest
+}: {
+    children: ReactNode;
+    active?: boolean;
+    disabled?: boolean;
+    className?: string;
+}) {
+    return (
+        <li className={cn(active && 'menu-active', disabled && 'menu-disabled')}>
+            <span className={cn(className)} {...rest}>
+                {children}
+            </span>
+        </li>
+    );
+}
+
+export function NavbarDropdown({
+    trigger,
+    children,
+    end = false,
+    className,
+    ...rest
+}: {
+    trigger: ReactNode;
+    children: ReactNode;
+    end?: boolean;
+    className?: string;
+}) {
+    return (
+        <div className={cn('dropdown', end && 'dropdown-end')}>
+            <div tabIndex={0} role="button" className="btn btn-ghost">
+                {trigger}
             </div>
-            <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1">
-                    <li>
-                        <Link to="/">Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/dashboard">Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link to="/profile">Profile</Link>
-                    </li>
-                    <li>
-                        <Link to="/sign-in">Sign In</Link>
-                    </li>
-                    <li>
-                        <Link to="/sign-up">Sign Up</Link>
-                    </li>
-                </ul>
-            </div>
-            <div className="navbar-end">
-                <a className="btn">Button</a>
-            </div>
+            <ul
+                tabIndex={0}
+                className={cn(
+                    'menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow',
+                    className
+                )}
+                {...rest}
+            >
+                {children}
+            </ul>
         </div>
     );
 }

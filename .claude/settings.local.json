@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__daisyui__fetch_daisyui_documentation"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

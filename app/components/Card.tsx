@@ -1,24 +1,81 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import { cn } from '~/lib/utils';
+import type { ReactNode } from 'react';
 
 interface CardProps {
-    action?: ReactNode;
+    children: ReactNode;
     title?: string;
+    actions?: ReactNode;
+    image?: {
+        src: string;
+        alt: string;
+        position?: 'top' | 'bottom';
+    };
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    style?: 'border' | 'dash';
+    modifier?: 'side' | 'image-full';
+    width?: 'auto' | 'full' | 'fit';
+    className?: string;
 }
 
 export function Card({
-    action,
     children,
-    title
-}: PropsWithChildren<CardProps>) {
+    title,
+    actions,
+    image,
+    size = 'md',
+    style,
+    modifier,
+    width = 'auto',
+    className,
+    ...rest
+}: CardProps) {
+    const widthClass = {
+        auto: 'w-96',
+        full: 'w-full',
+        fit: 'w-fit'
+    }[width];
+
+    const imageAtBottom = image?.position === 'bottom';
+
     return (
-        <div className="card card-border bg-base-100 w-96">
+        <div
+            className={cn(
+                'card bg-base-100',
+                size !== 'md' && `card-${size}`,
+                style && `card-${style}`,
+                modifier && `card-${modifier}`,
+                widthClass,
+                className
+            )}
+            {...rest}
+        >
+            {image && !imageAtBottom && (
+                <figure>
+                    <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="w-full h-auto object-cover"
+                    />
+                </figure>
+            )}
+
             <div className="card-body">
                 {title && <h2 className="card-title">{title}</h2>}
                 {children}
-                {action && (
-                    <div className="card-actions justify-end mt-4">{action}</div>
+                {actions && (
+                    <div className="card-actions justify-end">{actions}</div>
                 )}
             </div>
+
+            {image && imageAtBottom && (
+                <figure>
+                    <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="w-full h-auto object-cover"
+                    />
+                </figure>
+            )}
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import { redirect } from 'react-router';
+import { Paths } from '~/constants';
 import { auth } from '~/lib/auth.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -7,5 +8,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: request.headers
     });
 
-    return redirect('/');
+    return redirect(Paths.HOME);
 }

@@ -98,6 +98,92 @@ POLAR_WEBHOOK_SECRET="your-polar-webhook-secret"
 - ❌ Manual session management (use session helpers)
 - ❌ Bypassing auth middleware for protected routes
 
+## Component Development Patterns
+
+### UI Component Standards (DaisyUI + TypeScript)
+
+Components should follow this established paradigm using the `TextInput` component as the reference:
+
+#### Component Structure
+- **Comprehensive Props Interface**: Include all relevant props with proper TypeScript types
+- **DaisyUI Integration**: Use DaisyUI class names for consistent styling
+- **Proper className Handling**: Always use `cn()` utility for className merging
+- **Accessibility**: Include proper ARIA attributes, labels, and semantic HTML
+
+#### Required Features for Form Components
+- **Label Support**: Optional label with required indicator (`*`)
+- **Error States**: Error prop that changes styling and shows error text
+- **Helper Text**: Optional helper text when no error is present
+- **Size Variants**: Support DaisyUI size variants (xs, sm, md, lg, xl)
+- **Color Variants**: Support DaisyUI color system
+- **Disabled State**: Proper disabled styling and behavior
+- **Custom className**: Allow additional custom classes via `className` prop
+
+#### Example Pattern (TextInput Reference)
+```typescript
+import { cn } from "~/lib/utils";
+
+interface ComponentProps {
+  // Core functionality props
+  label?: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  disabled?: boolean;
+
+  // DaisyUI variant props
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+
+  // Standard HTML props
+  className?: string;
+  // ... other relevant HTML props
+}
+
+export function Component({
+  // Destructure with defaults
+  size = 'md',
+  required = false,
+  disabled = false,
+  className,
+  ...rest
+}: ComponentProps) {
+  return (
+    <div className="form-control w-full">
+      {label && (
+        <label className="label">
+          <span className="label-text">
+            {label}
+            {required && <span className="text-error ml-1">*</span>}
+          </span>
+        </label>
+      )}
+
+      <element
+        className={cn(
+          'base-daisyui-classes',
+          size !== 'md' && `component-${size}`,
+          error ? 'component-error' : color && `component-${color}`,
+          className
+        )}
+        {...rest}
+      />
+
+      {(error || helperText) && (
+        <label className="label">
+          <span className={cn(
+            'label-text-alt',
+            error ? 'text-error' : 'text-base-content/70'
+          )}>
+            {error || helperText}
+          </span>
+        </label>
+      )}
+    </div>
+  );
+}
+```
+
 ## Import Patterns
 
 ```typescript

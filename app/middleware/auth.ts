@@ -1,7 +1,8 @@
 import { redirect } from 'react-router';
 
-import { userContext } from '~/context';
+import { userContext } from '~/middleware/context';
 import { getUser } from '~/lib/session.server';
+import { Paths } from '~/constants';
 
 export async function authMiddleware({
     request,
@@ -13,7 +14,7 @@ export async function authMiddleware({
     const user = await getUser(request);
 
     if (!user?.id) {
-        throw redirect('/sign-in');
+        throw redirect(Paths.SIGN_IN);
     }
 
     context.set(userContext, user);
