@@ -38,38 +38,64 @@ This is a modern full-stack boilerplate using **React Router 7** (not v6) with B
 - Database singleton pattern prevents connection pooling issues
 - BetterAuth adapter configured for PostgreSQL
 
+### Middleware Architecture
+- **Authentication**: `app/middleware/auth.ts` - Protects routes using `authMiddleware`
+- **Logging**: `app/middleware/logging.ts` - Request/response logging with unique IDs
+- **Context**: `app/middleware/context.ts` - React Router contexts for user and request ID
+- Applied in layout routes (e.g., `routes/authenticated.tsx`) not individual routes
+
 ### CVA Configuration for Styling
 - **CVA (Class Variance Authority)** configured in `app/cva.config.ts` with `tailwind-merge` integration
 - Use `cx()` for className merging (replaces traditional `cn()` utility)
 - Use `cva()` for creating component variants with type-safe props
 - Use `compose()` for composing multiple CVA variants together
+- **DaisyUI 5** CSS component library integrated with Tailwind CSS 4
+- Reference comprehensive patterns in `.github/instructions/component-patterns.instructions.md`
 
 ## Key Development Patterns
 
 ### Adding Protected Routes
-1. Add route to `app/routes.ts`
-2. Create route file with loader that calls `requireUser(request)`
-3. Use middleware in `app/middleware/auth.ts` for layout-based protection
+1. Add route under authenticated layout in `app/routes.ts`:
+   ```typescript
+   layout('routes/authenticated.tsx', [
+       route('new-feature', 'routes/new-feature.tsx')
+   ])
+   ```
+2. Middleware in `routes/authenticated.tsx` automatically protects all child routes
+3. Access user via context: `const { user } = useAuthenticatedContext()`
 4. Run `npm run typecheck` to generate types
+5. For API routes (no middleware), manually call `requireUser(request)` in loader/action
 
 ### Creating API Endpoints
-1. Add route to `api` prefix in `app/routes.ts`
-2. Create handler in `app/routes/api/`
-3. Use `requireUser()` for authentication
-4. Handle multiple HTTP methods in single action function
+1. Add route to `api` prefix in `app/routes.ts`:
+   ```typescript
+   ...prefix('api', [
+       route('new-endpoint', 'routes/api/new-endpoint.ts')
+   ])
+   ```
+2. Create handler in `app/routes/api/` with loader (GET) and/or action (POST/PUT/DELETE)
+3. Use `requireUser(request)` for authentication (no middleware on API routes)
+4. Handle multiple HTTP methods in action by checking `request.method`
+5. Return JSON responses: `return json({ data })`
 
 ### Database Schema Management
 - Prisma client outputs to `app/generated/prisma` (not default location)
 - BetterAuth requires specific models: User, Account, Session, Verification
-- Clean schema with email/password authentication
+- After schema changes:
+  1. Run `npx prisma migrate dev --name description` to create migration
+  2. Run `npx prisma generate` to update Prisma client
+  3. Restart dev server
+- Import Prisma types from `~/generated/prisma/client`
+- Always use singleton: `import { prisma } from '~/db.server'`
 
 ### Authentication Flow
 - BetterAuth with Prisma adapter handles all auth logic
 - Session helpers in `app/lib/session.server.ts`:
-  - `requireUser()` for protected routes
-  - `requireAnonymous()` for auth pages
-  - `getUser()` for optional user context
-- Middleware-based protection in `app/middleware/auth.ts`
+  - `requireUser()` for protected routes (throws redirect if not authenticated)
+  - `requireAnonymous()` for auth pages (redirects authenticated users)
+  - `getUser()` for optional user context (returns null if not authenticated)
+- Middleware-based protection in `app/middleware/auth.ts` for layout routes
+- Client-side auth via `authClient` from `app/lib/auth-client.ts` (Better Auth React)
 
 ### AI Integration
 - OpenAI client singleton in `app/lib/ai.ts`
@@ -103,114 +129,112 @@ POLAR_WEBHOOK_SECRET="your-polar-webhook-secret"
 - ❌ Missing type generation (`npm run typecheck` after route changes)
 - ❌ Manual session management (use session helpers)
 - ❌ Bypassing auth middleware for protected routes
+- ❌ Using `cn()` instead of `cx()` for className merging
+- ❌ Creating components without CVA variants
+- ❌ Not extending native HTML attributes in component interfaces
 
 ## Component Development Patterns
 
-### UI Component Standards (DaisyUI + TypeScript)
+### UI Component Standards (DaisyUI + CVA + TypeScript)
 
-Components should follow this established paradigm using the `TextInput` component as the reference:
+All UI components follow a canonical CVA-based pattern. See `.github/instructions/component-patterns.instructions.md` for comprehensive documentation. Reference implementations: `Button.tsx` (canonical), `TextInput.tsx` (form components).
 
-#### Component Structure
-- **Comprehensive Props Interface**: Include all relevant props with proper TypeScript types
-- **DaisyUI Integration**: Use DaisyUI class names for consistent styling (access docs via MCP tool `mcp__daisyui__fetch_daisyui_documentation`)
-- **Proper className Handling**: Always use `cx()` utility from `~/cva.config` for className merging
-- **Accessibility**: Include proper ARIA attributes, labels, and semantic HTML
+#### CVA-Based Component Pattern
 
-#### Required Features for Form Components
-- **Label Support**: Optional label with required indicator (`*`)
-- **Error States**: Error prop that changes styling and shows error text
-- **Helper Text**: Optional helper text when no error is present
-- **Size Variants**: Support DaisyUI size variants (xs, sm, md, lg, xl)
-- **Color Variants**: Support DaisyUI color system
-- **Disabled State**: Proper disabled styling and behavior
-- **Custom className**: Allow additional custom classes via `className` prop
-
-#### Example Pattern (TextInput Reference)
 ```typescript
-import { cx } from "~/cva.config";
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 
-interface ComponentProps {
-  // Core functionality props
-  label?: string;
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
+// 1. Define CVA variants with DaisyUI classes
+export const componentVariants = cva({
+    base: 'btn',  // DaisyUI base class
+    variants: {
+        variant: {
+            outline: 'btn-outline',
+            ghost: 'btn-ghost',
+            // ... other DaisyUI variants
+        },
+        status: {
+            primary: 'btn-primary',
+            error: 'btn-error',
+            // ... semantic colors
+        },
+        size: {
+            xs: 'btn-xs',
+            md: 'btn-md',
+            // ... sizes
+        }
+    },
+    defaultVariants: {
+        status: 'primary',
+        size: 'md'
+    }
+});
 
-  // DaisyUI variant props
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+// 2. Props interface extends HTML attributes + CVA variants
+interface ComponentProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+        VariantProps<typeof componentVariants> {}
 
-  // Standard HTML props
-  className?: string;
-  // ... other relevant HTML props
-}
-
+// 3. Component implementation with variant destructuring
 export function Component({
-  // Destructure with defaults
-  size = 'md',
-  required = false,
-  disabled = false,
-  className,
-  ...rest
+    variant,
+    status,
+    size,
+    className,
+    ...props
 }: ComponentProps) {
-  return (
-    <div className="form-control w-full">
-      {label && (
-        <label className="label">
-          <span className="label-text">
-            {label}
-            {required && <span className="text-error ml-1">*</span>}
-          </span>
-        </label>
-      )}
-
-      <element
-        className={cx(
-          'base-daisyui-classes',
-          size !== 'md' && `component-${size}`,
-          error ? 'component-error' : color && `component-${color}`,
-          className
-        )}
-        {...rest}
-      />
-
-      {(error || helperText) && (
-        <label className="label">
-          <span className={cx(
-            'label-text-alt',
-            error ? 'text-error' : 'text-base-content/70'
-          )}>
-            {error || helperText}
-          </span>
-        </label>
-      )}
-    </div>
-  );
+    return (
+        <button
+            className={cx(
+                componentVariants({ variant, status, size }),
+                className
+            )}
+            {...props}
+        />
+    );
 }
 ```
+
+#### Form Components - Additional Requirements
+- Label with required indicator (`*`)
+- Error/helper text with proper styling
+- Accessibility: ARIA attributes, semantic HTML
+- Standalone or wrapped rendering based on props
+
+### Validation Pattern
+- Zod schemas in `app/lib/validations.ts`
+- Type inference: `z.infer<typeof schema>`
+- Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
+- Consistent error messaging across forms
 
 ## Import Patterns
 
 ```typescript
 // Prisma client (custom output path)
 import { prisma } from "~/db.server";
+import type { User } from "~/generated/prisma/client";
 
-// Route types (relative import)
+// Route types (ALWAYS relative import)
 import { Route } from "./+types/dashboard";
 
 // Auth helpers
-import { requireUser, getUser } from "~/lib/session.server";
+import { requireUser, getUser, requireAnonymous } from "~/lib/session.server";
+import { authClient } from "~/lib/auth-client";
 
 // AI client
 import { openai } from "~/lib/ai";
 
-// Auth client
-import { authClient } from "~/lib/auth-client";
+// Caching
+import { getCachedData, setCachedData, getUserScopedKey } from "~/lib/cache";
 
-// Utilities and validation
+// Validation
 import { userSchema } from "~/lib/validations";
 
-// CVA utilities for className merging
+// CVA utilities
 import { cx, cva, compose } from "~/cva.config";
+import type { VariantProps } from "cva";
+
+// Contexts (in protected routes)
+import { useAuthenticatedContext } from "~/middleware/context";
 ```

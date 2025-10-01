@@ -4,6 +4,13 @@
 
 This is a modern full-stack SaaS boilerplate built with **React Router 7** (not v6), **BetterAuth**, **Polar.sh billing**, and **OpenAI integration**. The architecture uses config-based routing, middleware patterns, and singleton services.
 
+**📋 See detailed instruction files in `.github/instructions/` for specific patterns:**
+
+- `react-router.instructions.md` - Critical React Router 7 patterns
+- `better-auth.instructions.md` - Authentication implementation
+- `component-patterns.instructions.md` - UI component standards
+- `polar.instructions.md` - Billing integration patterns
+
 ## Critical Architecture Patterns
 
 ### 🚨 React Router 7 - Config-Based Routing
@@ -19,8 +26,9 @@ export default [
     index('routes/home.tsx'),
     route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
     layout('routes/authenticated.tsx', [
-        route('dashboard', 'routes/dashboard.tsx'),
-        route('profile', 'routes/profile.tsx')
+        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
+        route(Paths.PROFILE, 'routes/profile.tsx'),
+        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')])
     ]),
     ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')])
 ] satisfies RouteConfig;
@@ -169,7 +177,59 @@ All UI components should follow the established `TextInput` paradigm:
 - **Disabled State**: Proper disabled styling and behavior
 - **Custom Styling**: Accept `className` prop for additional styles
 
-#### Component Template
+#### CVA Component Example (Button)
+
+```typescript
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
+
+// Define variants using CVA
+export const buttonVariants = cva({
+  base: 'btn',
+  variants: {
+    variant: {
+      outline: 'btn-outline',
+      ghost: 'btn-ghost',
+      link: 'btn-link'
+    },
+    status: {
+      primary: 'btn-primary',
+      secondary: 'btn-secondary',
+      accent: 'btn-accent'
+    },
+    size: {
+      sm: 'btn-sm',
+      md: 'btn-md',
+      lg: 'btn-lg'
+    }
+  },
+  defaultVariants: {
+    status: 'primary',
+    size: 'md'
+  }
+});
+
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  loading?: boolean;
+}
+
+export function Button({
+  size, status, variant, loading, className, children, ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={cx(buttonVariants({ size, status, variant }), className)}
+      {...props}
+    >
+      {loading ? <span className="loading loading-spinner" /> : children}
+    </button>
+  );
+}
+```
+
+#### Form Component Template
 
 ```typescript
 import { cx } from "~/cva.config";
@@ -181,38 +241,31 @@ interface ComponentProps {
   required?: boolean;
   disabled?: boolean;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+  color?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error';
   className?: string;
 }
 
 export function Component({
-  size = 'md',
-  required = false,
-  disabled = false,
-  className,
-  ...rest
+  size = 'md', required = false, disabled = false, className, ...rest
 }: ComponentProps) {
   return (
     <div className="form-control w-full">
       {label && (
         <label className="label">
           <span className="label-text">
-            {label}
-            {required && <span className="text-error ml-1">*</span>}
+            {label}{required && <span className="text-error ml-1">*</span>}
           </span>
         </label>
       )}
-
-      <element
+      <input
         className={cx(
-          'base-daisyui-classes',
-          size !== 'md' && `component-${size}`,
-          error ? 'component-error' : color && `component-${color}`,
+          'input w-full',
+          size !== 'md' && `input-${size}`,
+          error ? 'input-error' : color && `input-${color}`,
           className
         )}
         {...rest}
       />
-
       {(error || helperText) && (
         <label className="label">
           <span className={cx(
@@ -228,19 +281,62 @@ export function Component({
 }
 ```
 
+## Import Patterns
+
+```typescript
+// Prisma client (custom output path)
+import { prisma } from '~/db.server';
+
+// Route types (relative import - CRITICAL pattern)
+import type { Route } from './+types/dashboard';
+
+// Auth helpers
+import { requireUser, getUser } from '~/lib/session.server';
+import { authClient } from '~/lib/auth-client';
+
+// AI client (renamed from openai to ai)
+import { ai } from '~/lib/ai';
+
+// CVA utilities for className merging
+import { cx, cva } from '~/cva.config';
+import type { VariantProps } from 'cva';
+
+// Constants
+import { Paths } from '~/constants';
+
+// Validation schemas
+import { signInSchema, signUpSchema } from '~/lib/validations';
+```
+
 ## Environment Dependencies
 
 Required environment variables:
 
 - `DATABASE_URL` - PostgreSQL connection
 - `BETTER_AUTH_SECRET` - Session encryption
+- `BETTER_AUTH_URL` - Auth service URL ("http://localhost:5173" for dev)
 - `OPENAI_API_KEY` - AI features
-- `POLAR_ACCESS_TOKEN` - Billing integration
-- `POLAR_SERVER` - "sandbox" or "production"
+- `POLAR_ACCESS_TOKEN` - Billing integration (optional)
+- `POLAR_SERVER` - "sandbox" or "production" (optional)
 
-## Testing Considerations
+## Development Tips
+
+### Testing Considerations
 
 - Session-dependent routes require auth mocking
-- Credit system affects AI endpoint behavior
 - Database state affects user capabilities
-- Types must be generated before testing routes
+- Types must be generated before testing routes (`npm run typecheck`)
+- Use `/admin/design` route to test component variants
+
+### Common Debugging
+
+- **Missing route types?** → Run `npm run typecheck`
+- **Auth not working?** → Check middleware in layout routes
+- **Styles not applying?** → Verify `cx()` usage and DaisyUI classes
+- **Database errors?** → Check Prisma client import from `~/db.server`
+
+### Performance Notes
+
+- Prisma client uses singleton pattern to prevent connection leaks
+- FlatCache provides file-based caching with TTL
+- React Router 7 automatically optimizes with code splitting
