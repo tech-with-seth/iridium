@@ -38,7 +38,7 @@ export default function SignUp() {
     return (
         <div className="flex items-center justify-center p-24">
             <Card>
-                <h2>Sign Up</h2>
+                <h2 className="text-2xl font-bold">Sign Up</h2>
                 <Form onSubmit={signUp} className="space-y-4">
                     <TextInput
                         label="Name"

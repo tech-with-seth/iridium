@@ -11,6 +11,16 @@ export const buttonVariants = cva({
             ghost: 'btn-ghost',
             link: 'btn-link'
         },
+        status: {
+            neutral: 'btn-neutral',
+            primary: 'btn-primary',
+            secondary: 'btn-secondary',
+            accent: 'btn-accent',
+            info: 'btn-info',
+            success: 'btn-success',
+            warning: 'btn-warning',
+            error: 'btn-error'
+        },
         size: {
             sm: 'btn-sm',
             md: 'btn-md',
@@ -22,9 +32,18 @@ export const buttonVariants = cva({
         },
         disabled: {
             true: 'btn-disabled'
-        }
+        },
+        wide: {
+            true: 'btn-wide'
+        },
+        block: {
+            true: 'btn-block'
+        },
+        circle: { true: 'btn-circle' },
+        square: { true: 'btn-square' }
     },
     defaultVariants: {
+        status: 'primary',
         size: 'md'
     },
     compoundVariants: []

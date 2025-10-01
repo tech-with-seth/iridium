@@ -1,10 +1,11 @@
-import { Form, useNavigate } from 'react-router';
 import { useState } from 'react';
+import { Form, useNavigate } from 'react-router';
+
 import { authClient } from '~/lib/auth-client';
-import { TextInput } from '~/components/TextInput';
-import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
+import { Card } from '~/components/Card';
 import { Paths } from '~/constants';
+import { TextInput } from '~/components/TextInput';
 
 export default function SignIn() {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function SignIn() {
     return (
         <div className="flex items-center justify-center p-24">
             <Card>
-                <h2>Sign In</h2>
+                <h2 className="text-2xl font-bold">Sign In</h2>
                 <Form onSubmit={signIn} className="space-y-4">
                     <TextInput
                         label="Email"
