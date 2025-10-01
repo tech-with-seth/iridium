@@ -56,15 +56,32 @@ interface ButtonProps
 }
 
 export function Button({
+    block,
     children,
+    circle,
     className,
     loading,
+    size,
+    square,
+    status,
     variant,
+    wide,
     ...props
 }: ButtonProps) {
     return (
         <button
-            className={cx(buttonVariants({ variant }), className)}
+            className={cx(
+                buttonVariants({
+                    block,
+                    circle,
+                    size,
+                    square,
+                    status,
+                    variant,
+                    wide
+                }),
+                className
+            )}
             {...props}
         >
             {loading ? (
