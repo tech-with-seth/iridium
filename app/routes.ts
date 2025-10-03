@@ -10,6 +10,7 @@ import { Paths } from './constants';
 
 export default [
     index('routes/home.tsx'),
+    route(Paths.ABOUT, 'routes/about.tsx'),
     route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
     route(Paths.SIGN_OUT, 'routes/sign-out.tsx'),
     route(Paths.SIGN_UP, 'routes/sign-up.tsx'),

@@ -20,6 +20,25 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 - Always import route types as `./+types/[routeName]` (relative to route file)
 - Run `npm run typecheck` after adding routes to generate types
 
+#### Meta Tags (React 19 Pattern)
+
+- Use React 19's built-in `<title>` and `<meta>` elements directly in component JSX
+- **DO NOT** use the legacy `meta()` export function
+- Place meta elements at the top of component return, wrapped in a fragment if needed
+- Meta elements automatically render in document `<head>`
+
+```tsx
+export default function MyRoute() {
+    return (
+        <>
+            <title>Page Title - TWS Foundations</title>
+            <meta name="description" content="Page description here" />
+            <Container>{/* Page content */}</Container>
+        </>
+    );
+}
+```
+
 ```tsx
 // app/routes.ts - Single source of truth for routing
 export default [

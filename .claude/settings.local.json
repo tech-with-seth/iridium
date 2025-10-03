@@ -4,7 +4,11 @@
       "mcp__daisyui__fetch_daisyui_documentation",
       "WebFetch(domain:raw.githubusercontent.com)",
       "mcp__daisyui__search_daisyui_documentation",
-      "WebFetch(domain:beta.cva.style)"
+      "WebFetch(domain:beta.cva.style)",
+      "WebFetch(domain:react-hook-form.com)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:www.prisma.io)"
     ],
     "deny": [],
     "ask": []

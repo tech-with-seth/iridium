@@ -42,16 +42,36 @@ export default function DesignRoute() {
                     <div className="space-y-3">
                         <h3 className="text-lg font-semibold">Variants</h3>
                         <div className="flex flex-wrap gap-4 mb-3">
+                            <Button>Default</Button>
+                            <Button variant="outline">Outline</Button>
+                            <Button variant="soft">Soft</Button>
                             <Button variant="dash">Dash</Button>
                             <Button variant="ghost">Ghost</Button>
                             <Button variant="link">Link</Button>
-                            <Button variant="outline">Outline</Button>
-                            <Button variant="soft">Soft</Button>
                         </div>
                         <Code
                             lines={[
-                                { content: '<Button variant="outline">Outline</Button>' },
-                                { content: '<Button variant="soft">Soft</Button>' }
+                                { content: '<Button>Outline</Button>' },
+                                {
+                                    content:
+                                        '<Button variant="outline">Outline</Button>'
+                                },
+                                {
+                                    content:
+                                        '<Button variant="soft">Soft</Button>'
+                                },
+                                {
+                                    content:
+                                        '<Button variant="dash">Dash</Button>'
+                                },
+                                {
+                                    content:
+                                        '<Button variant="ghost">Ghost</Button>'
+                                },
+                                {
+                                    content:
+                                        '<Button variant="link">Link</Button>'
+                                }
                             ]}
                         />
                     </div>
@@ -70,8 +90,14 @@ export default function DesignRoute() {
                         </div>
                         <Code
                             lines={[
-                                { content: '<Button status="primary">Primary</Button>' },
-                                { content: '<Button status="error">Error</Button>' }
+                                {
+                                    content:
+                                        '<Button status="primary">Primary</Button>'
+                                },
+                                {
+                                    content:
+                                        '<Button status="error">Error</Button>'
+                                }
                             ]}
                         />
                     </div>
@@ -158,7 +184,10 @@ export default function DesignRoute() {
                         <Code
                             lines={[
                                 { content: '<Checkbox label="Option" />' },
-                                { content: '<Radio label="Option" name="group" />' },
+                                {
+                                    content:
+                                        '<Radio label="Option" name="group" />'
+                                },
                                 { content: '<Toggle label="Option" />' }
                             ]}
                         />
@@ -214,7 +243,9 @@ export default function DesignRoute() {
                     </div>
                     <Code
                         lines={[
-                            { content: '<Card title="Title" variant="border">' },
+                            {
+                                content: '<Card title="Title" variant="border">'
+                            },
                             { content: '  <p>Content</p>' },
                             { content: '</Card>' }
                         ]}
@@ -239,8 +270,14 @@ export default function DesignRoute() {
                     </div>
                     <Code
                         lines={[
-                            { content: '<Badge color="primary">Primary</Badge>' },
-                            { content: '<Badge variant="outline">Outline</Badge>' }
+                            {
+                                content:
+                                    '<Badge color="primary">Primary</Badge>'
+                            },
+                            {
+                                content:
+                                    '<Badge variant="outline">Outline</Badge>'
+                            }
                         ]}
                     />
                 </div>
@@ -248,10 +285,7 @@ export default function DesignRoute() {
                 <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Avatars</h3>
                     <div className="flex flex-wrap gap-4 items-center mb-3">
-                        <Avatar
-                            src="https://picsum.photos/100/100"
-                            size={16}
-                        />
+                        <Avatar src="https://picsum.photos/100/100" size={16} />
                         <Avatar status="online" placeholder>
                             <span className="text-xl">AB</span>
                         </Avatar>
@@ -269,7 +303,10 @@ export default function DesignRoute() {
                     <Code
                         lines={[
                             { content: '<Avatar src="/img.jpg" size={16} />' },
-                            { content: '<Avatar status="online" placeholder>AB</Avatar>' },
+                            {
+                                content:
+                                    '<Avatar status="online" placeholder>AB</Avatar>'
+                            },
                             { content: '<AvatarGroup>...</AvatarGroup>' }
                         ]}
                     />
@@ -314,8 +351,14 @@ export default function DesignRoute() {
                     <Code
                         lines={[
                             { content: '<Table zebra scrollable>' },
-                            { content: '  <TableHead>...<TableRow>...</TableHead>' },
-                            { content: '  <TableBody>...<TableRow hover>...</TableBody>' },
+                            {
+                                content:
+                                    '  <TableHead>...<TableRow>...</TableHead>'
+                            },
+                            {
+                                content:
+                                    '  <TableBody>...<TableRow hover>...</TableBody>'
+                            },
                             { content: '</Table>' }
                         ]}
                     />
@@ -415,14 +458,18 @@ export default function DesignRoute() {
                                 name="demo-accordion"
                                 variant="plus"
                             >
-                                Content for the third accordion item with plus icon
+                                Content for the third accordion item with plus
+                                icon
                             </AccordionItem>
                         </Accordion>
                     </div>
                     <Code
                         lines={[
                             { content: '<Accordion name="group">' },
-                            { content: '  <AccordionItem title="Item" name="group" variant="arrow">' },
+                            {
+                                content:
+                                    '  <AccordionItem title="Item" name="group" variant="arrow">'
+                            },
                             { content: '    Content' },
                             { content: '  </AccordionItem>' },
                             { content: '</Accordion>' }
@@ -448,7 +495,8 @@ export default function DesignRoute() {
                             placement="middle"
                         >
                             <p className="py-4">
-                                This is modal content. You can put any content here.
+                                This is modal content. You can put any content
+                                here.
                             </p>
                             <ModalActions>
                                 <Button
@@ -468,7 +516,10 @@ export default function DesignRoute() {
                     </div>
                     <Code
                         lines={[
-                            { content: '<Modal open={open} onClose={handleClose} title="Title">' },
+                            {
+                                content:
+                                    '<Modal open={open} onClose={handleClose} title="Title">'
+                            },
                             { content: '  <p>Content</p>' },
                             { content: '  <ModalActions>...</ModalActions>' },
                             { content: '</Modal>' }
@@ -477,21 +528,21 @@ export default function DesignRoute() {
                 </div>
 
                 <div className="space-y-3">
-                    <h3 className="text-lg font-semibold">
-                        Diff Comparison
-                    </h3>
+                    <h3 className="text-lg font-semibold">Diff Comparison</h3>
                     <div className="mb-3">
                         <Diff
-                            aspectRatio="aspect-16/9"
+                            aspectRatio="aspect-video"
                             item1={
-                                <div className="bg-primary text-primary-content text-6xl font-black grid place-content-center">
-                                    BEFORE
-                                </div>
+                                <img
+                                    src="https://picsum.photos/seed/before/1200/675"
+                                    alt="Before"
+                                />
                             }
                             item2={
-                                <div className="bg-secondary text-secondary-content text-6xl font-black grid place-content-center">
-                                    AFTER
-                                </div>
+                                <img
+                                    src="https://picsum.photos/seed/after/1200/675"
+                                    alt="After"
+                                />
                             }
                         />
                     </div>
@@ -499,8 +550,8 @@ export default function DesignRoute() {
                         lines={[
                             { content: '<Diff' },
                             { content: '  aspectRatio="aspect-16/9"' },
-                            { content: '  item1={<div>Before</div>}' },
-                            { content: '  item2={<div>After</div>}' },
+                            { content: '  item1={<img src="/before.jpg" />}' },
+                            { content: '  item2={<img src="/after.jpg" />}' },
                             { content: '/>' }
                         ]}
                     />

@@ -1,5 +1,65 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+@plugin "daisyui/theme" {
+    name: 'mytheme';
+    default: true;
+    prefersdark: true;
+    color-scheme: light;
+
+    /* Base colors - Clean white with subtle grays */
+    --color-base-100: oklch(100% 0 0); /* Pure white */
+    --color-base-200: oklch(97% 0.005 240); /* Very light gray */
+    --color-base-300: oklch(92% 0.01 240); /* Light gray for borders */
+    --color-base-content: oklch(25% 0.02 260); /* Dark blue-gray text */
+
+    /* Primary - Deep blue from hero section */
+    --color-primary: oklch(45% 0.15 260); /* Deep blue */
+    --color-primary-content: oklch(100% 0 0); /* White text */
+
+    /* Secondary - Vibrant teal/turquoise (buttons and accents) */
+    --color-secondary: oklch(65% 0.14 190); /* Teal */
+    --color-secondary-content: oklch(100% 0 0); /* White text */
+
+    /* Accent - Magenta/pink from lower sections */
+    --color-accent: oklch(60% 0.2 330); /* Magenta-pink */
+    --color-accent-content: oklch(100% 0 0); /* White text */
+
+    /* Neutral - Medium blue-gray */
+    --color-neutral: oklch(40% 0.05 250);
+    --color-neutral-content: oklch(100% 0 0);
+
+    /* Info - Bright blue */
+    --color-info: oklch(60% 0.18 240);
+    --color-info-content: oklch(100% 0 0);
+
+    /* Success - Green accent */
+    --color-success: oklch(65% 0.18 160);
+    --color-success-content: oklch(100% 0 0);
+
+    /* Warning - Orange/amber */
+    --color-warning: oklch(75% 0.15 70);
+    --color-warning-content: oklch(20% 0.05 70);
+
+    /* Error - Red */
+    --color-error: oklch(60% 0.22 20);
+    --color-error-content: oklch(100% 0 0);
+
+    /* Border radius - Modern, rounded */
+    --radius-selector: 0.75rem;
+    --radius-field: 0.5rem;
+    --radius-box: 1rem;
+
+    /* Base sizes */
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+
+    /* Border size */
+    --border: 1px;
+
+    /* Effects */
+    --depth: 2;
+    --noise: 0;
+}
 
 @theme {
     --font-sans:

@@ -22,29 +22,55 @@ npx prisma migrate deploy  # Production migrations
 This is a modern full-stack boilerplate using **React Router 7** (not v6) with BetterAuth authentication, OpenAI integration, and clean architecture patterns. The key architectural patterns are:
 
 ### Config-Based Routing (React Router 7)
+
 - Routes are defined in `app/routes.ts` using `@react-router/dev/routes`
 - **NEVER** use file-based routing patterns or React Router v6 syntax
 - Always import route types as `./+types/[routeName]` (relative to route file)
 - Run `npm run typecheck` after adding routes to generate types
 
+#### Meta Tags (React 19 Pattern)
+
+- Use React 19's built-in `<title>` and `<meta>` elements directly in component JSX
+- **DO NOT** use the legacy `meta()` export function
+- Place meta elements at the top of component return, wrapped in a fragment if needed
+- Meta elements automatically render in document `<head>`
+
+```tsx
+export default function MyRoute() {
+    return (
+        <>
+            <title>Page Title - TWS Foundations</title>
+            <meta name="description" content="Page description here" />
+            <Container>
+                {/* Page content */}
+            </Container>
+        </>
+    );
+}
+```
+
 ### Singleton Pattern Services
+
 - **Database**: `app/db.server.ts` - Global Prisma client
 - **Auth**: `app/lib/auth.server.ts` - BetterAuth instance
 - **AI**: `app/lib/ai.ts` - OpenAI client singleton
 - **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL support
 
 ### Custom Prisma Configuration
+
 - Prisma client outputs to `app/generated/prisma` (not default location)
 - Database singleton pattern prevents connection pooling issues
 - BetterAuth adapter configured for PostgreSQL
 
 ### Middleware Architecture
+
 - **Authentication**: `app/middleware/auth.ts` - Protects routes using `authMiddleware`
 - **Logging**: `app/middleware/logging.ts` - Request/response logging with unique IDs
 - **Context**: `app/middleware/context.ts` - React Router contexts for user and request ID
 - Applied in layout routes (e.g., `routes/authenticated.tsx`) not individual routes
 
 ### CVA Configuration for Styling
+
 - **CVA (Class Variance Authority)** configured in `app/cva.config.ts` with `tailwind-merge` integration
 - Use `cx()` for className merging (replaces traditional `cn()` utility)
 - Use `cva()` for creating component variants with type-safe props
@@ -55,30 +81,37 @@ This is a modern full-stack boilerplate using **React Router 7** (not v6) with B
 ## Key Development Patterns
 
 ### Adding Protected Routes
+
 1. Add route under authenticated layout in `app/routes.ts`:
+
    ```typescript
    layout('routes/authenticated.tsx', [
        route('new-feature', 'routes/new-feature.tsx')
    ])
    ```
+
 2. Middleware in `routes/authenticated.tsx` automatically protects all child routes
 3. Access user via context: `const { user } = useAuthenticatedContext()`
 4. Run `npm run typecheck` to generate types
 5. For API routes (no middleware), manually call `requireUser(request)` in loader/action
 
 ### Creating API Endpoints
+
 1. Add route to `api` prefix in `app/routes.ts`:
+
    ```typescript
    ...prefix('api', [
        route('new-endpoint', 'routes/api/new-endpoint.ts')
    ])
    ```
+
 2. Create handler in `app/routes/api/` with loader (GET) and/or action (POST/PUT/DELETE)
 3. Use `requireUser(request)` for authentication (no middleware on API routes)
 4. Handle multiple HTTP methods in action by checking `request.method`
 5. Return JSON responses: `return json({ data })`
 
 ### Database Schema Management
+
 - Prisma client outputs to `app/generated/prisma` (not default location)
 - BetterAuth requires specific models: User, Account, Session, Verification
 - After schema changes:
@@ -89,6 +122,7 @@ This is a modern full-stack boilerplate using **React Router 7** (not v6) with B
 - Always use singleton: `import { prisma } from '~/db.server'`
 
 ### Authentication Flow
+
 - BetterAuth with Prisma adapter handles all auth logic
 - Session helpers in `app/lib/session.server.ts`:
   - `requireUser()` for protected routes (throws redirect if not authenticated)
@@ -98,11 +132,13 @@ This is a modern full-stack boilerplate using **React Router 7** (not v6) with B
 - Client-side auth via `authClient` from `app/lib/auth-client.ts` (Better Auth React)
 
 ### AI Integration
+
 - OpenAI client singleton in `app/lib/ai.ts`
 - Streaming responses using `streamText()` from `ai` package
 - Client-side integration with `useChat()` hook from `@ai-sdk/react`
 
 ### Caching Strategy
+
 - File-based caching with TTL support via `flat-cache`
 - User-scoped keys: `getUserScopedKey(userId, key)`
 - Check expiration: `isCacheExpired(key)`
@@ -125,6 +161,7 @@ POLAR_WEBHOOK_SECRET="your-polar-webhook-secret"
 
 - ❌ Using React Router v6 patterns or `react-router-dom`
 - ❌ File-based routing assumptions (routes.ts is source of truth)
+- ❌ Using legacy `meta()` export function (use React 19 `<title>` and `<meta>` elements)
 - ❌ Direct Prisma imports (use singleton from `~/db.server`)
 - ❌ Missing type generation (`npm run typecheck` after route changes)
 - ❌ Manual session management (use session helpers)
@@ -197,12 +234,14 @@ export function Component({
 ```
 
 #### Form Components - Additional Requirements
+
 - Label with required indicator (`*`)
 - Error/helper text with proper styling
 - Accessibility: ARIA attributes, semantic HTML
 - Standalone or wrapped rendering based on props
 
 ### Validation Pattern
+
 - Zod schemas in `app/lib/validations.ts`
 - Type inference: `z.infer<typeof schema>`
 - Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`

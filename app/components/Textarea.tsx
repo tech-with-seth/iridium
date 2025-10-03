@@ -52,14 +52,12 @@ export function Textarea({
     ...props
 }: TextareaProps) {
     return (
-        <div className="form-control w-full">
+        <label className="w-full flex flex-col gap-1">
             {label && (
-                <label className="label">
-                    <span className="label-text">
-                        {label}
-                        {required && <span className="text-error ml-1">*</span>}
-                    </span>
-                </label>
+                <span className="text-sm font-medium">
+                    {label}
+                    {required && <span className="text-error ml-1">*</span>}
+                </span>
             )}
 
             <textarea
@@ -77,17 +75,15 @@ export function Textarea({
             />
 
             {(error || helperText) && (
-                <label className="label">
-                    <span
-                        className={cx(
-                            'label-text-alt',
-                            error ? 'text-error' : 'text-base-content/70'
-                        )}
-                    >
-                        {error || helperText}
-                    </span>
-                </label>
+                <span
+                    className={cx(
+                        'text-xs',
+                        error ? 'text-error' : 'text-base-content/70'
+                    )}
+                >
+                    {error || helperText}
+                </span>
             )}
-        </div>
+        </label>
     );
 }

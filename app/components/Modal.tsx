@@ -21,7 +21,10 @@ export const modalVariants = cva({
 });
 
 interface ModalProps
-    extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, 'open'>,
+    extends Omit<
+            React.DialogHTMLAttributes<HTMLDialogElement>,
+            'open' | 'title'
+        >,
         VariantProps<typeof modalVariants> {
     open?: boolean;
     onClose?: () => void;

@@ -2,12 +2,12 @@ import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
 
 export const selectVariants = cva({
-    base: 'select',
+    base: 'select select-bordered',
     variants: {
         variant: {
             ghost: 'select-ghost'
         },
-        color: {
+        status: {
             neutral: 'select-neutral',
             primary: 'select-primary',
             secondary: 'select-secondary',
@@ -40,7 +40,7 @@ interface SelectOption {
 interface SelectProps
     extends Omit<
             React.SelectHTMLAttributes<HTMLSelectElement>,
-            'size' | 'color'
+            'size'
         >,
         VariantProps<typeof selectVariants> {
     label?: React.ReactNode;
@@ -58,21 +58,19 @@ export function Select({
     required,
     disabled,
     size,
-    color,
+    status,
     variant,
     options,
     className,
     ...props
 }: SelectProps) {
     return (
-        <div className="form-control w-full">
+        <label className="w-full flex flex-col gap-1">
             {label && (
-                <label className="label">
-                    <span className="label-text">
-                        {label}
-                        {required && <span className="text-error ml-1">*</span>}
-                    </span>
-                </label>
+                <span className="text-sm font-medium">
+                    {label}
+                    {required && <span className="text-error ml-1">*</span>}
+                </span>
             )}
 
             <select
@@ -81,7 +79,7 @@ export function Select({
                 className={cx(
                     selectVariants({
                         size,
-                        color: error ? 'error' : color,
+                        status: error ? 'error' : status,
                         variant
                     }),
                     className
@@ -105,17 +103,15 @@ export function Select({
             </select>
 
             {(error || helperText) && (
-                <label className="label">
-                    <span
-                        className={cx(
-                            'label-text-alt',
-                            error ? 'text-error' : 'text-base-content/70'
-                        )}
-                    >
-                        {error || helperText}
-                    </span>
-                </label>
+                <span
+                    className={cx(
+                        'text-xs',
+                        error ? 'text-error' : 'text-base-content/70'
+                    )}
+                >
+                    {error || helperText}
+                </span>
             )}
-        </div>
+        </label>
     );
 }

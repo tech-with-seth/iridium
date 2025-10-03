@@ -43,7 +43,6 @@ export const buttonVariants = cva({
         square: { true: 'btn-square' }
     },
     defaultVariants: {
-        status: 'primary',
         size: 'md'
     },
     compoundVariants: []

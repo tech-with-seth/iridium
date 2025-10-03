@@ -61,6 +61,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                         <Link to="/">Home</Link>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem>
+                                        <Link to={Paths.ABOUT}>About</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
                                         <Link to="/dashboard">Dashboard</Link>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem>
