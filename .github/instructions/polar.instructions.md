@@ -1,8 +1,8 @@
-# Polar & Remix
+# Polar Integration
 
-ATTENTION
+## React Router 7 Compatibility
 
-Remix and React Router are compatible but have different routing paradigms. Please follow the React Router 7 config based routing and naming convention.
+**Note:** Polar's official documentation references "Remix", but React Router 7 and Remix are nearly identical in their API. The patterns shown below work directly with React Router 7's loader/action functions. Use config-based routing from `app/routes.ts` as documented in `.github/instructions/react-router.instructions.md`.
 
 > Payments and Checkouts made dead simple with Remix
 
