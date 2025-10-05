@@ -43,7 +43,7 @@ export default function SignUp() {
                 content="Create your TWS Foundations account to explore the SaaS starter kit."
             />
             <div className="flex items-center justify-center p-24">
-                <Card>
+                <Card className="min-w-lg">
                     <h2 className="text-2xl font-bold">Sign Up</h2>
                     <Form onSubmit={signUp} className="space-y-4">
                         <TextInput
@@ -67,7 +67,11 @@ export default function SignUp() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Password"
                         />
-                        <Button type="submit" loading={isLoading} color="secondary">
+                        <Button
+                            type="submit"
+                            loading={isLoading}
+                            color="secondary"
+                        >
                             Sign Up
                         </Button>
                     </Form>

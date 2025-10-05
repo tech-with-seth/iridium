@@ -42,7 +42,7 @@ export default function SignIn() {
                 content="Access your TWS Foundations account with your email and password."
             />
             <div className="flex items-center justify-center p-24">
-                <Card>
+                <Card className="min-w-lg">
                     <h2 className="text-2xl font-bold">Sign In</h2>
                     <Form onSubmit={signIn} className="space-y-4">
                         <TextInput
