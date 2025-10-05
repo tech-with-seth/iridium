@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Accordion, AccordionItem } from '~/components/Accordion';
+import { Alert } from '~/components/Alert';
 import { Avatar, AvatarGroup } from '~/components/Avatar';
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
@@ -215,6 +216,68 @@ export default function DesignRoute() {
             {/* Data Display Section */}
             <section className="space-y-6">
                 <h2 className="text-2xl font-bold">Data Display</h2>
+
+                <div className="space-y-3">
+                    <h3 className="text-lg font-semibold">Alerts</h3>
+                    <div className="space-y-3 mb-3">
+                        <Alert status="info">
+                            <span>Information: This is an info alert message</span>
+                        </Alert>
+                        <Alert status="success">
+                            <span>Success: Operation completed successfully</span>
+                        </Alert>
+                        <Alert status="warning">
+                            <span>Warning: Please review before proceeding</span>
+                        </Alert>
+                        <Alert status="error">
+                            <span>Error: Something went wrong</span>
+                        </Alert>
+                        <Alert status="info" variant="outline">
+                            <span>Outlined info alert</span>
+                        </Alert>
+                        <Alert status="success" variant="soft">
+                            <span>Soft success alert</span>
+                        </Alert>
+                        <Alert
+                            status="warning"
+                            icon={
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6 shrink-0 stroke-current"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
+                                </svg>
+                            }
+                        >
+                            <span>Alert with custom icon</span>
+                        </Alert>
+                    </div>
+                    <Code
+                        lines={[
+                            { content: '<Alert status="info">' },
+                            { content: '  <span>Info message</span>' },
+                            { content: '</Alert>' },
+                            { content: '' },
+                            {
+                                content:
+                                    '<Alert status="success" variant="outline">'
+                            },
+                            { content: '  <span>Outlined success</span>' },
+                            { content: '</Alert>' },
+                            { content: '' },
+                            { content: '<Alert status="warning" icon={<Icon />}>' },
+                            { content: '  <span>With icon</span>' },
+                            { content: '</Alert>' }
+                        ]}
+                    />
+                </div>
 
                 <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Cards</h3>

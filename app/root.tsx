@@ -90,6 +90,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </Container>
                 </header>
                 <main>{children}</main>
+                <footer>
+                    <Container className="py-4 text-center text-sm text-gray-500">
+                        &copy; {new Date().getFullYear()} Tech with Seth
+                    </Container>
+                </footer>
                 <ScrollRestoration />
                 <Scripts />
             </body>
