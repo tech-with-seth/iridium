@@ -55,24 +55,33 @@ interface ButtonProps
 }
 
 export function Button({
+    active,
     block,
     children,
     circle,
     className,
+    disabled,
     loading,
     size,
     square,
     status,
+    type = 'button',
     variant,
     wide,
     ...props
 }: ButtonProps) {
+    const resolvedDisabled = Boolean(disabled || loading);
+
     return (
         <button
+            type={type}
+            disabled={resolvedDisabled}
             className={cx(
                 buttonVariants({
+                    active,
                     block,
                     circle,
+                    disabled: resolvedDisabled,
                     size,
                     square,
                     status,
