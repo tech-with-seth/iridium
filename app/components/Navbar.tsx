@@ -26,7 +26,7 @@ export function Navbar({
     end,
     sticky = false,
     shadow = false,
-    backgroundColor = 'base-100',
+    backgroundColor = 'base-300',
     className,
     ...rest
 }: NavbarProps) {

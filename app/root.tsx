@@ -44,8 +44,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <header className="my-4">
                     <Container>
                         <Navbar
+                            backgroundColor="primary"
                             sticky
-                            className="rounded-xl bg-sky-900"
                             shadow
                             brand={
                                 <Link

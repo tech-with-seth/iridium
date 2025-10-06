@@ -8,7 +8,8 @@
       "WebFetch(domain:react-hook-form.com)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "WebFetch(domain:www.prisma.io)"
+      "WebFetch(domain:www.prisma.io)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
