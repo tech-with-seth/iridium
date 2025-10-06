@@ -22,6 +22,15 @@ export const chatMessageSchema = z.object({
   })),
 });
 
+export const profileUpdateSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  bio: z.string().max(500, "Bio must be 500 characters or less").optional().or(z.literal("")),
+  website: z.string().url("Invalid URL").optional().or(z.literal("")),
+  location: z.string().max(100, "Location must be 100 characters or less").optional().or(z.literal("")),
+  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number").optional().or(z.literal("")),
+});
+
 export type SignInData = z.infer<typeof signInSchema>;
 export type SignUpData = z.infer<typeof signUpSchema>;
 export type ChatMessageData = z.infer<typeof chatMessageSchema>;
+export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;

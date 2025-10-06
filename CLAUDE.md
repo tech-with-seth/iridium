@@ -73,6 +73,80 @@ export default function MyRoute() {
 - **Context**: `app/middleware/context.ts` - React Router contexts for user and request ID
 - Applied in layout routes (e.g., `routes/authenticated.tsx`) not individual routes
 
+### Model Layer Pattern (Data Access Layer)
+
+- **NEVER** call Prisma directly in route files (loaders/actions)
+- All database operations must be abstracted into model functions in `app/models/[entity].server.ts`
+- Model files encapsulate all database logic for a specific entity (e.g., User, Post, Comment)
+- Routes import and call model functions instead of using `prisma.*` directly
+- Benefits: Better testability, reusability, and separation of concerns
+
+**Example: `app/models/user.server.ts`**
+
+```typescript
+import { prisma } from '~/db.server';
+
+export function getUserProfile(userId: string) {
+    return prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            bio: true,
+            // ... other fields
+        }
+    });
+}
+
+export function updateUser({
+    userId,
+    data
+}: {
+    userId: string;
+    data: {
+        name: string;
+        bio?: string | null;
+        // ... other fields
+    };
+}) {
+    return prisma.user.update({
+        where: { id: userId },
+        data
+    });
+}
+
+export function deleteUser(userId: string) {
+    return prisma.user.delete({
+        where: { id: userId }
+    });
+}
+```
+
+**Usage in routes:**
+
+```typescript
+// ✅ CORRECT - Use model functions
+import { getUserProfile, updateUser } from '~/models/user.server';
+
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await requireUser(request);
+    const profile = await getUserProfile(user.id);
+    return json({ profile });
+}
+
+// ❌ WRONG - Direct Prisma calls in routes
+import { prisma } from '~/db.server';
+
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await requireUser(request);
+    const profile = await prisma.user.findUnique({ where: { id: user.id } });
+    return json({ profile });
+}
+```
+
+**Reference Implementation:** See `app/models/user.server.ts` and `app/routes/api/profile.ts` for the canonical example.
+
 ### CVA Configuration for Styling
 
 - **CVA (Class Variance Authority)** configured in `app/cva.config.ts` with `tailwind-merge` integration
@@ -113,6 +187,93 @@ export default function MyRoute() {
 3. Use `requireUser(request)` for authentication (no middleware on API routes)
 4. Handle multiple HTTP methods in action by checking `request.method`
 5. Return JSON responses: `return json({ data })`
+
+### Creating Feature CRUD Operations
+
+**📋 Important: Reference `.github/instructions/crud-pattern.instructions.md` for comprehensive CRUD implementation patterns.**
+
+For any feature requiring Create, Read, Update, Delete operations, follow the **API-first pattern**:
+
+**Why API-first?**
+- ✅ RESTful and modular architecture
+- ✅ Reusable from anywhere in the application
+- ✅ Better separation of concerns (API vs UI)
+- ✅ Supports programmatic access and future integrations
+- ✅ Follows established auth endpoint pattern
+
+**Structure:**
+
+```
+app/models/[entity].server.ts        # Model layer (database operations)
+  ↳ CRUD functions that encapsulate Prisma calls
+  ↳ Example: getUserProfile(), updateUser(), deleteUser()
+
+app/routes/api/[feature].ts          # API endpoint (business logic)
+  ↳ loader()  - GET (read data)
+  ↳ action()  - POST (create), PUT (update), DELETE (delete)
+  ↳ requireUser() for authentication
+  ↳ getValidatedFormData() for validation
+  ↳ Call model functions (NOT direct Prisma)
+
+app/routes/[feature].tsx              # UI route (presentation)
+  ↳ loader()   - Fetch initial data for page render
+  ↳ Component  - useFetcher() to call API endpoint
+  ↳ Form validation and UX
+```
+
+**Example: Profile CRUD** (`app/routes/api/profile.ts`)
+
+```typescript
+import type { Route } from './+types/profile';
+import { data, json } from 'react-router';
+import { requireUser } from '~/lib/session.server';
+import { getValidatedFormData } from '~/lib/form-validation.server';
+import { profileUpdateSchema } from '~/lib/validations';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
+
+// GET - Read profile
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await requireUser(request);
+
+    const profile = await getUserProfile(user.id);
+
+    return json({ profile });
+}
+
+// POST/PUT/DELETE - Create, Update, Delete
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+
+    if (request.method === 'PUT') {
+        const { data: validatedData, errors } = await getValidatedFormData(
+            request,
+            zodResolver(profileUpdateSchema)
+        );
+
+        if (errors) {
+            return data({ errors }, { status: 400 });
+        }
+
+        const updatedUser = await updateUser({
+            userId: user.id,
+            data: validatedData!
+        });
+
+        return json({ success: true, user: updatedUser });
+    }
+
+    if (request.method === 'DELETE') {
+        await deleteUser(user.id);
+
+        return json({ success: true });
+    }
+
+    return data({ error: 'Method not allowed' }, { status: 405 });
+}
+```
+
+**Reference Implementation:** See `app/routes/api/profile.ts` and `app/models/user.server.ts` as the canonical example.
 
 ### Database Schema Management
 
@@ -166,7 +327,8 @@ POLAR_WEBHOOK_SECRET="your-polar-webhook-secret"
 - ❌ Using React Router v6 patterns or `react-router-dom`
 - ❌ File-based routing assumptions (routes.ts is source of truth)
 - ❌ Using legacy `meta()` export function (use React 19 `<title>` and `<meta>` elements)
-- ❌ Direct Prisma imports (use singleton from `~/db.server`)
+- ❌ Direct Prisma calls in route files (use model functions from `~/models/`)
+- ❌ Direct Prisma imports in routes (use singleton from `~/db.server` only in model files)
 - ❌ Missing type generation (`npm run typecheck` after route changes)
 - ❌ Manual session management (use session helpers)
 - ❌ Bypassing auth middleware for protected routes
@@ -257,17 +419,20 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 - Automatically syncs server errors with form state via `errors` option
 - Maintains full React Hook Form API
 
-**Central auth endpoint** (`/api/auth/authenticate`):
-- POST with `intent=signIn` - Validates with `signInSchema` + BetterAuth sign in
-- POST with `intent=signUp` - Validates with `signUpSchema` + BetterAuth sign up
-- DELETE - Signs out user via BetterAuth
+**Authentication pattern** (special case - uses client-side Better Auth):
+- Authentication uses `authClient` from `app/lib/auth-client.ts` directly on the client
+- Client validates with React Hook Form + Zod, then calls `authClient.signIn.email()` or `authClient.signUp.email()`
+- Better Auth automatically handles session cookies via `/api/auth/*` endpoints
+- Use `useNavigate()` in `onSuccess` callback for post-auth redirects
+- Server-side sign-out handled by `/api/auth/authenticate` (DELETE method only)
+- See `.github/instructions/better-auth.instructions.md` for complete auth patterns
 
-**Pattern flow**:
+**Standard form pattern** (for CRUD operations):
 1. Client validates with React Hook Form + Zod (instant feedback)
 2. Form submits to server via `useFetcher()`
 3. Server validates with same Zod schema (security)
 4. Server errors automatically populate form fields
-5. BetterAuth handles authentication on server
+5. Server executes business logic and returns success/redirect
 
 **Zod schemas** in `app/lib/validations.ts`:
 - Type inference: `z.infer<typeof schema>`
@@ -277,7 +442,10 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 ## Import Patterns
 
 ```typescript
-// Prisma client (custom output path)
+// Model layer (use in routes - NEVER import prisma directly in routes)
+import { getUserProfile, updateUser, deleteUser } from "~/models/user.server";
+
+// Prisma client (ONLY use in model files, NOT in routes)
 import { prisma } from "~/db.server";
 import type { User } from "~/generated/prisma/client";
 

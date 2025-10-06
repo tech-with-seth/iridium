@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Button } from '~/components/Button';
@@ -7,76 +7,125 @@ import { Card } from '~/components/Card';
 import { TextInput } from '~/components/TextInput';
 import { Alert } from '~/components/Alert';
 import { useValidatedForm } from '~/lib/form-hooks';
-import { signInSchema, signUpSchema, type SignInData, type SignUpData } from '~/lib/validations';
+import {
+    signInSchema,
+    signUpSchema,
+    type SignInData,
+    type SignUpData
+} from '~/lib/validations';
+import { authClient } from '~/lib/auth-client';
+import { Paths } from '~/constants';
 
 type AuthMode = 'signIn' | 'signUp';
 
 export default function AuthPage() {
     const [mode, setMode] = useState<AuthMode>('signIn');
-    const fetcher = useFetcher();
+    const [isLoading, setIsLoading] = useState(false);
+    const [serverError, setServerError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-    const isSignUp = mode === 'signUp';
-    const schema = isSignUp ? signUpSchema : signInSchema;
+    const isSignIn = mode === 'signIn';
+    const schema = isSignIn ? signInSchema : signUpSchema;
 
     const {
         register,
         handleSubmit,
         formState: { errors }
     } = useValidatedForm<SignInData | SignUpData>({
-        resolver: zodResolver(schema),
-        errors: fetcher.data?.errors
+        resolver: zodResolver(schema)
     });
 
-    const onSubmit = (data: SignInData | SignUpData) => {
-        const formData = new FormData();
-        formData.append('intent', isSignUp ? 'signUp' : 'signIn');
-        formData.append('email', data.email);
-        formData.append('password', data.password);
+    const onSubmit = async (data: SignInData | SignUpData) => {
+        setIsLoading(true);
+        setServerError(null);
 
-        if (isSignUp && 'name' in data) {
-            formData.append('name', data.name);
+        try {
+            if (isSignIn) {
+                // Sign In
+                await authClient.signIn.email(
+                    {
+                        email: data.email,
+                        password: data.password
+                    },
+                    {
+                        onSuccess: () => {
+                            navigate(Paths.DASHBOARD);
+                        },
+                        onError: (ctx) => {
+                            setServerError(
+                                ctx.error.message ||
+                                    'Invalid credentials. Please try again.'
+                            );
+                            setIsLoading(false);
+                        }
+                    }
+                );
+            } else {
+                // Sign Up
+                const signUpData = data as SignUpData;
+                await authClient.signUp.email(
+                    {
+                        email: signUpData.email,
+                        password: signUpData.password,
+                        name: signUpData.name
+                    },
+                    {
+                        onSuccess: () => {
+                            navigate(Paths.DASHBOARD);
+                        },
+                        onError: (ctx) => {
+                            setServerError(
+                                ctx.error.message ||
+                                    'Account creation failed. Please try again.'
+                            );
+                            setIsLoading(false);
+                        }
+                    }
+                );
+            }
+        } catch (error) {
+            setServerError('An unexpected error occurred. Please try again.');
+            setIsLoading(false);
         }
-
-        fetcher.submit(formData, {
-            method: 'POST',
-            action: '/api/auth/authenticate'
-        });
     };
-
-    const isLoading = fetcher.state === 'submitting' || fetcher.state === 'loading';
 
     return (
         <>
-            <title>{isSignUp ? 'Sign Up' : 'Sign In'} - TWS Foundations</title>
+            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - TWS Foundations`}</title>
             <meta
                 name="description"
                 content={
-                    isSignUp
-                        ? 'Create your TWS Foundations account to explore the SaaS starter kit.'
-                        : 'Access your TWS Foundations account with your email and password.'
+                    isSignIn
+                        ? 'Access your TWS Foundations account with your email and password.'
+                        : 'Create your TWS Foundations account to explore the SaaS starter kit.'
                 }
             />
             <div className="flex items-center justify-center p-24">
                 <Card className="min-w-lg">
                     <h2 className="text-2xl font-bold mb-4">
-                        {isSignUp ? 'Sign Up' : 'Sign In'}
+                        {isSignIn ? 'Sign In' : 'Sign Up'}
                     </h2>
 
-                    {fetcher.data?.error && (
+                    {serverError && (
                         <Alert status="error" className="mb-4">
-                            {fetcher.data.error}
+                            {serverError}
                         </Alert>
                     )}
 
-                    <fetcher.Form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <input type="hidden" name="intent" value={isSignUp ? 'signUp' : 'signIn'} />
-
-                        {isSignUp && (
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="space-y-4"
+                    >
+                        {!isSignIn && (
                             <TextInput
                                 {...register('name')}
                                 label="Name"
                                 type="text"
-                                error={'name' in errors ? errors.name?.message : undefined}
+                                error={
+                                    'name' in errors
+                                        ? errors.name?.message
+                                        : undefined
+                                }
                                 required
                             />
                         )}
@@ -94,24 +143,34 @@ export default function AuthPage() {
                             label="Password"
                             type="password"
                             error={errors.password?.message}
-                            helperText={isSignUp ? 'Must be at least 8 characters with letters and numbers' : undefined}
+                            helperText={
+                                isSignIn
+                                    ? undefined
+                                    : 'Must be at least 8 characters with letters and numbers'
+                            }
                             required
                         />
 
-                        <Button type="submit" loading={isLoading} status={isSignUp ? 'secondary' : 'primary'}>
-                            {isSignUp ? 'Sign Up' : 'Sign In'}
+                        <Button
+                            type="submit"
+                            loading={isLoading}
+                            status="primary"
+                        >
+                            {isSignIn ? 'Sign In' : 'Sign Up'}
                         </Button>
-                    </fetcher.Form>
+                    </form>
 
                     <div className="mt-4 text-center">
                         <button
                             type="button"
-                            onClick={() => setMode(isSignUp ? 'signIn' : 'signUp')}
+                            onClick={() =>
+                                setMode(isSignIn ? 'signUp' : 'signIn')
+                            }
                             className="link link-primary"
                         >
-                            {isSignUp
-                                ? 'Already have an account? Sign in'
-                                : "Don't have an account? Sign up"}
+                            {isSignIn
+                                ? "Don't have an account? Sign up"
+                                : 'Already have an account? Sign in'}
                         </button>
                     </div>
                 </Card>

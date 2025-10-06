@@ -20,6 +20,7 @@ export default [
     ]),
     ...prefix('api', [
         route('authenticate', 'routes/api/auth/authenticate.ts'),
-        route('auth/*', 'routes/api/auth/better-auth.ts')
+        route('auth/*', 'routes/api/auth/better-auth.ts'),
+        route('profile', 'routes/api/profile.ts')
     ])
 ] satisfies RouteConfig;

@@ -16,10 +16,15 @@ model User {
     name          String?
     emailVerified Boolean  @default(false)
     image         String?
+    bio           String?
+    website       String?
+    location      String?
+    phoneNumber   String?
 
     sessions Session[]
     accounts Account[]
 
+    @@index([email])
     @@map("user")
 }
 

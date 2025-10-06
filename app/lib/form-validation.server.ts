@@ -1,54 +1,46 @@
 import type { Resolver, FieldValues } from 'react-hook-form';
 
 /**
- * Parses FormData from a request into a plain object
- * Handles both POST body and GET search params
+ * Validates FormData using a React Hook Form resolver (typically zodResolver)
+ *
+ * This is the ONE function you need for server-side form validation in React Router 7.
+ * Always call request.formData() first, then pass it to this function.
+ *
+ * @example
+ * export async function action({ request }) {
+ *   const formData = await request.formData();
+ *   const { data, errors } = await validateFormData(formData, zodResolver(mySchema));
+ *
+ *   if (errors) {
+ *     return { errors };
+ *   }
+ *
+ *   await saveToDatabase(data);
+ * }
  */
-export async function parseFormData(request: Request): Promise<Record<string, any>> {
-    const url = new URL(request.url);
-
-    // Handle GET requests with search params
-    if (request.method === 'GET') {
-        const data: Record<string, any> = {};
-        url.searchParams.forEach((value, key) => {
-            data[key] = value;
-        });
-        return data;
-    }
-
-    // Handle POST/PUT/PATCH/DELETE with FormData
-    const formData = await request.formData();
-    const data: Record<string, any> = {};
-
-    formData.forEach((value, key) => {
-        // Handle multiple values for the same key (e.g., checkboxes)
-        if (data[key]) {
-            if (Array.isArray(data[key])) {
-                data[key].push(value);
-            } else {
-                data[key] = [data[key], value];
-            }
-        } else {
-            data[key] = value;
-        }
-    });
-
-    return data;
-}
-
-/**
- * Validates form data using a React Hook Form resolver (typically zodResolver)
- * Returns validated data or field errors
- */
-export async function getValidatedFormData<T extends FieldValues>(
-    request: Request,
+export async function validateFormData<T extends FieldValues>(
+    formData: FormData,
     resolver: Resolver<T>
 ): Promise<{
     data?: T;
     errors?: Record<string, { type: string; message: string }>;
     receivedValues: Record<string, any>;
 }> {
-    const receivedValues = await parseFormData(request);
+    // Convert FormData to plain object for validation
+    const receivedValues: Record<string, any> = {};
+
+    formData.forEach((value, key) => {
+        // Handle multiple values for the same key (e.g., checkboxes)
+        if (receivedValues[key]) {
+            if (Array.isArray(receivedValues[key])) {
+                receivedValues[key].push(value);
+            } else {
+                receivedValues[key] = [receivedValues[key], value];
+            }
+        } else {
+            receivedValues[key] = value;
+        }
+    });
 
     // Run validation through the resolver
     const result = await resolver(receivedValues as T, {}, {

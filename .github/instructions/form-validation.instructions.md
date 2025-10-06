@@ -41,6 +41,59 @@ If errors: Return to client, automatically populate fields
 If valid: Execute business logic, redirect/return success
 ```
 
+## Critical: `<form>` vs `<fetcher.Form>`
+
+**When using React Hook Form with manual `fetcher.submit()`, ALWAYS use `<form>`, NOT `<fetcher.Form>`.**
+
+### Why This Matters
+
+Using `<fetcher.Form>` with `onSubmit={handleSubmit(onSubmit)}` creates a submission conflict:
+- `<fetcher.Form>` tries to submit naturally via its built-in behavior
+- `handleSubmit(onSubmit)` prevents default and manually calls `fetcher.submit()`
+- This conflict can cause redirects to fail and unpredictable form behavior
+
+### The Rules
+
+✅ **Use `<form>` when:**
+- Using React Hook Form's `handleSubmit`
+- Manually calling `fetcher.submit()` in your submit handler
+- Programmatically controlling submission
+- **This is the standard pattern for this application**
+
+❌ **Use `<fetcher.Form>` when:**
+- Letting the form submit naturally without React Hook Form
+- Progressive enhancement without client-side validation
+- **This is rare in this application** since we use hybrid validation everywhere
+
+### Standard Pattern (Use This)
+
+```typescript
+const { register, handleSubmit } = useValidatedForm({ /* ... */ });
+
+const onSubmit = (data: FormData) => {
+  const formData = new FormData();
+  formData.append('field', data.field);
+  fetcher.submit(formData, { method: 'POST' });
+};
+
+// ✅ CORRECT - Use <form> with manual submission
+<form onSubmit={handleSubmit(onSubmit)}>
+  <TextInput {...register('field')} />
+  <Button type="submit">Submit</Button>
+</form>
+```
+
+### Progressive Enhancement Only (Rare)
+
+```typescript
+// ❌ Only use <fetcher.Form> when NOT using React Hook Form
+// This is for progressive enhancement without client validation
+<fetcher.Form method="post" action="/api/endpoint">
+  <input name="field" />
+  <button type="submit">Submit</button>
+</fetcher.Form>
+```
+
 ## Standard Implementation
 
 ### Step 1: Define Zod Schema
@@ -173,7 +226,7 @@ export default function ContactPage() {
           </Alert>
         )}
 
-        <fetcher.Form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <TextInput
             {...register('name')}
             label="Name"
@@ -207,124 +260,41 @@ export default function ContactPage() {
           <Button type="submit" loading={isLoading}>
             Send Message
           </Button>
-        </fetcher.Form>
+        </form>
       </Card>
     </>
   );
 }
 ```
 
-## Advanced Pattern: Intent-Based Endpoints
+## Authentication Pattern
 
-For endpoints that handle multiple operations (like authentication), use a hidden `intent` field to route to different handlers.
+**Note: Authentication is a special case in this application.**
 
-### When to Use
+Authentication uses **client-side `authClient`** from Better Auth, not server-side form validation patterns. This allows Better Auth to automatically manage session cookies.
 
-- Multiple related operations share similar data (sign in vs sign up)
-- You want a single endpoint for related actions
-- Operations use different validation schemas based on intent
+For complete authentication patterns including sign-in, sign-up, and session management, see:
+- **`.github/instructions/better-auth.instructions.md`** - Complete Better Auth integration guide
+- **Reference implementation:** `app/routes/sign-in.tsx`
 
-### Server Implementation
-
-**Example: `app/routes/api/auth/authenticate.ts`**
-
-```typescript
-import { data, redirect } from 'react-router';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { Route } from './+types/authenticate';
-import { getValidatedFormData } from '~/lib/form-validation.server';
-import { signInSchema, signUpSchema, type SignInData, type SignUpData } from '~/lib/validations';
-import { authClient } from '~/lib/auth-client';
-import { Paths } from '~/constants';
-
-export async function action({ request }: Route.ActionArgs) {
-  if (request.method === 'POST') {
-    const formData = await request.formData();
-    const intent = formData.get('intent') as string;
-
-    // Route based on intent
-    if (intent === 'signIn') {
-      const { data: validatedData, errors } = await getValidatedFormData<SignInData>(
-        request,
-        zodResolver(signInSchema)
-      );
-
-      if (errors) {
-        return data({ errors }, { status: 400 });
-      }
-
-      try {
-        await authClient.signIn.email(validatedData!);
-        return redirect(Paths.DASHBOARD);
-      } catch (error) {
-        return data(
-          { error: 'Invalid credentials. Please try again.' },
-          { status: 401 }
-        );
-      }
-    }
-
-    if (intent === 'signUp') {
-      const { data: validatedData, errors } = await getValidatedFormData<SignUpData>(
-        request,
-        zodResolver(signUpSchema)
-      );
-
-      if (errors) {
-        return data({ errors }, { status: 400 });
-      }
-
-      try {
-        await authClient.signUp.email(validatedData!);
-        return redirect(Paths.SIGN_IN);
-      } catch (error) {
-        return data(
-          { error: 'Account creation failed. Please try again.' },
-          { status: 400 }
-        );
-      }
-    }
-
-    return data({ error: 'Invalid intent' }, { status: 400 });
-  }
-
-  if (request.method === 'DELETE') {
-    await authClient.signOut();
-    return redirect(Paths.HOME);
-  }
-
-  return data({ error: 'Method not allowed' }, { status: 405 });
-}
-```
-
-### Client Implementation with Intent
-
-**Add hidden input to specify intent:**
-
-```typescript
-// Sign In Form
-<fetcher.Form onSubmit={handleSubmit(onSubmit)}>
-  <input type="hidden" name="intent" value="signIn" />
-  {/* Form fields */}
-</fetcher.Form>
-
-// Sign Up Form (same endpoint, different intent)
-<fetcher.Form onSubmit={handleSubmit(onSubmit)}>
-  <input type="hidden" name="intent" value="signUp" />
-  {/* Form fields */}
-</fetcher.Form>
-```
+**Key differences from standard CRUD:**
+- Uses `authClient.signIn.email()` / `authClient.signUp.email()` directly on client
+- Better Auth handles cookies automatically via `/api/auth/*` endpoints
+- Uses `useNavigate()` for redirects after success (not server redirects)
+- Client-side validation with React Hook Form + Zod still applies
 
 ## API Reference
 
-### `getValidatedFormData<T>(request, resolver)`
+### `validateFormData<T>(formData, resolver)`
 
-Server-side utility that parses FormData and validates with a Zod schema.
+**This is the ONE function you need for server-side validation in React Router 7.**
+
+Validates FormData using a React Hook Form resolver (typically zodResolver).
 
 **Location:** `app/lib/form-validation.server.ts`
 
 **Parameters:**
-- `request: Request` - The incoming request object
+- `formData: FormData` - FormData from `request.formData()`
 - `resolver: Resolver<T>` - React Hook Form resolver (use `zodResolver(schema)`)
 
 **Returns:**
@@ -336,19 +306,47 @@ Server-side utility that parses FormData and validates with a Zod schema.
 }
 ```
 
-**Usage:**
+**Standard Usage:**
 ```typescript
-const { data, errors, receivedValues } = await getValidatedFormData<ContactFormData>(
-  request,
-  zodResolver(contactFormSchema)
-);
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const { data, errors } = await validateFormData<ContactFormData>(
+    formData,
+    zodResolver(contactFormSchema)
+  );
 
-if (errors) {
-  return data({ errors }, { status: 400 });
+  if (errors) {
+    return data({ errors }, { status: 400 });
+  }
+
+  // Use validated data safely
+  await processForm(data!);
+  return redirect('/success');
 }
+```
 
-// Use validatedData safely
-await processForm(data!);
+**With Intent-Based Routing** (for CRUD operations, not auth):
+```typescript
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get('intent') as string;
+
+  if (intent === 'create') {
+    const { data, errors } = await validateFormData<CreatePostData>(
+      formData,
+      zodResolver(createPostSchema)
+    );
+    // ... handle create
+  }
+
+  if (intent === 'update') {
+    const { data, errors } = await validateFormData<UpdatePostData>(
+      formData,
+      zodResolver(updatePostSchema)
+    );
+    // ... handle update
+  }
+}
 ```
 
 ### `useValidatedForm<TFieldValues>(options)`
@@ -625,22 +623,27 @@ useEffect(() => {
 
 ## Progressive Enhancement
 
-Forms work without JavaScript because:
+**Note: This application uses React Hook Form with manual `fetcher.submit()`, so progressive enhancement is not a primary concern. However, the server always validates, ensuring security.**
 
-1. **`fetcher.Form` degrades** to standard `<form>` element
-2. **Server always validates** - never trust client
-3. **Hidden inputs preserve data** like `intent`
-4. **Server returns errors** that can render server-side
+If you need true progressive enhancement (form works without JavaScript):
 
-### Example Without JS
+1. Use `<fetcher.Form>` WITHOUT React Hook Form
+2. Server always validates - never trust client
+3. Use hidden inputs for data like `intent`
+4. Server returns errors that can render server-side
+
+### Example Without JS (Rare)
 
 ```typescript
-// Still works! Server validates and returns HTML with errors
+// ❌ This pattern is NOT standard for this app
+// Only use when progressive enhancement is explicitly required
 <fetcher.Form method="post" action="/contact">
   <input name="email" type="email" required />
   <button type="submit">Submit</button>
 </fetcher.Form>
 ```
+
+**For standard forms in this app, use `<form>` + React Hook Form + `fetcher.submit()` as documented above.**
 
 ## TypeScript Best Practices
 
@@ -749,34 +752,68 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 // Client - Use useValidatedForm
-const { register } = useValidatedForm({
+const { register, handleSubmit, formState: { errors } } = useValidatedForm({
   resolver: zodResolver(schema),
   errors: fetcher.data?.errors
 });
 
-<fetcher.Form onSubmit={handleSubmit(onSubmit)}>
+const onSubmit = (data: FormData) => {
+  const formData = new FormData();
+  formData.append('email', data.email);
+  fetcher.submit(formData, { method: 'POST' });
+};
+
+<form onSubmit={handleSubmit(onSubmit)}>
   <TextInput {...register('email')} error={errors.email?.message} />
-</fetcher.Form>
+  <Button type="submit">Submit</Button>
+</form>
 ```
 
 ## Real-World Examples
 
 See these files for complete implementations:
 
-**Authentication:**
-- Schemas: `app/lib/validations.ts` (`signInSchema`, `signUpSchema`)
-- Endpoint: `app/routes/api/auth/authenticate.ts`
-- Forms: `app/routes/sign-in.tsx`, `app/routes/sign-up.tsx`
+**Authentication** (uses client-side Better Auth pattern):
+- Reference: `app/routes/sign-in.tsx`
+- Documentation: `.github/instructions/better-auth.instructions.md`
+- Pattern: Client-side `authClient` with React Hook Form validation
 
-**Pattern demonstrates:**
-- Intent-based routing
-- Hidden input for intent
-- Server-side BetterAuth integration
-- Field and form-level errors
-- Loading states
-- Alert component usage
+**Profile CRUD** (uses standard server action pattern):
+- Schema: `app/lib/validations.ts` (`profileUpdateSchema`)
+- API: `app/routes/api/profile.ts`
+- UI: `app/routes/profile.tsx`
+- Demonstrates: Server validation, field/form errors, loading states
 
 ## Troubleshooting
+
+### Redirect not working after successful form submission
+
+**Problem:** Form submits successfully but doesn't redirect.
+
+**Cause:** Using `<fetcher.Form>` with `onSubmit={handleSubmit(onSubmit)}` creates a submission conflict. The `<fetcher.Form>` tries to submit naturally while `handleSubmit` prevents default and manually calls `fetcher.submit()`, causing unpredictable behavior.
+
+**Solution:** Use `<form>` instead of `<fetcher.Form>` when manually controlling submission:
+
+```typescript
+// ❌ WRONG - Causes submission conflicts
+<fetcher.Form onSubmit={handleSubmit(onSubmit)}>
+  {/* fields */}
+</fetcher.Form>
+
+// ✅ CORRECT - Use regular <form> with manual fetcher.submit()
+const onSubmit = (data: ProfileData) => {
+  const formData = new FormData();
+  formData.append('name', data.name);
+  formData.append('bio', data.bio);
+  fetcher.submit(formData, { method: 'PUT', action: '/api/profile' });
+};
+
+<form onSubmit={handleSubmit(onSubmit)}>
+  <TextInput {...register('name')} label="Name" />
+  <TextInput {...register('bio')} label="Bio" />
+  <Button type="submit">Save</Button>
+</form>
+```
 
 ### Server errors not appearing in form fields
 
@@ -830,6 +867,32 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 ```
 
 ## Anti-Patterns to Avoid
+
+❌ **Don't use `<fetcher.Form>` with manual submission**
+```typescript
+// BAD - Causes submission conflicts
+<fetcher.Form onSubmit={handleSubmit(onSubmit)}>
+  {/* fields */}
+</fetcher.Form>
+```
+
+✅ **Use `<form>` with manual submission**
+```typescript
+// GOOD - Standard pattern for this app
+const onSubmit = (data: FormData) => {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  fetcher.submit(formData, { method: 'POST' });
+};
+
+<form onSubmit={handleSubmit(onSubmit)}>
+  {/* fields */}
+</form>
+```
+
+---
 
 ❌ **Don't duplicate validation logic**
 ```typescript
