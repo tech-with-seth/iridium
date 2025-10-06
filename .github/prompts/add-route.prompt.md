@@ -1,7 +1,7 @@
 ---
 mode: 'agent'
 model: Claude Sonnet 4
-tools: ['githubRepo', 'codebase']
+tools: ['githubRepo', 'search/codebase']
 description: 'Generate a new React Router 7 route with proper configuration'
 ---
 
@@ -12,6 +12,7 @@ You are a Lead Web Developer creating a new route in a React Router 7 applicatio
 ## Step 1: Determine Route Type
 
 Ask the user to clarify:
+
 - **Route purpose**: Public page, protected page, or API endpoint?
 - **Route path**: What URL path should this route use?
 - **Dynamic params**: Does it need URL parameters (e.g., `:userId`)?
@@ -31,6 +32,7 @@ export enum Paths {
 ## Step 3: Create Route File
 
 ### Public Page Route
+
 Create in `app/routes/[route-name].tsx`:
 
 ```typescript
@@ -53,6 +55,7 @@ export default function RouteName({ loaderData }: Route.ComponentProps) {
 ```
 
 ### Protected Page Route (requires authentication)
+
 Create in `app/routes/[route-name].tsx` - will be added under `authenticated` layout:
 
 ```typescript
@@ -72,6 +75,7 @@ export default function RouteName() {
 ```
 
 ### API Endpoint Route
+
 Create in `app/routes/api/[endpoint-name].ts`:
 
 ```typescript
@@ -114,6 +118,7 @@ export async function action({ request }: Route.ActionArgs) {
 ```
 
 ### Dynamic Route with Params
+
 Create in `app/routes/posts.$postId.tsx`:
 
 ```typescript
@@ -147,6 +152,7 @@ export default function PostDetail({ loaderData }: Route.ComponentProps) {
 ## Step 4: Register Route in app/routes.ts
 
 ### Public Route
+
 ```typescript
 import { type RouteConfig, route } from '@react-router/dev/routes';
 import { Paths } from './constants';
@@ -157,14 +163,16 @@ export default [
 ```
 
 ### Protected Route (under authenticated layout)
+
 ```typescript
 layout('routes/authenticated.tsx', [
     route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
     route(Paths.NEW_ROUTE, 'routes/new-route.tsx') // Add here
-])
+]);
 ```
 
 ### API Route (under api prefix)
+
 ```typescript
 ...prefix('api', [
     route('auth/*', 'routes/api/auth/better-auth.ts'),
@@ -173,6 +181,7 @@ layout('routes/authenticated.tsx', [
 ```
 
 ### Nested/Admin Routes
+
 ```typescript
 ...prefix('admin', [
     route('/design', 'routes/admin/design.tsx'),
@@ -183,6 +192,7 @@ layout('routes/authenticated.tsx', [
 ## Step 5: Generate Types
 
 After adding the route, run:
+
 ```bash
 npm run typecheck
 ```
@@ -192,21 +202,25 @@ This generates the route types in `./+types/[route-name]` for type-safe access t
 ## Important Patterns
 
 ### Authentication
+
 - **Protected routes**: Add under `authenticated` layout - middleware handles auth automatically
 - **API routes**: Manually call `requireUser(request)` in loader/action
 - **Anonymous only**: Use `requireAnonymous(request)` for sign-in/sign-up pages
 
 ### Data Loading
+
 - Use `loader` for GET requests (data fetching)
 - Use `action` for POST/PUT/DELETE requests (mutations)
 - Access loader data via `loaderData` prop (not `useLoaderData` hook)
 
 ### Type Safety
+
 - Always import `Route` type from `./+types/[route-name]`
 - Use `Route.LoaderArgs`, `Route.ActionArgs`, `Route.ComponentProps`
 - Generate types with `npm run typecheck` after route changes
 
 ### File Naming
+
 - Use `.tsx` for routes with JSX components
 - Use `.ts` for API-only routes (no component)
 - Dynamic params: Use `$paramName` (e.g., `posts.$postId.tsx`)
@@ -214,6 +228,7 @@ This generates the route types in `./+types/[route-name]` for type-safe access t
 ## Checklist
 
 After creating the route:
+
 - [ ] Path constant added to `app/constants/index.ts` (if applicable)
 - [ ] Route file created in correct directory
 - [ ] Route registered in `app/routes.ts`
@@ -224,6 +239,7 @@ After creating the route:
 ## Reference
 
 See these project files for examples:
+
 - Public route: `app/routes/sign-in.tsx`
 - Protected route: `app/routes/dashboard.tsx`
 - API route: `app/routes/api/auth/better-auth.ts`
@@ -231,6 +247,7 @@ See these project files for examples:
 - Routes config: `app/routes.ts`
 
 For detailed patterns, see:
+
 - `.github/instructions/react-router.instructions.md`
 - `.github/instructions/better-auth.instructions.md`
 - `.github/instructions/prisma.instructions.md`
