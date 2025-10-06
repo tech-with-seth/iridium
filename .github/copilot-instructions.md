@@ -6,6 +6,7 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 
 **📋 See detailed instruction files in `.github/instructions/` for specific patterns:**
 
+- `form-validation.instructions.md` - **Universal form validation pattern (READ THIS FIRST)**
 - `react-router.instructions.md` - Critical React Router 7 patterns
 - `better-auth.instructions.md` - Authentication implementation
 - `component-patterns.instructions.md` - UI component standards
@@ -144,11 +145,28 @@ export async function action({ request }: Route.ActionArgs) {
 - Check expiration: `isCacheExpired(key)`
 - Cache saved to file system automatically
 
-### Validation Pattern
+### Form Validation Pattern (Server + Client)
 
-- **Zod schemas** in `app/lib/validations.ts`
-- Type inference with `z.infer<typeof schema>`
-- Consistent error messaging
+This project uses a hybrid validation approach with Zod schemas validated on both client and server:
+
+- **Zod schemas** in `app/lib/validations.ts` - Single source of truth
+- **Server-side utilities** in `app/lib/form-validation.server.ts`:
+  - `parseFormData(request)` - Extract FormData from POST body or GET params
+  - `getValidatedFormData(request, resolver)` - Validate with Zod, return errors/data
+- **Client-side hook** in `app/lib/form-hooks.ts`:
+  - `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
+  - Automatically syncs server errors with form state
+  - Maintains full React Hook Form API
+- **Central auth endpoint**: `/api/auth/authenticate`
+  - POST with `intent=signIn` - Validates and signs in user
+  - POST with `intent=signUp` - Validates and creates user account
+  - DELETE - Signs out user
+- **Pattern flow**:
+  1. Client validates with React Hook Form + Zod (instant feedback)
+  2. Form submits to server via `useFetcher()`
+  3. Server validates with same Zod schema (security)
+  4. Server errors automatically populate form fields
+  5. BetterAuth handles authentication on server
 - Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
 
 ## File Organization
@@ -161,7 +179,9 @@ app/
 │   ├── session.server.ts # Session helpers (requireUser, getUser)
 │   ├── ai.ts            # OpenAI client
 │   ├── cache.ts         # FlatCache with TTL
-│   └── validations.ts   # Zod schemas
+│   ├── validations.ts   # Zod schemas
+│   ├── form-validation.server.ts # Server-side form parsing/validation
+│   └── form-hooks.ts    # Client-side useValidatedForm hook
 ├── middleware/       # Request middleware
 │   ├── auth.ts          # Authentication middleware
 │   ├── context.ts       # React Router contexts

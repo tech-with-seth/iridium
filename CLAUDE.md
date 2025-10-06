@@ -19,7 +19,11 @@ npx prisma migrate deploy  # Production migrations
 
 ## Architecture Overview
 
-This is a modern full-stack boilerplate using **React Router 7** (not v6) with BetterAuth authentication, OpenAI integration, and clean architecture patterns. The key architectural patterns are:
+This is a modern full-stack boilerplate using **React Router 7** (not v6) with BetterAuth authentication, OpenAI integration, and clean architecture patterns.
+
+**📋 Important: Reference `.github/instructions/form-validation.instructions.md` for the universal form validation pattern used throughout this application.**
+
+The key architectural patterns are:
 
 ### Config-Based Routing (React Router 7)
 
@@ -240,12 +244,35 @@ export function Component({
 - Accessibility: ARIA attributes, semantic HTML
 - Standalone or wrapped rendering based on props
 
-### Validation Pattern
+### Form Validation Pattern (Server + Client)
 
-- Zod schemas in `app/lib/validations.ts`
+This project uses a hybrid validation approach with Zod schemas validated on both client and server:
+
+**Server-side utilities** (`app/lib/form-validation.server.ts`):
+- `parseFormData(request)` - Extract FormData from POST body or GET params
+- `getValidatedFormData(request, resolver)` - Validate with Zod, return `{ errors, data, receivedValues }`
+
+**Client-side hook** (`app/lib/form-hooks.ts`):
+- `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
+- Automatically syncs server errors with form state via `errors` option
+- Maintains full React Hook Form API
+
+**Central auth endpoint** (`/api/auth/authenticate`):
+- POST with `intent=signIn` - Validates with `signInSchema` + BetterAuth sign in
+- POST with `intent=signUp` - Validates with `signUpSchema` + BetterAuth sign up
+- DELETE - Signs out user via BetterAuth
+
+**Pattern flow**:
+1. Client validates with React Hook Form + Zod (instant feedback)
+2. Form submits to server via `useFetcher()`
+3. Server validates with same Zod schema (security)
+4. Server errors automatically populate form fields
+5. BetterAuth handles authentication on server
+
+**Zod schemas** in `app/lib/validations.ts`:
 - Type inference: `z.infer<typeof schema>`
 - Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
-- Consistent error messaging across forms
+- Consistent error messaging across client and server
 
 ## Import Patterns
 
@@ -268,7 +295,9 @@ import { openai } from "~/lib/ai";
 import { getCachedData, setCachedData, getUserScopedKey } from "~/lib/cache";
 
 // Validation
-import { userSchema } from "~/lib/validations";
+import { signInSchema, signUpSchema } from "~/lib/validations";
+import { getValidatedFormData } from "~/lib/form-validation.server";
+import { useValidatedForm } from "~/lib/form-hooks";
 
 // CVA utilities
 import { cx, cva, compose } from "~/cva.config";
@@ -276,4 +305,7 @@ import type { VariantProps } from "cva";
 
 // Contexts (in protected routes)
 import { useAuthenticatedContext } from "~/middleware/context";
+
+// React Hook Form
+import { zodResolver } from "@hookform/resolvers/zod";
 ```
