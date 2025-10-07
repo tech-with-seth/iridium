@@ -32,13 +32,7 @@ export function Navbar({
 }: NavbarProps) {
     return (
         <div
-            className={cx(
-                'navbar',
-                `bg-${backgroundColor}`,
-                sticky && 'sticky top-0 z-50',
-                shadow && 'shadow-lg',
-                className
-            )}
+            className="navbar rounded-full sticky top-0 z-50 shadow-lg bg-neutral text-white"
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}

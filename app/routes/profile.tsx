@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useFetcher } from 'react-router';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { Route } from './+types/profile';
-import { useValidatedForm } from '~/lib/form-hooks';
-import { profileUpdateSchema, type ProfileUpdateData } from '~/lib/validations';
-import { requireUser } from '~/lib/session.server';
-import { getUserProfile } from '~/models/user.server';
-import { Container } from '~/components/Container';
-import { Card } from '~/components/Card';
-import { TextInput } from '~/components/TextInput';
-import { Textarea } from '~/components/Textarea';
-import { Button } from '~/components/Button';
 import { Alert } from '~/components/Alert';
+import { Button } from '~/components/Button';
+import { Card } from '~/components/Card';
+import { Container } from '~/components/Container';
+import { getUserProfile } from '~/models/user.server';
 import { Modal } from '~/components/Modal';
 import { Paths } from '~/constants';
+import { profileUpdateSchema, type ProfileUpdateData } from '~/lib/validations';
+import { requireUser } from '~/lib/session.server';
+import { Textarea } from '~/components/Textarea';
+import { TextInput } from '~/components/TextInput';
+import { useFetcher } from 'react-router';
+import { useState, useEffect, useRef } from 'react';
+import { useValidatedForm } from '~/lib/form-hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { Route } from './+types/profile';
 
 // Loader: Fetch profile data
 export async function loader({ request }: Route.LoaderArgs) {
@@ -32,6 +32,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
     const fetcher = useFetcher();
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const prevStateRef = useRef(fetcher.state);
 
     const {
         register,
@@ -78,7 +79,10 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 
     // Exit edit mode and reset form on successful update
     useEffect(() => {
-        if (fetcher.state === 'idle' && fetcher.data?.success && isEditing) {
+        const justCompleted =
+            prevStateRef.current !== 'idle' && fetcher.state === 'idle';
+
+        if (justCompleted && fetcher.data?.success && isEditing) {
             setIsEditing(false);
             if (fetcher.data.profile) {
                 reset({
@@ -90,7 +94,15 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
                 });
             }
         }
-    }, [fetcher.state, fetcher.data, isEditing, reset]);
+
+        prevStateRef.current = fetcher.state;
+    }, [
+        fetcher.state,
+        fetcher.data?.success,
+        fetcher.data?.profile,
+        isEditing,
+        reset
+    ]);
 
     return (
         <>
@@ -189,7 +201,6 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
                             <div className="flex gap-2 justify-end pt-4">
                                 <Button
                                     type="button"
-                                    variant="ghost"
                                     onClick={() => {
                                         setIsEditing(false);
                                         reset();

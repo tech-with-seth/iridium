@@ -1,6 +1,6 @@
-import { Container } from '~/components/Container';
-import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
+import { Card } from '~/components/Card';
+import { Container } from '~/components/Container';
 
 export default function About() {
     return (
@@ -14,10 +14,10 @@ export default function About() {
                 <div className="max-w-4xl mx-auto space-y-12">
                     {/* Hero Section */}
                     <div className="text-center space-y-6">
-                        <h1 className="text-5xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="text-5xl font-bold">
                             About TWS Foundations
                         </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        <p className="text-xl max-w-3xl mx-auto">
                             A modern full-stack SaaS boilerplate built with the
                             latest technologies to help developers ship faster
                             with authentication, billing, and AI integration.
@@ -27,7 +27,7 @@ export default function About() {
                     {/* Features Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Card title="⚡ Modern Stack" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 Built with React Router 7, TailwindCSS v4, and
                                 TypeScript for a fast, type-safe development
                                 experience.
@@ -35,21 +35,21 @@ export default function About() {
                         </Card>
 
                         <Card title="🔐 Authentication" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 Secure authentication powered by BetterAuth with
                                 PostgreSQL storage and 7-day session management.
                             </p>
                         </Card>
 
                         <Card title="💳 Billing Ready" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 Integrated billing system using Polar.sh for
                                 subscriptions and credit-based usage tracking.
                             </p>
                         </Card>
 
                         <Card title="🤖 AI Integration" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 OpenAI GPT-4 integration with streaming
                                 responses using Vercel AI SDK for modern AI
                                 features.
@@ -57,14 +57,14 @@ export default function About() {
                         </Card>
 
                         <Card title="📊 Database & ORM" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 Type-safe database operations with Prisma ORM
                                 and PostgreSQL for reliable data management.
                             </p>
                         </Card>
 
                         <Card title="⚡ Performance" variant="border">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="">
                                 File-based caching with TTL support, singleton
                                 patterns, and optimized build processes.
                             </p>
@@ -73,39 +73,29 @@ export default function About() {
 
                     {/* Architecture Section */}
                     <div className="space-y-6">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
+                        <h2 className="text-3xl font-bold text-center">
                             Architecture Highlights
                         </h2>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <Card title="Config-Based Routing" variant="border">
                                 <div className="space-y-3">
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <p className="">
                                         Uses React Router 7's modern
                                         config-based routing system instead of
                                         file-based routing for better control
                                         and type safety.
                                     </p>
-                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                        <code className="text-sm text-gray-800 dark:text-gray-200">
-                                            Routes defined in app/routes.ts
-                                        </code>
-                                    </div>
                                 </div>
                             </Card>
 
                             <Card title="Middleware Patterns" variant="border">
                                 <div className="space-y-3">
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <p className="">
                                         Authentication and logging middleware
                                         protect routes automatically without
                                         boilerplate in each component.
                                     </p>
-                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                        <code className="text-sm text-gray-800 dark:text-gray-200">
-                                            Layout-based protection
-                                        </code>
-                                    </div>
                                 </div>
                             </Card>
                         </div>
@@ -113,7 +103,7 @@ export default function About() {
 
                     {/* CTA Section */}
                     <div className="text-center space-y-6 pt-8">
-                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                        <h2 className="text-2xl font-semibold">
                             Ready to Get Started?
                         </h2>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -56,7 +56,8 @@ export default function MyRoute() {
 ### Singleton Pattern Services
 
 - **Database**: `app/db.server.ts` - Global Prisma client
-- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance
+- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance with Polar plugin
+- **Polar**: `app/lib/polar.server.ts` - Polar SDK client singleton
 - **AI**: `app/lib/ai.ts` - OpenAI client singleton
 - **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL support
 
@@ -296,6 +297,51 @@ export async function action({ request }: Route.ActionArgs) {
 - Middleware-based protection in `app/middleware/auth.ts` for layout routes
 - Client-side auth via `authClient` from `app/lib/auth-client.ts` (Better Auth React)
 
+### Polar Integration (Payments & Billing)
+
+**📋 Important: Reference `.github/instructions/polar.instructions.md` for Polar integration patterns.**
+
+Polar is integrated via the BetterAuth plugin system for seamless auth + payments flow:
+
+- **Server config**: `app/lib/auth.server.ts` - Polar plugin with checkout, portal, usage, webhooks
+- **Client config**: `app/lib/auth-client.ts` - `polarClient()` plugin enables `authClient.checkout()`, `authClient.customer.*` methods
+- **Polar client**: `app/lib/polar.server.ts` - Singleton Polar SDK instance
+- **Auto customer creation**: When `createCustomerOnSignUp: true`, new users automatically get Polar customers with `externalId` = user ID
+
+#### Available Client Methods
+
+```typescript
+// Checkout - Redirect to Polar checkout
+await authClient.checkout({
+    products: ["product-id"],
+    slug: "pro" // If configured in checkout.products
+});
+
+// Customer Portal - Manage orders & subscriptions
+await authClient.customer.portal();
+
+// Customer State - All customer data, subscriptions, benefits, meters
+const { data: customerState } = await authClient.customer.state();
+
+// List benefits, orders, subscriptions
+const { data: benefits } = await authClient.customer.benefits.list();
+const { data: orders } = await authClient.customer.orders.list();
+const { data: subscriptions } = await authClient.customer.subscriptions.list();
+
+// Usage-based billing
+await authClient.usage.ingest({ event: "api-call", metadata: { count: 1 } });
+const { data: meters } = await authClient.usage.meters.list();
+```
+
+#### Webhook Handling
+
+Webhooks are handled by BetterAuth plugin at `/api/auth/*` endpoints (configured in `auth.server.ts`):
+- Automatic signature verification using `POLAR_WEBHOOK_SECRET`
+- Granular event handlers: `onOrderPaid`, `onCustomerStateChanged`, etc.
+- Catch-all: `onPayload` for all events
+
+Configure webhook endpoint in Polar Organization Settings: `https://your-domain.com/api/auth/polar/webhooks`
+
 ### AI Integration
 
 - OpenAI client singleton in `app/lib/ai.ts`
@@ -316,10 +362,11 @@ BETTER_AUTH_SECRET="your-secret-key"
 BETTER_AUTH_URL="http://localhost:5173"
 OPENAI_API_KEY="sk-..."
 
-# Optional - for Polar.sh billing integration
-POLAR_ACCESS_TOKEN="polar_at_..."
-POLAR_SERVER="sandbox"  # or "production"
-POLAR_WEBHOOK_SECRET="your-polar-webhook-secret"
+# Polar.sh billing integration
+POLAR_ACCESS_TOKEN="polar_at_..."           # Get from Polar Organization Settings
+POLAR_SERVER="sandbox"                      # or "production"
+POLAR_SUCCESS_URL="http://localhost:5173/payment/success"
+POLAR_WEBHOOK_SECRET="your-webhook-secret"  # Get from Polar webhook configuration
 ```
 
 ## Critical Anti-Patterns to Avoid
@@ -455,6 +502,9 @@ import { Route } from "./+types/dashboard";
 // Auth helpers
 import { requireUser, getUser, requireAnonymous } from "~/lib/session.server";
 import { authClient } from "~/lib/auth-client";
+
+// Polar client (server-side only)
+import { polarClient } from "~/lib/polar.server";
 
 // AI client
 import { openai } from "~/lib/ai";

@@ -10,10 +10,14 @@ import {
 
 import type { Route } from './+types/root';
 
-import './app.css';
 import { Navbar, NavbarMenu, NavbarMenuItem } from './components/Navbar';
 import { Container } from './components/Container';
 import { Paths } from './constants';
+import { getUser } from './lib/session.server';
+import { useRootData } from './hooks/useRootData';
+import { Badge } from './components/Badge';
+
+import './app.css';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -28,7 +32,13 @@ export const links: Route.LinksFunction = () => [
     }
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+    return { user: await getUser(request) };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+    const data = useRootData();
+
     return (
         <html lang="en">
             <head>
@@ -44,7 +54,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <header className="my-4">
                     <Container>
                         <Navbar
-                            backgroundColor="primary"
                             sticky
                             shadow
                             brand={
@@ -63,27 +72,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                     <NavbarMenuItem>
                                         <Link to={Paths.ABOUT}>About</Link>
                                     </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to="/dashboard">Dashboard</Link>
-                                    </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to="/profile">Profile</Link>
-                                    </NavbarMenuItem>
+                                    {data?.user?.id && (
+                                        <>
+                                            <NavbarMenuItem>
+                                                <Link to="/dashboard">
+                                                    Dashboard
+                                                </Link>
+                                            </NavbarMenuItem>
+                                        </>
+                                    )}
                                 </NavbarMenu>
                             }
                             end={
                                 <NavbarMenu>
-                                    <NavbarMenuItem>
-                                        <Link to={Paths.SIGN_IN}>Sign In</Link>
-                                    </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to={Paths.SIGN_UP}>Sign Up</Link>
-                                    </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to={Paths.SIGN_OUT}>
-                                            Sign Out
-                                        </Link>
-                                    </NavbarMenuItem>
+                                    {data?.user?.id ? (
+                                        <>
+                                            <NavbarMenuItem>
+                                                <Link to="/profile">
+                                                    {data?.user?.name}
+                                                </Link>
+                                            </NavbarMenuItem>
+                                            <NavbarMenuItem>
+                                                <Link to={Paths.SIGN_OUT}>
+                                                    Sign Out
+                                                </Link>
+                                            </NavbarMenuItem>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <NavbarMenuItem>
+                                                <Link to={Paths.SIGN_IN}>
+                                                    Sign In
+                                                </Link>
+                                            </NavbarMenuItem>
+                                        </>
+                                    )}
                                 </NavbarMenu>
                             }
                         />

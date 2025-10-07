@@ -7,7 +7,7 @@
 > Payments and Checkouts made dead simple with Remix
 
 ```bash
-pnpm install @polar-sh/remix zod
+npm install @polar-sh/remix zod
 ```
 
 ## Checkout

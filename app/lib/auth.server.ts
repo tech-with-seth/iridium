@@ -1,7 +1,9 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { polar, checkout, portal, usage, webhooks } from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
+import { polarClient } from './polar.server';
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -24,5 +26,33 @@ export const auth = betterAuth({
                 context: ctx
             });
         }
-    }
+    },
+    plugins: [
+        polar({
+            client: polarClient,
+            createCustomerOnSignUp: true,
+            use: [
+                checkout({
+                    // Add your product configurations here
+                    // products: [{ productId: "your-product-id", slug: "pro" }],
+                    successUrl: process.env.POLAR_SUCCESS_URL || '/payment/success',
+                    authenticatedUsersOnly: true
+                }),
+                portal(),
+                usage(),
+                webhooks({
+                    secret: process.env.POLAR_WEBHOOK_SECRET!,
+                    onCustomerStateChanged: async (payload) => {
+                        console.log('Customer state changed:', payload);
+                    },
+                    onOrderPaid: async (payload) => {
+                        console.log('Order paid:', payload);
+                    },
+                    onPayload: async (payload) => {
+                        console.log('Polar webhook received:', payload);
+                    }
+                })
+            ]
+        })
+    ]
 });
