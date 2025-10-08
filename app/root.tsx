@@ -7,22 +7,19 @@ import {
     Scripts,
     ScrollRestoration
 } from 'react-router';
-import invariant from 'tiny-invariant';
-import { CogIcon } from 'lucide-react';
+import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
 import { Button } from './components/Button';
-import { Container } from './components/Container';
 import { Drawer } from './components/Drawer';
+import { Footer } from './components/Footer';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import { Navbar, NavbarMenu, NavbarMenuItem } from './components/Navbar';
-import { Paths } from './constants';
-import { useReducer } from 'react';
+import { Header } from './components/Header';
+import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
 
 import './app.css';
-import { Footer } from './components/Footer';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -33,7 +30,7 @@ export const links: Route.LinksFunction = () => [
     },
     {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap'
+        href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:ital,wght@0,100..900;1,100..900&display=swap'
     }
 ];
 
@@ -46,27 +43,49 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
-    const [isOpen, dispatch] = useReducer((state, action) => {
-        if (action.type === 'OPEN') {
-            return true;
-        }
-
-        if (action.type === 'CLOSE') {
-            return false;
-        }
-
-        if (action.type === 'TOGGLE') {
-            return !state;
-        }
-
-        return state;
-    }, false);
-
-    const closeDrawer = () => dispatch({ type: 'CLOSE' });
-    const openDrawer = () => dispatch({ type: 'OPEN' });
+    const [isOpen, { openDrawer, closeDrawer }] = useDrawer();
 
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
+
+    const DrawerContents = () => (
+        <ul>
+            <li>
+                <Link to="/link1">Link 1</Link>
+            </li>
+            <li>
+                <Link to="/link2">Link 2</Link>
+            </li>
+            <li>
+                <Link to="/link3">Link 3</Link>
+            </li>
+        </ul>
+    );
+
+    const DrawerWrapper = ({ children }: { children: React.ReactNode }) => (
+        <Drawer
+            id="appDrawer"
+            isOpen={hasAccessPermissions && isOpen}
+            handleClose={closeDrawer}
+            contents={<DrawerContents />}
+        >
+            {children}
+        </Drawer>
+    );
+
+    const DrawerTrigger = () => (
+        <div className="fixed bottom-4 right-4">
+            <Button circle onClick={openDrawer} status="secondary">
+                <CogIcon />
+            </Button>
+        </div>
+    );
+
+    const mainContent = hasAccessPermissions ? (
+        <DrawerWrapper>{children}</DrawerWrapper>
+    ) : (
+        children
+    );
 
     return (
         <html lang="en" className="min-h-screen">
@@ -80,81 +99,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="min-h-screen flex flex-col">
-                <header className="my-4">
-                    <Container>
-                        <Navbar
-                            brand={
-                                <Link to="/" className="px-4 text-xl font-bold">
-                                    {`<TWS />`}
-                                </Link>
-                            }
-                            sticky
-                            shadow
-                            center={
-                                <NavbarMenu>
-                                    <NavbarMenuItem>
-                                        <Link to="/">Home</Link>
-                                    </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to={Paths.ABOUT}>About</Link>
-                                    </NavbarMenuItem>
-                                    {data?.user?.id && (
-                                        <>
-                                            <NavbarMenuItem>
-                                                <Link to="/dashboard">
-                                                    Dashboard
-                                                </Link>
-                                            </NavbarMenuItem>
-                                        </>
-                                    )}
-                                </NavbarMenu>
-                            }
-                            end={
-                                <NavbarMenu>
-                                    {data?.user?.id ? (
-                                        <>
-                                            <NavbarMenuItem>
-                                                <Link to="/profile">
-                                                    {data?.user?.name}
-                                                </Link>
-                                            </NavbarMenuItem>
-                                            <NavbarMenuItem>
-                                                <Link to={Paths.SIGN_OUT}>
-                                                    Sign Out
-                                                </Link>
-                                            </NavbarMenuItem>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <NavbarMenuItem>
-                                                <Link to={Paths.SIGN_IN}>
-                                                    Sign In
-                                                </Link>
-                                            </NavbarMenuItem>
-                                        </>
-                                    )}
-                                </NavbarMenu>
-                            }
-                        />
-                    </Container>
-                </header>
-                <main className="flex-grow">
-                    <Drawer
-                        id="appDrawer"
-                        isOpen={hasAccessPermissions && isOpen}
-                        handleClose={closeDrawer}
-                    >
-                        {children}
-                    </Drawer>
-                </main>
+                <Header />
+                <main className="flex-grow">{mainContent}</main>
                 <Footer />
-                {hasAccessPermissions && (
-                    <div className="fixed bottom-4 right-4">
-                        <Button circle onClick={openDrawer} status="secondary">
-                            <CogIcon />
-                        </Button>
-                    </div>
-                )}
+                {hasAccessPermissions && <DrawerTrigger />}
                 <ScrollRestoration />
                 <Scripts />
             </body>
@@ -184,7 +132,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
     return (
         <main className="pt-16 p-4 container mx-auto">
-            <h1>{message}</h1>
+            <div className="mb-8">
+                <FileQuestionIcon className="h-12 w-12 text-zinc-400" />
+            </div>
+            <h1 className="text-6xl font-bold">{message}</h1>
             <p>{details}</p>
             {stack && (
                 <pre className="w-full p-4 overflow-x-auto">

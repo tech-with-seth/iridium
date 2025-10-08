@@ -24,15 +24,17 @@ export const drawerVariants = cva({
 });
 
 interface DrawerProps {
+    contents: React.ReactNode;
+    handleClose: () => void;
     id: string;
     isOpen: boolean;
-    handleClose: () => void;
     side?: 'left' | 'right';
     size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export function Drawer({
     children,
+    contents,
     handleClose,
     id,
     isOpen,
@@ -56,17 +58,14 @@ export function Drawer({
                     onClick={handleClose}
                 ></label>
                 <div className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                    <Button circle onClick={handleClose} className="self-end mb-8">
+                    <Button
+                        circle
+                        onClick={handleClose}
+                        className="self-end mb-8"
+                    >
                         <XIcon />
                     </Button>
-                    <ul>
-                        <li>
-                            <a>Sidebar Item 1</a>
-                        </li>
-                        <li>
-                            <a>Sidebar Item 2</a>
-                        </li>
-                    </ul>
+                    <div>{contents}</div>
                 </div>
             </div>
         </div>
