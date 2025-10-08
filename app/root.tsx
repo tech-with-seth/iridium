@@ -39,9 +39,7 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
-    invariant(user, 'User not found');
-
-    const roleObj = await getUserRole(user?.id);
+    const roleObj = user ? await getUserRole(user?.id) : null;
 
     return { user, role: roleObj?.role };
 }
@@ -67,7 +65,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const closeDrawer = () => dispatch({ type: 'CLOSE' });
     const openDrawer = () => dispatch({ type: 'OPEN' });
 
-    const canOpen = data?.role === 'ADMIN' || data?.role === 'EDITOR';
+    const hasAccessPermissions =
+        data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
     return (
         <html lang="en" className="min-h-screen">
@@ -142,18 +141,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <main className="flex-grow">
                     <Drawer
                         id="appDrawer"
-                        isOpen={canOpen && isOpen}
+                        isOpen={hasAccessPermissions && isOpen}
                         handleClose={closeDrawer}
                     >
                         {children}
                     </Drawer>
                 </main>
                 <Footer />
-                <div className="fixed bottom-4 right-4">
-                    <Button circle onClick={openDrawer}>
-                        <CogIcon />
-                    </Button>
-                </div>
+                {hasAccessPermissions && (
+                    <div className="fixed bottom-4 right-4">
+                        <Button circle onClick={openDrawer} status="secondary">
+                            <CogIcon />
+                        </Button>
+                    </div>
+                )}
                 <ScrollRestoration />
                 <Scripts />
             </body>
