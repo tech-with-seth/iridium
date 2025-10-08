@@ -1,7 +1,12 @@
 export enum Paths {
+    ADMIN = '/admin',
+    API = '/api',
     ABOUT = '/about',
+    AUTH = '/auth',
+    AUTHENTICATE = '/authenticate',
     BILLING = '/billing',
     DASHBOARD = '/dashboard',
+    DESIGN = '/design',
     FORGOT_PASSWORD = '/forgot-password',
     HOME = '/',
     PAYMENT_SUCCESS = '/payment/success',

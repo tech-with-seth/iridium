@@ -25,9 +25,6 @@ export function Header() {
                             <NavbarMenuItem>
                                 <Link to="/">Home</Link>
                             </NavbarMenuItem>
-                            <NavbarMenuItem>
-                                <Link to={Paths.ABOUT}>About</Link>
-                            </NavbarMenuItem>
                             {data?.user?.id && (
                                 <>
                                     <NavbarMenuItem>
