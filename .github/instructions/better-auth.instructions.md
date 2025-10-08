@@ -41,12 +41,7 @@ export const authClient = createAuthClient({
     baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5173'
 });
 
-export const {
-    signIn,
-    signUp,
-    signOut,
-    useSession
-} = authClient;
+export const { signIn, signUp, signOut, useSession } = authClient;
 ```
 
 ### Session Helpers (`app/lib/session.server.ts`)
@@ -55,13 +50,13 @@ export const {
 import { redirect } from 'react-router';
 import { auth } from './auth.server';
 
-export async function getUser(request: Request) {
+export async function getUserFromSession(request: Request) {
     const session = await auth.api.getSession({ headers: request.headers });
     return session?.user ?? null;
 }
 
 export async function requireUser(request: Request) {
-    const user = await getUser(request);
+    const user = await getUserFromSession(request);
     if (!user) {
         throw redirect('/sign-in');
     }
@@ -69,7 +64,7 @@ export async function requireUser(request: Request) {
 }
 
 export async function requireAnonymous(request: Request) {
-    const user = await getUser(request);
+    const user = await getUserFromSession(request);
     if (user) {
         throw redirect('/dashboard');
     }
@@ -102,9 +97,7 @@ import { type RouteConfig, route, prefix } from '@react-router/dev/routes';
 
 export default [
     // ... other routes
-    ...prefix('api', [
-        route('auth/*', 'routes/api/auth/better-auth.ts')
-    ])
+    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')])
 ] satisfies RouteConfig;
 ```
 
@@ -154,25 +147,28 @@ export default function Dashboard() {
 ```typescript
 import { authClient } from '~/lib/auth-client';
 
-const { data, error } = await authClient.signUp.email({
-    email: 'user@example.com',
-    password: 'securePassword123',
-    name: 'John Doe',
-    image: 'https://example.com/avatar.jpg', // optional
-    callbackURL: '/dashboard' // optional
-}, {
-    onRequest: () => {
-        // Show loading state
+const { data, error } = await authClient.signUp.email(
+    {
+        email: 'user@example.com',
+        password: 'securePassword123',
+        name: 'John Doe',
+        image: 'https://example.com/avatar.jpg', // optional
+        callbackURL: '/dashboard' // optional
     },
-    onSuccess: (ctx) => {
-        // Redirect to dashboard
-        window.location.href = ctx.data.callbackURL || '/dashboard';
-    },
-    onError: (ctx) => {
-        // Display error message
-        console.error(ctx.error.message);
+    {
+        onRequest: () => {
+            // Show loading state
+        },
+        onSuccess: (ctx) => {
+            // Redirect to dashboard
+            window.location.href = ctx.data.callbackURL || '/dashboard';
+        },
+        onError: (ctx) => {
+            // Display error message
+            console.error(ctx.error.message);
+        }
     }
-});
+);
 ```
 
 **Configuration Options:**
@@ -193,19 +189,22 @@ emailAndPassword: {
 #### Sign In
 
 ```typescript
-const { data, error } = await authClient.signIn.email({
-    email: 'user@example.com',
-    password: 'securePassword123',
-    callbackURL: '/dashboard', // optional
-    rememberMe: true // optional - keep session after browser close
-}, {
-    onSuccess: (ctx) => {
-        window.location.href = ctx.data.callbackURL || '/dashboard';
+const { data, error } = await authClient.signIn.email(
+    {
+        email: 'user@example.com',
+        password: 'securePassword123',
+        callbackURL: '/dashboard', // optional
+        rememberMe: true // optional - keep session after browser close
     },
-    onError: (ctx) => {
-        console.error(ctx.error.message);
+    {
+        onSuccess: (ctx) => {
+            window.location.href = ctx.data.callbackURL || '/dashboard';
+        },
+        onError: (ctx) => {
+            console.error(ctx.error.message);
+        }
     }
-});
+);
 ```
 
 #### Sign Out
@@ -455,9 +454,7 @@ await authClient.twoFactor.verifyTotp({
 import { username } from 'better-auth/plugins';
 
 export const auth = betterAuth({
-    plugins: [
-        username()
-    ]
+    plugins: [username()]
 });
 
 // Client
@@ -580,9 +577,7 @@ await authClient.passkey.signIn();
 import { admin } from 'better-auth/plugins';
 
 export const auth = betterAuth({
-    plugins: [
-        admin()
-    ]
+    plugins: [admin()]
 });
 
 // Grant admin privileges
@@ -757,11 +752,13 @@ import { getUser } from '~/lib/session.server';
 import { redirect } from 'react-router';
 
 export async function authMiddleware({ request }: Route.LoaderArgs) {
-    const user = await getUser(request);
+    const user = await getUserFromSession(request);
 
     if (!user) {
         const url = new URL(request.url);
-        throw redirect(`/sign-in?redirectTo=${encodeURIComponent(url.pathname)}`);
+        throw redirect(
+            `/sign-in?redirectTo=${encodeURIComponent(url.pathname)}`
+        );
     }
 
     return { user };
@@ -783,7 +780,9 @@ const AuthenticatedContext = createContext<AuthenticatedContext | null>(null);
 export function useAuthenticatedContext() {
     const context = useContext(AuthenticatedContext);
     if (!context) {
-        throw new Error('useAuthenticatedContext must be used within AuthenticatedLayout');
+        throw new Error(
+            'useAuthenticatedContext must be used within AuthenticatedLayout'
+        );
     }
     return context;
 }
@@ -944,21 +943,25 @@ export function mockSession(user = mockUser()) {
 ## Troubleshooting
 
 ### Session Not Persisting
+
 - Check `BETTER_AUTH_SECRET` is set and consistent across deployments
 - Verify cookies are being sent (check browser DevTools)
 - Ensure `BETTER_AUTH_URL` matches your domain
 
 ### Social Login Not Working
+
 - Verify redirect URIs match in provider settings
 - Check client ID and secret are correct
 - Ensure callback route is registered in `app/routes.ts`
 
 ### Database Errors
+
 - Run migrations: `npx prisma migrate dev`
 - Regenerate client: `npx prisma generate`
 - Check database connection string
 
 ### TypeScript Errors
+
 - Run `npm run typecheck` to generate route types
 - Ensure Prisma client is generated
 - Restart TypeScript server in IDE
@@ -969,12 +972,12 @@ export function mockSession(user = mockUser()) {
 - [Plugin Directory](https://www.better-auth.com/docs/plugins)
 - [API Reference](https://www.better-auth.com/docs/api-reference)
 - Project files:
-  - Server config: `app/lib/auth.server.ts`
-  - Client config: `app/lib/auth-client.ts`
-  - Session helpers: `app/lib/session.server.ts`
-  - Middleware: `app/middleware/auth.ts`
-  - Validation schemas: `app/lib/validations.ts`
+    - Server config: `app/lib/auth.server.ts`
+    - Client config: `app/lib/auth-client.ts`
+    - Session helpers: `app/lib/session.server.ts`
+    - Middleware: `app/middleware/auth.ts`
+    - Validation schemas: `app/lib/validations.ts`
 - Related instructions:
-  - `.github/instructions/react-router.instructions.md`
-  - `.github/instructions/react-hook-form.instructions.md`
-  - `.github/instructions/polar.instructions.md`
+    - `.github/instructions/react-router.instructions.md`
+    - `.github/instructions/react-hook-form.instructions.md`
+    - `.github/instructions/polar.instructions.md`

@@ -148,7 +148,7 @@ export async function action({ request }: Route.ActionArgs) {
 **Session Helpers**:
 
 - `requireUser(request)` - Throws redirect if not authenticated
-- `getUser(request)` - Returns user or null
+- `getUserFromSession(request)` - Returns user or null
 - `requireAnonymous(request)` - Redirects authenticated users (for sign-in/up pages)
 
 ### Prisma Database Pattern

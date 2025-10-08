@@ -196,6 +196,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 For any feature requiring Create, Read, Update, Delete operations, follow the **API-first pattern**:
 
 **Why API-first?**
+
 - ✅ RESTful and modular architecture
 - ✅ Reusable from anywhere in the application
 - ✅ Better separation of concerns (API vs UI)
@@ -293,9 +294,51 @@ export async function action({ request }: Route.ActionArgs) {
 - Session helpers in `app/lib/session.server.ts`:
   - `requireUser()` for protected routes (throws redirect if not authenticated)
   - `requireAnonymous()` for auth pages (redirects authenticated users)
-  - `getUser()` for optional user context (returns null if not authenticated)
+  - `getUserFromSession()` for optional user context (returns null if not authenticated)
 - Middleware-based protection in `app/middleware/auth.ts` for layout routes
 - Client-side auth via `authClient` from `app/lib/auth-client.ts` (Better Auth React)
+
+### Role-Based Access Control (RBAC)
+
+**📋 Important: Reference `.github/instructions/role-based-access.instructions.md` for comprehensive RBAC patterns and examples.**
+
+This application implements a hierarchical role system: `USER` → `EDITOR` → `ADMIN`
+
+**Database Schema:**
+
+```prisma
+enum Role {
+  USER    // Default for new users
+  EDITOR  // Content management
+  ADMIN   // Full system access
+}
+
+model User {
+  // ... other fields
+  role Role @default(USER)
+}
+```
+
+**Server-side Role Helpers** (`app/lib/session.server.ts`):
+
+- `hasRole(user, role)` - Check if user has role or higher (respects hierarchy)
+- `requireRole(request, allowedRoles[])` - Throws 403 if user lacks required role
+- `requireEditor(request)` - Convenience wrapper (allows EDITOR + ADMIN)
+- `requireAdmin(request)` - Convenience wrapper (ADMIN only)
+
+**Model Layer Functions** (`app/models/user.server.ts`):
+
+- `getUserProfile(userId)` - Returns profile including role field
+- `getUsersByRole(role)` - Fetch all users with specific role
+- `updateUserRole(userId, newRole)` - Change user role (admin operation)
+- `countUsersByRole()` - Get statistics on user counts by role
+
+**Client-side Hooks** (`app/hooks/useUserRole.ts`):
+
+- `useUserRole()` - Get current user's role (UI only, not for security)
+- `useHasRole(role)` - Check if user has role or higher (UI only)
+
+**CRITICAL**: Always use server-side checks (`requireRole`, `requireEditor`, `requireAdmin`) in loaders and actions. Client-side hooks are for UI rendering only.
 
 ### Polar Integration (Payments & Billing)
 
@@ -336,6 +379,7 @@ const { data: meters } = await authClient.usage.meters.list();
 #### Webhook Handling
 
 Webhooks are handled by BetterAuth plugin at `/api/auth/*` endpoints (configured in `auth.server.ts`):
+
 - Automatic signature verification using `POLAR_WEBHOOK_SECRET`
 - Granular event handlers: `onOrderPaid`, `onCustomerStateChanged`, etc.
 - Catch-all: `onPayload` for all events
@@ -458,15 +502,18 @@ export function Component({
 This project uses a hybrid validation approach with Zod schemas validated on both client and server:
 
 **Server-side utilities** (`app/lib/form-validation.server.ts`):
+
 - `parseFormData(request)` - Extract FormData from POST body or GET params
 - `getValidatedFormData(request, resolver)` - Validate with Zod, return `{ errors, data, receivedValues }`
 
 **Client-side hook** (`app/lib/form-hooks.ts`):
+
 - `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
 - Automatically syncs server errors with form state via `errors` option
 - Maintains full React Hook Form API
 
 **Authentication pattern** (special case - uses client-side Better Auth):
+
 - Authentication uses `authClient` from `app/lib/auth-client.ts` directly on the client
 - Client validates with React Hook Form + Zod, then calls `authClient.signIn.email()` or `authClient.signUp.email()`
 - Better Auth automatically handles session cookies via `/api/auth/*` endpoints
@@ -475,6 +522,7 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 - See `.github/instructions/better-auth.instructions.md` for complete auth patterns
 
 **Standard form pattern** (for CRUD operations):
+
 1. Client validates with React Hook Form + Zod (instant feedback)
 2. Form submits to server via `useFetcher()`
 3. Server validates with same Zod schema (security)
@@ -482,6 +530,7 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 5. Server executes business logic and returns success/redirect
 
 **Zod schemas** in `app/lib/validations.ts`:
+
 - Type inference: `z.infer<typeof schema>`
 - Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
 - Consistent error messaging across client and server
@@ -502,6 +551,12 @@ import { Route } from "./+types/dashboard";
 // Auth helpers
 import { requireUser, getUser, requireAnonymous } from "~/lib/session.server";
 import { authClient } from "~/lib/auth-client";
+
+// Role-based access control
+import { Role } from "~/generated/prisma";
+import { hasRole, requireRole, requireEditor, requireAdmin } from "~/lib/session.server";
+import { getUsersByRole, updateUserRole, countUsersByRole } from "~/models/user.server";
+import { useUserRole, useHasRole } from "~/hooks/useUserRole";
 
 // Polar client (server-side only)
 import { polarClient } from "~/lib/polar.server";

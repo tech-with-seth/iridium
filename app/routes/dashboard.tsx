@@ -1,4 +1,5 @@
 import { Container } from '~/components/Container';
+import { Stats } from '~/components/Stats';
 import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 
 export default function Dashboard() {
@@ -12,12 +13,11 @@ export default function Dashboard() {
                 content="Overview of your TWS Foundations account and activity."
             />
             <Container className="pt-12">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold">
                     Welcome, {user?.name || user?.email}!
                 </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                    This is your dashboard
-                </p>
+                <p className="mt-2">This is your dashboard</p>
+                <Stats />
             </Container>
         </>
     );

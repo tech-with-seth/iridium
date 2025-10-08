@@ -71,7 +71,7 @@ export default [
 ### Authentication & Session Management
 
 - **BetterAuth** with Prisma adapter, 7-day sessions, no email verification required
-- Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUser()`, `requireAnonymous()`
+- Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUserFromSession()`, `requireAnonymous()`
 - Client-side: `authClient` from `app/lib/auth-client.ts` with Better Auth React
 - Protected routes use middleware pattern in layout files
 
@@ -151,22 +151,22 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 
 - **Zod schemas** in `app/lib/validations.ts` - Single source of truth
 - **Server-side utilities** in `app/lib/form-validation.server.ts`:
-  - `parseFormData(request)` - Extract FormData from POST body or GET params
-  - `getValidatedFormData(request, resolver)` - Validate with Zod, return errors/data
+    - `parseFormData(request)` - Extract FormData from POST body or GET params
+    - `getValidatedFormData(request, resolver)` - Validate with Zod, return errors/data
 - **Client-side hook** in `app/lib/form-hooks.ts`:
-  - `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
-  - Automatically syncs server errors with form state
-  - Maintains full React Hook Form API
+    - `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
+    - Automatically syncs server errors with form state
+    - Maintains full React Hook Form API
 - **Central auth endpoint**: `/api/auth/authenticate`
-  - POST with `intent=signIn` - Validates and signs in user
-  - POST with `intent=signUp` - Validates and creates user account
-  - DELETE - Signs out user
+    - POST with `intent=signIn` - Validates and signs in user
+    - POST with `intent=signUp` - Validates and creates user account
+    - DELETE - Signs out user
 - **Pattern flow**:
-  1. Client validates with React Hook Form + Zod (instant feedback)
-  2. Form submits to server via `useFetcher()`
-  3. Server validates with same Zod schema (security)
-  4. Server errors automatically populate form fields
-  5. BetterAuth handles authentication on server
+    1. Client validates with React Hook Form + Zod (instant feedback)
+    2. Form submits to server via `useFetcher()`
+    3. Server validates with same Zod schema (security)
+    4. Server errors automatically populate form fields
+    5. BetterAuth handles authentication on server
 - Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
 
 ## File Organization

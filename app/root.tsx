@@ -7,17 +7,22 @@ import {
     Scripts,
     ScrollRestoration
 } from 'react-router';
+import invariant from 'tiny-invariant';
+import { CogIcon } from 'lucide-react';
 
+import { Button } from './components/Button';
+import { Container } from './components/Container';
+import { Drawer } from './components/Drawer';
+import { getUserFromSession } from './lib/session.server';
+import { getUserRole } from './models/user.server';
+import { Navbar, NavbarMenu, NavbarMenuItem } from './components/Navbar';
+import { Paths } from './constants';
+import { useReducer } from 'react';
+import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
 
-import { Navbar, NavbarMenu, NavbarMenuItem } from './components/Navbar';
-import { Container } from './components/Container';
-import { Paths } from './constants';
-import { getUser } from './lib/session.server';
-import { useRootData } from './hooks/useRootData';
-import { Badge } from './components/Badge';
-
 import './app.css';
+import { Footer } from './components/Footer';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -33,14 +38,39 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-    return { user: await getUser(request) };
+    const user = await getUserFromSession(request);
+    invariant(user, 'User not found');
+
+    const roleObj = await getUserRole(user?.id);
+
+    return { user, role: roleObj?.role };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
+    const [isOpen, dispatch] = useReducer((state, action) => {
+        if (action.type === 'OPEN') {
+            return true;
+        }
+
+        if (action.type === 'CLOSE') {
+            return false;
+        }
+
+        if (action.type === 'TOGGLE') {
+            return !state;
+        }
+
+        return state;
+    }, false);
+
+    const closeDrawer = () => dispatch({ type: 'CLOSE' });
+    const openDrawer = () => dispatch({ type: 'OPEN' });
+
+    const canOpen = data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
     return (
-        <html lang="en">
+        <html lang="en" className="min-h-screen">
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -50,20 +80,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body>
+            <body className="min-h-screen flex flex-col">
                 <header className="my-4">
                     <Container>
                         <Navbar
-                            sticky
-                            shadow
                             brand={
-                                <Link
-                                    to="/"
-                                    className="btn btn-ghost text-xl font-bold"
-                                >
+                                <Link to="/" className="px-4 text-xl font-bold">
                                     {`<TWS />`}
                                 </Link>
                             }
+                            sticky
+                            shadow
                             center={
                                 <NavbarMenu>
                                     <NavbarMenuItem>
@@ -112,12 +139,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         />
                     </Container>
                 </header>
-                <main>{children}</main>
-                <footer>
-                    <Container className="py-4 text-center text-sm text-gray-500">
-                        &copy; {new Date().getFullYear()} Tech with Seth
-                    </Container>
-                </footer>
+                <main className="flex-grow">
+                    <Drawer
+                        id="appDrawer"
+                        isOpen={canOpen && isOpen}
+                        handleClose={closeDrawer}
+                    >
+                        {children}
+                    </Drawer>
+                </main>
+                <Footer />
+                <div className="fixed bottom-4 right-4">
+                    <Button circle onClick={openDrawer}>
+                        <CogIcon />
+                    </Button>
+                </div>
                 <ScrollRestoration />
                 <Scripts />
             </body>

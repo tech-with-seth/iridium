@@ -172,7 +172,7 @@ BetterAuth is configured with:
 - Email/password authentication
 - Prisma adapter with PostgreSQL
 - 7-day session expiry
-- Session helpers: `requireUser()`, `getUser()`, `requireAnonymous()`
+- Session helpers: `requireUser()`, `getUserFromSession()`, `requireAnonymous()`
 - Middleware-based route protection via layout files
 - Central authentication endpoint at `/api/authenticate`
 
