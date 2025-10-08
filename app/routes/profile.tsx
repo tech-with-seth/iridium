@@ -111,7 +111,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
                 name="description"
                 content="Manage your personal details and account preferences."
             />
-            <Container className="pt-12">
+            <Container>
                 <Card>
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold">Your Profile</h1>

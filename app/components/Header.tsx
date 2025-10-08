@@ -10,7 +10,7 @@ export function Header() {
     const data = useRootData();
 
     return (
-        <header className="my-4">
+        <header className="my-8">
             <Container>
                 <Navbar
                     brand={
