@@ -48,6 +48,7 @@ export function Drawer({
                 type="checkbox"
                 className="drawer-toggle"
                 checked={isOpen}
+                readOnly
             />
             <div className="drawer-content">{children}</div>
             <div className="drawer-side">

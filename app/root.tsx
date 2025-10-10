@@ -17,9 +17,11 @@ import { getUserRole } from './models/user.server';
 import { Header } from './components/Header';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
+import { PHProvider } from './components/PostHogProvider';
 import type { Route } from './+types/root';
 
 import './app.css';
+import { logEvent } from './lib/posthog';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -99,12 +101,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-grow">{mainContent}</main>
-                <Footer />
-                {hasAccessPermissions && <DrawerTrigger />}
-                <ScrollRestoration />
-                <Scripts />
+                <PHProvider>
+                    <Header />
+                    <main className="flex-grow">{mainContent}</main>
+                    <Footer />
+                    {hasAccessPermissions && <DrawerTrigger />}
+                    <ScrollRestoration />
+                    <Scripts />
+                </PHProvider>
             </body>
         </html>
     );

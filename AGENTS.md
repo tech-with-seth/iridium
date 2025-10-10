@@ -60,6 +60,10 @@ BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
 BETTER_AUTH_URL="http://localhost:5173"
 OPENAI_API_KEY="sk-..."
 
+# Optional - PostHog analytics
+VITE_POSTHOG_API_KEY="phc_your-posthog-api-key"
+VITE_POSTHOG_HOST="https://us.i.posthog.com"
+
 # Optional - Polar.sh billing
 POLAR_ACCESS_TOKEN="polar_at_..."
 POLAR_SERVER="sandbox"  # or "production"
@@ -591,6 +595,7 @@ OPENAI_API_KEY
   - `better-auth.instructions.md` - Authentication implementation
   - `component-patterns.instructions.md` - UI component standards
   - `polar.instructions.md` - Billing integration
+  - `posthog.instructions.md` - Analytics and feature flags integration
   - `prisma.instructions.md` - Database patterns
   - `cva.instructions.md` - Component variant patterns
   - `daisyui.instructions.md` - DaisyUI component library

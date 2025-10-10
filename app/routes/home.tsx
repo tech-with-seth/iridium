@@ -3,6 +3,7 @@ import { BetterAuthLogo } from '~/components/logos/BetterAuthLogo';
 import { CloudinaryLogo } from '~/components/logos/CloudinaryLogo';
 import { PolarLogo } from '~/components/logos/PolarLogo';
 import { PostgresLogo } from '~/components/logos/PostgresLogo';
+import { PostHogLogo } from '~/components/logos/PostHogLogo';
 import { PrismaLogo } from '~/components/logos/PrismaLogo';
 import { RailwayLogo } from '~/components/logos/RailwayLogo';
 import { ReactLogo } from '~/components/logos/ReactLogo';
@@ -39,6 +40,7 @@ export default function Home() {
                     <PostgresLogo {...logoProps} />
                     <BetterAuthLogo {...logoProps} />
                     <PolarLogo {...logoProps} />
+                    <PostHogLogo {...logoProps} />
                     <CloudinaryLogo {...logoProps} />
                     <RailwayLogo {...logoProps} />
                     <VibeCodeLogo {...logoProps} />

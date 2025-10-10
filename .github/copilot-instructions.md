@@ -11,6 +11,7 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 - `better-auth.instructions.md` - Authentication implementation
 - `component-patterns.instructions.md` - UI component standards
 - `polar.instructions.md` - Billing integration patterns
+- `posthog.instructions.md` - Analytics and feature flags integration
 
 ## Critical Architecture Patterns
 
@@ -355,6 +356,8 @@ Required environment variables:
 - `BETTER_AUTH_SECRET` - Session encryption
 - `BETTER_AUTH_URL` - Auth service URL ("http://localhost:5173" for dev)
 - `OPENAI_API_KEY` - AI features
+- `VITE_POSTHOG_API_KEY` - Analytics and feature flags (optional)
+- `VITE_POSTHOG_HOST` - PostHog API host URL (optional)
 - `POLAR_ACCESS_TOKEN` - Billing integration (optional)
 - `POLAR_SERVER` - "sandbox" or "production" (optional)
 
