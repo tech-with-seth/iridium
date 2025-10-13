@@ -1,4 +1,4 @@
-import type { Route } from './+types/profile';
+import type { Route } from './+types/profile.server';
 import { data, redirect } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { validateFormData } from '~/lib/form-validation.server';
@@ -28,6 +28,7 @@ export async function action({ request }: Route.ActionArgs) {
     // UPDATE - PUT
     if (request.method === 'PUT') {
         const formData = await request.formData();
+
         const { data: validatedData, errors } =
             await validateFormData<ProfileUpdateData>(
                 formData,

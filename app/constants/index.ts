@@ -11,7 +11,7 @@ export enum Paths {
     HOME = '/',
     PAYMENT_SUCCESS = '/payment/success',
     PROFILE = '/profile',
-    PROFILE_API = '/api/profile',
+    POSTHOG = '/posthog',
     RESET_PASSWORD = '/reset-password',
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',

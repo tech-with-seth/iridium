@@ -1,11 +1,11 @@
 import {
     isRouteErrorResponse,
-    Link,
     Links,
     Meta,
     Outlet,
     Scripts,
-    ScrollRestoration
+    ScrollRestoration,
+    useFetcher
 } from 'react-router';
 import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
@@ -15,13 +15,16 @@ import { Footer } from './components/Footer';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
 import { Header } from './components/Header';
+import { PHProvider } from './components/PostHogProvider';
+import { Toggle } from './components/Toggle';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
-import { PHProvider } from './components/PostHogProvider';
 import type { Route } from './+types/root';
+import type { FeatureFlag, FeatureFlagsResponse } from './types/posthog';
+// import { Alert } from './components/Alert';
+// import { Badge } from './components/Badge';
 
 import './app.css';
-import { logEvent } from './lib/posthog';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -40,29 +43,117 @@ export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
     const roleObj = user ? await getUserRole(user?.id) : null;
 
-    return { user, role: roleObj?.role };
+    const featureFlagsResponse = await fetch(
+        'http://localhost:5173/api/posthog/feature-flags',
+        {
+            method: 'GET'
+        }
+    );
+
+    const featureFlagsJson: FeatureFlagsResponse =
+        await featureFlagsResponse.json();
+
+    const getActiveFlags = (data: FeatureFlagsResponse) => {
+        if (!data.results) return {};
+
+        return data.results.reduce(
+            (acc: Record<string, boolean>, flag) => {
+                acc[flag.key] = flag.active;
+                return acc;
+            },
+            {} as Record<string, boolean>
+        );
+    };
+
+    return {
+        user,
+        role: roleObj?.role,
+        activeFlags: getActiveFlags(featureFlagsJson),
+        featureFlags: featureFlagsJson.results
+    };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
     const [isOpen, { openDrawer, closeDrawer }] = useDrawer();
-
+    const postHogFetcher = useFetcher();
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
-    const DrawerContents = () => (
-        <ul>
-            <li>
-                <Link to="/link1">Link 1</Link>
-            </li>
-            <li>
-                <Link to="/link2">Link 2</Link>
-            </li>
-            <li>
-                <Link to="/link3">Link 3</Link>
-            </li>
-        </ul>
-    );
+    const DrawerContents = () => {
+        const flags = data?.featureFlags ?? [];
+
+        return (
+            <div>
+                <h2 className="mb-4 text-lg font-semibold">Feature Flags</h2>
+                <ul className="flex flex-col gap-4">
+                    {flags.map((flag: FeatureFlag) => {
+                        const isTarget =
+                            String(postHogFetcher.formData?.get('flagId')) ===
+                            String(flag.id);
+
+                        const idle = postHogFetcher.state === 'idle';
+
+                        // const label =
+                        //     isTarget && postHogFetcher.state === 'submitting'
+                        //         ? 'Sending...'
+                        //         : isTarget && postHogFetcher.state === 'loading'
+                        //           ? 'Loading...'
+                        //           : flag.key;
+
+                        const label = flag.key;
+
+                        const alertText =
+                            isTarget && postHogFetcher.state === 'submitting'
+                                ? 'Sending...'
+                                : isTarget && postHogFetcher.state === 'loading'
+                                  ? 'Loading...'
+                                  : 'Standby';
+
+                        const disabled =
+                            isTarget && postHogFetcher.state !== 'idle';
+
+                        const handleOnChange = () =>
+                            postHogFetcher.submit(
+                                {
+                                    active: !flag.active,
+                                    flagId: flag.id,
+                                    intent: 'toggleFeatureFlag'
+                                },
+                                {
+                                    method: 'PATCH',
+                                    action: '/api/posthog/feature-flags'
+                                }
+                            );
+
+                        return (
+                            <li key={flag.id}>
+                                <div className="flex flex-col items-start">
+                                    {/* {isTarget && !idle && (
+                                        <Badge color="warning">
+                                            {alertText}
+                                        </Badge>
+                                    )} */}
+                                    <Toggle
+                                        checked={flag.active}
+                                        onChange={handleOnChange}
+                                        label={label}
+                                        disabled={disabled}
+                                        loading={isTarget && !idle}
+                                    />
+                                    {flag.name && (
+                                        <p className="text-sm text-gray-500">
+                                            {flag.name}
+                                        </p>
+                                    )}
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </div>
+        );
+    };
 
     const DrawerWrapper = ({ children }: { children: React.ReactNode }) => (
         <Drawer

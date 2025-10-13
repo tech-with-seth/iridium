@@ -1,4 +1,5 @@
 import { PostHog } from 'posthog-node';
+import { getUserFromSession } from './session.server';
 
 export default function PostHogClient() {
     const postHogClient = new PostHog(process.env.VITE_POSTHOG_API_KEY!, {
@@ -30,4 +31,18 @@ export async function serverSideLog({
         properties
     });
     await posthog.shutdown();
+}
+
+export async function isFeatureEnabled(flagName: string, request: Request) {
+    const user = await getUserFromSession(request);
+
+    if (!user) {
+        return false;
+    }
+
+    const posthog = PostHogClient();
+    const isEnabled = await posthog.isFeatureEnabled(flagName, user?.id);
+    await posthog.shutdown();
+
+    return isEnabled;
 }

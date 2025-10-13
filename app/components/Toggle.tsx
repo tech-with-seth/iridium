@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
+import { Spinner } from './Spinner';
 
 export const toggleVariants = cva({
     base: 'toggle',
@@ -37,12 +38,15 @@ interface ToggleProps
     label?: React.ReactNode;
     error?: string;
     helperText?: string;
+    loading?: boolean;
 }
 
 export function Toggle({
+    checked,
     color,
     size,
     label,
+    loading,
     error,
     helperText,
     className,
@@ -70,18 +74,23 @@ export function Toggle({
     return (
         <div className="form-control">
             <label className="label cursor-pointer justify-start gap-2">
-                <input
-                    type="checkbox"
-                    className={cx(
-                        toggleVariants({
-                            color: error ? 'error' : color,
-                            size
-                        }),
-                        className
-                    )}
-                    disabled={disabled}
-                    {...props}
-                />
+                {loading ? (
+                    <Spinner />
+                ) : (
+                    <input
+                        checked={checked}
+                        type="checkbox"
+                        className={cx(
+                            toggleVariants({
+                                color: error ? 'error' : color,
+                                size
+                            }),
+                            className
+                        )}
+                        disabled={disabled}
+                        {...props}
+                    />
+                )}
                 {label && (
                     <span className="label-text">
                         {label}

@@ -26,6 +26,7 @@ import { Tab, Tabs } from '~/components/Tabs';
 import { Textarea } from '~/components/Textarea';
 import { TextInput } from '~/components/TextInput';
 import { Toggle } from '~/components/Toggle';
+import { Tooltip } from '~/components/Tooltip';
 
 export default function DesignRoute() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -221,13 +222,19 @@ export default function DesignRoute() {
                     <h3 className="text-lg font-semibold">Alerts</h3>
                     <div className="space-y-3 mb-3">
                         <Alert status="info">
-                            <span>Information: This is an info alert message</span>
+                            <span>
+                                Information: This is an info alert message
+                            </span>
                         </Alert>
                         <Alert status="success">
-                            <span>Success: Operation completed successfully</span>
+                            <span>
+                                Success: Operation completed successfully
+                            </span>
                         </Alert>
                         <Alert status="warning">
-                            <span>Warning: Please review before proceeding</span>
+                            <span>
+                                Warning: Please review before proceeding
+                            </span>
                         </Alert>
                         <Alert status="error">
                             <span>Error: Something went wrong</span>
@@ -272,7 +279,10 @@ export default function DesignRoute() {
                             { content: '  <span>Outlined success</span>' },
                             { content: '</Alert>' },
                             { content: '' },
-                            { content: '<Alert status="warning" icon={<Icon />}>' },
+                            {
+                                content:
+                                    '<Alert status="warning" icon={<Icon />}>'
+                            },
                             { content: '  <span>With icon</span>' },
                             { content: '</Alert>' }
                         ]}
@@ -618,6 +628,137 @@ export default function DesignRoute() {
                             { content: '/>' }
                         ]}
                     />
+                </div>
+            </section>
+
+            {/* Tooltip Section */}
+            <section className="space-y-4">
+                <h2 className="text-2xl font-bold">Tooltips</h2>
+
+                <div className="space-y-6">
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">Positions</h3>
+                        <div className="flex flex-wrap gap-4 mb-3">
+                            <Tooltip tip="Top tooltip" position="top" open>
+                                <Button>Top</Button>
+                            </Tooltip>
+                            <Tooltip
+                                tip="Bottom tooltip"
+                                position="bottom"
+                                open
+                            >
+                                <Button>Bottom</Button>
+                            </Tooltip>
+                            <Tooltip tip="Left tooltip" position="left" open>
+                                <Button>Left</Button>
+                            </Tooltip>
+                            <Tooltip tip="Right tooltip" position="right" open>
+                                <Button>Right</Button>
+                            </Tooltip>
+                        </div>
+                        <Code
+                            lines={[
+                                {
+                                    content:
+                                        '<Tooltip tip="Hello" position="top">'
+                                },
+                                { content: '  <Button>Hover me</Button>' },
+                                { content: '</Tooltip>' }
+                            ]}
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">Colors</h3>
+                        <div className="flex flex-wrap gap-4 mb-3">
+                            <Tooltip tip="Neutral" color="neutral" open>
+                                <Button status="neutral">Neutral</Button>
+                            </Tooltip>
+                            <Tooltip tip="Primary" color="primary" open>
+                                <Button status="primary">Primary</Button>
+                            </Tooltip>
+                            <Tooltip tip="Secondary" color="secondary" open>
+                                <Button status="secondary">Secondary</Button>
+                            </Tooltip>
+                            <Tooltip tip="Accent" color="accent" open>
+                                <Button status="accent">Accent</Button>
+                            </Tooltip>
+                            <Tooltip tip="Info" color="info" open>
+                                <Button status="info">Info</Button>
+                            </Tooltip>
+                            <Tooltip tip="Success" color="success" open>
+                                <Button status="success">Success</Button>
+                            </Tooltip>
+                            <Tooltip tip="Warning" color="warning" open>
+                                <Button status="warning">Warning</Button>
+                            </Tooltip>
+                            <Tooltip tip="Error" color="error" open>
+                                <Button status="error">Error</Button>
+                            </Tooltip>
+                        </div>
+                        <Code
+                            lines={[
+                                {
+                                    content: '<Tooltip tip="Info" color="info">'
+                                },
+                                { content: '  <Button>Hover me</Button>' },
+                                { content: '</Tooltip>' }
+                            ]}
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">
+                            Custom Content
+                        </h3>
+                        <div className="flex flex-wrap gap-4 mb-3">
+                            <Tooltip
+                                content={
+                                    <div className="animate-bounce text-orange-400 -rotate-10 text-2xl font-black">
+                                        Wow!
+                                    </div>
+                                }
+                                open
+                            >
+                                <Button>Custom Content</Button>
+                            </Tooltip>
+                        </div>
+                        <Code
+                            lines={[
+                                { content: '<Tooltip' },
+                                {
+                                    content: '  content={<div>Custom JSX</div>}'
+                                },
+                                { content: '>' },
+                                { content: '  <Button>Hover me</Button>' },
+                                { content: '</Tooltip>' }
+                            ]}
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">
+                            Interactive (Hover)
+                        </h3>
+                        <div className="flex flex-wrap gap-4 mb-3">
+                            <Tooltip tip="Hover over me!">
+                                <Button>Hover me</Button>
+                            </Tooltip>
+                            <Tooltip
+                                tip="This tooltip appears on hover"
+                                position="bottom"
+                            >
+                                <Button variant="outline">Another one</Button>
+                            </Tooltip>
+                        </div>
+                        <Code
+                            lines={[
+                                { content: '<Tooltip tip="Appears on hover">' },
+                                { content: '  <Button>Hover me</Button>' },
+                                { content: '</Tooltip>' }
+                            ]}
+                        />
+                    </div>
                 </div>
             </section>
         </Container>
