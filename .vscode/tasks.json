@@ -83,6 +83,84 @@
                 "reveal": "always",
                 "panel": "new"
             }
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "npm test",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "test:ui",
+            "type": "shell",
+            "command": "npm run test:ui",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "test:run",
+            "type": "shell",
+            "command": "npm run test:run",
+            "problemMatcher": []
+        },
+        {
+            "label": "test:coverage",
+            "type": "shell",
+            "command": "npm run test:coverage",
+            "problemMatcher": []
+        },
+        {
+            "label": "e2e",
+            "type": "shell",
+            "command": "npm run e2e",
+            "problemMatcher": []
+        },
+        {
+            "label": "e2e:ui",
+            "type": "shell",
+            "command": "npm run e2e:ui",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "e2e:headed",
+            "type": "shell",
+            "command": "npm run e2e:headed",
+            "problemMatcher": []
+        },
+        {
+            "label": "e2e:debug",
+            "type": "shell",
+            "command": "npm run e2e:debug",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "e2e:report",
+            "type": "shell",
+            "command": "npm run e2e:report",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
         }
     ]
 }

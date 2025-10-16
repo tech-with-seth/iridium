@@ -11,7 +11,12 @@
         "test": "vitest",
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "e2e": "playwright test",
+        "e2e:ui": "playwright test --ui",
+        "e2e:headed": "playwright test --headed",
+        "e2e:debug": "playwright test --debug",
+        "e2e:report": "playwright show-report"
     },
     "dependencies": {
         "@ai-sdk/react": "^2.0.56",
@@ -41,6 +46,7 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@playwright/test": "^1.56.0",
         "@react-router/dev": "^7.9.3",
         "@tailwindcss/vite": "^4.1.4",
         "@testing-library/jest-dom": "^6.9.1",
