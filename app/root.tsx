@@ -14,15 +14,17 @@ import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
+import {
+    getFeatureFlags,
+    getActiveFlags
+} from './models/feature-flags.server';
 import { Header } from './components/Header';
 import { PHProvider } from './components/PostHogProvider';
 import { Toggle } from './components/Toggle';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
-import type { FeatureFlag, FeatureFlagsResponse } from './types/posthog';
-// import { Alert } from './components/Alert';
-// import { Badge } from './components/Badge';
+import type { FeatureFlag } from './types/posthog';
 
 import './app.css';
 
@@ -43,33 +45,14 @@ export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
     const roleObj = user ? await getUserRole(user?.id) : null;
 
-    const featureFlagsResponse = await fetch(
-        'http://localhost:5173/api/posthog/feature-flags',
-        {
-            method: 'GET'
-        }
-    );
-
-    const featureFlagsJson: FeatureFlagsResponse =
-        await featureFlagsResponse.json();
-
-    const getActiveFlags = (data: FeatureFlagsResponse) => {
-        if (!data.results) return {};
-
-        return data.results.reduce(
-            (acc: Record<string, boolean>, flag) => {
-                acc[flag.key] = flag.active;
-                return acc;
-            },
-            {} as Record<string, boolean>
-        );
-    };
+    // Fetch feature flags using model layer (with caching)
+    const featureFlagsData = await getFeatureFlags();
 
     return {
         user,
         role: roleObj?.role,
-        activeFlags: getActiveFlags(featureFlagsJson),
-        featureFlags: featureFlagsJson.results
+        activeFlags: getActiveFlags(featureFlagsData),
+        featureFlags: featureFlagsData.results
     };
 }
 

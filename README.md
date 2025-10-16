@@ -7,13 +7,17 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **React Router 7** - Config-based routing with SSR
 - **React 19** - Latest React with native meta tag support
 - **Authentication** - BetterAuth with Prisma adapter and session management
+- **RBAC** - Role-based access control (USER/EDITOR/ADMIN) with hierarchical permissions
 - **AI Integration** - OpenAI with Vercel AI SDK for streaming responses
 - **Database** - PostgreSQL with Prisma ORM (custom output path)
+- **Model Layer Pattern** - All database operations abstracted through `app/models/` functions
 - **Styling** - DaisyUI 5 + TailwindCSS v4 with CVA for type-safe variants
 - **TypeScript** - Strict mode with full type safety
 - **Form Handling** - React Hook Form + Zod with server/client validation
-- **Caching** - FlatCache for efficient data caching
-- **Billing** - Polar.sh integration (optional)
+- **Caching** - Three-tier caching strategy: client-side route caching, model layer caching, manual caching
+- **Analytics** - PostHog integration for product analytics and feature flags
+- **Billing** - Polar.sh integration via BetterAuth plugin (optional)
+- **Documentation** - Comprehensive patterns documented in `.github/instructions/`
 
 ## 🏗️ Architecture
 
@@ -22,20 +26,26 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Frontend**: React 19, React Router 7, DaisyUI 5, TailwindCSS v4
 - **Backend**: Prisma, PostgreSQL, BetterAuth
 - **AI**: OpenAI with Vercel AI SDK
+- **Analytics**: PostHog (product analytics, feature flags, error tracking)
 - **Styling**: CVA (Class Variance Authority) for type-safe component variants
 - **Forms**: React Hook Form + Zod validation
-- **Caching**: FlatCache with TTL support
-- **Billing**: Polar.sh integration (optional)
+- **Caching**: FlatCache with TTL support (three-tier strategy)
+- **Billing**: Polar.sh integration via BetterAuth plugin (optional)
 
 ### Key Patterns
 
 - **Config-based routing** - All routes defined in `app/routes.ts` (not file-based)
+- **Model layer pattern** - All database operations abstracted through `app/models/` functions (never call Prisma directly in routes)
+- **API-first CRUD** - RESTful endpoints with loaders (GET) and actions (POST/PUT/DELETE)
 - **Middleware architecture** - Auth, logging, and context via layout routes
-- **Singleton services** - Database, auth, AI clients use singleton pattern
+- **Singleton services** - Database, auth, AI, cache clients use singleton pattern
+- **Three-tier caching** - Client-side route caching, model layer caching, manual caching with TTL support
+- **RBAC system** - Hierarchical role-based access (USER → EDITOR → ADMIN) with server-side enforcement
 - **CVA components** - Type-safe variants with DaisyUI classes
 - **Custom Prisma output** - Client generated to `app/generated/prisma`
 - **Hybrid validation** - Server + client validation with shared Zod schemas
 - **React 19 meta tags** - Native `<title>` and `<meta>` elements (no `meta()` export)
+- **Comprehensive docs** - All patterns documented in `.github/instructions/*.instructions.md`
 
 ## 🛠️ Setup
 
@@ -67,8 +77,12 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
    - `BETTER_AUTH_SECRET` - Random secret (min 32 characters) for session encryption
    - `BETTER_AUTH_URL` - Your app URL (`http://localhost:5173` for dev)
    - `OPENAI_API_KEY` - Your OpenAI API key (optional)
+   - `POSTHOG_API_KEY` - PostHog API key for client-side analytics (optional)
+   - `POSTHOG_PROJECT_ID` - PostHog project ID (optional)
+   - `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key for server-side operations (optional)
    - `POLAR_ACCESS_TOKEN` - Polar.sh access token (optional, for billing)
    - `POLAR_SERVER` - "sandbox" or "production" (optional)
+   - `POLAR_SUCCESS_URL` - Checkout success redirect URL (optional)
    - `POLAR_WEBHOOK_SECRET` - Polar webhook secret (optional)
 
 3. **Set up the database**
@@ -100,13 +114,15 @@ app/
 ├── generated/
 │   └── prisma/          # Prisma client (custom output path)
 ├── hooks/
-│   └── useAuthenticatedContext.ts
+│   ├── useAuthenticatedContext.ts
+│   └── useUserRole.ts   # RBAC hooks (client-side only)
 ├── lib/
-│   ├── auth.server.ts        # BetterAuth configuration
+│   ├── auth.server.ts        # BetterAuth configuration (with Polar plugin)
 │   ├── auth-client.ts        # Client-side auth
-│   ├── session.server.ts     # Session helpers (requireUser, getUser)
+│   ├── session.server.ts     # Session helpers (requireUser, requireRole, etc.)
 │   ├── ai.ts                 # OpenAI client singleton
-│   ├── cache.ts              # FlatCache with TTL
+│   ├── cache.ts              # FlatCache with three-tier caching utilities
+│   ├── polar.server.ts       # Polar SDK client singleton
 │   ├── form-hooks.ts         # useValidatedForm hook
 │   ├── form-validation.server.ts  # Server-side form validation
 │   └── validations.ts        # Zod schemas
@@ -114,12 +130,17 @@ app/
 │   ├── auth.ts               # Authentication middleware
 │   ├── context.ts            # React Router contexts
 │   └── logging.ts            # Request logging
+├── models/                   # Model layer (data access layer)
+│   ├── user.server.ts        # User CRUD operations
+│   └── feature-flags.server.ts  # PostHog feature flags with caching
 ├── routes/
 │   ├── api/
 │   │   ├── auth/
 │   │   │   ├── authenticate.ts   # Central auth endpoint
 │   │   │   └── better-auth.ts    # BetterAuth handler
-│   │   └── profile.ts            # Profile API
+│   │   ├── posthog/
+│   │   │   └── feature-flags.server.ts  # Feature flags API
+│   │   └── profile.server.ts     # Profile API (canonical CRUD example)
 │   ├── admin/
 │   │   └── design.tsx            # Component showcase
 │   ├── authenticated.tsx         # Protected layout with middleware
@@ -129,6 +150,8 @@ app/
 │   ├── about.tsx                 # About page
 │   ├── sign-in.tsx               # Sign in page
 │   └── sign-out.tsx              # Sign out handler
+├── types/
+│   └── posthog.ts        # PostHog type definitions
 ├── cva.config.ts         # CVA utilities (cx, cva, compose)
 ├── db.server.ts          # Prisma client singleton
 └── routes.ts             # Config-based routing (single source of truth)
@@ -292,6 +315,40 @@ export default function SignIn() {
 }
 ```
 
+## 📖 Documentation
+
+This project includes comprehensive pattern documentation in `.github/instructions/`:
+
+### Core Patterns
+
+- **`caching-pattern.instructions.md`** - Three-tier caching strategy (client-side, model layer, manual)
+- **`crud-pattern.instructions.md`** - API-first CRUD implementation patterns
+- **`form-validation.instructions.md`** - Universal form validation with React Hook Form + Zod
+- **`role-based-access.instructions.md`** - RBAC patterns with hierarchical roles
+
+### Framework-Specific
+
+- **`better-auth.instructions.md`** - Authentication flows and session management
+- **`react-router.instructions.md`** - Config-based routing patterns
+- **`prisma.instructions.md`** - Database patterns and custom Prisma configuration
+
+### Component Development
+
+- **`component-patterns.instructions.md`** - CVA-based component patterns with DaisyUI
+- **`cva.instructions.md`** - Class Variance Authority usage
+- **`daisyui.instructions.md`** - DaisyUI component library integration
+
+### Integrations
+
+- **`polar.instructions.md`** - Polar billing integration via BetterAuth plugin
+- **`posthog.instructions.md`** - PostHog analytics, feature flags, and error tracking
+
+All patterns include:
+- Complete code examples
+- Best practices and anti-patterns
+- Reference implementations
+- Troubleshooting guides
+
 ## 🚀 Deployment
 
 ### Build for Production
@@ -309,7 +366,10 @@ Make sure to set all required environment variables in your production environme
 - `BETTER_AUTH_SECRET` - Secure random secret (min 32 characters)
 - `BETTER_AUTH_URL` - Your production domain URL
 - `OPENAI_API_KEY` - OpenAI API key (if using AI features)
-- Optional: Polar.sh credentials if using billing
+- `POSTHOG_API_KEY` - PostHog API key (if using analytics)
+- `POSTHOG_PROJECT_ID` - PostHog project ID (if using analytics)
+- `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key (if using server-side features)
+- Optional: Polar.sh credentials if using billing (`POLAR_ACCESS_TOKEN`, `POLAR_SERVER`, `POLAR_SUCCESS_URL`, `POLAR_WEBHOOK_SECRET`)
 
 ### Database Migrations
 
@@ -328,6 +388,7 @@ npx prisma migrate deploy
 - [React Router 7 Docs](https://reactrouter.com) - Config-based routing documentation
 - [BetterAuth Docs](https://better-auth.com) - Authentication setup and configuration
 - [Prisma Docs](https://prisma.io/docs) - Database and ORM documentation
+- [PostHog Docs](https://posthog.com/docs) - Analytics, feature flags, and error tracking
 - [DaisyUI Docs](https://daisyui.com) - Component library and theming
 - [CVA Docs](https://cva.style) - Class variance authority patterns
 - [Vercel AI SDK](https://sdk.vercel.ai) - AI integration and streaming
@@ -348,12 +409,16 @@ npx prisma migrate deploy
 
 ### Development Guidelines
 
-- Follow the CVA + DaisyUI component pattern
-- Use config-based routing in `app/routes.ts`
+- **Never** call Prisma directly in routes - use model layer functions from `app/models/`
+- Follow the API-first CRUD pattern for all data operations
+- Use config-based routing in `app/routes.ts` (never file-based routing)
+- Follow the CVA + DaisyUI component pattern for all UI components
+- Use server-side role checks (`requireRole`, `requireEditor`, `requireAdmin`) for authorization
+- Implement three-tier caching where appropriate (client-side, model layer, or manual)
+- Use middleware for layout-level route protection (not individual auth checks)
+- Run `npm run typecheck` after route changes to generate types
 - Import Prisma types from `~/generated/prisma/client`
-- Use middleware for route protection (not individual auth checks)
-- Run `npm run typecheck` after route changes
-- See `.github/instructions/` for detailed framework patterns
+- Reference `.github/instructions/*.instructions.md` for comprehensive patterns and best practices
 
 ## 📄 License
 

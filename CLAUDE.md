@@ -394,9 +394,60 @@ Configure webhook endpoint in Polar Organization Settings: `https://your-domain.
 
 ### Caching Strategy
 
-- File-based caching with TTL support via `flat-cache`
-- User-scoped keys: `getUserScopedKey(userId, key)`
-- Check expiration: `isCacheExpired(key)`
+**📋 Important: Reference `.github/instructions/caching-pattern.instructions.md` for comprehensive caching patterns and examples.**
+
+This application provides three caching patterns via `flat-cache` with TTL support:
+
+**1. Client-Side Route Caching** (React Router clientLoader/clientAction):
+
+- `createCachedClientLoader({ cacheKey, ttl })` - Automatic cache priming with hydration
+- `createCachedClientAction({ cacheKey })` - Automatic cache invalidation on mutations
+- Use in API routes for zero-boilerplate caching
+
+**2. Model Layer Caching** (External APIs/expensive queries):
+
+- `withCache(fetcher, cacheKey, ttl, fallback?)` - Wraps async functions with caching
+- Graceful error handling with stale-while-revalidate pattern
+- Use for external API calls (PostHog, third-party services)
+
+**3. Manual Caching** (Fine-grained control):
+
+- `getCachedData<T>(key)` - Retrieve cached data
+- `setCachedData<T>(key, value, ttl)` - Store data with TTL
+- `deleteCachedData(key)` - Invalidate cache
+- `isCacheExpired(key)` - Check expiration status
+- `getUserScopedKey(userId, key)` - Create user-scoped keys
+
+#### Example: Client-Side Route Caching
+
+```typescript
+// app/routes/api/profile.server.ts
+const CACHE_KEY = 'current-user-profile';
+const CACHE_TTL = 900; // 15 minutes
+
+export const clientLoader = createCachedClientLoader({
+    cacheKey: CACHE_KEY,
+    ttl: CACHE_TTL
+});
+
+export const clientAction = createCachedClientAction({
+    cacheKey: CACHE_KEY
+});
+```
+
+#### Example: Model Layer Caching
+
+```typescript
+// app/models/feature-flags.server.ts
+export const getFeatureFlags = withCache(
+    async () => fetchFromPostHog(),
+    'posthog:feature-flags',
+    600, // 10 minutes
+    { results: [] } // Fallback on error
+);
+```
+
+**Reference Implementations:** See `app/routes/api/profile.server.ts` (client-side), `app/models/feature-flags.server.ts` (model layer) for canonical examples.
 
 ## Required Environment Variables
 
@@ -564,8 +615,20 @@ import { polarClient } from "~/lib/polar.server";
 // AI client
 import { openai } from "~/lib/ai";
 
-// Caching
-import { getCachedData, setCachedData, getUserScopedKey } from "~/lib/cache";
+// Caching (three patterns available - see caching-pattern.instructions.md)
+import {
+    // Pattern 1: Client-side route caching
+    createCachedClientLoader,
+    createCachedClientAction,
+    // Pattern 2: Model layer caching
+    withCache,
+    // Pattern 3: Manual caching
+    getCachedData,
+    setCachedData,
+    deleteCachedData,
+    isCacheExpired,
+    getUserScopedKey
+} from "~/lib/cache";
 
 // Validation
 import { signInSchema, signUpSchema } from "~/lib/validations";

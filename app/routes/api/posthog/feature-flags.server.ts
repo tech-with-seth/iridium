@@ -2,7 +2,16 @@ import { data } from 'react-router';
 import type { FlagsResponse } from 'posthog-js';
 import posthog from 'posthog-js';
 import type { Route } from './+types/feature-flags.server';
+import {
+    createCachedClientLoader,
+    createCachedClientAction
+} from '~/lib/cache';
 
+// Cache configuration
+const CACHE_KEY = 'posthog:feature-flags';
+const CACHE_TTL = 600; // 10 minutes
+
+// Server loader - Fetches feature flags from PostHog API
 export async function loader() {
     try {
         const featureFlagsResponse = await fetch(
@@ -30,6 +39,13 @@ export async function loader() {
     }
 }
 
+// Client loader - Manages cache for feature flags
+export const clientLoader = createCachedClientLoader({
+    cacheKey: CACHE_KEY,
+    ttl: CACHE_TTL
+});
+
+// Server action - Handles feature flag mutations
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
     const intent = formData.get('intent');
@@ -81,3 +97,8 @@ export async function action({ request }: Route.ActionArgs) {
         }
     }
 }
+
+// Client action - Invalidates cache on mutations
+export const clientAction = createCachedClientAction({
+    cacheKey: CACHE_KEY
+});
