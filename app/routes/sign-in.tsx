@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
+import posthog from 'posthog-js';
 
 import { Button } from '~/components/Button';
 import { Card } from '~/components/Card';
@@ -84,6 +85,13 @@ export default function AuthPage() {
                 );
             }
         } catch (error) {
+            // Track unexpected error with PostHog
+            posthog.captureException(error, {
+                context: isSignIn ? 'sign_in' : 'sign_up',
+                email: data.email,
+                timestamp: new Date().toISOString()
+            });
+
             setServerError('An unexpected error occurred. Please try again.');
             setIsLoading(false);
         }

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
 import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
+import posthog from 'posthog-js';
 
 // GET - Read profile
 export async function loader({ request }: Route.LoaderArgs) {
@@ -51,7 +52,14 @@ export async function action({ request }: Route.ActionArgs) {
                 message: 'Profile updated successfully'
             });
         } catch (error) {
-            console.error('Profile update error:', error);
+            // Track error with PostHog
+            posthog.captureException(error, {
+                userId: user.id,
+                context: 'profile_update',
+                data: validatedData,
+                timestamp: new Date().toISOString()
+            });
+
             return data(
                 { error: 'Failed to update profile. Please try again.' },
                 { status: 500 }
@@ -73,6 +81,14 @@ export async function action({ request }: Route.ActionArgs) {
             return redirect(Paths.HOME);
         } catch (error) {
             console.error('Account deletion error:', error);
+
+            // Track error with PostHog
+            posthog.captureException(error, {
+                userId: user.id,
+                context: 'account_deletion',
+                timestamp: new Date().toISOString()
+            });
+
             return data(
                 { error: 'Failed to delete account. Please try again.' },
                 { status: 500 }
@@ -81,4 +97,20 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     return data({ error: 'Method not allowed' }, { status: 405 });
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+    // Custom error response for API route
+    if (error instanceof Error) {
+        return data(
+            {
+                error: 'An unexpected error occurred',
+                message: import.meta.env.DEV ? error.message : undefined,
+                stack: import.meta.env.DEV ? error.stack : undefined
+            },
+            { status: 500 }
+        );
+    }
+
+    return data({ error: 'Unknown error occurred' }, { status: 500 });
 }

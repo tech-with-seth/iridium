@@ -1,5 +1,6 @@
 import { data, Form, redirect } from 'react-router';
 import invariant from 'tiny-invariant';
+import posthog from 'posthog-js';
 
 import { Container } from '~/components/Container';
 import { TextInput } from '~/components/TextInput';
@@ -27,6 +28,15 @@ export async function action({ request }: Route.ActionArgs) {
         return redirect('/profile');
     } catch (error) {
         console.error('Profile update error:', error);
+
+        // Track error with PostHog
+        posthog.captureException(error, {
+            userId,
+            context: 'profile_edit',
+            name,
+            timestamp: new Date().toISOString()
+        });
+
         return data(
             { error: 'Failed to update profile. Please try again.' },
             { status: 500 }
@@ -60,4 +70,10 @@ export default function ProfileEditRoute() {
             </Form>
         </Container>
     );
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+    // Let all errors bubble to root
+    // Profile edit errors are handled in the action
+    throw error;
 }

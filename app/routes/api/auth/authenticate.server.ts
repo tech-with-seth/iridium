@@ -2,6 +2,7 @@ import { data, redirect } from 'react-router';
 import type { Route } from './+types/authenticate.server';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
+import posthog from 'posthog-js';
 
 export async function action({ request }: Route.ActionArgs) {
     // Handle Sign Out
@@ -13,6 +14,12 @@ export async function action({ request }: Route.ActionArgs) {
 
             return redirect(Paths.HOME);
         } catch (error) {
+            // Track error with PostHog
+            posthog.captureException(error, {
+                context: 'sign_out',
+                timestamp: new Date().toISOString()
+            });
+
             return data(
                 {
                     error:

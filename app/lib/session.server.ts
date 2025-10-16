@@ -1,5 +1,6 @@
 import { auth } from './auth.server';
 import { Role } from '~/generated/prisma/client';
+import posthog from 'posthog-js';
 
 type UserWithRole = {
     id: string;
@@ -21,6 +22,12 @@ export async function getUserFromSession(request: Request) {
         return session?.user ?? null;
     } catch (error) {
         console.error('Session error:', error);
+
+        // Track error with PostHog
+        posthog.captureException(error, {
+            context: 'session_retrieval',
+            timestamp: new Date().toISOString()
+        });
 
         return null;
     }
