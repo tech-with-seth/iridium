@@ -133,7 +133,7 @@ import { getUserProfile, updateUser } from '~/models/user.server';
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
     const profile = await getUserProfile(user.id);
-    return json({ profile });
+    return data({ profile });
 }
 
 // ❌ WRONG - Direct Prisma calls in routes
@@ -142,7 +142,7 @@ import { prisma } from '~/db.server';
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
     const profile = await prisma.user.findUnique({ where: { id: user.id } });
-    return json({ profile });
+    return data({ profile });
 }
 ```
 
@@ -187,7 +187,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 2. Create handler in `app/routes/api/` with loader (GET) and/or action (POST/PUT/DELETE)
 3. Use `requireUser(request)` for authentication (no middleware on API routes)
 4. Handle multiple HTTP methods in action by checking `request.method`
-5. Return JSON responses: `return json({ data })`
+5. Return JSON responses: `return data({ data })`
 
 ### Creating Feature CRUD Operations
 
@@ -227,7 +227,7 @@ app/routes/[feature].tsx              # UI route (presentation)
 
 ```typescript
 import type { Route } from './+types/profile';
-import { data, json } from 'react-router';
+import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { getValidatedFormData } from '~/lib/form-validation.server';
 import { profileUpdateSchema } from '~/lib/validations';
@@ -240,7 +240,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     const profile = await getUserProfile(user.id);
 
-    return json({ profile });
+    return data({ profile });
 }
 
 // POST/PUT/DELETE - Create, Update, Delete
@@ -262,13 +262,13 @@ export async function action({ request }: Route.ActionArgs) {
             data: validatedData!
         });
 
-        return json({ success: true, user: updatedUser });
+        return data({ success: true, user: updatedUser });
     }
 
     if (request.method === 'DELETE') {
         await deleteUser(user.id);
 
-        return json({ success: true });
+        return data({ success: true });
     }
 
     return data({ error: 'Method not allowed' }, { status: 405 });

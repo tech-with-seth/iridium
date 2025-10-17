@@ -148,7 +148,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     const updatedUser = await updateUserRole(targetUserId, Role.EDITOR);
 
-    return json({ success: true, user: updatedUser });
+    return data({ success: true, user: updatedUser });
 }
 ```
 
@@ -228,7 +228,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     const users = await getUsersByRole(Role.USER);
 
-    return json({ users });
+    return data({ users });
 }
 ```
 

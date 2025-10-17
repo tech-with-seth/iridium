@@ -5,7 +5,8 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useFetcher
+    useFetcher,
+    type ShouldRevalidateFunctionArgs
 } from 'react-router';
 import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
@@ -14,10 +15,7 @@ import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import {
-    getFeatureFlags,
-    getActiveFlags
-} from './models/feature-flags.server';
+import { getFeatureFlags, getActiveFlags } from './models/feature-flags.server';
 import { Header } from './components/Header';
 import { PHProvider } from './components/PostHogProvider';
 import { Toggle } from './components/Toggle';
@@ -76,25 +74,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
                             String(flag.id);
 
                         const idle = postHogFetcher.state === 'idle';
-
-                        // const label =
-                        //     isTarget && postHogFetcher.state === 'submitting'
-                        //         ? 'Sending...'
-                        //         : isTarget && postHogFetcher.state === 'loading'
-                        //           ? 'Loading...'
-                        //           : flag.key;
-
                         const label = flag.key;
-
-                        const alertText =
-                            isTarget && postHogFetcher.state === 'submitting'
-                                ? 'Sending...'
-                                : isTarget && postHogFetcher.state === 'loading'
-                                  ? 'Loading...'
-                                  : 'Standby';
 
                         const disabled =
                             isTarget && postHogFetcher.state !== 'idle';
+
+                        // Optimistic UI: Show pending state during submission, then use response data
+                        let displayActive = flag.active;
+                        if (isTarget) {
+                            if (!idle) {
+                                // During submission - show optimistic state
+                                displayActive =
+                                    postHogFetcher.formData?.get('active') ===
+                                    'true';
+                            } else if (
+                                postHogFetcher.data?.success &&
+                                postHogFetcher.data?.data
+                            ) {
+                                // After successful submission - use response data
+                                displayActive = postHogFetcher.data.data.active;
+                            }
+                        }
 
                         const handleOnChange = () =>
                             postHogFetcher.submit(
@@ -112,13 +112,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         return (
                             <li key={flag.id}>
                                 <div className="flex flex-col items-start">
-                                    {/* {isTarget && !idle && (
-                                        <Badge color="warning">
-                                            {alertText}
-                                        </Badge>
-                                    )} */}
                                     <Toggle
-                                        checked={flag.active}
+                                        checked={displayActive}
                                         onChange={handleOnChange}
                                         label={label}
                                         disabled={disabled}

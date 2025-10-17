@@ -145,7 +145,7 @@ import { requireUser } from "~/lib/session.server";
 export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
     // Handle authenticated request
-    return json({ success: true });
+    return data({ success: true });
 }
 ```
 
@@ -407,7 +407,7 @@ npm run dev
 
    ```typescript
    import type { Route } from "./+types/new-endpoint";
-   import { json } from "react-router";
+   import { data } from "react-router";
    import { requireUser } from "~/lib/session.server";
    import { prisma } from "~/db.server";
 
@@ -417,10 +417,10 @@ npm run dev
        if (request.method === "POST") {
            const data = await request.json();
            // Handle POST
-           return json({ success: true });
+           return data({ success: true });
        }
        
-       return json({ error: "Method not allowed" }, { status: 405 });
+       return data({ error: "Method not allowed" }, { status: 405 });
    }
    ```
 

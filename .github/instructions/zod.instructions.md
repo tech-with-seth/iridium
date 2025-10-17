@@ -23,9 +23,9 @@ Create schemas in `app/lib/validations.ts` following existing patterns:
 
 ```typescript
 export const userSchema = z.object({
-  username: z.string().min(3).max(20),
-  email: z.string().email(),
-  xp: z.number().int().positive(),
+    username: z.string().min(3).max(20),
+    email: z.string().email(),
+    xp: z.number().int().positive()
 });
 ```
 
@@ -35,16 +35,16 @@ export const userSchema = z.object({
 
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  // Throws ZodError if validation fails
-  const validatedData = userSchema.parse(data);
+    // Throws ZodError if validation fails
+    const validatedData = userSchema.parse(data);
 
-  // Use validated data with full type safety
-  await prisma.user.create({ data: validatedData });
+    // Use validated data with full type safety
+    await prisma.user.create({ data: validatedData });
 
-  return json({ success: true });
+    return data({ success: true });
 }
 ```
 
@@ -52,21 +52,24 @@ export async function action({ request }: Route.ActionArgs) {
 
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  const result = userSchema.safeParse(data);
+    const result = userSchema.safeParse(data);
 
-  if (!result.success) {
-    return json({
-      errors: result.error.issues
-    }, { status: 400 });
-  }
+    if (!result.success) {
+        return data(
+            {
+                errors: result.error.issues
+            },
+            { status: 400 }
+        );
+    }
 
-  // result.data is fully typed
-  await prisma.user.create({ data: result.data });
+    // result.data is fully typed
+    await prisma.user.create({ data: result.data });
 
-  return json({ success: true });
+    return data({ success: true });
 }
 ```
 
@@ -75,10 +78,13 @@ export async function action({ request }: Route.ActionArgs) {
 For schemas with async refinements or transforms, use async methods:
 
 ```typescript
-const asyncSchema = z.string().refine(async (val) => {
-  const exists = await checkDatabaseForValue(val);
-  return !exists;
-}, { message: 'Value already exists' });
+const asyncSchema = z.string().refine(
+    async (val) => {
+        const exists = await checkDatabaseForValue(val);
+        return !exists;
+    },
+    { message: 'Value already exists' }
+);
 
 // In loader/action
 const result = await asyncSchema.safeParseAsync(input);
@@ -95,7 +101,7 @@ type User = z.infer<typeof userSchema>;
 // Input vs Output types (for transforms)
 const transformSchema = z.string().transform((val) => val.length);
 
-type Input = z.input<typeof transformSchema>;   // string
+type Input = z.input<typeof transformSchema>; // string
 type Output = z.output<typeof transformSchema>; // number
 ```
 
@@ -105,11 +111,11 @@ type Output = z.output<typeof transformSchema>; // number
 
 ```typescript
 try {
-  schema.parse(data);
+    schema.parse(data);
 } catch (error) {
-  if (error instanceof z.ZodError) {
-    error.issues; // Array of validation issues
-    /* [
+    if (error instanceof z.ZodError) {
+        error.issues; // Array of validation issues
+        /* [
       {
         code: 'invalid_type',
         expected: 'string',
@@ -118,7 +124,7 @@ try {
         message: 'Expected string, received number'
       }
     ] */
-  }
+    }
 }
 ```
 
@@ -126,13 +132,16 @@ try {
 
 ```typescript
 if (!result.success) {
-  const fieldErrors = result.error.issues.reduce((acc, issue) => {
-    const path = issue.path.join('.');
-    acc[path] = issue.message;
-    return acc;
-  }, {} as Record<string, string>);
+    const fieldErrors = result.error.issues.reduce(
+        (acc, issue) => {
+            const path = issue.path.join('.');
+            acc[path] = issue.message;
+            return acc;
+        },
+        {} as Record<string, string>
+    );
 
-  return json({ errors: fieldErrors }, { status: 400 });
+    return data({ errors: fieldErrors }, { status: 400 });
 }
 ```
 
@@ -142,9 +151,9 @@ if (!result.success) {
 
 ```typescript
 export const contactFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    message: z.string().min(10, 'Message must be at least 10 characters')
 });
 ```
 
@@ -152,32 +161,34 @@ export const contactFormSchema = z.object({
 
 ```typescript
 export const createPostSchema = z.object({
-  title: z.string().min(1),
-  content: z.string(),
-  published: z.boolean().default(false),
-  tags: z.array(z.string()).optional().default([]),
+    title: z.string().min(1),
+    content: z.string(),
+    published: z.boolean().default(false),
+    tags: z.array(z.string()).optional().default([])
 });
 ```
 
 ### Refinements (Custom Validation)
 
 ```typescript
-export const passwordSchema = z.object({
-  password: z.string().min(8),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'], // Error path
-});
+export const passwordSchema = z
+    .object({
+        password: z.string().min(8),
+        confirmPassword: z.string()
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ['confirmPassword'] // Error path
+    });
 ```
 
 ### Transforms
 
 ```typescript
 export const numericStringSchema = z.string().transform((val) => {
-  const num = parseInt(val, 10);
-  if (isNaN(num)) throw new Error('Invalid number');
-  return num;
+    const num = parseInt(val, 10);
+    if (isNaN(num)) throw new Error('Invalid number');
+    return num;
 });
 
 // Input: "42" -> Output: 42
@@ -187,8 +198,8 @@ export const numericStringSchema = z.string().transform((val) => {
 
 ```typescript
 export const apiResponseSchema = z.discriminatedUnion('status', [
-  z.object({ status: z.literal('success'), data: z.any() }),
-  z.object({ status: z.literal('error'), message: z.string() }),
+    z.object({ status: z.literal('success'), data: z.any() }),
+    z.object({ status: z.literal('error'), message: z.string() })
 ]);
 ```
 
@@ -207,22 +218,19 @@ export const apiResponseSchema = z.discriminatedUnion('status', [
 
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  const result = mySchema.safeParse(data);
+    const result = mySchema.safeParse(data);
 
-  if (!result.success) {
-    return json(
-      { errors: result.error.flatten() },
-      { status: 400 }
-    );
-  }
+    if (!result.success) {
+        return data({ errors: result.error.flatten() }, { status: 400 });
+    }
 
-  // Process validated data
-  await doSomething(result.data);
+    // Process validated data
+    await doSomething(result.data);
 
-  return redirect('/success');
+    return redirect('/success');
 }
 ```
 

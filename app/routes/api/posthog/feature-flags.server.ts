@@ -1,17 +1,15 @@
 import { data } from 'react-router';
-import type { FlagsResponse } from 'posthog-js';
 import posthog from 'posthog-js';
 import type { Route } from './+types/feature-flags.server';
-import {
-    createCachedClientLoader,
-    createCachedClientAction
-} from '~/lib/cache';
+import { deleteCachedData } from '~/lib/cache';
 
 // Cache configuration
 const CACHE_KEY = 'posthog:feature-flags';
-const CACHE_TTL = 600; // 10 minutes
 
-// Server loader - Fetches feature flags from PostHog API
+// Resource route for feature flag operations
+// This is a server-only API endpoint - no client exports needed
+
+// GET - Fetch all feature flags
 export async function loader() {
     try {
         const featureFlagsResponse = await fetch(
@@ -29,23 +27,16 @@ export async function loader() {
 
         return data(featureFlags);
     } catch (error) {
-        // Track error with PostHog
         posthog.captureException(error, {
             context: 'feature_flags_fetch',
             timestamp: new Date().toISOString()
         });
 
-        return data({ error: String(error) });
+        return data({ error: String(error) }, { status: 500 });
     }
 }
 
-// Client loader - Manages cache for feature flags
-export const clientLoader = createCachedClientLoader({
-    cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
-});
-
-// Server action - Handles feature flag mutations
+// PATCH - Update feature flag mutations
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
     const intent = formData.get('intent');
@@ -73,12 +64,18 @@ export async function action({ request }: Route.ActionArgs) {
                 const responseData = await response.json();
 
                 if (!response.ok) {
-                    return data({
-                        success: false,
-                        error: responseData,
-                        status: response.status
-                    });
+                    return data(
+                        {
+                            success: false,
+                            error: responseData,
+                            status: response.status
+                        },
+                        { status: response.status }
+                    );
                 }
+
+                // Invalidate server-side cache so root loader gets fresh data
+                deleteCachedData(CACHE_KEY);
 
                 return data({ success: true, data: responseData });
             } catch (error) {
@@ -92,13 +89,13 @@ export async function action({ request }: Route.ActionArgs) {
                     timestamp: new Date().toISOString()
                 });
 
-                return data({ success: false, error: String(error) });
+                return data(
+                    { success: false, error: String(error) },
+                    { status: 500 }
+                );
             }
         }
     }
-}
 
-// Client action - Invalidates cache on mutations
-export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY
-});
+    return data({ error: 'Method not allowed' }, { status: 405 });
+}

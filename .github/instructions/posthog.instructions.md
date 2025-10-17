@@ -298,7 +298,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     // Server-side feature flag evaluation would require PostHog Node SDK
     // For now, prefer client-side feature flags with usePostHog hook
 
-    return json({ data: 'response' });
+    return data({ data: 'response' });
 }
 ```
 
@@ -692,7 +692,7 @@ export async function action({ request }: Route.ActionArgs) {
     // Server-side tracking would require PostHog Node SDK
     // For now, prefer client-side tracking with usePostHog hook
 
-    return json({ success: true });
+    return data({ success: true });
 }
 ```
 

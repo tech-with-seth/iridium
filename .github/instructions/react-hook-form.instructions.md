@@ -124,7 +124,7 @@ export async function action({ request }: Route.ActionArgs) {
   const result = contactFormSchema.safeParse(data);
 
   if (!result.success) {
-    return json(
+    return data(
       { errors: result.error.flatten().fieldErrors },
       { status: 400 }
     );

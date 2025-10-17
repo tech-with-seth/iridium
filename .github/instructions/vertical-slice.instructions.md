@@ -360,7 +360,7 @@ export async function loader({ request }: Route.LoaderArgs) {
             countUserFavorites(user.id)
         ]);
 
-        return json({ favorites, total });
+        return data({ favorites, total });
     } catch (error) {
         return data({ error: 'Failed to fetch favorites' }, { status: 500 });
     }
@@ -387,7 +387,7 @@ export async function action({ request }: Route.ActionArgs) {
                 postId: validatedData!.postId
             });
 
-            return json({ success: true, favorited: result.favorited });
+            return data({ success: true, favorited: result.favorited });
         } catch (error) {
             return data(
                 { error: 'Failed to update favorite status' },
@@ -724,7 +724,7 @@ export async function action({ request }: Route.ActionArgs) {
                 postId: validatedData!.postId
             });
 
-            return json({ success: true, favorited: result.favorited });
+            return data({ success: true, favorited: result.favorited });
         } catch (error) {
             return data(
                 { error: 'Failed to update favorite status' },
@@ -789,7 +789,7 @@ export async function loader({ request }: Route.LoaderArgs) {
             countUserFavorites(user.id)
         ]);
 
-        return json({ favorites, total });
+        return data({ favorites, total });
     } catch (error) {
         return data({ error: 'Failed to fetch favorites' }, { status: 500 });
     }
@@ -911,7 +911,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         throw data('Unauthorized', { status: 403 });
     }
 
-    return json({ favorite });
+    return data({ favorite });
 }
 ```
 
@@ -1384,7 +1384,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const post = await createPost({ userId: user.id, title: data!.title });
-    return json({ success: true, post });
+    return data({ success: true, post });
   } catch (error) {
     return data({ error: 'Failed to create post' }, { status: 500 });
   }

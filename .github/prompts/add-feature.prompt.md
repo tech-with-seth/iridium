@@ -12,6 +12,7 @@ You are a Lead Web Developer implementing a **vertical slice** - a complete, pro
 ## What is a Vertical Slice?
 
 A vertical slice is:
+
 - ✅ **End-to-end** - Touches database, model layer, API, and UI
 - ✅ **Self-contained** - Can be developed, tested, and deployed independently
 - ✅ **Production-ready** - Includes validation, error handling, styling, and UX
@@ -35,6 +36,7 @@ Ask the user to clarify:
 Based on the feature requirements, outline which layers will be affected:
 
 ### Layers Checklist
+
 - [ ] **Schema Layer** - Zod validation schema
 - [ ] **Database Layer** - Prisma model updates
 - [ ] **Model Layer** - Data access functions
@@ -57,7 +59,7 @@ import { z } from 'zod';
 export const createFeatureSchema = z.object({
     field1: z.string().min(1, 'Field is required').max(200, 'Too long'),
     field2: z.string().email('Invalid email').optional(),
-    field3: z.number().min(0).max(100).default(50),
+    field3: z.number().min(0).max(100).default(50)
 });
 
 export type CreateFeatureData = z.infer<typeof createFeatureSchema>;
@@ -66,13 +68,14 @@ export type CreateFeatureData = z.infer<typeof createFeatureSchema>;
 export const listFeatureSchema = z.object({
     limit: z.number().min(1).max(100).default(20),
     offset: z.number().min(0).default(0),
-    sortBy: z.enum(['createdAt', 'name']).default('createdAt'),
+    sortBy: z.enum(['createdAt', 'name']).default('createdAt')
 });
 
 export type ListFeatureData = z.infer<typeof listFeatureSchema>;
 ```
 
 **Key principles:**
+
 - Descriptive error messages for users
 - Sensible defaults where applicable
 - Export TypeScript types with `z.infer`
@@ -117,6 +120,7 @@ npx prisma generate
 ```
 
 **Key principles:**
+
 - Use semantic field names
 - Add indexes for frequently queried fields
 - Use `@map()` for table names (lowercase, snake_case)
@@ -143,10 +147,10 @@ export function getFeature(id: string) {
                 select: {
                     id: true,
                     name: true,
-                    email: true,
-                },
-            },
-        },
+                    email: true
+                }
+            }
+        }
     });
 }
 
@@ -157,7 +161,7 @@ export function getUserFeatures({
     userId,
     limit = 20,
     offset = 0,
-    sortBy = 'createdAt' as const,
+    sortBy = 'createdAt' as const
 }: {
     userId: string;
     limit?: number;
@@ -173,10 +177,10 @@ export function getUserFeatures({
             user: {
                 select: {
                     id: true,
-                    name: true,
-                },
-            },
-        },
+                    name: true
+                }
+            }
+        }
     });
 }
 
@@ -185,7 +189,7 @@ export function getUserFeatures({
  */
 export function createFeature({
     userId,
-    data,
+    data
 }: {
     userId: string;
     data: {
@@ -197,8 +201,8 @@ export function createFeature({
     return prisma.feature.create({
         data: {
             ...data,
-            userId,
-        },
+            userId
+        }
     });
 }
 
@@ -208,7 +212,7 @@ export function createFeature({
 export function updateFeature({
     id,
     userId,
-    data,
+    data
 }: {
     id: string;
     userId: string;
@@ -221,27 +225,21 @@ export function updateFeature({
     return prisma.feature.updateMany({
         where: {
             id,
-            userId, // Authorization: only owner can update
+            userId // Authorization: only owner can update
         },
-        data,
+        data
     });
 }
 
 /**
  * Delete a feature
  */
-export function deleteFeature({
-    id,
-    userId,
-}: {
-    id: string;
-    userId: string;
-}) {
+export function deleteFeature({ id, userId }: { id: string; userId: string }) {
     return prisma.feature.deleteMany({
         where: {
             id,
-            userId, // Authorization: only owner can delete
-        },
+            userId // Authorization: only owner can delete
+        }
     });
 }
 
@@ -250,12 +248,13 @@ export function deleteFeature({
  */
 export function countUserFeatures(userId: string) {
     return prisma.feature.count({
-        where: { userId },
+        where: { userId }
     });
 }
 ```
 
 **Key principles:**
+
 - One model file per entity
 - JSDoc comments explaining each function
 - Authorization checks in update/delete (via `where` clause)
@@ -281,7 +280,7 @@ import {
     createFeature,
     updateFeature,
     deleteFeature,
-    getFeature,
+    getFeature
 } from '~/models/[feature].server';
 
 // GET - List user's features
@@ -291,10 +290,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     try {
         const [features, total] = await Promise.all([
             getUserFeatures({ userId: user.id }),
-            countUserFeatures(user.id),
+            countUserFeatures(user.id)
         ]);
 
-        return json({ features, total });
+        return data({ features, total });
     } catch (error) {
         console.error('Failed to fetch features:', error);
         return data({ error: 'Failed to fetch features' }, { status: 500 });
@@ -306,10 +305,11 @@ export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
 
     if (request.method === 'POST') {
-        const { data: validatedData, errors } = await getValidatedFormData<CreateFeatureData>(
-            request,
-            zodResolver(createFeatureSchema)
-        );
+        const { data: validatedData, errors } =
+            await getValidatedFormData<CreateFeatureData>(
+                request,
+                zodResolver(createFeatureSchema)
+            );
 
         if (errors) {
             return data({ errors }, { status: 400 });
@@ -318,10 +318,10 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const feature = await createFeature({
                 userId: user.id,
-                data: validatedData!,
+                data: validatedData!
             });
 
-            return json({ success: true, feature });
+            return data({ success: true, feature });
         } catch (error) {
             console.error('Failed to create feature:', error);
             return data({ error: 'Failed to create feature' }, { status: 500 });
@@ -329,10 +329,11 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     if (request.method === 'PUT') {
-        const { data: validatedData, errors } = await getValidatedFormData<CreateFeatureData>(
-            request,
-            zodResolver(createFeatureSchema)
-        );
+        const { data: validatedData, errors } =
+            await getValidatedFormData<CreateFeatureData>(
+                request,
+                zodResolver(createFeatureSchema)
+            );
 
         if (errors) {
             return data({ errors }, { status: 400 });
@@ -349,14 +350,17 @@ export async function action({ request }: Route.ActionArgs) {
             const result = await updateFeature({
                 id,
                 userId: user.id,
-                data: validatedData!,
+                data: validatedData!
             });
 
             if (result.count === 0) {
-                return data({ error: 'Feature not found or unauthorized' }, { status: 404 });
+                return data(
+                    { error: 'Feature not found or unauthorized' },
+                    { status: 404 }
+                );
             }
 
-            return json({ success: true });
+            return data({ success: true });
         } catch (error) {
             console.error('Failed to update feature:', error);
             return data({ error: 'Failed to update feature' }, { status: 500 });
@@ -374,14 +378,17 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const result = await deleteFeature({
                 id,
-                userId: user.id,
+                userId: user.id
             });
 
             if (result.count === 0) {
-                return data({ error: 'Feature not found or unauthorized' }, { status: 404 });
+                return data(
+                    { error: 'Feature not found or unauthorized' },
+                    { status: 404 }
+                );
             }
 
-            return json({ success: true });
+            return data({ success: true });
         } catch (error) {
             console.error('Failed to delete feature:', error);
             return data({ error: 'Failed to delete feature' }, { status: 500 });
@@ -393,6 +400,7 @@ export async function action({ request }: Route.ActionArgs) {
 ```
 
 **Key principles:**
+
 - `requireUser(request)` for authentication
 - `getValidatedFormData()` for validation
 - Call model functions (NEVER direct Prisma calls)
@@ -416,8 +424,8 @@ export default [
 
     ...prefix('api', [
         // ... existing API routes
-        route('[feature]', 'routes/api/[feature].ts'),
-    ]),
+        route('[feature]', 'routes/api/[feature].ts')
+    ])
 ] satisfies RouteConfig;
 ```
 
@@ -614,6 +622,7 @@ function FeatureCard({ feature }: { feature: any }) {
 ```
 
 **Key principles:**
+
 - Loader calls API endpoint (consistent data fetching)
 - `useValidatedForm` for client-side validation
 - `useFetcher` for API calls (no page reload)
@@ -654,6 +663,7 @@ This generates types in `./+types/[feature]` for `Route.LoaderArgs`, `Route.Acti
 Before marking the feature complete, manually test:
 
 ### ✅ Happy Path
+
 - [ ] Feature loads without errors
 - [ ] Can create new resources with valid data
 - [ ] Can view list of resources
@@ -664,6 +674,7 @@ Before marking the feature complete, manually test:
 - [ ] UI updates reflect changes
 
 ### ✅ Validation
+
 - [ ] Required fields show errors when empty
 - [ ] Invalid formats rejected with helpful messages
 - [ ] Server-side validation catches malicious inputs
@@ -671,12 +682,14 @@ Before marking the feature complete, manually test:
 - [ ] Form-level errors display correctly
 
 ### ✅ Error Handling
+
 - [ ] Network errors show user-friendly messages
 - [ ] Database errors don't crash the app
 - [ ] Unauthorized access returns 403/404
 - [ ] Empty states render correctly
 
 ### ✅ UX & Styling
+
 - [ ] Loading states display during async operations
 - [ ] Buttons disabled during submission
 - [ ] DaisyUI styling applied correctly
@@ -688,11 +701,13 @@ Before marking the feature complete, manually test:
 Use this to verify completeness:
 
 ### ✅ Schema Layer
+
 - [ ] Zod validation schema defined in `app/lib/validations.ts`
 - [ ] TypeScript types exported with `z.infer`
 - [ ] Validation messages are user-friendly
 
 ### ✅ Database Layer
+
 - [ ] Prisma model added/updated in `schema.prisma`
 - [ ] Migrations created and run (`npx prisma migrate dev`)
 - [ ] Prisma client regenerated (`npx prisma generate`)
@@ -700,12 +715,14 @@ Use this to verify completeness:
 - [ ] Indexes added for performance
 
 ### ✅ Model Layer
+
 - [ ] Model file created in `app/models/[feature].server.ts`
 - [ ] CRUD functions implemented (get, create, update, delete)
 - [ ] Authorization checks in update/delete functions
 - [ ] JSDoc comments for all functions
 
 ### ✅ API Layer
+
 - [ ] API endpoint created in `app/routes/api/[feature].ts`
 - [ ] `loader` for GET requests
 - [ ] `action` for POST/PUT/DELETE requests
@@ -717,6 +734,7 @@ Use this to verify completeness:
 - [ ] Route registered in `app/routes.ts`
 
 ### ✅ UI Layer
+
 - [ ] UI route created in `app/routes/[feature].tsx`
 - [ ] Loader fetches initial data from API
 - [ ] Form uses `useValidatedForm` + `useFetcher`
@@ -728,6 +746,7 @@ Use this to verify completeness:
 - [ ] Route registered in `app/routes.ts`
 
 ### ✅ Quality
+
 - [ ] Types generated (`npm run typecheck` passes)
 - [ ] No TypeScript errors
 - [ ] No console errors in browser
@@ -737,6 +756,7 @@ Use this to verify completeness:
 ## Common Pitfalls to Avoid
 
 ### ❌ Incomplete Slice
+
 **Problem:** Only implementing UI without API or database.
 
 **Solution:** Always implement ALL layers. A vertical slice is not done until it spans the full stack.
@@ -744,6 +764,7 @@ Use this to verify completeness:
 ---
 
 ### ❌ Skipping Validation
+
 **Problem:** "I'll add validation later."
 
 **Solution:** Validation is non-negotiable. Add Zod schema and server-side validation from the start.
@@ -751,6 +772,7 @@ Use this to verify completeness:
 ---
 
 ### ❌ Direct Prisma Calls in Routes
+
 **Problem:** Calling `prisma.*` directly in route loaders/actions.
 
 **Solution:** Always use model functions from `~/models/[feature].server.ts`.
@@ -758,6 +780,7 @@ Use this to verify completeness:
 ---
 
 ### ❌ No Error Handling
+
 **Problem:** Only implementing happy path.
 
 **Solution:** Add try-catch blocks in API, display errors in UI, handle edge cases.
@@ -765,6 +788,7 @@ Use this to verify completeness:
 ---
 
 ### ❌ Ignoring UX
+
 **Problem:** No loading states, no feedback, broken forms.
 
 **Solution:** Use `fetcher.state`, show loading spinners, display success/error messages.
@@ -772,6 +796,7 @@ Use this to verify completeness:
 ---
 
 ### ❌ Styling Last
+
 **Problem:** "I'll make it pretty later."
 
 **Solution:** Apply DaisyUI styling as you build. Design often drives refactoring.

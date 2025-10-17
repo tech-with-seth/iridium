@@ -7,6 +7,7 @@ This document establishes the **canonical pattern for implementing CRUD operatio
 ## When to Use This Pattern
 
 Use this pattern when implementing features that require:
+
 - ✅ User profile management
 - ✅ Content creation and editing (posts, comments, etc.)
 - ✅ Settings and preferences management
@@ -18,6 +19,7 @@ Use this pattern when implementing features that require:
 ### Why API-First?
 
 The API-first pattern provides:
+
 - **RESTful architecture** - Standard HTTP methods for predictable behavior
 - **Modular design** - Separation of business logic (API) from presentation (UI)
 - **Reusability** - API endpoints callable from anywhere in the application
@@ -52,11 +54,14 @@ import { z } from 'zod';
 
 // Example: Profile update schema
 export const profileUpdateSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
-  location: z.string().max(100, 'Location too long').optional(),
-  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number').optional(),
+    name: z.string().min(1, 'Name is required'),
+    bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
+    website: z.string().url('Invalid URL').optional().or(z.literal('')),
+    location: z.string().max(100, 'Location too long').optional(),
+    phoneNumber: z
+        .string()
+        .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
+        .optional()
 });
 
 // Type inference
@@ -64,10 +69,10 @@ export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 
 // Example: Post creation schema
 export const createPostSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
-  content: z.string().min(10, 'Content must be at least 10 characters'),
-  published: z.boolean().default(false),
-  tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
+    title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
+    content: z.string().min(10, 'Content must be at least 10 characters'),
+    published: z.boolean().default(false),
+    tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional()
 });
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
@@ -97,6 +102,7 @@ model User {
 ```
 
 **After schema changes:**
+
 1. Run `npx prisma migrate dev --name add_[feature]_fields`
 2. Run `npx prisma generate`
 3. Restart dev server
@@ -134,7 +140,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         throw new Response('Forbidden', { status: 403 });
     }
 
-    return json({ resource });
+    return data({ resource });
 }
 
 // POST/PUT/DELETE - Create, Update, Delete operations
@@ -161,7 +167,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                 }
             });
 
-            return json({ success: true, resource: newResource }, { status: 201 });
+            return data({ success: true, resource: newResource }, { status: 201 });
         } catch (error) {
             return data(
                 { error: 'Failed to create resource' },
@@ -197,7 +203,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                 data: validatedData!
             });
 
-            return json({ success: true, resource: updated });
+            return data({ success: true, resource: updated });
         } catch (error) {
             return data(
                 { error: 'Failed to update resource' },
@@ -222,7 +228,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                 where: { id: params.id }
             });
 
-            return json({ success: true });
+            return data({ success: true });
         } catch (error) {
             return data(
                 { error: 'Failed to delete resource' },
@@ -242,12 +248,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 Add the API route under the `api` prefix.
 
 ```typescript
-import { type RouteConfig, index, route, prefix } from '@react-router/dev/routes';
+import {
+    type RouteConfig,
+    index,
+    route,
+    prefix
+} from '@react-router/dev/routes';
 
 export default [
     // ... existing routes
     ...prefix('api', [
-        route('[feature]', 'routes/api/[feature].ts'),
+        route('[feature]', 'routes/api/[feature].ts')
         // With params: route('[feature]/:id', 'routes/api/[feature].$id.ts')
     ])
 ] satisfies RouteConfig;
@@ -456,40 +467,47 @@ export default function FeaturePage({ loaderData }: Route.ComponentProps) {
 ## HTTP Method Patterns
 
 ### GET (Read)
+
 - **Use:** `loader()` function
 - **Purpose:** Fetch and return data
-- **Response:** `return json({ data })`
+- **Response:** `return data({ data })`
 
 ### POST (Create)
+
 - **Use:** `action()` with `request.method === 'POST'`
 - **Purpose:** Create new resources
-- **Response:** `return json({ success: true, resource }, { status: 201 })`
+- **Response:** `return data({ success: true, resource }, { status: 201 })`
 
 ### PUT (Update)
+
 - **Use:** `action()` with `request.method === 'PUT'`
 - **Purpose:** Update existing resources
-- **Response:** `return json({ success: true, resource })`
+- **Response:** `return data({ success: true, resource })`
 
 ### DELETE (Delete)
+
 - **Use:** `action()` with `request.method === 'DELETE'`
 - **Purpose:** Delete resources
-- **Response:** `return json({ success: true })`
+- **Response:** `return data({ success: true })`
 
 ## Security Considerations
 
 ### Authentication
+
 - **Always** call `requireUser(request)` at the start of loader/action
 - API endpoints don't have middleware protection - must manually authenticate
 
 ### Authorization
+
 - Check resource ownership before operations:
-  ```typescript
-  if (resource.userId !== user.id) {
-      throw new Response('Forbidden', { status: 403 });
-  }
-  ```
+    ```typescript
+    if (resource.userId !== user.id) {
+        throw new Response('Forbidden', { status: 403 });
+    }
+    ```
 
 ### Validation
+
 - **Always** validate on server with `getValidatedFormData`
 - Never trust client-side validation alone
 - Return proper error codes (400 for validation, 403 for authorization, 500 for server errors)
@@ -497,6 +515,7 @@ export default function FeaturePage({ loaderData }: Route.ComponentProps) {
 ## Error Handling
 
 ### Validation Errors (400)
+
 ```typescript
 if (errors) {
     return data({ errors }, { status: 400 });
@@ -504,6 +523,7 @@ if (errors) {
 ```
 
 ### Not Found (404)
+
 ```typescript
 if (!resource) {
     throw new Response('Not Found', { status: 404 });
@@ -511,6 +531,7 @@ if (!resource) {
 ```
 
 ### Forbidden (403)
+
 ```typescript
 if (resource.userId !== user.id) {
     throw new Response('Forbidden', { status: 403 });
@@ -518,6 +539,7 @@ if (resource.userId !== user.id) {
 ```
 
 ### Server Errors (500)
+
 ```typescript
 try {
     // operation
@@ -529,6 +551,7 @@ try {
 ## Testing Pattern
 
 ### API Endpoint Testing
+
 ```typescript
 // Test GET
 const response = await fetch('/api/[feature]', {
@@ -591,6 +614,7 @@ export async function action({ request }: Route.ActionArgs) {
 ```
 
 **The React Router 7 Way:**
+
 1. Always call `request.formData()` first
 2. Read any routing fields (like `intent`) from FormData
 3. Pass the same FormData to `validateFormData()`

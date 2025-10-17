@@ -249,7 +249,7 @@ This is a **resource route** (no component, only loader and/or action):
 
 ```typescript
 import type { Route } from './+types/posts';
-import { data, json } from 'react-router';
+import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { getValidatedFormData } from '~/lib/form-validation.server';
 import { createPostSchema, type CreatePostData } from '~/lib/validations';
@@ -281,7 +281,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         })
     ]);
 
-    return json({
+    return data({
         posts,
         pagination: {
             page,
@@ -313,7 +313,7 @@ export async function action({ request }: Route.ActionArgs) {
                 authorId: user.id
             });
 
-            return json({ success: true, post }, { status: 201 });
+            return data({ success: true, post }, { status: 201 });
         } catch (error) {
             console.error('Failed to create post:', error);
             return data({ error: 'Failed to create post' }, { status: 500 });
@@ -332,7 +332,7 @@ Handle individual post operations (read, update, delete):
 
 ```typescript
 import type { Route } from './+types/posts.$id';
-import { data, json } from 'react-router';
+import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { getValidatedFormData } from '~/lib/form-validation.server';
 import { updatePostSchema, type UpdatePostData } from '~/lib/validations';
@@ -349,7 +349,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         throw data('Post not found', { status: 404 });
     }
 
-    return json({ post });
+    return data({ post });
 }
 
 // PUT/PATCH/DELETE /api/posts/:id
@@ -388,7 +388,7 @@ export async function action({ request, params }: Route.ActionArgs) {
                 data: validatedData!
             });
 
-            return json({ success: true, post: updatedPost });
+            return data({ success: true, post: updatedPost });
         } catch (error) {
             console.error('Failed to update post:', error);
             return data({ error: 'Failed to update post' }, { status: 500 });
@@ -399,7 +399,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (request.method === 'DELETE') {
         try {
             await deletePost(params.id);
-            return json({ success: true });
+            return data({ success: true });
         } catch (error) {
             console.error('Failed to delete post:', error);
             return data({ error: 'Failed to delete post' }, { status: 500 });
@@ -429,7 +429,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     const data = await getResourceFromModel({ filter });
 
     // Return JSON
-    return json({ data });
+    return data({ data });
 }
 ```
 
@@ -457,7 +457,7 @@ export async function action({ request }: Route.ActionArgs) {
         });
 
         // Return 201 Created
-        return json({ success: true, resource }, { status: 201 });
+        return data({ success: true, resource }, { status: 201 });
     }
 
     return data({ error: 'Method not allowed' }, { status: 405 });
@@ -492,7 +492,7 @@ if (request.method === 'PUT' || request.method === 'PATCH') {
         data: validatedData!
     });
 
-    return json({ success: true, resource: updated });
+    return data({ success: true, resource: updated });
 }
 ```
 
@@ -511,7 +511,7 @@ if (request.method === 'DELETE') {
     // Delete via model layer
     await deleteResource(params.id);
 
-    return json({ success: true });
+    return data({ success: true });
 }
 ```
 
@@ -597,7 +597,7 @@ export async function action({ request }: Route.ActionArgs) {
     // validatedData is now type-safe and validated
     const resource = await createResource(validatedData!);
 
-    return json({ success: true, resource });
+    return data({ success: true, resource });
 }
 ```
 
@@ -632,7 +632,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     // Use validated params
     const results = await getResources({ page, limit, sort, filter });
 
-    return json({ results });
+    return data({ results });
 }
 ```
 
@@ -644,8 +644,8 @@ Use appropriate status codes for different scenarios:
 
 | Code  | Usage                     | Example                                                         |
 | ----- | ------------------------- | --------------------------------------------------------------- |
-| `200` | Success (GET, PUT, PATCH) | `return json({ data })`                                         |
-| `201` | Resource created (POST)   | `return json({ resource }, { status: 201 })`                    |
+| `200` | Success (GET, PUT, PATCH) | `return data({ data })`                                         |
+| `201` | Resource created (POST)   | `return data({ resource }, { status: 201 })`                    |
 | `400` | Validation error          | `return data({ errors }, { status: 400 })`                      |
 | `401` | Not authenticated         | Handled by `requireUser()`                                      |
 | `403` | Not authorized            | `throw data('Forbidden', { status: 403 })`                      |
@@ -706,7 +706,7 @@ Always wrap database operations in try-catch:
 ```typescript
 try {
     const resource = await createResourceInDatabase(data);
-    return json({ success: true, resource }, { status: 201 });
+    return data({ success: true, resource }, { status: 201 });
 } catch (error) {
     console.error('Database error:', error);
 
@@ -739,7 +739,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         getItemCount()
     ]);
 
-    return json({
+    return data({
         items,
         pagination: {
             page,
@@ -789,7 +789,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         orderBy: { [sort]: order }
     });
 
-    return json({ items });
+    return data({ items });
 }
 ```
 
@@ -826,7 +826,7 @@ export async function action({ request }: Route.ActionArgs) {
             // Perform bulk delete
             await bulkDeleteItems(ids);
 
-            return json({ success: true, deleted: ids.length });
+            return data({ success: true, deleted: ids.length });
         }
     }
 
@@ -872,7 +872,7 @@ export async function action({ request }: Route.ActionArgs) {
                 mimeType: file.type
             });
 
-            return json({ success: true, resource }, { status: 201 });
+            return data({ success: true, resource }, { status: 201 });
         } catch (error) {
             console.error('Upload failed:', error);
             return data({ error: 'Upload failed' }, { status: 500 });
@@ -1121,10 +1121,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     const profile = await getUserFromSession(params.id);
 
     // ❌ BAD - Exposes password hash
-    return json({ user: profile });
+    return data({ user: profile });
 
     // ✅ GOOD - Filter sensitive fields
-    return json({
+    return data({
         user: {
             id: profile.id,
             name: profile.name,
@@ -1205,10 +1205,10 @@ export async function action({ request }) {
 
 ```typescript
 // BAD - Returns password hash
-return json({ user }); // ❌ Includes all fields
+return data({ user }); // ❌ Includes all fields
 
 // GOOD - Explicit selection
-return json({
+return data({
     user: {
         id: user.id,
         name: user.name,

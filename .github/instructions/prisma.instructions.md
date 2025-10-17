@@ -24,6 +24,7 @@ datasource db {
 ```
 
 **Why custom output?**
+
 - Keeps generated files within `app/` directory for better React Router 7 integration
 - Simplifies imports with `~/generated/prisma/client` alias
 - Follows project architecture pattern for generated code
@@ -48,12 +49,14 @@ if (process.env.NODE_ENV !== 'production') {
 ```
 
 **Import pattern:**
+
 ```typescript
 import { prisma } from '~/db.server';
 import type { User, Post } from '~/generated/prisma/client';
 ```
 
 **Anti-patterns:**
+
 - ❌ `import { PrismaClient } from '@prisma/client'` (wrong path)
 - ❌ `const prisma = new PrismaClient()` (creates new connection)
 - ❌ Direct Prisma imports in components or routes
@@ -189,7 +192,7 @@ export default function NewPost() {
 // app/routes/api/posts/:postId.ts
 import type { Route } from './+types/posts.$postId';
 import { prisma } from '~/db.server';
-import { json } from 'react-router';
+import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -197,7 +200,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         where: { id: params.postId }
     });
 
-    return json({ post });
+    return data({ post });
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -212,17 +215,17 @@ export async function action({ request, params }: Route.ActionArgs) {
                 content: body.content
             }
         });
-        return json({ post });
+        return data({ post });
     }
 
     if (request.method === 'DELETE') {
         await prisma.post.delete({
             where: { id: params.postId }
         });
-        return json({ success: true });
+        return data({ success: true });
     }
 
-    return json({ error: 'Method not allowed' }, { status: 405 });
+    return data({ error: 'Method not allowed' }, { status: 405 });
 }
 ```
 
@@ -392,6 +395,7 @@ npx prisma generate
 ```
 
 **After schema changes:**
+
 1. Create migration: `npx prisma migrate dev --name description`
 2. Restart dev server (to pick up new Prisma client)
 3. Run `npm run typecheck` to update TypeScript types
@@ -449,15 +453,17 @@ main()
 ```
 
 **package.json:**
+
 ```json
 {
-  "scripts": {
-    "seed": "tsx prisma/seed.ts"
-  }
+    "scripts": {
+        "seed": "tsx prisma/seed.ts"
+    }
 }
 ```
 
 **Run seeding:**
+
 ```bash
 npm run seed
 ```
@@ -612,10 +618,7 @@ const recentPosts = await prisma.post.findMany({
 // Boolean logic
 const posts = await prisma.post.findMany({
     where: {
-        OR: [
-            { published: true },
-            { authorId: userId }
-        ],
+        OR: [{ published: true }, { authorId: userId }],
         NOT: {
             status: 'DELETED'
         }
@@ -772,8 +775,12 @@ const result = await prisma.$transaction(async (tx) => {
 
 // Batch transactions
 await prisma.$transaction([
-    prisma.user.create({ data: { email: 'user1@example.com', name: 'User 1' } }),
-    prisma.user.create({ data: { email: 'user2@example.com', name: 'User 2' } }),
+    prisma.user.create({
+        data: { email: 'user1@example.com', name: 'User 1' }
+    }),
+    prisma.user.create({
+        data: { email: 'user2@example.com', name: 'User 2' }
+    }),
     prisma.user.create({ data: { email: 'user3@example.com', name: 'User 3' } })
 ]);
 ```
@@ -815,6 +822,7 @@ datasource db {
 ```
 
 **Database URL with pool settings:**
+
 ```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname?connection_limit=10&pool_timeout=20"
 ```
@@ -897,6 +905,7 @@ const posts = await prisma.post.findMany({
 ```
 
 **Configuration:**
+
 ```bash
 DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=YOUR_API_KEY"
 ```
@@ -916,10 +925,7 @@ try {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Unique constraint violation
         if (error.code === 'P2002') {
-            return json(
-                { error: 'Email already exists' },
-                { status: 400 }
-            );
+            return data({ error: 'Email already exists' }, { status: 400 });
         }
 
         // Record not found
@@ -949,7 +955,7 @@ import { Prisma } from '~/generated/prisma/client';
 
 // Infer type from model
 type UserWithPosts = Prisma.UserGetPayload<{
-    include: { posts: true }
+    include: { posts: true };
 }>;
 
 // Infer create input type
@@ -1077,9 +1083,9 @@ DIRECT_URL="postgresql://user:password@localhost:5432/dbname"
 - [Prisma Schema Reference](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference)
 - [Prisma Client API](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference)
 - Project files:
-  - Database singleton: `app/db.server.ts`
-  - Schema: `prisma/schema.prisma`
-  - Seed script: `prisma/seed.ts`
+    - Database singleton: `app/db.server.ts`
+    - Schema: `prisma/schema.prisma`
+    - Seed script: `prisma/seed.ts`
 - Related instructions:
-  - `.github/instructions/react-router.instructions.md`
-  - `.github/instructions/better-auth.instructions.md`
+    - `.github/instructions/react-router.instructions.md`
+    - `.github/instructions/better-auth.instructions.md`

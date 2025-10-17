@@ -119,7 +119,7 @@ export default function NewFeature() {
 // API route with manual auth (no middleware)
 export async function action({ request }: Route.ActionArgs) {
   const user = await requireUser(request);
-  return json({ data: "success" });
+  return data({ data: "success" });
 }
 ```
 

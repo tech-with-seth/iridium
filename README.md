@@ -252,13 +252,13 @@ The Prisma schema includes:
 
    ```typescript
    import type { Route } from "./+types/new-endpoint";
-   import { json } from "react-router";
+   import { data } from "react-router";
    import { requireUser } from "~/lib/session.server";
 
    export async function action({ request }: Route.ActionArgs) {
      const user = await requireUser(request);
      // Handle request
-     return json({ success: true });
+     return data({ success: true });
    }
    ```
 
@@ -344,6 +344,7 @@ This project includes comprehensive pattern documentation in `.github/instructio
 - **`posthog.instructions.md`** - PostHog analytics, feature flags, and error tracking
 
 All patterns include:
+
 - Complete code examples
 - Best practices and anti-patterns
 - Reference implementations

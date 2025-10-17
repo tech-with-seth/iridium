@@ -80,7 +80,7 @@ Create in `app/routes/api/[endpoint-name].ts`:
 
 ```typescript
 import type { Route } from './+types/[endpoint-name]';
-import { json } from 'react-router';
+import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { prisma } from '~/db.server';
 
@@ -91,7 +91,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         where: { userId: user.id }
     });
 
-    return json({ data });
+    return data({ data });
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -100,20 +100,20 @@ export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'POST') {
         const body = await request.json();
         // Handle POST
-        return json({ success: true });
+        return data({ success: true });
     }
 
     if (request.method === 'PUT') {
         // Handle PUT
-        return json({ success: true });
+        return data({ success: true });
     }
 
     if (request.method === 'DELETE') {
         // Handle DELETE
-        return json({ success: true });
+        return data({ success: true });
     }
 
-    return json({ error: 'Method not allowed' }, { status: 405 });
+    return data({ error: 'Method not allowed' }, { status: 405 });
 }
 ```
 

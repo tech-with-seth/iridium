@@ -7,6 +7,7 @@
 ## Context
 
 In a typical React Router 7 (or Remix) application, developers often call Prisma directly in route loaders and actions. While this works, it creates several issues:
+
 - Database logic scattered across route files
 - Difficult to test business logic
 - Hard to reuse database queries
@@ -14,6 +15,7 @@ In a typical React Router 7 (or Remix) application, developers often call Prisma
 - No single place to understand data access patterns
 
 Options considered:
+
 - Direct Prisma calls in routes
 - Repository pattern (class-based)
 - Service layer (business logic + data access)
@@ -24,12 +26,14 @@ Options considered:
 Implement a **Model Layer Pattern** where all database operations are abstracted into model functions in `app/models/[entity].server.ts`.
 
 Rules:
+
 1. **NEVER** import `prisma` directly in route files
 2. All database operations go through model functions
 3. Model functions are simple, focused, and composable
 4. Routes call model functions, never Prisma directly
 
 Example structure:
+
 ```typescript
 // app/models/user.server.ts
 import { prisma } from '~/db.server';
@@ -47,7 +51,7 @@ import { getUserProfile } from '~/models/user.server';
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await requireUser(request);
   const profile = await getUserProfile(user.id);
-  return json({ profile });
+  return data({ profile });
 }
 ```
 
