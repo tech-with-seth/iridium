@@ -1,7 +1,25 @@
 ---
 mode: 'agent'
-model: Claude Sonnet 4
-tools: ['extensions', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'runTests', 'runCommands', 'runTasks', 'edit', 'runNotebooks', 'search', 'new']
+tools:
+    [
+        'extensions',
+        'usages',
+        'vscodeAPI',
+        'problems',
+        'changes',
+        'testFailure',
+        'openSimpleBrowser',
+        'fetch',
+        'githubRepo',
+        'todos',
+        'runTests',
+        'runCommands',
+        'runTasks',
+        'edit',
+        'runNotebooks',
+        'search',
+        'new'
+    ]
 description: 'Update documentation to reflect recent code changes'
 ---
 
@@ -26,7 +44,6 @@ Make sure that all relevant documentation is updated to reflect recent code chan
 
 - `.github/copilot-instructions.md` - Main instructions for GitHub Copilot
 - `AGENTS.md` - Comprehensive guide for AI coding agents
-- `CLAUDE.md` - Claude-specific instructions (if exists)
 - `README.md` - Project overview and getting started
 
 ### Framework-Specific Instructions (`.github/instructions/`)

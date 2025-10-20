@@ -1,6 +1,5 @@
 ---
 mode: 'agent'
-model: Claude Sonnet 4
 tools: ['githubRepo', 'search/codebase']
 description: 'Generate a complete vertical slice feature across all application layers'
 ---

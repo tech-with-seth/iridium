@@ -18,11 +18,6 @@
 - **Content**: Complete architectural patterns, workflows, troubleshooting, code examples
 - **Update when**: New patterns, component architectures, or agent-specific guidance emerges
 
-### CLAUDE.md (deprecated/redirect)
-
-- **Status**: May redirect to AGENTS.md or serve as Claude-specific guidance
-- **Update when**: Claude-specific considerations arise
-
 ### .github/copilot-instructions.md
 
 - **Audience**: GitHub Copilot (quick reference)

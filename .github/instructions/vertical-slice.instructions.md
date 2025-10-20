@@ -1335,7 +1335,7 @@ This vertical slice pattern combines several architectural patterns:
 - **Error Boundaries** - See `.github/instructions/error-boundaries.instructions.md`
 - **PostHog Analytics** - See `.github/instructions/posthog.instructions.md`
 - **Polar Billing** - See `.github/instructions/polar.instructions.md`
-- **Model Layer** - See CLAUDE.md "Model Layer Pattern"
+- **Model Layer** - See AGENTS.md "Model Layer Pattern"
 
 ## Migration: From Prototype to Vertical Slice
 

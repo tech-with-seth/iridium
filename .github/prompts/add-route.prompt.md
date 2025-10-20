@@ -1,6 +1,5 @@
 ---
 mode: 'agent'
-model: Claude Sonnet 4
 tools: ['githubRepo', 'search/codebase']
 description: 'Generate a new React Router 7 route with proper configuration'
 ---

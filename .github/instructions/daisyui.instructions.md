@@ -19,18 +19,19 @@ DaisyUI is a pure CSS component library built on Tailwind CSS. This project uses
 
 ```typescript
 // Fetch entire documentation
-mcp__daisyui__fetch_daisyui_documentation
+mcp__daisyui__fetch_daisyui_documentation;
 
 // Search for specific components or features
-mcp__daisyui__search_daisyui_documentation({ query: "button modifiers" })
-mcp__daisyui__search_daisyui_documentation({ query: "form input variants" })
-mcp__daisyui__search_daisyui_documentation({ query: "card component" })
+mcp__daisyui__search_daisyui_documentation({ query: 'button modifiers' });
+mcp__daisyui__search_daisyui_documentation({ query: 'form input variants' });
+mcp__daisyui__search_daisyui_documentation({ query: 'card component' });
 
 // Search DaisyUI codebase
-mcp__daisyui__search_daisyui_code({ query: "btn-primary" })
+mcp__daisyui__search_daisyui_code({ query: 'btn-primary' });
 ```
 
 **When to use MCP tools:**
+
 - Before creating a new component, search for the DaisyUI component documentation
 - When unsure about available modifiers or variants
 - To verify exact class names and combinations
@@ -159,16 +160,16 @@ Every DaisyUI component follows this pattern:
 #### Card Component Classes
 
 ```typescript
-'card'            // Base class
-'card-bordered'   // With border
-'card-compact'    // Compact padding
-'card-normal'     // Normal padding
-'card-side'       // Horizontal layout
+'card'; // Base class
+'card-bordered'; // With border
+'card-compact'; // Compact padding
+'card-normal'; // Normal padding
+'card-side'; // Horizontal layout
 
 // Child elements
-'card-body'       // Content wrapper
-'card-title'      // Title element
-'card-actions'    // Actions footer
+'card-body'; // Content wrapper
+'card-title'; // Title element
+'card-actions'; // Actions footer
 ```
 
 #### Modal Component Classes
@@ -187,14 +188,14 @@ Every DaisyUI component follows this pattern:
 #### Drawer Component Classes
 
 ```typescript
-'drawer'          // Base drawer
-'drawer-toggle'   // Checkbox for toggle
-'drawer-side'     // Side panel
-'drawer-content'  // Main content
-'drawer-overlay'  // Background overlay
+'drawer'; // Base drawer
+'drawer-toggle'; // Checkbox for toggle
+'drawer-side'; // Side panel
+'drawer-content'; // Main content
+'drawer-overlay'; // Background overlay
 
 // Positions
-'drawer-end'      // Right side
+'drawer-end'; // Right side
 ```
 
 ## Semantic Color System
@@ -560,7 +561,7 @@ export function Badge({
 
 - **Component Patterns**: `.github/instructions/component-patterns.instructions.md`
 - **CVA Configuration**: `.github/instructions/cva.instructions.md`
-- **Project Architecture**: `CLAUDE.md`
+- **Project Architecture**: `AGENTS.md`
 
 ## AI Assistant Guidelines
 
