@@ -20,7 +20,7 @@ export async function action({ request }: Route.ActionArgs) {
     invariant(userId, 'User ID is required');
 
     try {
-        const updatedUser = await updateUser({
+        await updateUser({
             userId,
             data: { name }
         });
@@ -70,10 +70,4 @@ export default function ProfileEditRoute() {
             </Form>
         </Container>
     );
-}
-
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-    // Let all errors bubble to root
-    // Profile edit errors are handled in the action
-    throw error;
 }
