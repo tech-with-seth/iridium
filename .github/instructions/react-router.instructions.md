@@ -240,6 +240,141 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 </Form>;
 ```
 
+## Streaming with Suspense
+
+React Router supports React Suspense for streaming non-critical data, allowing faster initial page renders by deferring slower data fetching.
+
+### Return Promises from Loaders:
+
+**Key Concept**: Return promises instead of awaiting them for non-critical data. React Router will await critical data but stream non-critical data.
+
+```tsx
+import type { Route } from './+types/dashboard';
+
+export async function loader({}: Route.LoaderArgs) {
+    // ✅ Critical data - AWAIT this (blocks render)
+    const user = await getUserData();
+
+    // ✅ Non-critical data - DON'T await (streams in later)
+    const analytics = getAnalyticsData(); // Returns Promise<Analytics>
+    const notifications = getNotifications(); // Returns Promise<Notification[]>
+
+    // Return object with both awaited and promised data
+    return {
+        user, // Resolved value
+        analytics, // Promise (streams)
+        notifications // Promise (streams)
+    };
+}
+```
+
+**⚠️ Important**: You cannot return a single promise - it must be an object with keys.
+
+### Render with Suspense & Await:
+
+```tsx
+import * as React from 'react';
+import { Await } from 'react-router';
+import type { Route } from './+types/dashboard';
+
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+    const { user, analytics, notifications } = loaderData;
+
+    return (
+        <div>
+            {/* ✅ Critical data renders immediately */}
+            <h1>Welcome, {user.name}</h1>
+
+            {/* ✅ Non-critical data shows fallback then streams in */}
+            <React.Suspense fallback={<div className="skeleton h-32 w-full" />}>
+                <Await resolve={analytics}>
+                    {(data) => (
+                        <div className="stats">
+                            <div className="stat">
+                                <div className="stat-title">Views</div>
+                                <div className="stat-value">{data.views}</div>
+                            </div>
+                        </div>
+                    )}
+                </Await>
+            </React.Suspense>
+
+            <React.Suspense fallback={<div>Loading notifications...</div>}>
+                <Await resolve={notifications}>
+                    {(items) => (
+                        <ul>
+                            {items.map((item) => (
+                                <li key={item.id}>{item.message}</li>
+                            ))}
+                        </ul>
+                    )}
+                </Await>
+            </React.Suspense>
+        </div>
+    );
+}
+```
+
+### React 19 Pattern with `use()`:
+
+If using React 19, you can use `React.use()` instead of `<Await>`, but you need a separate component:
+
+```tsx
+import * as React from 'react';
+
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+    const { user, analytics } = loaderData;
+
+    return (
+        <div>
+            <h1>Welcome, {user.name}</h1>
+
+            <React.Suspense fallback={<div>Loading...</div>}>
+                <AnalyticsDisplay promise={analytics} />
+            </React.Suspense>
+        </div>
+    );
+}
+
+// Separate component to use React.use()
+function AnalyticsDisplay({ promise }: { promise: Promise<Analytics> }) {
+    const data = React.use(promise);
+    return <div>Views: {data.views}</div>;
+}
+```
+
+### Stream Timeout Configuration:
+
+By default, React Router rejects pending promises after 4950ms. Configure in `entry.server.tsx`:
+
+```tsx
+// entry.server.tsx
+export const streamTimeout = 10_000; // 10 seconds
+```
+
+### Best Practices:
+
+1. **Use for slow/optional data**: Analytics, recommendations, comments, social data
+2. **Don't use for critical UI**: User auth, page content, navigation data should be awaited
+3. **Provide meaningful fallbacks**: Skeleton loaders, loading states, empty states
+4. **Handle errors**: Wrap `<Await>` in error boundaries or use `errorElement` prop
+5. **Consider user experience**: Don't stream too much data - it can feel janky
+
+### Error Handling with Suspense:
+
+```tsx
+<React.Suspense fallback={<LoadingSkeleton />}>
+    <Await
+        resolve={slowData}
+        errorElement={
+            <div className="alert alert-error">Failed to load data</div>
+        }
+    >
+        {(data) => <DataDisplay data={data} />}
+    </Await>
+</React.Suspense>
+```
+
 ## Navigation & Links
 
 ### Basic Navigation:

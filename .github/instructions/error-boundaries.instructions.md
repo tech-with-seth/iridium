@@ -2,7 +2,7 @@
 
 ## Overview
 
-React Router 7 automatically catches errors in your code and renders the closest `ErrorBoundary` to avoid showing blank pages to users.
+React Router 7 automatically catches errors in your code and renders the closest `ErrorBoundary` to **avoid showing blank pages to users**. When an error occurs in any route module (loader, action, component, etc.), the closest error boundary will render instead of the route's normal UI.
 
 **Error boundaries are for catching unexpected errors, not for:**
 
@@ -100,6 +100,8 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 Errors bubble up to the **closest error boundary**. You can add error boundaries at any route level for granular error handling.
 
+When an error is thrown in a route, React Router will render the closest `ErrorBoundary` export found in the route hierarchy. This allows you to provide contextual error UI at different levels of your application.
+
 ### Example Route Structure
 
 ```tsx
@@ -130,7 +132,7 @@ export default [
 | `invoice-details.tsx`  | `invoice-details.tsx` |
 | `invoice-payments.tsx` | `invoice-details.tsx` |
 
-**Errors bubble up until they find an `ErrorBoundary` export.**
+**Errors bubble up until they find an `ErrorBoundary` export.** If a route doesn't have an error boundary, the error continues up the route tree until it finds one.
 
 ## Adding Route-Specific Error Boundaries
 
@@ -161,14 +163,46 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
 ## Error Boundary Scope
 
-Error boundaries catch errors in:
+Error boundaries catch errors in **all route module APIs**:
 
-✅ **Loaders** - Server data loading
-✅ **Actions** - Form submissions and mutations
-✅ **Components** - Rendering errors
-✅ **clientLoader/clientAction** - Client-side data operations
+✅ **Loaders** - Server data loading (`loader`, `clientLoader`)
+✅ **Actions** - Form submissions and mutations (`action`, `clientAction`)
+✅ **Components** - React component rendering errors
+✅ **Headers** - HTTP header generation
+✅ **Links** - Link preloading logic
+✅ **Meta** - Meta tag generation
 
-**All route module APIs are covered.**
+**Any error thrown in these route module APIs will be caught by the closest error boundary.**
+
+### Unintentional vs Intentional Errors
+
+**Error boundaries are primarily for catching unintentional errors in your code.**
+
+❌ **Don't use error boundaries as control flow:**
+
+```tsx
+// BAD: Using errors for control flow
+export async function loader() {
+    if (someCondition) {
+        throw new Error('This is bad practice');
+    }
+}
+```
+
+✅ **Do use `throw data()` for intentional HTTP errors:**
+
+```tsx
+// GOOD: Intentional 404 with proper status code
+export async function loader({ params }: Route.LoaderArgs) {
+    const record = await db.getRecord(params.id);
+    if (!record) {
+        throw data('Record Not Found', { status: 404 });
+    }
+    return record;
+}
+```
+
+**Exception**: 404s, 403s, and similar HTTP errors are acceptable to throw intentionally using `throw data()` with proper status codes.
 
 ## Error Sanitization (Production)
 

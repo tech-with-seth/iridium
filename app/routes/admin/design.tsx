@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Accordion, AccordionItem } from '~/components/Accordion';
 import { Alert } from '~/components/Alert';
 import { Avatar, AvatarGroup } from '~/components/Avatar';
@@ -626,6 +626,127 @@ export default function DesignRoute() {
                             { content: '  item1={<img src="/before.jpg" />}' },
                             { content: '  item2={<img src="/after.jpg" />}' },
                             { content: '/>' }
+                        ]}
+                    />
+                </div>
+            </section>
+
+            {/* Suspense Section */}
+            <section className="space-y-6">
+                <h2 className="text-2xl font-bold">Streaming with Suspense</h2>
+
+                <div className="space-y-3">
+                    <h3 className="text-lg font-semibold">
+                        Deferred Data Loading
+                    </h3>
+                    <p className="text-base-content/70">
+                        React Router supports streaming non-critical data with
+                        Suspense. This example shows a fast-loading critical
+                        section and a slow-loading deferred section.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-3">
+                        {/* Critical data - loads immediately */}
+                        <Card title="Critical Data" variant="border">
+                            <div className="space-y-2">
+                                <p className="text-sm text-base-content/70">
+                                    This section loads immediately (awaited in
+                                    loader)
+                                </p>
+                                <div className="stats stats-vertical shadow">
+                                    <div className="stat">
+                                        <div className="stat-title">
+                                            Page Views
+                                        </div>
+                                        <div className="stat-value text-primary">
+                                            1,234
+                                        </div>
+                                        <div className="stat-desc">
+                                            Fast-loading data
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Deferred data - streams in with Suspense */}
+                        <Card title="Deferred Data" variant="border">
+                            <div className="space-y-2">
+                                <p className="text-sm text-base-content/70">
+                                    This section would show skeleton, then
+                                    stream in
+                                </p>
+                                <Suspense
+                                    fallback={
+                                        <div className="space-y-2">
+                                            <div className="skeleton h-4 w-full" />
+                                            <div className="skeleton h-4 w-3/4" />
+                                            <div className="skeleton h-12 w-full" />
+                                        </div>
+                                    }
+                                >
+                                    {/* In real app, this would use <Await> component */}
+                                    <div className="stats stats-vertical shadow">
+                                        <div className="stat">
+                                            <div className="stat-title">
+                                                Analytics
+                                            </div>
+                                            <div className="stat-value text-secondary">
+                                                5,678
+                                            </div>
+                                            <div className="stat-desc">
+                                                Streamed data
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Suspense>
+                            </div>
+                        </Card>
+                    </div>
+
+                    <Code
+                        lines={[
+                            {
+                                content:
+                                    '// Loader: Return promise without awaiting'
+                            },
+                            { content: 'export async function loader() {' },
+                            {
+                                content:
+                                    '  const critical = await getCritical();'
+                            },
+                            {
+                                content:
+                                    '  const deferred = getDeferred(); // No await!'
+                            },
+                            { content: '  return { critical, deferred };' },
+                            { content: '}' },
+                            { content: '' },
+                            { content: '// Component: Use Suspense + Await' },
+                            {
+                                content:
+                                    'export default function Route({ loaderData }) {'
+                            },
+                            { content: '  return (' },
+                            { content: '    <div>' },
+                            { content: '      <h1>{loaderData.critical}</h1>' },
+                            {
+                                content:
+                                    '      <Suspense fallback={<Skeleton />}>'
+                            },
+                            {
+                                content:
+                                    '        <Await resolve={loaderData.deferred}>'
+                            },
+                            {
+                                content:
+                                    '          {(data) => <Display data={data} />}'
+                            },
+                            { content: '        </Await>' },
+                            { content: '      </Suspense>' },
+                            { content: '    </div>' },
+                            { content: '  );' },
+                            { content: '}' }
                         ]}
                     />
                 </div>
