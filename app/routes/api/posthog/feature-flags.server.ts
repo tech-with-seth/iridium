@@ -74,9 +74,6 @@ export async function action({ request }: Route.ActionArgs) {
                     );
                 }
 
-                // Invalidate server-side cache so root loader gets fresh data
-                deleteCachedData(CACHE_KEY);
-
                 return data({ success: true, data: responseData });
             } catch (error) {
                 console.error('Error toggling feature flag:', error);

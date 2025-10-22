@@ -5,8 +5,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useFetcher,
-    type ShouldRevalidateFunctionArgs
+    useFetcher
 } from 'react-router';
 import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
@@ -15,7 +14,7 @@ import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import { getFeatureFlags, getActiveFlags } from './models/feature-flags.server';
+import { getActiveFlags } from './models/feature-flags.server';
 import { Header } from './components/Header';
 import { PHProvider } from './components/PostHogProvider';
 import { Toggle } from './components/Toggle';
@@ -43,8 +42,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
     const roleObj = user ? await getUserRole(user?.id) : null;
 
-    // Fetch feature flags using model layer (with caching)
-    const featureFlagsData = await getFeatureFlags();
+    const featureFlagsResponse = await fetch(
+        `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/feature_flags/`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
+            }
+        }
+    );
+
+    const featureFlagsData = await featureFlagsResponse.json();
 
     return {
         user,

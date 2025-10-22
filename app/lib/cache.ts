@@ -147,6 +147,7 @@ export function withCache<T>(
     return async (): Promise<T> => {
         // Check cache first
         const cachedData = getCachedData<T>(cacheKey);
+
         if (cachedData && !isCacheExpired(cacheKey)) {
             return cachedData;
         }
