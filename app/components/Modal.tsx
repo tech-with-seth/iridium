@@ -8,16 +8,16 @@ export const modalVariants = cva({
         placement: {
             top: 'modal-top',
             middle: 'modal-middle',
-            bottom: 'modal-bottom'
+            bottom: 'modal-bottom',
         },
         open: {
-            true: 'modal-open'
-        }
+            true: 'modal-open',
+        },
     },
     defaultVariants: {
-        placement: 'middle'
+        placement: 'middle',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface ModalProps
@@ -78,9 +78,9 @@ export function Modal({
             className={cx(
                 modalVariants({
                     placement,
-                    open
+                    open,
                 }),
-                className
+                className,
             )}
             onClick={handleBackdropClick}
             onClose={handleClose}

@@ -30,24 +30,24 @@ PostHog is an open-source product analytics platform that provides event trackin
 **Event Tracking**:
 
 ```typescript
-posthog.capture("button_clicked", {
-  button_name: "sign_up",
-  location: "homepage",
+posthog.capture('button_clicked', {
+    button_name: 'sign_up',
+    location: 'homepage',
 });
 ```
 
 **Feature Flags**:
 
 ```typescript
-const isEnabled = await posthog.isFeatureEnabled("new-dashboard", userId);
+const isEnabled = await posthog.isFeatureEnabled('new-dashboard', userId);
 ```
 
 **User Identification**:
 
 ```typescript
 posthog.identify(userId, {
-  email: user.email,
-  plan: "pro",
+    email: user.email,
+    plan: 'pro',
 });
 ```
 
@@ -197,10 +197,10 @@ posthog.identify(userId, {
 
 ```typescript
 // app/lib/posthog.server.ts
-import { PostHog } from "posthog-node";
+import { PostHog } from 'posthog-node';
 
 const posthog = new PostHog(process.env.POSTHOG_API_KEY!, {
-  host: process.env.POSTHOG_HOST,
+    host: process.env.POSTHOG_HOST,
 });
 
 export { posthog };
@@ -210,17 +210,17 @@ export { posthog };
 
 ```typescript
 // app/lib/posthog.ts
-import posthog from "posthog-js";
+import posthog from 'posthog-js';
 
-if (typeof window !== "undefined") {
-  posthog.init(process.env.POSTHOG_API_KEY!, {
-    api_host: process.env.POSTHOG_HOST,
-    loaded: (posthog) => {
-      if (process.env.NODE_ENV === "development") {
-        posthog.opt_out_capturing();
-      }
-    },
-  });
+if (typeof window !== 'undefined') {
+    posthog.init(process.env.POSTHOG_API_KEY!, {
+        api_host: process.env.POSTHOG_HOST,
+        loaded: (posthog) => {
+            if (process.env.NODE_ENV === 'development') {
+                posthog.opt_out_capturing();
+            }
+        },
+    });
 }
 
 export { posthog };
@@ -230,22 +230,22 @@ export { posthog };
 
 ```typescript
 // Client-side
-posthog.capture("page_view", {
-  page: "/dashboard",
-  referrer: document.referrer,
+posthog.capture('page_view', {
+    page: '/dashboard',
+    referrer: document.referrer,
 });
 
 // Server-side
-import { posthog } from "~/lib/posthog.server";
+import { posthog } from '~/lib/posthog.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  posthog.capture({
-    distinctId: userId,
-    event: "form_submitted",
-    properties: {
-      form: "contact",
-    },
-  });
+    posthog.capture({
+        distinctId: userId,
+        event: 'form_submitted',
+        properties: {
+            form: 'contact',
+        },
+    });
 }
 ```
 
@@ -253,28 +253,28 @@ export async function action({ request }: Route.ActionArgs) {
 
 ```typescript
 // app/models/feature-flags.server.ts
-import { posthog } from "~/lib/posthog.server";
-import { cache } from "~/lib/cache";
+import { posthog } from '~/lib/posthog.server';
+import { cache } from '~/lib/cache';
 
 export async function getFeatureFlags(userId: string) {
-  const cacheKey = `feature-flags:${userId}`;
-  const cached = cache.getKey(cacheKey);
+    const cacheKey = `feature-flags:${userId}`;
+    const cached = cache.getKey(cacheKey);
 
-  if (cached) return cached;
+    if (cached) return cached;
 
-  const flags = await posthog.getAllFlags(userId);
+    const flags = await posthog.getAllFlags(userId);
 
-  cache.setKey(cacheKey, flags);
-  cache.save();
+    cache.setKey(cacheKey, flags);
+    cache.save();
 
-  return flags;
+    return flags;
 }
 
 export async function isFeatureEnabled(
-  flag: string,
-  userId: string
+    flag: string,
+    userId: string,
 ): Promise<boolean> {
-  return posthog.isFeatureEnabled(flag, userId);
+    return posthog.isFeatureEnabled(flag, userId);
 }
 ```
 
@@ -282,17 +282,17 @@ export async function isFeatureEnabled(
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (session) {
-    posthog.identify({
-      distinctId: session.user.id,
-      properties: {
-        email: session.user.email,
-        name: session.user.name,
-      },
-    });
-  }
+    if (session) {
+        posthog.identify({
+            distinctId: session.user.id,
+            properties: {
+                email: session.user.email,
+                name: session.user.name,
+            },
+        });
+    }
 }
 ```
 
@@ -330,14 +330,14 @@ export default function Homepage({ loaderData }: Route.ComponentProps) {
 
 ```typescript
 // Disable in development
-if (process.env.NODE_ENV === "development") {
-  posthog.opt_out_capturing();
+if (process.env.NODE_ENV === 'development') {
+    posthog.opt_out_capturing();
 }
 
 // Allow user to opt out
 function handleOptOut() {
-  posthog.opt_out_capturing();
-  posthog.set_config({ persistence: "memory" });
+    posthog.opt_out_capturing();
+    posthog.set_config({ persistence: 'memory' });
 }
 ```
 
@@ -348,7 +348,7 @@ function handleOptOut() {
 ```typescript
 // Roll out to 10% of users
 // Configure in PostHog dashboard: 10% rollout
-const enabled = await posthog.isFeatureEnabled("new-feature", userId);
+const enabled = await posthog.isFeatureEnabled('new-feature', userId);
 ```
 
 ### User-Based Flags
@@ -356,16 +356,17 @@ const enabled = await posthog.isFeatureEnabled("new-feature", userId);
 ```typescript
 // Enable for specific users
 // Configure in PostHog: Add user to flag in dashboard
-const enabled = await posthog.isFeatureEnabled("beta-features", userId);
+const enabled = await posthog.isFeatureEnabled('beta-features', userId);
 ```
 
 ### Environment-Based Flags
 
 ```typescript
 // Different flags per environment
-const flag = process.env.NODE_ENV === "production"
-  ? "production-feature"
-  : "development-feature";
+const flag =
+    process.env.NODE_ENV === 'production'
+        ? 'production-feature'
+        : 'development-feature';
 
 const enabled = await posthog.isFeatureEnabled(flag, userId);
 ```
@@ -384,23 +385,23 @@ Check events in PostHog dashboard:
 
 ```typescript
 const flags = await posthog.getAllFlags(userId);
-console.log("Active flags:", flags);
+console.log('Active flags:', flags);
 ```
 
 ### Error Tracking
 
 ```typescript
 try {
-  await riskyOperation();
+    await riskyOperation();
 } catch (error) {
-  posthog.capture({
-    distinctId: userId,
-    event: "error_occurred",
-    properties: {
-      error: error.message,
-      stack: error.stack,
-    },
-  });
+    posthog.capture({
+        distinctId: userId,
+        event: 'error_occurred',
+        properties: {
+            error: error.message,
+            stack: error.stack,
+        },
+    });
 }
 ```
 

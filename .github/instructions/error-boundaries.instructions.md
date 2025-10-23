@@ -69,7 +69,7 @@ import { prisma } from '~/db.server';
 
 export async function loader({ params }: Route.LoaderArgs) {
     const product = await prisma.product.findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
     });
 
     if (!product) {
@@ -117,9 +117,9 @@ export default [
         // ✅ Has error boundary
         route('invoices/:id', 'routes/invoice-details.tsx', [
             // ❌ No error boundary
-            route('payments', 'routes/invoice-payments.tsx')
-        ])
-    ])
+            route('payments', 'routes/invoice-payments.tsx'),
+        ]),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -274,7 +274,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
     // Load data
     const product = await prisma.product.findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
     });
 
     // 404 if not found

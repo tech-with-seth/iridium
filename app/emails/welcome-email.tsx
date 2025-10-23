@@ -7,7 +7,7 @@ import {
     Html,
     Preview,
     Section,
-    Text
+    Text,
 } from '@react-email/components';
 
 interface WelcomeEmailProps {
@@ -17,7 +17,7 @@ interface WelcomeEmailProps {
 
 export default function WelcomeEmail({
     userName,
-    dashboardUrl
+    dashboardUrl,
 }: WelcomeEmailProps) {
     return (
         <Html>
@@ -44,9 +44,7 @@ export default function WelcomeEmail({
                         <li style={listItem}>
                             Explore the dashboard and analytics
                         </li>
-                        <li style={listItem}>
-                            Start building amazing things
-                        </li>
+                        <li style={listItem}>Start building amazing things</li>
                     </ul>
                     <Section style={buttonContainer}>
                         <Button style={button} href={dashboardUrl}>
@@ -54,8 +52,8 @@ export default function WelcomeEmail({
                         </Button>
                     </Section>
                     <Text style={text}>
-                        If you have any questions, feel free to reach out to
-                        our support team.
+                        If you have any questions, feel free to reach out to our
+                        support team.
                     </Text>
                     <Text style={footer}>
                         Welcome aboard!
@@ -72,14 +70,14 @@ export default function WelcomeEmail({
 const main = {
     backgroundColor: '#f6f9fc',
     fontFamily:
-        '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif'
+        '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
     backgroundColor: '#ffffff',
     margin: '0 auto',
     padding: '20px 0 48px',
-    marginBottom: '64px'
+    marginBottom: '64px',
 };
 
 const h1 = {
@@ -88,14 +86,14 @@ const h1 = {
     fontWeight: 'bold',
     margin: '40px 0',
     padding: '0',
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
 };
 
 const text = {
     color: '#333',
     fontSize: '16px',
     lineHeight: '26px',
-    margin: '16px 0'
+    margin: '16px 0',
 };
 
 const list = {
@@ -103,16 +101,16 @@ const list = {
     fontSize: '16px',
     lineHeight: '26px',
     margin: '16px 0',
-    paddingLeft: '20px'
+    paddingLeft: '20px',
 };
 
 const listItem = {
-    marginBottom: '8px'
+    marginBottom: '8px',
 };
 
 const buttonContainer = {
     textAlign: 'center' as const,
-    margin: '32px 0'
+    margin: '32px 0',
 };
 
 const button = {
@@ -124,12 +122,12 @@ const button = {
     textDecoration: 'none',
     textAlign: 'center' as const,
     display: 'block',
-    padding: '12px 20px'
+    padding: '12px 20px',
 };
 
 const footer = {
     color: '#8898aa',
     fontSize: '12px',
     lineHeight: '16px',
-    marginTop: '32px'
+    marginTop: '32px',
 };

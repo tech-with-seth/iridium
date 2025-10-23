@@ -8,19 +8,19 @@ export const drawerVariants = cva({
     variants: {
         side: {
             left: 'drawer-start',
-            right: 'drawer-end'
+            right: 'drawer-end',
         },
         size: {
             sm: 'w-64',
             md: 'w-80',
             lg: 'w-96',
-            xl: 'w-128'
-        }
+            xl: 'w-128',
+        },
     },
     defaultVariants: {
-        side: 'right'
+        side: 'right',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface DrawerProps {
@@ -39,7 +39,7 @@ export function Drawer({
     id,
     isOpen,
     side,
-    size
+    size,
 }: PropsWithChildren<DrawerProps>) {
     return (
         <div className={cx(drawerVariants({ side, size }))}>

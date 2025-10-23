@@ -46,7 +46,7 @@ export async function sendEmail(options: SendEmailOptions) {
             subject: options.subject,
             replyTo: options.replyTo,
             cc: options.cc,
-            bcc: options.bcc
+            bcc: options.bcc,
         };
 
         // Add html or text
@@ -77,7 +77,7 @@ export async function sendEmail(options: SendEmailOptions) {
 export async function sendVerificationEmail({
     to,
     verificationUrl,
-    from
+    from,
 }: {
     to: string;
     verificationUrl: string;
@@ -86,15 +86,15 @@ export async function sendVerificationEmail({
     const html = await render(
         VerificationEmail({
             verificationUrl,
-            userEmail: to
-        })
+            userEmail: to,
+        }),
     );
 
     return sendEmail({
         to,
         from: from || DEFAULT_FROM_EMAIL,
         subject: 'Verify your email address',
-        html
+        html,
     });
 }
 
@@ -105,7 +105,7 @@ export async function sendVerificationEmail({
 export async function sendPasswordResetEmail({
     to,
     resetUrl,
-    from
+    from,
 }: {
     to: string;
     resetUrl: string;
@@ -114,15 +114,15 @@ export async function sendPasswordResetEmail({
     const html = await render(
         PasswordResetEmail({
             resetUrl,
-            userEmail: to
-        })
+            userEmail: to,
+        }),
     );
 
     return sendEmail({
         to,
         from: from || DEFAULT_FROM_EMAIL,
         subject: 'Reset your password',
-        html
+        html,
     });
 }
 
@@ -134,7 +134,7 @@ export async function sendWelcomeEmail({
     to,
     userName,
     dashboardUrl,
-    from
+    from,
 }: {
     to: string;
     userName: string;
@@ -144,15 +144,15 @@ export async function sendWelcomeEmail({
     const html = await render(
         WelcomeEmail({
             userName,
-            dashboardUrl
-        })
+            dashboardUrl,
+        }),
     );
 
     return sendEmail({
         to,
         from: from || DEFAULT_FROM_EMAIL,
         subject: 'Welcome to TWS Foundations!',
-        html
+        html,
     });
 }
 
@@ -168,7 +168,7 @@ export async function sendTransactionalEmail({
     buttonText,
     buttonUrl,
     footerText,
-    from
+    from,
 }: {
     to: string;
     heading: string;
@@ -186,15 +186,15 @@ export async function sendTransactionalEmail({
             message,
             buttonText,
             buttonUrl,
-            footerText
-        })
+            footerText,
+        }),
     );
 
     return sendEmail({
         to,
         from: from || DEFAULT_FROM_EMAIL,
         subject: heading,
-        html
+        html,
     });
 }
 
@@ -208,7 +208,7 @@ export async function sendBatchEmails(emails: SendEmailOptions[]) {
         const results = await Promise.allSettled(emails.map(sendEmail));
 
         const successful = results.filter(
-            (r) => r.status === 'fulfilled'
+            (r) => r.status === 'fulfilled',
         ).length;
         const failed = results.filter((r) => r.status === 'rejected').length;
 
@@ -217,7 +217,7 @@ export async function sendBatchEmails(emails: SendEmailOptions[]) {
             total: emails.length,
             successful,
             failed,
-            results
+            results,
         };
     } catch (error) {
         console.error('Batch email sending error:', error);

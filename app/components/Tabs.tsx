@@ -7,39 +7,39 @@ export const tabsVariants = cva({
         variant: {
             box: 'tabs-box',
             border: 'tabs-border',
-            lift: 'tabs-lift'
+            lift: 'tabs-lift',
         },
         size: {
             xs: 'tabs-xs',
             sm: 'tabs-sm',
             md: 'tabs-md',
             lg: 'tabs-lg',
-            xl: 'tabs-xl'
+            xl: 'tabs-xl',
         },
         placement: {
             top: 'tabs-top',
-            bottom: 'tabs-bottom'
-        }
+            bottom: 'tabs-bottom',
+        },
     },
     defaultVariants: {
         size: 'md',
-        placement: 'top'
+        placement: 'top',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 export const tabVariants = cva({
     base: 'tab',
     variants: {
         active: {
-            true: 'tab-active'
+            true: 'tab-active',
         },
         disabled: {
-            true: 'tab-disabled'
-        }
+            true: 'tab-disabled',
+        },
     },
     defaultVariants: {},
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface TabsProps
@@ -61,9 +61,9 @@ export function Tabs({
                 tabsVariants({
                     variant,
                     size,
-                    placement
+                    placement,
                 }),
-                className
+                className,
             )}
             {...props}
         >
@@ -90,9 +90,9 @@ export function Tab({
             className={cx(
                 tabVariants({
                     active,
-                    disabled
+                    disabled,
                 }),
-                className
+                className,
             )}
             disabled={disabled}
             aria-selected={active}
@@ -127,9 +127,9 @@ export function TabRadio({
             className={cx(
                 tabVariants({
                     active,
-                    disabled
+                    disabled,
                 }),
-                inputClassName
+                inputClassName,
             )}
             aria-label={label}
             disabled={disabled}

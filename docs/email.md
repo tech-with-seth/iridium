@@ -38,7 +38,7 @@ import { Resend } from 'resend';
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const DEFAULT_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 ```
 
 ## Sending Emails
@@ -81,21 +81,21 @@ function NotificationButton() {
 import type { Route } from './+types/example';
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await requireUser(request);
+    const user = await requireUser(request);
 
-  // Send email via API endpoint
-  const emailFormData = new FormData();
-  emailFormData.append('to', user.email);
-  emailFormData.append('subject', 'Order Confirmation');
-  emailFormData.append('html', '<h1>Thank you for your order!</h1>');
+    // Send email via API endpoint
+    const emailFormData = new FormData();
+    emailFormData.append('to', user.email);
+    emailFormData.append('subject', 'Order Confirmation');
+    emailFormData.append('html', '<h1>Thank you for your order!</h1>');
 
-  const response = await fetch('http://localhost:5173/api/email', {
-    method: 'POST',
-    headers: request.headers,
-    body: emailFormData
-  });
+    const response = await fetch('http://localhost:5173/api/email', {
+        method: 'POST',
+        headers: request.headers,
+        body: emailFormData,
+    });
 
-  return { emailSent: response.ok };
+    return { emailSent: response.ok };
 }
 ```
 
@@ -105,22 +105,26 @@ Send emails using predefined React Email templates:
 
 ```typescript
 function sendWelcomeEmail() {
-  const formData = new FormData();
-  formData.append('templateName', 'welcome');
-  formData.append('to', 'newuser@example.com');
-  formData.append('props', JSON.stringify({
-    userName: 'John Doe',
-    dashboardUrl: 'https://yourdomain.com/dashboard'
-  }));
+    const formData = new FormData();
+    formData.append('templateName', 'welcome');
+    formData.append('to', 'newuser@example.com');
+    formData.append(
+        'props',
+        JSON.stringify({
+            userName: 'John Doe',
+            dashboardUrl: 'https://yourdomain.com/dashboard',
+        }),
+    );
 
-  fetcher.submit(formData, {
-    method: 'POST',
-    action: '/api/email?template=true'
-  });
+    fetcher.submit(formData, {
+        method: 'POST',
+        action: '/api/email?template=true',
+    });
 }
 ```
 
 Available templates:
+
 - `verification` - Email verification (requires `verificationUrl`)
 - `password-reset` - Password reset (requires `resetUrl`)
 - `welcome` - Welcome new users (requires `userName`, `dashboardUrl`)
@@ -134,16 +138,16 @@ For server-side code, import model functions directly:
 import { sendWelcomeEmail } from '~/models/email.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await createUser(data);
+    const user = await createUser(data);
 
-  // Send welcome email after signup
-  await sendWelcomeEmail({
-    to: user.email,
-    userName: user.name,
-    dashboardUrl: 'https://yourdomain.com/dashboard'
-  });
+    // Send welcome email after signup
+    await sendWelcomeEmail({
+        to: user.email,
+        userName: user.name,
+        dashboardUrl: 'https://yourdomain.com/dashboard',
+    });
 
-  return { success: true };
+    return { success: true };
 }
 ```
 
@@ -154,39 +158,43 @@ Templates are located in `app/emails/` and built with React Email components.
 ### Available Templates
 
 #### Verification Email
+
 ```typescript
 await sendVerificationEmail({
-  to: 'user@example.com',
-  verificationUrl: 'https://yourapp.com/verify?token=abc123'
+    to: 'user@example.com',
+    verificationUrl: 'https://yourapp.com/verify?token=abc123',
 });
 ```
 
 #### Password Reset Email
+
 ```typescript
 await sendPasswordResetEmail({
-  to: 'user@example.com',
-  resetUrl: 'https://yourapp.com/reset-password?token=abc123'
+    to: 'user@example.com',
+    resetUrl: 'https://yourapp.com/reset-password?token=abc123',
 });
 ```
 
 #### Welcome Email
+
 ```typescript
 await sendWelcomeEmail({
-  to: 'user@example.com',
-  userName: 'John Doe',
-  dashboardUrl: 'https://yourapp.com/dashboard'
+    to: 'user@example.com',
+    userName: 'John Doe',
+    dashboardUrl: 'https://yourapp.com/dashboard',
 });
 ```
 
 #### Transactional Email
+
 ```typescript
 await sendTransactionalEmail({
-  to: 'user@example.com',
-  heading: 'Account Approved!',
-  previewText: 'Your account has been approved',
-  message: 'Hi John, your account has been approved...',
-  buttonText: 'Get Started',
-  buttonUrl: 'https://yourapp.com/dashboard'
+    to: 'user@example.com',
+    heading: 'Account Approved!',
+    previewText: 'Your account has been approved',
+    message: 'Hi John, your account has been approved...',
+    buttonText: 'Get Started',
+    buttonUrl: 'https://yourapp.com/dashboard',
 });
 ```
 
@@ -197,48 +205,49 @@ Create a new React Email template in `app/emails/`:
 ```tsx
 // app/emails/order-confirmation.tsx
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text
+    Body,
+    Button,
+    Container,
+    Head,
+    Heading,
+    Html,
+    Preview,
+    Text,
 } from '@react-email/components';
 
 interface OrderConfirmationProps {
-  customerName: string;
-  orderNumber: string;
-  orderUrl: string;
+    customerName: string;
+    orderNumber: string;
+    orderUrl: string;
 }
 
 export default function OrderConfirmation({
-  customerName,
-  orderNumber,
-  orderUrl
+    customerName,
+    orderNumber,
+    orderUrl,
 }: OrderConfirmationProps) {
-  return (
-    <Html>
-      <Head />
-      <Preview>Your order #{orderNumber} has been confirmed</Preview>
-      <Body style={main}>
-        <Container>
-          <Heading>Order Confirmed!</Heading>
-          <Text>Hi {customerName},</Text>
-          <Text>
-            Your order #{orderNumber} has been confirmed and is being processed.
-          </Text>
-          <Button href={orderUrl}>View Order</Button>
-        </Container>
-      </Body>
-    </Html>
-  );
+    return (
+        <Html>
+            <Head />
+            <Preview>Your order #{orderNumber} has been confirmed</Preview>
+            <Body style={main}>
+                <Container>
+                    <Heading>Order Confirmed!</Heading>
+                    <Text>Hi {customerName},</Text>
+                    <Text>
+                        Your order #{orderNumber} has been confirmed and is
+                        being processed.
+                    </Text>
+                    <Button href={orderUrl}>View Order</Button>
+                </Container>
+            </Body>
+        </Html>
+    );
 }
 
 const main = {
-  backgroundColor: '#f6f9fc',
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+    backgroundColor: '#f6f9fc',
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
 };
 ```
 
@@ -250,25 +259,25 @@ import OrderConfirmation from '~/emails/order-confirmation';
 import { render } from '@react-email/components';
 
 export async function sendOrderConfirmation({
-  to,
-  customerName,
-  orderNumber,
-  orderUrl
-}: {
-  to: string;
-  customerName: string;
-  orderNumber: string;
-  orderUrl: string;
-}) {
-  const html = await render(
-    OrderConfirmation({ customerName, orderNumber, orderUrl })
-  );
-
-  return sendEmail({
     to,
-    subject: `Order Confirmation #${orderNumber}`,
-    html
-  });
+    customerName,
+    orderNumber,
+    orderUrl,
+}: {
+    to: string;
+    customerName: string;
+    orderNumber: string;
+    orderUrl: string;
+}) {
+    const html = await render(
+        OrderConfirmation({ customerName, orderNumber, orderUrl }),
+    );
+
+    return sendEmail({
+        to,
+        subject: `Order Confirmation #${orderNumber}`,
+        html,
+    });
 }
 ```
 
@@ -278,28 +287,31 @@ Email verification and password reset emails are automatically handled by Better
 
 ```typescript
 // app/lib/auth.server.ts
-import { sendVerificationEmail, sendPasswordResetEmail } from '~/models/email.server';
+import {
+    sendVerificationEmail,
+    sendPasswordResetEmail,
+} from '~/models/email.server';
 
 export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false, // Set to true to require verification
-    sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({
-        to: user.email,
-        resetUrl: url
-      });
-    }
-  },
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendVerificationEmail({
-        to: user.email,
-        verificationUrl: url
-      });
+    emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: false, // Set to true to require verification
+        sendResetPassword: async ({ user, url }) => {
+            await sendPasswordResetEmail({
+                to: user.email,
+                resetUrl: url,
+            });
+        },
     },
-    sendOnSignUp: true // Auto-send verification on signup
-  }
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            await sendVerificationEmail({
+                to: user.email,
+                verificationUrl: url,
+            });
+        },
+        sendOnSignUp: true, // Auto-send verification on signup
+    },
 });
 ```
 
@@ -338,9 +350,9 @@ Emails sent from this domain will be delivered but marked as test emails.
 1. Add your domain to Resend: https://resend.com/domains
 2. Verify DNS records (SPF, DKIM, DMARC)
 3. Update `RESEND_FROM_EMAIL` to use your verified domain:
-   ```bash
-   RESEND_FROM_EMAIL="noreply@yourdomain.com"
-   ```
+    ```bash
+    RESEND_FROM_EMAIL="noreply@yourdomain.com"
+    ```
 
 ## API Reference
 
@@ -351,6 +363,7 @@ Send a custom email with raw HTML or text.
 **Authentication:** Required (user must be signed in)
 
 **Request Body (FormData):**
+
 ```typescript
 {
   to: string | string[],      // Required
@@ -365,6 +378,7 @@ Send a custom email with raw HTML or text.
 ```
 
 **Response:**
+
 ```typescript
 {
   success: true,
@@ -378,6 +392,7 @@ Send a custom email with raw HTML or text.
 Send an email using a predefined template.
 
 **Request Body (FormData):**
+
 ```typescript
 {
   templateName: "verification" | "password-reset" | "welcome" | "transactional",
@@ -416,23 +431,23 @@ All email operations include comprehensive error handling:
 
 ```typescript
 try {
-  await sendEmail({ to, subject, html });
+    await sendEmail({ to, subject, html });
 } catch (error) {
-  // Errors are logged to console
-  // PostHog tracking captures failures
-  // API returns 500 with error message
-  console.error('Failed to send email:', error);
+    // Errors are logged to console
+    // PostHog tracking captures failures
+    // API returns 500 with error message
+    console.error('Failed to send email:', error);
 }
 ```
 
 ### Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Invalid API key | Incorrect `RESEND_API_KEY` | Check API key in `.env` |
-| Invalid sender | Unverified domain | Verify domain in Resend dashboard |
-| Rate limit exceeded | Too many emails | Implement rate limiting or upgrade plan |
-| Invalid recipient | Malformed email address | Validate email addresses with Zod |
+| Error               | Cause                      | Solution                                |
+| ------------------- | -------------------------- | --------------------------------------- |
+| Invalid API key     | Incorrect `RESEND_API_KEY` | Check API key in `.env`                 |
+| Invalid sender      | Unverified domain          | Verify domain in Resend dashboard       |
+| Rate limit exceeded | Too many emails            | Implement rate limiting or upgrade plan |
+| Invalid recipient   | Malformed email address    | Validate email addresses with Zod       |
 
 ## Rate Limiting
 
@@ -496,14 +511,15 @@ Email events are tracked with PostHog:
 
 ```typescript
 posthog.capture('email_sent', {
-  userId: user.id,
-  templateName: 'welcome',
-  recipient: user.email,
-  timestamp: new Date().toISOString()
+    userId: user.id,
+    templateName: 'welcome',
+    recipient: user.email,
+    timestamp: new Date().toISOString(),
 });
 ```
 
 Monitor in PostHog dashboard:
+
 - Total emails sent
 - Success/failure rates
 - Template usage

@@ -48,6 +48,7 @@ If valid: Execute business logic, redirect/return success
 ### Why This Matters
 
 Using `<fetcher.Form>` with `onSubmit={handleSubmit(onSubmit)}` creates a submission conflict:
+
 - `<fetcher.Form>` tries to submit naturally via its built-in behavior
 - `handleSubmit(onSubmit)` prevents default and manually calls `fetcher.submit()`
 - This conflict can cause redirects to fail and unpredictable form behavior
@@ -55,12 +56,14 @@ Using `<fetcher.Form>` with `onSubmit={handleSubmit(onSubmit)}` creates a submis
 ### The Rules
 
 ✅ **Use `<form>` when:**
+
 - Using React Hook Form's `handleSubmit`
 - Manually calling `fetcher.submit()` in your submit handler
 - Programmatically controlling submission
 - **This is the standard pattern for this application**
 
 ❌ **Use `<fetcher.Form>` when:**
+
 - Letting the form submit naturally without React Hook Form
 - Progressive enhancement without client-side validation
 - **This is rare in this application** since we use hybrid validation everywhere
@@ -105,29 +108,35 @@ import { z } from 'zod';
 
 // Example: Contact form
 export const contactFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  subject: z.string().min(1, 'Subject is required'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+    name: z.string().min(1, 'Name is required'),
+    email: z
+        .string()
+        .min(1, 'Email is required')
+        .email('Invalid email address'),
+    subject: z.string().min(1, 'Subject is required'),
+    message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 // Example: Profile update
 export const profileUpdateSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
+    name: z.string().min(1, 'Name is required'),
+    bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
+    website: z.string().url('Invalid URL').optional().or(z.literal('')),
 });
 
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 
 // Example: Create post
 export const createPostSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(100, 'Title must be 100 characters or less'),
-  content: z.string().min(1, 'Content is required'),
-  published: z.boolean().default(false),
-  tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
+    title: z
+        .string()
+        .min(1, 'Title is required')
+        .max(100, 'Title must be 100 characters or less'),
+    content: z.string().min(1, 'Content is required'),
+    published: z.boolean().default(false),
+    tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
 });
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
@@ -146,29 +155,30 @@ import { contactFormSchema, type ContactFormData } from '~/lib/validations';
 import { sendContactEmail } from '~/lib/email.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  // Validate with Zod schema
-  const { data: validatedData, errors } = await getValidatedFormData<ContactFormData>(
-    request,
-    zodResolver(contactFormSchema)
-  );
+    // Validate with Zod schema
+    const { data: validatedData, errors } =
+        await getValidatedFormData<ContactFormData>(
+            request,
+            zodResolver(contactFormSchema),
+        );
 
-  // Return validation errors to client
-  if (errors) {
-    return data({ errors }, { status: 400 });
-  }
+    // Return validation errors to client
+    if (errors) {
+        return data({ errors }, { status: 400 });
+    }
 
-  try {
-    // Execute business logic with validated data
-    await sendContactEmail(validatedData!);
+    try {
+        // Execute business logic with validated data
+        await sendContactEmail(validatedData!);
 
-    return redirect('/contact/success');
-  } catch (error) {
-    // Return form-level error
-    return data(
-      { error: 'Failed to send message. Please try again.' },
-      { status: 500 }
-    );
-  }
+        return redirect('/contact/success');
+    } catch (error) {
+        // Return form-level error
+        return data(
+            { error: 'Failed to send message. Please try again.' },
+            { status: 500 },
+        );
+    }
 }
 ```
 
@@ -274,10 +284,12 @@ export default function ContactPage() {
 Authentication uses **client-side `authClient`** from Better Auth, not server-side form validation patterns. This allows Better Auth to automatically manage session cookies.
 
 For complete authentication patterns including sign-in, sign-up, and session management, see:
+
 - **`.github/instructions/better-auth.instructions.md`** - Complete Better Auth integration guide
 - **Reference implementation:** `app/routes/sign-in.tsx`
 
 **Key differences from standard CRUD:**
+
 - Uses `authClient.signIn.email()` / `authClient.signUp.email()` directly on client
 - Better Auth handles cookies automatically via `/api/auth/*` endpoints
 - Uses `useNavigate()` for redirects after success (not server redirects)
@@ -294,10 +306,12 @@ Validates FormData using a React Hook Form resolver (typically zodResolver).
 **Location:** `app/lib/form-validation.server.ts`
 
 **Parameters:**
+
 - `formData: FormData` - FormData from `request.formData()`
 - `resolver: Resolver<T>` - React Hook Form resolver (use `zodResolver(schema)`)
 
 **Returns:**
+
 ```typescript
 {
   data?: T;                                           // Validated data (if validation passed)
@@ -307,45 +321,47 @@ Validates FormData using a React Hook Form resolver (typically zodResolver).
 ```
 
 **Standard Usage:**
+
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const { data, errors } = await validateFormData<ContactFormData>(
-    formData,
-    zodResolver(contactFormSchema)
-  );
+    const formData = await request.formData();
+    const { data, errors } = await validateFormData<ContactFormData>(
+        formData,
+        zodResolver(contactFormSchema),
+    );
 
-  if (errors) {
-    return data({ errors }, { status: 400 });
-  }
+    if (errors) {
+        return data({ errors }, { status: 400 });
+    }
 
-  // Use validated data safely
-  await processForm(data!);
-  return redirect('/success');
+    // Use validated data safely
+    await processForm(data!);
+    return redirect('/success');
 }
 ```
 
 **With Intent-Based Routing** (for CRUD operations, not auth):
+
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const intent = formData.get('intent') as string;
+    const formData = await request.formData();
+    const intent = formData.get('intent') as string;
 
-  if (intent === 'create') {
-    const { data, errors } = await validateFormData<CreatePostData>(
-      formData,
-      zodResolver(createPostSchema)
-    );
-    // ... handle create
-  }
+    if (intent === 'create') {
+        const { data, errors } = await validateFormData<CreatePostData>(
+            formData,
+            zodResolver(createPostSchema),
+        );
+        // ... handle create
+    }
 
-  if (intent === 'update') {
-    const { data, errors } = await validateFormData<UpdatePostData>(
-      formData,
-      zodResolver(updatePostSchema)
-    );
-    // ... handle update
-  }
+    if (intent === 'update') {
+        const { data, errors } = await validateFormData<UpdatePostData>(
+            formData,
+            zodResolver(updatePostSchema),
+        );
+        // ... handle update
+    }
 }
 ```
 
@@ -356,6 +372,7 @@ Client-side hook that wraps `useForm` from React Hook Form and automatically syn
 **Location:** `app/lib/form-hooks.ts`
 
 **Parameters:**
+
 ```typescript
 {
   resolver: Resolver;                                  // Zod resolver (required)
@@ -369,16 +386,21 @@ Client-side hook that wraps `useForm` from React Hook Form and automatically syn
 **Returns:** `UseFormReturn<TFieldValues>` - Standard React Hook Form API
 
 **Usage:**
+
 ```typescript
 const fetcher = useFetcher();
 
-const { register, handleSubmit, formState: { errors } } = useValidatedForm<ContactFormData>({
-  resolver: zodResolver(contactFormSchema),
-  errors: fetcher.data?.errors,  // Auto-syncs server errors
-  defaultValues: {
-    name: '',
-    email: '',
-  }
+const {
+    register,
+    handleSubmit,
+    formState: { errors },
+} = useValidatedForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    errors: fetcher.data?.errors, // Auto-syncs server errors
+    defaultValues: {
+        name: '',
+        email: '',
+    },
 });
 ```
 
@@ -387,22 +409,28 @@ const { register, handleSubmit, formState: { errors } } = useValidatedForm<Conta
 ### Form with File Upload
 
 **Schema:**
+
 ```typescript
 export const uploadSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  file: z.custom<FileList>()
-    .refine((files) => files?.length > 0, 'File is required')
-    .refine((files) => files?.[0]?.size < 5000000, 'File must be less than 5MB')
-    .refine(
-      (files) => ['image/jpeg', 'image/png'].includes(files?.[0]?.type),
-      'Only JPEG and PNG files allowed'
-    ),
+    title: z.string().min(1, 'Title is required'),
+    file: z
+        .custom<FileList>()
+        .refine((files) => files?.length > 0, 'File is required')
+        .refine(
+            (files) => files?.[0]?.size < 5000000,
+            'File must be less than 5MB',
+        )
+        .refine(
+            (files) => ['image/jpeg', 'image/png'].includes(files?.[0]?.type),
+            'Only JPEG and PNG files allowed',
+        ),
 });
 
 export type UploadFormData = z.infer<typeof uploadSchema>;
 ```
 
 **Client:**
+
 ```typescript
 <TextInput {...register('title')} label="Title" error={errors.title?.message} />
 
@@ -415,32 +443,40 @@ export type UploadFormData = z.infer<typeof uploadSchema>;
 ```
 
 **Server:**
+
 ```typescript
-const { data, errors } = await getValidatedFormData<UploadFormData>(request, zodResolver(uploadSchema));
+const { data, errors } = await getValidatedFormData<UploadFormData>(
+    request,
+    zodResolver(uploadSchema),
+);
 if (!errors) {
-  const file = (data!.file as FileList)[0];
-  await uploadFile(file, data!.title);
+    const file = (data!.file as FileList)[0];
+    await uploadFile(file, data!.title);
 }
 ```
 
 ### Form with Dynamic Fields
 
 **Schema:**
+
 ```typescript
 export const todoListSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  todos: z.array(
-    z.object({
-      text: z.string().min(1, 'Todo text is required'),
-      completed: z.boolean().default(false),
-    })
-  ).min(1, 'At least one todo is required'),
+    title: z.string().min(1, 'Title is required'),
+    todos: z
+        .array(
+            z.object({
+                text: z.string().min(1, 'Todo text is required'),
+                completed: z.boolean().default(false),
+            }),
+        )
+        .min(1, 'At least one todo is required'),
 });
 
 export type TodoListData = z.infer<typeof todoListSchema>;
 ```
 
 **Client:**
+
 ```typescript
 import { useFieldArray } from 'react-hook-form';
 
@@ -473,22 +509,28 @@ const { fields, append, remove } = useFieldArray({
 ### Form with Conditional Fields
 
 **Schema:**
+
 ```typescript
-export const shippingSchema = z.object({
-  sameAsBilling: z.boolean(),
-  shippingAddress: z.string().optional(),
-  shippingCity: z.string().optional(),
-  shippingZip: z.string().optional(),
-}).refine(
-  (data) => data.sameAsBilling || (data.shippingAddress && data.shippingCity && data.shippingZip),
-  {
-    message: 'Shipping address is required when different from billing',
-    path: ['shippingAddress'],
-  }
-);
+export const shippingSchema = z
+    .object({
+        sameAsBilling: z.boolean(),
+        shippingAddress: z.string().optional(),
+        shippingCity: z.string().optional(),
+        shippingZip: z.string().optional(),
+    })
+    .refine(
+        (data) =>
+            data.sameAsBilling ||
+            (data.shippingAddress && data.shippingCity && data.shippingZip),
+        {
+            message: 'Shipping address is required when different from billing',
+            path: ['shippingAddress'],
+        },
+    );
 ```
 
 **Client:**
+
 ```typescript
 const { register, watch } = useValidatedForm({
   resolver: zodResolver(shippingSchema),
@@ -510,42 +552,45 @@ const sameAsBilling = watch('sameAsBilling');
 ### Search Form (GET Request)
 
 **Schema:**
+
 ```typescript
 export const searchSchema = z.object({
-  q: z.string().min(1, 'Search query is required'),
-  category: z.enum(['all', 'posts', 'users', 'products']).default('all'),
-  sortBy: z.enum(['relevance', 'date', 'popular']).default('relevance'),
+    q: z.string().min(1, 'Search query is required'),
+    category: z.enum(['all', 'posts', 'users', 'products']).default('all'),
+    sortBy: z.enum(['relevance', 'date', 'popular']).default('relevance'),
 });
 
 export type SearchFormData = z.infer<typeof searchSchema>;
 ```
 
 **Client (submits as GET):**
+
 ```typescript
 const onSubmit = (data: SearchFormData) => {
-  const params = new URLSearchParams();
-  params.append('q', data.q);
-  params.append('category', data.category);
-  params.append('sortBy', data.sortBy);
+    const params = new URLSearchParams();
+    params.append('q', data.q);
+    params.append('category', data.category);
+    params.append('sortBy', data.sortBy);
 
-  fetcher.submit(params, { method: 'GET' });
+    fetcher.submit(params, { method: 'GET' });
 };
 ```
 
 **Server (loader, not action):**
+
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const { data, errors } = await getValidatedFormData<SearchFormData>(
-    request,
-    zodResolver(searchSchema)
-  );
+    const { data, errors } = await getValidatedFormData<SearchFormData>(
+        request,
+        zodResolver(searchSchema),
+    );
 
-  if (errors) {
-    return { results: [], errors };
-  }
+    if (errors) {
+        return { results: [], errors };
+    }
 
-  const results = await searchDatabase(data!);
-  return { results };
+    const results = await searchDatabase(data!);
+    return { results };
 }
 ```
 
@@ -554,6 +599,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 ### Two Types of Errors
 
 **1. Field-level errors** - Validation errors for specific fields:
+
 ```typescript
 <TextInput
   {...register('email')}
@@ -562,6 +608,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 ```
 
 **2. Form-level errors** - Business logic or server errors:
+
 ```typescript
 {fetcher.data?.error && (
   <Alert status="error" className="mb-4">
@@ -576,13 +623,19 @@ Always return errors in this format from your actions:
 
 ```typescript
 // Validation errors (from Zod)
-return data({ errors: { email: { type: 'validation', message: 'Invalid email' } } }, { status: 400 });
+return data(
+    { errors: { email: { type: 'validation', message: 'Invalid email' } } },
+    { status: 400 },
+);
 
 // Business logic errors
 return data({ error: 'User already exists' }, { status: 409 });
 
 // Server errors
-return data({ error: 'Something went wrong. Please try again.' }, { status: 500 });
+return data(
+    { error: 'Something went wrong. Please try again.' },
+    { status: 500 },
+);
 ```
 
 ## Form State Management
@@ -612,12 +665,14 @@ const isSuccess = fetcher.state === 'idle' && fetcher.data?.success;
 ```typescript
 import { useEffect } from 'react';
 
-const { reset } = useValidatedForm({ /* ... */ });
+const { reset } = useValidatedForm({
+    /* ... */
+});
 
 useEffect(() => {
-  if (fetcher.state === 'idle' && fetcher.data?.success) {
-    reset();  // Clear form
-  }
+    if (fetcher.state === 'idle' && fetcher.data?.success) {
+        reset(); // Clear form
+    }
 }, [fetcher.state, fetcher.data, reset]);
 ```
 
@@ -677,7 +732,7 @@ const { register } = useValidatedForm<ContactFormData>({
 const { data } = await getValidatedFormData<ContactFormData>(/* ... */);
 
 // data is ContactFormData | undefined
-data?.email  // ✅ Type-safe access
+data?.email; // ✅ Type-safe access
 ```
 
 ## Testing Considerations
@@ -688,24 +743,24 @@ data?.email  // ✅ Type-safe access
 import { contactFormSchema } from '~/lib/validations';
 
 test('validates correct data', () => {
-  const result = contactFormSchema.safeParse({
-    name: 'John',
-    email: 'john@example.com',
-    message: 'Hello world'
-  });
+    const result = contactFormSchema.safeParse({
+        name: 'John',
+        email: 'john@example.com',
+        message: 'Hello world',
+    });
 
-  expect(result.success).toBe(true);
+    expect(result.success).toBe(true);
 });
 
 test('rejects invalid email', () => {
-  const result = contactFormSchema.safeParse({
-    name: 'John',
-    email: 'invalid',
-    message: 'Hello'
-  });
+    const result = contactFormSchema.safeParse({
+        name: 'John',
+        email: 'invalid',
+        message: 'Hello',
+    });
 
-  expect(result.success).toBe(false);
-  expect(result.error?.issues[0].message).toContain('email');
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toContain('email');
 });
 ```
 
@@ -718,6 +773,7 @@ Test both client validation and server validation separately.
 ### From Manual Validation
 
 **Before:**
+
 ```typescript
 // Server - Manual parsing and validation
 export async function action({ request }) {
@@ -738,6 +794,7 @@ export async function action({ request }) {
 ```
 
 **After:**
+
 ```typescript
 // Server - Use getValidatedFormData
 export async function action({ request }: Route.ActionArgs) {
@@ -774,11 +831,13 @@ const onSubmit = (data: FormData) => {
 See these files for complete implementations:
 
 **Authentication** (uses client-side Better Auth pattern):
+
 - Reference: `app/routes/sign-in.tsx`
 - Documentation: `.github/instructions/better-auth.instructions.md`
 - Pattern: Client-side `authClient` with React Hook Form validation
 
 **Profile CRUD** (uses standard server action pattern):
+
 - Schema: `app/lib/validations.ts` (`profileUpdateSchema`)
 - API: `app/routes/api/profile.ts`
 - UI: `app/routes/profile.tsx`
@@ -820,10 +879,11 @@ const onSubmit = (data: ProfileData) => {
 **Problem:** Server validation errors don't show up in the form.
 
 **Solution:** Ensure you pass `fetcher.data?.errors` to `useValidatedForm`:
+
 ```typescript
 useValidatedForm({
-  resolver: zodResolver(schema),
-  errors: fetcher.data?.errors  // ← Must include this
+    resolver: zodResolver(schema),
+    errors: fetcher.data?.errors, // ← Must include this
 });
 ```
 
@@ -832,6 +892,7 @@ useValidatedForm({
 **Problem:** Form bypasses client validation.
 
 **Solution:** Use `handleSubmit` wrapper:
+
 ```typescript
 // ✅ GOOD
 <fetcher.Form onSubmit={handleSubmit(onSubmit)}>
@@ -845,12 +906,13 @@ useValidatedForm({
 **Problem:** `Type 'X' does not satisfy constraint 'FieldValues'`
 
 **Solution:** Ensure your Zod schema infers to an object type:
+
 ```typescript
 // ✅ GOOD
-z.object({ email: z.string() })
+z.object({ email: z.string() });
 
 // ❌ BAD
-z.string()  // Not a FieldValues type
+z.string(); // Not a FieldValues type
 ```
 
 ### Fields not registering with React Hook Form
@@ -858,6 +920,7 @@ z.string()  // Not a FieldValues type
 **Problem:** TextInput doesn't work with `{...register()}`.
 
 **Solution:** Ensure your component uses `forwardRef`:
+
 ```typescript
 import { forwardRef } from 'react';
 
@@ -869,6 +932,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 ## Anti-Patterns to Avoid
 
 ❌ **Don't use `<fetcher.Form>` with manual submission**
+
 ```typescript
 // BAD - Causes submission conflicts
 <fetcher.Form onSubmit={handleSubmit(onSubmit)}>
@@ -877,6 +941,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 ```
 
 ✅ **Use `<form>` with manual submission**
+
 ```typescript
 // GOOD - Standard pattern for this app
 const onSubmit = (data: FormData) => {
@@ -895,31 +960,38 @@ const onSubmit = (data: FormData) => {
 ---
 
 ❌ **Don't duplicate validation logic**
+
 ```typescript
 // BAD - Validation in two places
-if (!email.includes('@')) return { error: 'Invalid' };  // Manual check
-const result = schema.safeParse(data);  // Schema check
+if (!email.includes('@')) return { error: 'Invalid' }; // Manual check
+const result = schema.safeParse(data); // Schema check
 ```
 
 ✅ **Use schema everywhere**
+
 ```typescript
 // GOOD - Schema is single source of truth
-const { data, errors } = await getValidatedFormData(request, zodResolver(schema));
+const { data, errors } = await getValidatedFormData(
+    request,
+    zodResolver(schema),
+);
 ```
 
 ---
 
 ❌ **Don't manually sync errors**
+
 ```typescript
 // BAD - Manual useEffect for syncing
 useEffect(() => {
-  if (fetcher.data?.errors) {
-    Object.entries(fetcher.data.errors).forEach(/* ... */);
-  }
+    if (fetcher.data?.errors) {
+        Object.entries(fetcher.data.errors).forEach(/* ... */);
+    }
 }, [fetcher.data]);
 ```
 
 ✅ **Use useValidatedForm**
+
 ```typescript
 // GOOD - Automatic syncing
 useValidatedForm({ errors: fetcher.data?.errors });
@@ -928,15 +1000,17 @@ useValidatedForm({ errors: fetcher.data?.errors });
 ---
 
 ❌ **Don't trust client-only validation**
+
 ```typescript
 // BAD - Only validates on client
 export async function action({ request }) {
-  const data = await request.formData();
-  await saveToDatabase(data);  // No validation!
+    const data = await request.formData();
+    await saveToDatabase(data); // No validation!
 }
 ```
 
 ✅ **Always validate on server**
+
 ```typescript
 // GOOD - Server validates all requests
 const { data, errors } = await getValidatedFormData(/* ... */);

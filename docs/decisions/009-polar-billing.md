@@ -30,14 +30,14 @@ Polar is a modern billing platform built for developers, with first-class suppor
 **Better Auth Integration**:
 
 ```typescript
-import { polar } from "@polar-sh/better-auth";
+import { polar } from '@polar-sh/better-auth';
 
 export const auth = betterAuth({
-  plugins: [
-    polar({
-      // Configuration
-    }),
-  ],
+    plugins: [
+        polar({
+            // Configuration
+        }),
+    ],
 });
 ```
 
@@ -176,42 +176,42 @@ export const auth = betterAuth({
 
 ```typescript
 // app/lib/auth.server.ts
-import { betterAuth } from "better-auth";
-import { polar } from "@polar-sh/better-auth";
+import { betterAuth } from 'better-auth';
+import { polar } from '@polar-sh/better-auth';
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
-  }),
-  plugins: [
-    polar({
-      organizationId: process.env.POLAR_ORGANIZATION_ID!,
-      accessToken: process.env.POLAR_ACCESS_TOKEN!,
+    database: prismaAdapter(db, {
+        provider: 'postgresql',
     }),
-  ],
+    plugins: [
+        polar({
+            organizationId: process.env.POLAR_ORGANIZATION_ID!,
+            accessToken: process.env.POLAR_ACCESS_TOKEN!,
+        }),
+    ],
 });
 ```
 
 ### Checking Subscription
 
 ```typescript
-import { auth } from "~/lib/auth.server";
+import { auth } from '~/lib/auth.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  // Check subscription via Polar plugin
-  const subscription = await getSubscription(session.user.id);
+    // Check subscription via Polar plugin
+    const subscription = await getSubscription(session.user.id);
 
-  if (!subscription?.active) {
-    throw redirect("/pricing");
-  }
+    if (!subscription?.active) {
+        throw redirect('/pricing');
+    }
 
-  return { user: session.user };
+    return { user: session.user };
 }
 ```
 
@@ -219,52 +219,52 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 ```typescript
 // app/routes/api/webhooks/polar.ts
-import { Route } from "./+types/api.webhooks.polar";
-import { polar } from "~/lib/polar.server";
+import { Route } from './+types/api.webhooks.polar';
+import { polar } from '~/lib/polar.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  const payload = await request.text();
-  const signature = request.headers.get("polar-signature");
+    const payload = await request.text();
+    const signature = request.headers.get('polar-signature');
 
-  try {
-    const event = polar.webhooks.verify(payload, signature!);
+    try {
+        const event = polar.webhooks.verify(payload, signature!);
 
-    switch (event.type) {
-      case "subscription.created":
-        await handleSubscriptionCreated(event.data);
-        break;
-      case "subscription.updated":
-        await handleSubscriptionUpdated(event.data);
-        break;
-      case "subscription.cancelled":
-        await handleSubscriptionCancelled(event.data);
-        break;
+        switch (event.type) {
+            case 'subscription.created':
+                await handleSubscriptionCreated(event.data);
+                break;
+            case 'subscription.updated':
+                await handleSubscriptionUpdated(event.data);
+                break;
+            case 'subscription.cancelled':
+                await handleSubscriptionCancelled(event.data);
+                break;
+        }
+
+        return new Response(null, { status: 200 });
+    } catch (error) {
+        console.error('Webhook error:', error);
+        return new Response('Invalid signature', { status: 400 });
     }
-
-    return new Response(null, { status: 200 });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return new Response("Invalid signature", { status: 400 });
-  }
 }
 ```
 
 ### Creating Checkout
 
 ```typescript
-import { polar } from "~/lib/polar.server";
+import { polar } from '~/lib/polar.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  const checkout = await polar.checkouts.create({
-    productPriceId: "price_id",
-    customerId: session.user.id,
-    successUrl: "https://yourapp.com/success",
-    cancelUrl: "https://yourapp.com/cancel",
-  });
+    const checkout = await polar.checkouts.create({
+        productPriceId: 'price_id',
+        customerId: session.user.id,
+        successUrl: 'https://yourapp.com/success',
+        cancelUrl: 'https://yourapp.com/cancel',
+    });
 
-  return redirect(checkout.url);
+    return redirect(checkout.url);
 }
 ```
 
@@ -272,38 +272,38 @@ export async function action({ request }: Route.ActionArgs) {
 
 ```typescript
 // app/models/subscription.server.ts
-import { db } from "~/db.server";
+import { db } from '~/db.server';
 
 export async function getSubscriptionStatus(userId: string) {
-  const subscription = await db.subscription.findFirst({
-    where: {
-      userId,
-      status: "active",
-    },
-  });
+    const subscription = await db.subscription.findFirst({
+        where: {
+            userId,
+            status: 'active',
+        },
+    });
 
-  return {
-    isActive: !!subscription,
-    tier: subscription?.tier,
-    expiresAt: subscription?.expiresAt,
-  };
+    return {
+        isActive: !!subscription,
+        tier: subscription?.tier,
+        expiresAt: subscription?.expiresAt,
+    };
 }
 
 export async function hasFeatureAccess(
-  userId: string,
-  feature: string
+    userId: string,
+    feature: string,
 ): Promise<boolean> {
-  const subscription = await getSubscriptionStatus(userId);
+    const subscription = await getSubscriptionStatus(userId);
 
-  if (!subscription.isActive) return false;
+    if (!subscription.isActive) return false;
 
-  const tierFeatures = {
-    free: ["basic"],
-    pro: ["basic", "advanced"],
-    enterprise: ["basic", "advanced", "premium"],
-  };
+    const tierFeatures = {
+        free: ['basic'],
+        pro: ['basic', 'advanced'],
+        enterprise: ['basic', 'advanced', 'premium'],
+    };
 
-  return tierFeatures[subscription.tier]?.includes(feature) ?? false;
+    return tierFeatures[subscription.tier]?.includes(feature) ?? false;
 }
 ```
 
@@ -314,25 +314,25 @@ export async function hasFeatureAccess(
 ```typescript
 // app/lib/pricing.ts
 export const pricingTiers = {
-  free: {
-    name: "Free",
-    price: 0,
-    features: ["Feature 1", "Feature 2"],
-  },
-  pro: {
-    name: "Pro",
-    price: 29,
-    features: ["All Free features", "Feature 3", "Feature 4"],
-  },
-  enterprise: {
-    name: "Enterprise",
-    price: 99,
-    features: ["All Pro features", "Feature 5", "Feature 6"],
-  },
+    free: {
+        name: 'Free',
+        price: 0,
+        features: ['Feature 1', 'Feature 2'],
+    },
+    pro: {
+        name: 'Pro',
+        price: 29,
+        features: ['All Free features', 'Feature 3', 'Feature 4'],
+    },
+    enterprise: {
+        name: 'Enterprise',
+        price: 99,
+        features: ['All Pro features', 'Feature 5', 'Feature 6'],
+    },
 };
 
 export function canAccessFeature(tier: string, feature: string): boolean {
-  // Implementation
+    // Implementation
 }
 ```
 

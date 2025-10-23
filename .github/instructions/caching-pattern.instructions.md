@@ -45,6 +45,7 @@ getUserScopedKey(userId: string, key: string): string
 **Use when:** Caching data loaded in React Router routes (clientLoader/clientAction)
 
 **Benefits:**
+
 - Automatic cache priming on initial page load (hydration)
 - Cache invalidation on mutations
 - Zero boilerplate - just export the utilities
@@ -67,7 +68,7 @@ import { createCachedClientLoader } from '~/lib/cache';
 
 export const clientLoader = createCachedClientLoader({
     cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
+    ttl: CACHE_TTL,
 });
 ```
 
@@ -77,7 +78,7 @@ export const clientLoader = createCachedClientLoader({
 import { createCachedClientAction } from '~/lib/cache';
 
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY
+    cacheKey: CACHE_KEY,
 });
 ```
 
@@ -87,8 +88,8 @@ export const clientAction = createCachedClientAction({
 
 1. **Initial request (hydration):** Fetches from server, caches result, returns data
 2. **Subsequent requests:**
-   - Cache hit (not expired) → Returns cached data instantly
-   - Cache miss/expired → Fetches from server, updates cache, returns data
+    - Cache hit (not expired) → Returns cached data instantly
+    - Cache miss/expired → Fetches from server, updates cache, returns data
 
 **clientAction Flow:**
 
@@ -107,7 +108,7 @@ import { requireUser } from '~/lib/session.server';
 import { getUserProfile, updateUser } from '~/models/user.server';
 import {
     createCachedClientLoader,
-    createCachedClientAction
+    createCachedClientAction,
 } from '~/lib/cache';
 
 // Cache configuration
@@ -124,7 +125,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 // Client loader with caching
 export const clientLoader = createCachedClientLoader({
     cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
+    ttl: CACHE_TTL,
 });
 
 // Server action
@@ -134,7 +135,9 @@ export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'PUT') {
         const updatedUser = await updateUser({
             userId: user.id,
-            data: { /* ... */ }
+            data: {
+                /* ... */
+            },
         });
         return data({ success: true, user: updatedUser });
     }
@@ -144,7 +147,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 // Client action with cache invalidation
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY
+    cacheKey: CACHE_KEY,
 });
 ```
 
@@ -153,6 +156,7 @@ export const clientAction = createCachedClientAction({
 **Use when:** Wrapping external API calls or expensive database queries in model layer
 
 **Benefits:**
+
 - Encapsulates caching logic within model functions
 - Automatic cache expiration handling
 - Graceful error handling with fallback support
@@ -182,9 +186,9 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
-                }
-            }
+                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+                },
+            },
         );
 
         return response.json();
@@ -196,8 +200,8 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
         count: 0,
         next: null,
         previous: null,
-        results: []
-    }
+        results: [],
+    },
 );
 ```
 
@@ -205,13 +209,13 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
 
 1. **Cache hit (not expired):** Returns cached data instantly
 2. **Cache miss/expired:**
-   - Executes fetcher function
-   - Caches result with TTL
-   - Returns data
+    - Executes fetcher function
+    - Caches result with TTL
+    - Returns data
 3. **Error handling:**
-   - Returns stale cache if available (even if expired)
-   - Returns fallback if provided and no cache
-   - Re-throws error if no cache and no fallback
+    - Returns stale cache if available (even if expired)
+    - Returns fallback if provided and no cache
+    - Re-throws error if no cache and no fallback
 
 ### Using in Routes
 
@@ -237,7 +241,7 @@ import {
     getCachedData,
     setCachedData,
     getUserScopedKey,
-    isCacheExpired
+    isCacheExpired,
 } from '~/lib/cache';
 
 export async function getUserPreferences(userId: string) {
@@ -287,19 +291,19 @@ export async function getAnalytics(userId: string, forceRefresh = false) {
 
 ```typescript
 // Global scope
-'posthog:feature-flags'
-'app:config'
-'analytics:global-stats'
+'posthog:feature-flags';
+'app:config';
+'analytics:global-stats';
 
 // User scope (use getUserScopedKey utility)
-'user:123:profile'           // getUserScopedKey('123', 'profile')
-'user:456:preferences'       // getUserScopedKey('456', 'preferences')
-'user:789:notifications'     // getUserScopedKey('789', 'notifications')
+'user:123:profile'; // getUserScopedKey('123', 'profile')
+'user:456:preferences'; // getUserScopedKey('456', 'preferences')
+'user:789:notifications'; // getUserScopedKey('789', 'notifications')
 
 // Feature scope
-'profile:recent-activity'
-'dashboard:widgets'
-'search:results:trending'
+'profile:recent-activity';
+'dashboard:widgets';
+'search:results:trending';
 ```
 
 ## TTL Guidelines
@@ -308,16 +312,16 @@ export async function getAnalytics(userId: string, forceRefresh = false) {
 
 ```typescript
 // Static/rarely changing data
-const LONG_TTL = 3600;        // 1 hour
-const VERY_LONG_TTL = 86400;  // 24 hours
+const LONG_TTL = 3600; // 1 hour
+const VERY_LONG_TTL = 86400; // 24 hours
 
 // Moderate change frequency
-const MEDIUM_TTL = 900;       // 15 minutes
-const DEFAULT_TTL = 600;      // 10 minutes
+const MEDIUM_TTL = 900; // 15 minutes
+const DEFAULT_TTL = 600; // 10 minutes
 
 // Frequently changing data
-const SHORT_TTL = 300;        // 5 minutes
-const VERY_SHORT_TTL = 60;    // 1 minute
+const SHORT_TTL = 300; // 5 minutes
+const VERY_SHORT_TTL = 60; // 1 minute
 ```
 
 ### Examples by Data Type
@@ -347,13 +351,13 @@ const CACHE_TTL = 900;
 
 export const clientLoader = createCachedClientLoader({
     cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
+    ttl: CACHE_TTL,
 });
 
 // ❌ BAD - Magic strings and numbers
 export const clientLoader = createCachedClientLoader({
     cacheKey: 'user-profile',
-    ttl: 900
+    ttl: 900,
 });
 ```
 
@@ -364,20 +368,20 @@ export const clientLoader = createCachedClientLoader({
 const CACHE_KEY = 'user-profile';
 
 export const clientLoader = createCachedClientLoader({
-    cacheKey: CACHE_KEY
+    cacheKey: CACHE_KEY,
 });
 
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY
+    cacheKey: CACHE_KEY,
 });
 
 // ❌ BAD - Mismatched keys
 export const clientLoader = createCachedClientLoader({
-    cacheKey: 'user-profile'
+    cacheKey: 'user-profile',
 });
 
 export const clientAction = createCachedClientAction({
-    cacheKey: 'profile' // Won't invalidate loader cache!
+    cacheKey: 'profile', // Won't invalidate loader cache!
 });
 ```
 
@@ -387,9 +391,11 @@ export const clientAction = createCachedClientAction({
 // ✅ GOOD - Cached model function
 // app/models/feature-flags.server.ts
 export const getFeatureFlags = withCache(
-    async () => { /* fetch logic */ },
+    async () => {
+        /* fetch logic */
+    },
     'posthog:feature-flags',
-    600
+    600,
 );
 
 // app/routes/dashboard.tsx
@@ -417,14 +423,14 @@ export const getFeatureFlags = withCache(
     async () => fetchFlags(),
     'posthog:feature-flags',
     600,
-    { results: [] } // Fallback prevents app crashes
+    { results: [] }, // Fallback prevents app crashes
 );
 
 // ❌ BAD - No fallback, errors crash app
 export const getFeatureFlags = withCache(
     async () => fetchFlags(),
     'posthog:feature-flags',
-    600
+    600,
     // Missing fallback!
 );
 ```
@@ -434,7 +440,7 @@ export const getFeatureFlags = withCache(
 ```typescript
 // ✅ GOOD - Cache invalidation on update
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY // Automatically invalidates
+    cacheKey: CACHE_KEY, // Automatically invalidates
 });
 
 // ❌ BAD - No invalidation, stale cache
@@ -456,7 +462,7 @@ export const getFeatureFlags = withCache(
     async () => fetchFromPostHog(),
     'posthog:feature-flags',
     600,
-    { results: [] }
+    { results: [] },
 );
 
 // Route file - Client-side cache
@@ -467,11 +473,12 @@ export async function loader() {
 
 export const clientLoader = createCachedClientLoader({
     cacheKey: 'feature-flags-page', // Client cache
-    ttl: 600
+    ttl: 600,
 });
 ```
 
 **Benefits:**
+
 - Server cache reduces external API calls (saves quota/cost)
 - Client cache reduces network requests (faster navigation)
 - Two-layer caching for maximum performance
@@ -510,14 +517,17 @@ import { getFeatureFlags } from '~/models/feature-flags.server';
 
 function startCacheScheduler() {
     // Refresh feature flags every 5 minutes
-    setInterval(async () => {
-        try {
-            await getFeatureFlags();
-            console.log('Cache refreshed:', new Date().toISOString());
-        } catch (error) {
-            console.error('Cache refresh failed:', error);
-        }
-    }, 5 * 60 * 1000);
+    setInterval(
+        async () => {
+            try {
+                await getFeatureFlags();
+                console.log('Cache refreshed:', new Date().toISOString());
+            } catch (error) {
+                console.error('Cache refresh failed:', error);
+            }
+        },
+        5 * 60 * 1000,
+    );
 }
 
 export { startCacheScheduler };
@@ -568,13 +578,16 @@ const data = getCachedData('user:123:profile');
 ## Reference Implementations
 
 **Client-side route caching:**
+
 - `app/routes/api/profile.server.ts` (canonical)
 - `app/routes/api/posthog/feature-flags.server.ts`
 
 **Model layer caching:**
+
 - `app/models/feature-flags.server.ts` (canonical)
 
 **Manual caching:**
+
 - See examples in this document
 
 ## Related Documentation

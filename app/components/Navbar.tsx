@@ -90,7 +90,7 @@ export function NavbarMenu({
                 'menu',
                 horizontal ? 'menu-horizontal' : 'menu-vertical',
                 'px-1',
-                className
+                className,
             )}
             {...rest}
         >
@@ -143,7 +143,7 @@ export function NavbarDropdown({
                 tabIndex={0}
                 className={cx(
                     'menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow',
-                    className
+                    className,
                 )}
                 {...rest}
             >

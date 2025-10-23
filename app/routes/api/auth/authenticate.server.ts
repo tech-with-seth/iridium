@@ -9,7 +9,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'DELETE') {
         try {
             await auth.api.signOut({
-                headers: request.headers
+                headers: request.headers,
             });
 
             return redirect(Paths.HOME);
@@ -17,7 +17,7 @@ export async function action({ request }: Route.ActionArgs) {
             // Track error with PostHog
             posthog.captureException(error, {
                 context: 'sign_out',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             return data(
@@ -25,9 +25,9 @@ export async function action({ request }: Route.ActionArgs) {
                     error:
                         error instanceof Error
                             ? error.message
-                            : 'Sign out failed. Please try again.'
+                            : 'Sign out failed. Please try again.',
                 },
-                { status: 500 }
+                { status: 500 },
             );
         }
     }

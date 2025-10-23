@@ -14,12 +14,13 @@ import { twMerge } from 'tailwind-merge';
 
 export const { cva, cx, compose } = defineConfig({
     hooks: {
-        onComplete: (className) => twMerge(className)
-    }
+        onComplete: (className) => twMerge(className),
+    },
 });
 ```
 
 **Key Points:**
+
 - `defineConfig()` creates a configured CVA instance
 - `twMerge` hook automatically resolves Tailwind class conflicts
 - Exports three utilities: `cva`, `cx`, `compose`
@@ -35,56 +36,63 @@ Creates a variant configuration for a component. Returns a function that generat
 import { cva } from '~/cva.config';
 
 export const buttonVariants = cva({
-    base: 'btn',                    // Always applied
-    variants: {                      // Conditional classes
+    base: 'btn', // Always applied
+    variants: {
+        // Conditional classes
         variant: {
             outline: 'btn-outline',
             ghost: 'btn-ghost',
-            link: 'btn-link'
+            link: 'btn-link',
         },
         status: {
             primary: 'btn-primary',
-            error: 'btn-error'
+            error: 'btn-error',
         },
         size: {
             sm: 'btn-sm',
             md: 'btn-md',
-            lg: 'btn-lg'
-        }
+            lg: 'btn-lg',
+        },
     },
-    defaultVariants: {               // Defaults when props not provided
+    defaultVariants: {
+        // Defaults when props not provided
         status: 'primary',
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: [              // Multi-variant combinations
+    compoundVariants: [
+        // Multi-variant combinations
         {
             variant: 'outline',
             status: 'primary',
-            class: 'border-2'        // Applied when both conditions met
-        }
-    ]
+            class: 'border-2', // Applied when both conditions met
+        },
+    ],
 });
 ```
 
 #### CVA Configuration Schema
 
 **`base`** (string)
+
 - Classes always applied regardless of variants
 - Use for component's foundational styles
 - Example: `base: 'btn'` for DaisyUI button base class
 
 **`variants`** (object)
+
 - Define variant categories and their options
 - Each key is a variant name (prop name)
 - Each value is an object mapping option names to className strings
 - Example: `size: { sm: 'btn-sm', lg: 'btn-lg' }`
 
 **`defaultVariants`** (object, optional)
+
 - Default values for variants when not specified in props
 - Keys must match variant names
 - Example: `{ status: 'primary', size: 'md' }`
 
 **`compoundVariants`** (array, optional)
+
 - Apply classes when multiple variant conditions are met
 - Each object has variant conditions + `class` property
 - Example: `{ variant: 'outline', status: 'error', class: 'border-2' }`
@@ -112,6 +120,7 @@ const classes = cx(
 ```
 
 **Key Points:**
+
 - Automatically resolves Tailwind conflicts (e.g., `p-4 p-6` → `p-6`)
 - Filters out falsy values (`false`, `null`, `undefined`)
 - Always put user's `className` prop last for proper overrides
@@ -128,15 +137,15 @@ import { cva, compose } from '~/cva.config';
 const baseButton = cva({
     base: 'btn',
     variants: {
-        size: { sm: 'btn-sm', md: 'btn-md' }
-    }
+        size: { sm: 'btn-sm', md: 'btn-md' },
+    },
 });
 
 // Extended variants
 const iconButton = cva({
     variants: {
-        icon: { true: 'btn-circle' }
-    }
+        icon: { true: 'btn-circle' },
+    },
 });
 
 // Compose them
@@ -157,9 +166,9 @@ export const buttonVariants = cva({
     variants: {
         variant: { outline: 'btn-outline', ghost: 'btn-ghost' },
         status: { primary: 'btn-primary', error: 'btn-error' },
-        size: { sm: 'btn-sm', md: 'btn-md', lg: 'btn-lg' }
+        size: { sm: 'btn-sm', md: 'btn-md', lg: 'btn-lg' },
     },
-    defaultVariants: { status: 'primary', size: 'md' }
+    defaultVariants: { status: 'primary', size: 'md' },
 });
 
 // Auto-generated type from variants
@@ -180,6 +189,7 @@ interface ButtonProps
 ```
 
 **Key Points:**
+
 - `VariantProps<typeof variantConfig>` extracts types from CVA config
 - All variant props become optional (unless required by TypeScript)
 - Extends native HTML element attributes for proper prop passthrough
@@ -271,20 +281,20 @@ export const cardVariants = cva({
     base: 'card',
     variants: {
         variant: { border: 'card-border', shadow: 'card-shadow' },
-        padding: { sm: 'p-2', lg: 'p-6' }
+        padding: { sm: 'p-2', lg: 'p-6' },
     },
     compoundVariants: [
         {
             variant: 'border',
             padding: 'lg',
-            class: 'border-2'  // Applied only when both conditions met
+            class: 'border-2', // Applied only when both conditions met
         },
         {
-            variant: ['border', 'shadow'],  // Multiple options for same variant
+            variant: ['border', 'shadow'], // Multiple options for same variant
             padding: 'sm',
-            class: 'rounded-sm'
-        }
-    ]
+            class: 'rounded-sm',
+        },
+    ],
 });
 ```
 
@@ -296,7 +306,7 @@ DaisyUI provides semantic class names that map perfectly to CVA variants:
 
 ```typescript
 export const buttonVariants = cva({
-    base: 'btn',  // DaisyUI base class
+    base: 'btn', // DaisyUI base class
     variants: {
         // Map DaisyUI modifiers to variant options
         variant: {
@@ -304,7 +314,7 @@ export const buttonVariants = cva({
             ghost: 'btn-ghost',
             link: 'btn-link',
             dash: 'btn-dash',
-            soft: 'btn-soft'
+            soft: 'btn-soft',
         },
         // DaisyUI semantic colors
         status: {
@@ -315,7 +325,7 @@ export const buttonVariants = cva({
             info: 'btn-info',
             success: 'btn-success',
             warning: 'btn-warning',
-            error: 'btn-error'
+            error: 'btn-error',
         },
         // DaisyUI sizes
         size: {
@@ -323,17 +333,18 @@ export const buttonVariants = cva({
             sm: 'btn-sm',
             md: 'btn-md',
             lg: 'btn-lg',
-            xl: 'btn-xl'
-        }
+            xl: 'btn-xl',
+        },
     },
     defaultVariants: {
         status: 'primary',
-        size: 'md'
-    }
+        size: 'md',
+    },
 });
 ```
 
 **Naming Convention:**
+
 - Variant prop: semantic name (e.g., `status`, `variant`, `size`)
 - Variant values: match DaisyUI terminology (e.g., `primary`, `outline`, `lg`)
 - Class names: exact DaisyUI classes (e.g., `btn-primary`, `btn-outline`)
@@ -344,10 +355,10 @@ Use the MCP tool to fetch DaisyUI component documentation:
 
 ```typescript
 // In your development environment
-mcp__daisyui__fetch_daisyui_documentation
+mcp__daisyui__fetch_daisyui_documentation;
 
 // Or search for specific components
-mcp__daisyui__search_daisyui_documentation({ query: "button variants" })
+mcp__daisyui__search_daisyui_documentation({ query: 'button variants' });
 ```
 
 ## Best Practices
@@ -355,119 +366,134 @@ mcp__daisyui__search_daisyui_documentation({ query: "button variants" })
 ### ✅ Do's
 
 1. **Always import from config**
-   ```typescript
-   import { cva, cx } from '~/cva.config';  // ✅ Correct
-   import { cva } from 'cva';               // ❌ Wrong
-   ```
+
+    ```typescript
+    import { cva, cx } from '~/cva.config'; // ✅ Correct
+    import { cva } from 'cva'; // ❌ Wrong
+    ```
 
 2. **Use VariantProps for type extraction**
-   ```typescript
-   interface Props extends VariantProps<typeof variants> {} // ✅
-   ```
+
+    ```typescript
+    interface Props extends VariantProps<typeof variants> {} // ✅
+    ```
 
 3. **Put className prop last in cx()**
-   ```typescript
-   cx(variants({ size }), className)  // ✅ User can override
-   cx(className, variants({ size }))  // ❌ Variants override user
-   ```
+
+    ```typescript
+    cx(variants({ size }), className); // ✅ User can override
+    cx(className, variants({ size })); // ❌ Variants override user
+    ```
 
 4. **Extend native HTML attributes**
-   ```typescript
-   interface ButtonProps
-       extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-           VariantProps<typeof buttonVariants> {}  // ✅
-   ```
+
+    ```typescript
+    interface ButtonProps
+        extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+            VariantProps<typeof buttonVariants> {} // ✅
+    ```
 
 5. **Destructure variant props explicitly**
-   ```typescript
-   function Button({ variant, status, size, className, ...props }: ButtonProps) {
-       return (
-           <button
-               className={cx(buttonVariants({ variant, status, size }), className)}
-               {...props}
-           />
-       );
-   }
-   ```
+
+    ```typescript
+    function Button({ variant, status, size, className, ...props }: ButtonProps) {
+        return (
+            <button
+                className={cx(buttonVariants({ variant, status, size }), className)}
+                {...props}
+            />
+        );
+    }
+    ```
 
 6. **Use defaultVariants for common cases**
-   ```typescript
-   defaultVariants: {
-       status: 'primary',  // Most buttons are primary
-       size: 'md'          // Medium is standard size
-   }
-   ```
+
+    ```typescript
+    defaultVariants: {
+        status: 'primary',  // Most buttons are primary
+        size: 'md'          // Medium is standard size
+    }
+    ```
 
 7. **Use boolean variants for toggles**
-   ```typescript
-   variants: {
-       active: { true: 'btn-active' },
-       disabled: { true: 'btn-disabled' }
-   }
-   ```
+    ```typescript
+    variants: {
+        active: { true: 'btn-active' },
+        disabled: { true: 'btn-disabled' }
+    }
+    ```
 
 ### ❌ Don'ts
 
 1. **Don't use cn() or clsx()**
-   ```typescript
-   import { cn } from '~/lib/utils';     // ❌ Wrong
-   import { cx } from '~/cva.config';    // ✅ Correct
-   ```
+
+    ```typescript
+    import { cn } from '~/lib/utils'; // ❌ Wrong
+    import { cx } from '~/cva.config'; // ✅ Correct
+    ```
 
 2. **Don't skip VariantProps**
-   ```typescript
-   interface Props {
-       variant?: 'outline' | 'ghost';  // ❌ Manual typing
-   }
-   // ✅ Use VariantProps instead
-   ```
+
+    ```typescript
+    interface Props {
+        variant?: 'outline' | 'ghost'; // ❌ Manual typing
+    }
+    // ✅ Use VariantProps instead
+    ```
 
 3. **Don't hardcode DaisyUI classes**
-   ```typescript
-   <button className="btn btn-primary" />  // ❌ Not variant-based
-   <Button status="primary" />             // ✅ Uses variants
-   ```
+
+    ```typescript
+    <button className="btn btn-primary" />  // ❌ Not variant-based
+    <Button status="primary" />             // ✅ Uses variants
+    ```
 
 4. **Don't bypass type system**
-   ```typescript
-   <Button status="custom" />  // ❌ TypeScript error - good!
-   ```
+
+    ```typescript
+    <Button status="custom" />  // ❌ TypeScript error - good!
+    ```
 
 5. **Don't create variants without base**
-   ```typescript
-   cva({ variants: { ... } })              // ❌ No base class
-   cva({ base: 'btn', variants: { ... } }) // ✅ Has base
-   ```
+
+    ```typescript
+    cva({ variants: { ... } })              // ❌ No base class
+    cva({ base: 'btn', variants: { ... } }) // ✅ Has base
+    ```
 
 6. **Don't forget to handle className prop**
-   ```typescript
-   function Button({ variant }: Props) {
-       return <button className={buttonVariants({ variant })} />;  // ❌ No user override
-   }
-   // ✅ Always include className in props and cx()
-   ```
+    ```typescript
+    function Button({ variant }: Props) {
+        return <button className={buttonVariants({ variant })} />;  // ❌ No user override
+    }
+    // ✅ Always include className in props and cx()
+    ```
 
 ## Troubleshooting
 
 ### TypeScript Errors
 
 **Error: Type 'X' is not assignable to type 'Y'**
+
 - Check that variant values match CVA configuration exactly
 - Ensure `VariantProps<typeof variants>` is used
 - Verify `defaultVariants` keys match `variants` keys
 
 **Error: Property 'variant' does not exist**
+
 - Make sure interface extends `VariantProps<typeof variantConfig>`
 - Check that variants are defined in CVA config
 
 ### Style Conflicts
 
 **Classes not applying as expected**
+
 - Ensure `twMerge` is configured in `defineConfig` hooks
 - Check that `cx()` is used, not `clsx()` or `cn()`
 - Verify className prop is last in `cx()` call
 
 **DaisyUI classes not working**
+
 - Confirm exact DaisyUI class names (check docs)
 - Verify DaisyUI is installed and configured
 - Check Tailwind config includes DaisyUI plugin
@@ -475,11 +501,13 @@ mcp__daisyui__search_daisyui_documentation({ query: "button variants" })
 ### Component Issues
 
 **Variants not updating**
+
 - Ensure variant props are destructured and passed to `variants()`
 - Check that component re-renders on prop changes
 - Verify no prop name conflicts with HTML attributes
 
 **Custom className ignored**
+
 - Make sure `className` prop is passed to `cx()`
 - Check that `className` is last parameter in `cx()`
 - Verify `...props` is spread on the element

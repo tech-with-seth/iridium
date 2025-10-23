@@ -197,7 +197,7 @@ import { requireUser } from '~/lib/session.server';
 
 export async function loader({ params }: Route.LoaderArgs) {
     const post = await prisma.post.findUnique({
-        where: { id: params.postId }
+        where: { id: params.postId },
     });
 
     return data({ post });
@@ -212,15 +212,15 @@ export async function action({ request, params }: Route.ActionArgs) {
             where: { id: params.postId },
             data: {
                 title: body.title,
-                content: body.content
-            }
+                content: body.content,
+            },
         });
         return data({ post });
     }
 
     if (request.method === 'DELETE') {
         await prisma.post.delete({
-            where: { id: params.postId }
+            where: { id: params.postId },
         });
         return data({ success: true });
     }
@@ -428,15 +428,15 @@ async function main() {
                 create: [
                     {
                         title: 'First Post',
-                        content: 'This is the first post'
+                        content: 'This is the first post',
                     },
                     {
                         title: 'Second Post',
-                        content: 'This is the second post'
-                    }
-                ]
-            }
-        }
+                        content: 'This is the second post',
+                    },
+                ],
+            },
+        },
     });
 
     console.log({ user });
@@ -479,8 +479,8 @@ npm run seed
 const user = await prisma.user.create({
     data: {
         email: 'user@example.com',
-        name: 'John Doe'
-    }
+        name: 'John Doe',
+    },
 });
 
 // Create with nested relations
@@ -489,17 +489,17 @@ const post = await prisma.post.create({
         title: 'Hello World',
         content: 'This is my first post',
         author: {
-            connect: { id: userId }
-        }
-    }
+            connect: { id: userId },
+        },
+    },
 });
 
 // Create many
 await prisma.post.createMany({
     data: [
         { title: 'Post 1', content: 'Content 1', authorId: userId },
-        { title: 'Post 2', content: 'Content 2', authorId: userId }
-    ]
+        { title: 'Post 2', content: 'Content 2', authorId: userId },
+    ],
 });
 ```
 
@@ -508,18 +508,18 @@ await prisma.post.createMany({
 ```typescript
 // Find unique
 const user = await prisma.user.findUnique({
-    where: { id: userId }
+    where: { id: userId },
 });
 
 // Find unique or throw
 const user = await prisma.user.findUniqueOrThrow({
-    where: { email: 'user@example.com' }
+    where: { email: 'user@example.com' },
 });
 
 // Find first matching
 const post = await prisma.post.findFirst({
     where: { published: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
 });
 
 // Find many with filters
@@ -527,18 +527,18 @@ const posts = await prisma.post.findMany({
     where: {
         published: true,
         author: {
-            email: { contains: '@example.com' }
-        }
+            email: { contains: '@example.com' },
+        },
     },
     include: {
         author: true,
-        comments: true
+        comments: true,
     },
     orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
     },
     take: 10,
-    skip: 0
+    skip: 0,
 });
 ```
 
@@ -549,14 +549,14 @@ const posts = await prisma.post.findMany({
 const user = await prisma.user.update({
     where: { id: userId },
     data: {
-        name: 'New Name'
-    }
+        name: 'New Name',
+    },
 });
 
 // Update many
 await prisma.post.updateMany({
     where: { authorId: userId },
-    data: { published: false }
+    data: { published: false },
 });
 
 // Upsert (update or create)
@@ -565,8 +565,8 @@ const user = await prisma.user.upsert({
     update: { name: 'Updated Name' },
     create: {
         email: 'user@example.com',
-        name: 'New User'
-    }
+        name: 'New User',
+    },
 });
 ```
 
@@ -575,12 +575,12 @@ const user = await prisma.user.upsert({
 ```typescript
 // Delete single
 await prisma.user.delete({
-    where: { id: userId }
+    where: { id: userId },
 });
 
 // Delete many
 await prisma.post.deleteMany({
-    where: { authorId: userId }
+    where: { authorId: userId },
 });
 ```
 
@@ -593,16 +593,16 @@ await prisma.post.deleteMany({
 const users = await prisma.user.findMany({
     where: {
         email: { contains: '@example.com' },
-        name: { startsWith: 'John' }
-    }
+        name: { startsWith: 'John' },
+    },
 });
 
 // Number filters
 const posts = await prisma.post.findMany({
     where: {
         views: { gte: 100 },
-        likes: { lte: 50 }
-    }
+        likes: { lte: 50 },
+    },
 });
 
 // Date filters
@@ -610,9 +610,9 @@ const recentPosts = await prisma.post.findMany({
     where: {
         createdAt: {
             gte: new Date('2024-01-01'),
-            lte: new Date('2024-12-31')
-        }
-    }
+            lte: new Date('2024-12-31'),
+        },
+    },
 });
 
 // Boolean logic
@@ -620,9 +620,9 @@ const posts = await prisma.post.findMany({
     where: {
         OR: [{ published: true }, { authorId: userId }],
         NOT: {
-            status: 'DELETED'
-        }
-    }
+            status: 'DELETED',
+        },
+    },
 });
 ```
 
@@ -634,8 +634,8 @@ const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
         posts: true,
-        comments: true
-    }
+        comments: true,
+    },
 });
 
 // Select specific fields
@@ -647,10 +647,10 @@ const user = await prisma.user.findUnique({
         posts: {
             select: {
                 id: true,
-                title: true
-            }
-        }
-    }
+                title: true,
+            },
+        },
+    },
 });
 
 // Nested includes
@@ -659,15 +659,15 @@ const post = await prisma.post.findUnique({
     include: {
         author: {
             include: {
-                profile: true
-            }
+                profile: true,
+            },
         },
         comments: {
             include: {
-                author: true
-            }
-        }
-    }
+                author: true,
+            },
+        },
+    },
 });
 ```
 
@@ -676,7 +676,7 @@ const post = await prisma.post.findUnique({
 ```typescript
 // Count
 const postCount = await prisma.post.count({
-    where: { published: true }
+    where: { published: true },
 });
 
 // Aggregate
@@ -685,14 +685,14 @@ const stats = await prisma.post.aggregate({
     _count: true,
     _avg: { views: true },
     _sum: { likes: true },
-    _max: { createdAt: true }
+    _max: { createdAt: true },
 });
 
 // Group by
 const userStats = await prisma.post.groupBy({
     by: ['authorId'],
     _count: true,
-    _avg: { views: true }
+    _avg: { views: true },
 });
 ```
 
@@ -709,9 +709,9 @@ export async function loader({ request }: Route.LoaderArgs) {
         prisma.post.findMany({
             skip: (page - 1) * pageSize,
             take: pageSize,
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         }),
-        prisma.post.count()
+        prisma.post.count(),
     ]);
 
     return {
@@ -720,8 +720,8 @@ export async function loader({ request }: Route.LoaderArgs) {
             page,
             pageSize,
             total,
-            totalPages: Math.ceil(total / pageSize)
-        }
+            totalPages: Math.ceil(total / pageSize),
+        },
     };
 }
 ```
@@ -738,14 +738,14 @@ export async function loader({ request }: Route.LoaderArgs) {
         take: pageSize,
         ...(cursor && {
             skip: 1,
-            cursor: { id: cursor }
+            cursor: { id: cursor },
         }),
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
     });
 
     return {
         posts,
-        nextCursor: posts[posts.length - 1]?.id
+        nextCursor: posts[posts.length - 1]?.id,
     };
 }
 ```
@@ -758,16 +758,16 @@ const result = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
         data: {
             email: 'user@example.com',
-            name: 'John Doe'
-        }
+            name: 'John Doe',
+        },
     });
 
     const post = await tx.post.create({
         data: {
             title: 'First Post',
             content: 'Hello World',
-            authorId: user.id
-        }
+            authorId: user.id,
+        },
     });
 
     return { user, post };
@@ -776,12 +776,14 @@ const result = await prisma.$transaction(async (tx) => {
 // Batch transactions
 await prisma.$transaction([
     prisma.user.create({
-        data: { email: 'user1@example.com', name: 'User 1' }
+        data: { email: 'user1@example.com', name: 'User 1' },
     }),
     prisma.user.create({
-        data: { email: 'user2@example.com', name: 'User 2' }
+        data: { email: 'user2@example.com', name: 'User 2' },
     }),
-    prisma.user.create({ data: { email: 'user3@example.com', name: 'User 3' } })
+    prisma.user.create({
+        data: { email: 'user3@example.com', name: 'User 3' },
+    }),
 ]);
 ```
 
@@ -834,13 +836,13 @@ DATABASE_URL="postgresql://user:password@localhost:5432/dbname?connection_limit=
 const users = await prisma.user.findMany();
 for (const user of users) {
     const posts = await prisma.post.findMany({
-        where: { authorId: user.id }
+        where: { authorId: user.id },
     });
 }
 
 // ✅ Use include to fetch related data
 const users = await prisma.user.findMany({
-    include: { posts: true }
+    include: { posts: true },
 });
 ```
 
@@ -875,7 +877,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const posts = await prisma.post.findMany({
         where: { published: true },
         orderBy: { createdAt: 'desc' },
-        take: 10
+        take: 10,
     });
 
     setCachedData(cacheKey, posts, 60 * 5); // Cache for 5 minutes
@@ -900,7 +902,7 @@ const prisma = new PrismaClient().$extends(withAccelerate());
 
 // Use as normal
 const posts = await prisma.post.findMany({
-    cacheStrategy: { ttl: 60, swr: 300 } // Cache for 60s, stale-while-revalidate for 300s
+    cacheStrategy: { ttl: 60, swr: 300 }, // Cache for 60s, stale-while-revalidate for 300s
 });
 ```
 
@@ -919,7 +921,7 @@ import { Prisma } from '~/generated/prisma/client';
 
 try {
     await prisma.user.create({
-        data: { email: 'duplicate@example.com', name: 'User' }
+        data: { email: 'duplicate@example.com', name: 'User' },
     });
 } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -982,15 +984,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     const usersWithStats: UserWithStats[] = await Promise.all(
         users.map(async (user) => {
             const posts = await prisma.post.findMany({
-                where: { authorId: user.id }
+                where: { authorId: user.id },
             });
 
             return {
                 ...user,
                 postCount: posts.length,
-                totalViews: posts.reduce((sum, post) => sum + post.views, 0)
+                totalViews: posts.reduce((sum, post) => sum + post.views, 0),
             };
-        })
+        }),
     );
 
     return { users: usersWithStats };
@@ -1026,13 +1028,13 @@ test('should create user', async () => {
         email: 'test@example.com',
         name: 'Test User',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
     };
 
     prismaMock.user.create.mockResolvedValue(user);
 
     const result = await prisma.user.create({
-        data: { email: user.email, name: user.name }
+        data: { email: user.email, name: user.name },
     });
 
     expect(result).toEqual(user);

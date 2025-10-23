@@ -8,7 +8,7 @@ export const badgeVariants = cva({
             outline: 'badge-outline',
             dash: 'badge-dash',
             soft: 'badge-soft',
-            ghost: 'badge-ghost'
+            ghost: 'badge-ghost',
         },
         color: {
             neutral: 'badge-neutral',
@@ -18,20 +18,20 @@ export const badgeVariants = cva({
             info: 'badge-info',
             success: 'badge-success',
             warning: 'badge-warning',
-            error: 'badge-error'
+            error: 'badge-error',
         },
         size: {
             xs: 'badge-xs',
             sm: 'badge-sm',
             md: 'badge-md',
             lg: 'badge-lg',
-            xl: 'badge-xl'
-        }
+            xl: 'badge-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface BadgeProps
@@ -52,9 +52,9 @@ export function Badge({
                 badgeVariants({
                     variant,
                     color,
-                    size
+                    size,
                 }),
-                className
+                className,
             )}
             {...props}
         >

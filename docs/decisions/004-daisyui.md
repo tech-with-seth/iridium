@@ -190,13 +190,13 @@ npm install -D daisyui
 
 ```typescript
 // tailwind.config.ts
-import daisyui from "daisyui";
+import daisyui from 'daisyui';
 
 export default {
-  plugins: [daisyui],
-  daisyui: {
-    themes: ["light", "dark"],
-  },
+    plugins: [daisyui],
+    daisyui: {
+        themes: ['light', 'dark'],
+    },
 };
 ```
 
@@ -213,13 +213,13 @@ export default {
 
 ```html
 <div class="card bg-base-100 shadow-xl">
-  <div class="card-body">
-    <h2 class="card-title">Card Title</h2>
-    <p>Card content</p>
-    <div class="card-actions">
-      <button class="btn btn-primary">Action</button>
+    <div class="card-body">
+        <h2 class="card-title">Card Title</h2>
+        <p>Card content</p>
+        <div class="card-actions">
+            <button class="btn btn-primary">Action</button>
+        </div>
     </div>
-  </div>
 </div>
 ```
 
@@ -227,10 +227,10 @@ export default {
 
 ```html
 <div class="form-control">
-  <label class="label">
-    <span class="label-text">Email</span>
-  </label>
-  <input type="email" class="input input-bordered" />
+    <label class="label">
+        <span class="label-text">Email</span>
+    </label>
+    <input type="email" class="input input-bordered" />
 </div>
 ```
 

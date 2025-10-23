@@ -18,9 +18,9 @@ export async function loader() {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
-                }
-            }
+                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+                },
+            },
         );
 
         const featureFlags = await featureFlagsResponse.json();
@@ -29,7 +29,7 @@ export async function loader() {
     } catch (error) {
         posthog.captureException(error, {
             context: 'feature_flags_fetch',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         return data({ error: String(error) }, { status: 500 });
@@ -53,12 +53,12 @@ export async function action({ request }: Route.ActionArgs) {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
+                            Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
                         },
                         body: JSON.stringify({
-                            active
-                        })
-                    }
+                            active,
+                        }),
+                    },
                 );
 
                 const responseData = await response.json();
@@ -68,9 +68,9 @@ export async function action({ request }: Route.ActionArgs) {
                         {
                             success: false,
                             error: responseData,
-                            status: response.status
+                            status: response.status,
                         },
-                        { status: response.status }
+                        { status: response.status },
                     );
                 }
 
@@ -83,12 +83,12 @@ export async function action({ request }: Route.ActionArgs) {
                     context: 'feature_flag_toggle',
                     flagId,
                     active,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
                 });
 
                 return data(
                     { success: false, error: String(error) },
-                    { status: 500 }
+                    { status: 500 },
                 );
             }
         }

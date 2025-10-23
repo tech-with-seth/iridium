@@ -61,49 +61,48 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 
 1. **Clone and install dependencies**
 
-   ```bash
-   git clone <your-repo>
-   cd tws-foundations
-   npm install
-   ```
+    ```bash
+    git clone <your-repo>
+    cd tws-foundations
+    npm install
+    ```
 
 2. **Set up environment variables**
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
-   Edit `.env` with your values:
-
-   - `DATABASE_URL` - PostgreSQL connection string
-   - `BETTER_AUTH_SECRET` - Random secret (min 32 characters) for session encryption
-   - `BETTER_AUTH_URL` - Your app URL (`http://localhost:5173` for dev)
-   - `OPENAI_API_KEY` - Your OpenAI API key (optional)
-   - `POSTHOG_API_KEY` - PostHog API key for client-side analytics (optional)
-   - `POSTHOG_PROJECT_ID` - PostHog project ID (optional)
-   - `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key for server-side operations (optional)
-   - `POLAR_ACCESS_TOKEN` - Polar.sh access token (optional, for billing)
-   - `POLAR_SERVER` - "sandbox" or "production" (optional)
-   - `POLAR_SUCCESS_URL` - Checkout success redirect URL (optional)
-   - `POLAR_WEBHOOK_SECRET` - Polar webhook secret (optional)
-   - `RESEND_API_KEY` - Resend API key for sending emails (required)
-   - `RESEND_FROM_EMAIL` - Default sender email address (optional, defaults to `onboarding@resend.dev`)
+    Edit `.env` with your values:
+    - `DATABASE_URL` - PostgreSQL connection string
+    - `BETTER_AUTH_SECRET` - Random secret (min 32 characters) for session encryption
+    - `BETTER_AUTH_URL` - Your app URL (`http://localhost:5173` for dev)
+    - `OPENAI_API_KEY` - Your OpenAI API key (optional)
+    - `POSTHOG_API_KEY` - PostHog API key for client-side analytics (optional)
+    - `POSTHOG_PROJECT_ID` - PostHog project ID (optional)
+    - `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key for server-side operations (optional)
+    - `POLAR_ACCESS_TOKEN` - Polar.sh access token (optional, for billing)
+    - `POLAR_SERVER` - "sandbox" or "production" (optional)
+    - `POLAR_SUCCESS_URL` - Checkout success redirect URL (optional)
+    - `POLAR_WEBHOOK_SECRET` - Polar webhook secret (optional)
+    - `RESEND_API_KEY` - Resend API key for sending emails (required)
+    - `RESEND_FROM_EMAIL` - Default sender email address (optional, defaults to `onboarding@resend.dev`)
 
 3. **Set up the database**
 
-   ```bash
-   npx prisma generate
-   npx prisma migrate deploy
-   npm run seed
-   ```
+    ```bash
+    npx prisma generate
+    npx prisma migrate deploy
+    npm run seed
+    ```
 
 4. **Start development server**
 
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
-   The app will be available at `http://localhost:5173`
+    The app will be available at `http://localhost:5173`
 
 ## 📁 Project Structure
 
@@ -183,19 +182,19 @@ Routes are configured in `app/routes.ts` using React Router 7's config-based app
 
 ```typescript
 export default [
-  index("routes/home.tsx"),
-  route(Paths.ABOUT, "routes/about.tsx"),
-  route(Paths.SIGN_IN, "routes/sign-in.tsx"),
-  layout("routes/authenticated.tsx", [
-    route(Paths.DASHBOARD, "routes/dashboard.tsx"),
-    route(Paths.PROFILE, "routes/profile.tsx"),
-    ...prefix("admin", [route("/design", "routes/admin/design.tsx")])
-  ]),
-  ...prefix("api", [
-    route("authenticate", "routes/api/auth/authenticate.ts"),
-    route("auth/*", "routes/api/auth/better-auth.ts"),
-    route("profile", "routes/api/profile.ts")
-  ])
+    index('routes/home.tsx'),
+    route(Paths.ABOUT, 'routes/about.tsx'),
+    route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
+    layout('routes/authenticated.tsx', [
+        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
+        route(Paths.PROFILE, 'routes/profile.tsx'),
+        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')]),
+    ]),
+    ...prefix('api', [
+        route('authenticate', 'routes/api/auth/authenticate.ts'),
+        route('auth/*', 'routes/api/auth/better-auth.ts'),
+        route('profile', 'routes/api/profile.ts'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -226,28 +225,28 @@ The Prisma schema includes:
 
 1. Add route to authenticated layout in `app/routes.ts`:
 
-   ```typescript
-   layout("routes/authenticated.tsx", [
-     route("new-feature", "routes/new-feature.tsx")
-   ])
-   ```
+    ```typescript
+    layout('routes/authenticated.tsx', [
+        route('new-feature', 'routes/new-feature.tsx'),
+    ]);
+    ```
 
 2. Create route file `app/routes/new-feature.tsx`:
 
-   ```tsx
-   import type { Route } from "./+types/new-feature";
-   import { useAuthenticatedContext } from "~/hooks/useAuthenticatedContext";
+    ```tsx
+    import type { Route } from './+types/new-feature';
+    import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 
-   export default function NewFeature() {
-     const { user } = useAuthenticatedContext();
-     return (
-       <>
-         <title>New Feature - TWS Foundations</title>
-         <h1>Welcome {user.email}</h1>
-       </>
-     );
-   }
-   ```
+    export default function NewFeature() {
+        const { user } = useAuthenticatedContext();
+        return (
+            <>
+                <title>New Feature - TWS Foundations</title>
+                <h1>Welcome {user.email}</h1>
+            </>
+        );
+    }
+    ```
 
 3. Run `npm run typecheck` to generate route types
 
@@ -255,25 +254,25 @@ The Prisma schema includes:
 
 1. Add route to `api` prefix in `app/routes.ts`:
 
-   ```typescript
-   ...prefix("api", [
-     route("new-endpoint", "routes/api/new-endpoint.ts")
-   ])
-   ```
+    ```typescript
+    ...prefix("api", [
+      route("new-endpoint", "routes/api/new-endpoint.ts")
+    ])
+    ```
 
 2. Create handler in `app/routes/api/new-endpoint.ts`:
 
-   ```typescript
-   import type { Route } from "./+types/new-endpoint";
-   import { data } from "react-router";
-   import { requireUser } from "~/lib/session.server";
+    ```typescript
+    import type { Route } from './+types/new-endpoint';
+    import { data } from 'react-router';
+    import { requireUser } from '~/lib/session.server';
 
-   export async function action({ request }: Route.ActionArgs) {
-     const user = await requireUser(request);
-     // Handle request
-     return data({ success: true });
-   }
-   ```
+    export async function action({ request }: Route.ActionArgs) {
+        const user = await requireUser(request);
+        // Handle request
+        return data({ success: true });
+    }
+    ```
 
 ### Creating UI Components
 

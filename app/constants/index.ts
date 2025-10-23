@@ -15,5 +15,5 @@ export enum Paths {
     RESET_PASSWORD = '/reset-password',
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
-    VERIFY_EMAIL = '/verify-email'
+    VERIFY_EMAIL = '/verify-email',
 }

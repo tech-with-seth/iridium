@@ -13,20 +13,20 @@ export const toggleVariants = cva({
             success: 'toggle-success',
             warning: 'toggle-warning',
             info: 'toggle-info',
-            error: 'toggle-error'
+            error: 'toggle-error',
         },
         size: {
             xs: 'toggle-xs',
             sm: 'toggle-sm',
             md: 'toggle-md',
             lg: 'toggle-lg',
-            xl: 'toggle-xl'
-        }
+            xl: 'toggle-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface ToggleProps
@@ -61,9 +61,9 @@ export function Toggle({
                 className={cx(
                     toggleVariants({
                         color,
-                        size
+                        size,
                     }),
-                    className
+                    className,
                 )}
                 disabled={disabled}
                 {...props}
@@ -83,9 +83,9 @@ export function Toggle({
                         className={cx(
                             toggleVariants({
                                 color: error ? 'error' : color,
-                                size
+                                size,
                             }),
-                            className
+                            className,
                         )}
                         disabled={disabled}
                         {...props}
@@ -103,7 +103,7 @@ export function Toggle({
                     <span
                         className={cx(
                             'label-text-alt',
-                            error ? 'text-error' : 'text-base-content/70'
+                            error ? 'text-error' : 'text-base-content/70',
                         )}
                     >
                         {error || helperText}

@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { useForm, type UseFormProps, type UseFormReturn, type FieldValues, type Path } from 'react-hook-form';
+import {
+    useForm,
+    type UseFormProps,
+    type UseFormReturn,
+    type FieldValues,
+    type Path,
+} from 'react-hook-form';
 
 interface UseValidatedFormOptions<TFieldValues extends FieldValues>
     extends Omit<UseFormProps<TFieldValues>, 'errors'> {
@@ -23,8 +29,10 @@ interface UseValidatedFormOptions<TFieldValues extends FieldValues>
  * });
  * ```
  */
-export function useValidatedForm<TFieldValues extends FieldValues = FieldValues>(
-    options?: UseValidatedFormOptions<TFieldValues>
+export function useValidatedForm<
+    TFieldValues extends FieldValues = FieldValues,
+>(
+    options?: UseValidatedFormOptions<TFieldValues>,
 ): UseFormReturn<TFieldValues> {
     const { errors: serverErrors, ...formOptions } = options || {};
 
@@ -36,7 +44,7 @@ export function useValidatedForm<TFieldValues extends FieldValues = FieldValues>
             Object.entries(serverErrors).forEach(([fieldName, error]) => {
                 form.setError(fieldName as Path<TFieldValues>, {
                     type: error.type,
-                    message: error.message
+                    message: error.message,
                 });
             });
         }

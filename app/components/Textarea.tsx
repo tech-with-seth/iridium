@@ -5,7 +5,7 @@ export const textareaVariants = cva({
     base: 'textarea',
     variants: {
         variant: {
-            ghost: 'textarea-ghost'
+            ghost: 'textarea-ghost',
         },
         color: {
             neutral: 'textarea-neutral',
@@ -15,24 +15,27 @@ export const textareaVariants = cva({
             info: 'textarea-info',
             success: 'textarea-success',
             warning: 'textarea-warning',
-            error: 'textarea-error'
+            error: 'textarea-error',
         },
         size: {
             xs: 'textarea-xs',
             sm: 'textarea-sm',
             md: 'textarea-md',
             lg: 'textarea-lg',
-            xl: 'textarea-xl'
-        }
+            xl: 'textarea-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface TextareaProps
-    extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size' | 'color'>,
+    extends Omit<
+            React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+            'size' | 'color'
+        >,
         VariantProps<typeof textareaVariants> {
     label?: React.ReactNode;
     error?: string;
@@ -67,9 +70,9 @@ export function Textarea({
                     textareaVariants({
                         size,
                         color: error ? 'error' : color,
-                        variant
+                        variant,
                     }),
-                    className
+                    className,
                 )}
                 {...props}
             />
@@ -78,7 +81,7 @@ export function Textarea({
                 <span
                     className={cx(
                         'text-xs',
-                        error ? 'text-error' : 'text-base-content/70'
+                        error ? 'text-error' : 'text-base-content/70',
                     )}
                 >
                     {error || helperText}

@@ -12,7 +12,7 @@ import {
     signInSchema,
     signUpSchema,
     type SignInData,
-    type SignUpData
+    type SignUpData,
 } from '~/lib/validations';
 import { authClient } from '~/lib/auth-client';
 import { Paths } from '~/constants';
@@ -31,9 +31,9 @@ export default function AuthPage() {
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
     } = useValidatedForm<SignInData | SignUpData>({
-        resolver: zodResolver(schema)
+        resolver: zodResolver(schema),
     });
 
     const onSubmit = async (data: SignInData | SignUpData) => {
@@ -46,7 +46,7 @@ export default function AuthPage() {
                 await authClient.signIn.email(
                     {
                         email: data.email,
-                        password: data.password
+                        password: data.password,
                     },
                     {
                         onSuccess: () => {
@@ -55,11 +55,11 @@ export default function AuthPage() {
                         onError: (ctx) => {
                             setServerError(
                                 ctx.error.message ||
-                                    'Invalid credentials. Please try again.'
+                                    'Invalid credentials. Please try again.',
                             );
                             setIsLoading(false);
-                        }
-                    }
+                        },
+                    },
                 );
             } else {
                 // Sign Up
@@ -68,7 +68,7 @@ export default function AuthPage() {
                     {
                         email: signUpData.email,
                         password: signUpData.password,
-                        name: signUpData.name
+                        name: signUpData.name,
                     },
                     {
                         onSuccess: () => {
@@ -77,11 +77,11 @@ export default function AuthPage() {
                         onError: (ctx) => {
                             setServerError(
                                 ctx.error.message ||
-                                    'Account creation failed. Please try again.'
+                                    'Account creation failed. Please try again.',
                             );
                             setIsLoading(false);
-                        }
-                    }
+                        },
+                    },
                 );
             }
         } catch (error) {
@@ -89,7 +89,7 @@ export default function AuthPage() {
             posthog.captureException(error, {
                 context: isSignIn ? 'sign_in' : 'sign_up',
                 email: data.email,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             setServerError('An unexpected error occurred. Please try again.');

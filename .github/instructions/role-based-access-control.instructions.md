@@ -245,7 +245,7 @@ import { Role } from '~/generated/prisma/client';
 export function roleMiddleware(requiredRole: Role) {
     return async function ({
         request,
-        context
+        context,
     }: {
         request: Request;
         context: any;
@@ -286,8 +286,8 @@ export default [
     // ... other routes
     layout('routes/admin-layout.tsx', [
         route('/admin/users', 'routes/admin/users.tsx'),
-        route('/admin/settings', 'routes/admin/settings.tsx')
-    ])
+        route('/admin/settings', 'routes/admin/settings.tsx'),
+    ]),
 ];
 ```
 
@@ -413,7 +413,7 @@ import {
     hasRole,
     requireRole,
     requireEditor,
-    requireAdmin
+    requireAdmin,
 } from '~/lib/session.server';
 
 // Model layer
@@ -421,7 +421,7 @@ import {
     getUserProfile,
     getUsersByRole,
     updateUserRole,
-    countUsersByRole
+    countUsersByRole,
 } from '~/models/user.server';
 
 // Client-side hooks (UI only)

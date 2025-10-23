@@ -24,7 +24,7 @@ For user-facing routes, add the path to `app/constants/index.ts`:
 export enum Paths {
     DASHBOARD = '/dashboard',
     PROFILE = '/profile',
-    NEW_ROUTE = '/new-route' // Add here
+    NEW_ROUTE = '/new-route', // Add here
 }
 ```
 
@@ -87,7 +87,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
 
     const data = await prisma.model.findMany({
-        where: { userId: user.id }
+        where: { userId: user.id },
     });
 
     return data({ data });
@@ -157,7 +157,7 @@ import { type RouteConfig, route } from '@react-router/dev/routes';
 import { Paths } from './constants';
 
 export default [
-    route(Paths.NEW_ROUTE, 'routes/new-route.tsx') // Add here
+    route(Paths.NEW_ROUTE, 'routes/new-route.tsx'), // Add here
 ] satisfies RouteConfig;
 ```
 
@@ -166,7 +166,7 @@ export default [
 ```typescript
 layout('routes/authenticated.tsx', [
     route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-    route(Paths.NEW_ROUTE, 'routes/new-route.tsx') // Add here
+    route(Paths.NEW_ROUTE, 'routes/new-route.tsx'), // Add here
 ]);
 ```
 

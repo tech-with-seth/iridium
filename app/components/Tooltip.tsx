@@ -8,7 +8,7 @@ export const tooltipVariants = cva({
             top: 'tooltip-top',
             bottom: 'tooltip-bottom',
             left: 'tooltip-left',
-            right: 'tooltip-right'
+            right: 'tooltip-right',
         },
         color: {
             neutral: 'tooltip-neutral',
@@ -18,12 +18,12 @@ export const tooltipVariants = cva({
             info: 'tooltip-info',
             success: 'tooltip-success',
             warning: 'tooltip-warning',
-            error: 'tooltip-error'
-        }
+            error: 'tooltip-error',
+        },
     },
     defaultVariants: {
-        position: 'top'
-    }
+        position: 'top',
+    },
 });
 
 interface TooltipProps
@@ -84,7 +84,7 @@ export function Tooltip({
             className={cx(
                 tooltipVariants({ position, color }),
                 open && 'tooltip-open',
-                className
+                className,
             )}
             data-tip={tip}
             {...props}

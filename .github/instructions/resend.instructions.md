@@ -108,7 +108,10 @@ Pre-built email templates using React Email:
 Email sending is automatically configured in `app/lib/auth.server.ts`:
 
 ```typescript
-import { sendVerificationEmail, sendPasswordResetEmail } from '~/models/email.server';
+import {
+    sendVerificationEmail,
+    sendPasswordResetEmail,
+} from '~/models/email.server';
 
 export const auth = betterAuth({
     emailAndPassword: {
@@ -117,18 +120,18 @@ export const auth = betterAuth({
         sendResetPassword: async ({ user, url }) => {
             await sendPasswordResetEmail({
                 to: user.email,
-                resetUrl: url
+                resetUrl: url,
             });
-        }
+        },
     },
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             await sendVerificationEmail({
                 to: user.email,
-                verificationUrl: url
+                verificationUrl: url,
             });
         },
-        sendOnSignUp: true // Auto-send verification on signup
+        sendOnSignUp: true, // Auto-send verification on signup
     },
     // ... rest of config
 });
@@ -195,7 +198,7 @@ export async function action({ request }: Route.ActionArgs) {
     const response = await fetch('http://localhost:5173/api/email', {
         method: 'POST',
         headers: request.headers, // Pass through auth headers
-        body: emailFormData
+        body: emailFormData,
     });
 
     const result = await response.json();
@@ -212,14 +215,17 @@ function sendWelcomeEmailToUser() {
     const formData = new FormData();
     formData.append('templateName', 'welcome');
     formData.append('to', 'newuser@example.com');
-    formData.append('props', JSON.stringify({
-        userName: 'John Doe',
-        dashboardUrl: 'https://yourdomain.com/dashboard'
-    }));
+    formData.append(
+        'props',
+        JSON.stringify({
+            userName: 'John Doe',
+            dashboardUrl: 'https://yourdomain.com/dashboard',
+        }),
+    );
 
     fetcher.submit(formData, {
         method: 'POST',
-        action: '/api/email?template=true'
+        action: '/api/email?template=true',
     });
 }
 ```
@@ -245,7 +251,7 @@ export async function action({ request }: Route.ActionArgs) {
     await sendWelcomeEmail({
         to: user.email,
         userName: user.name,
-        dashboardUrl: 'https://yourdomain.com/dashboard'
+        dashboardUrl: 'https://yourdomain.com/dashboard',
     });
 
     return { success: true };
@@ -268,7 +274,7 @@ import {
     Heading,
     Html,
     Preview,
-    Text
+    Text,
 } from '@react-email/components';
 
 interface OrderConfirmationProps {
@@ -280,7 +286,7 @@ interface OrderConfirmationProps {
 export default function OrderConfirmation({
     customerName,
     orderNumber,
-    orderUrl
+    orderUrl,
 }: OrderConfirmationProps) {
     return (
         <Html>
@@ -291,7 +297,8 @@ export default function OrderConfirmation({
                     <Heading>Order Confirmed!</Heading>
                     <Text>Hi {customerName},</Text>
                     <Text>
-                        Your order #{orderNumber} has been confirmed and is being processed.
+                        Your order #{orderNumber} has been confirmed and is
+                        being processed.
                     </Text>
                     <Button href={orderUrl}>View Order</Button>
                 </Container>
@@ -302,7 +309,7 @@ export default function OrderConfirmation({
 
 const main = {
     backgroundColor: '#f6f9fc',
-    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
 };
 ```
 
@@ -317,7 +324,7 @@ export async function sendOrderConfirmation({
     to,
     customerName,
     orderNumber,
-    orderUrl
+    orderUrl,
 }: {
     to: string;
     customerName: string;
@@ -328,14 +335,14 @@ export async function sendOrderConfirmation({
         OrderConfirmation({
             customerName,
             orderNumber,
-            orderUrl
-        })
+            orderUrl,
+        }),
     );
 
     return sendEmail({
         to,
         subject: `Order Confirmation #${orderNumber}`,
-        html
+        html,
     });
 }
 ```
@@ -349,7 +356,7 @@ await sendOrderConfirmation({
     to: 'customer@example.com',
     customerName: 'John Doe',
     orderNumber: '12345',
-    orderUrl: 'https://yourdomain.com/orders/12345'
+    orderUrl: 'https://yourdomain.com/orders/12345',
 });
 ```
 
@@ -388,9 +395,11 @@ This opens a local preview server at http://localhost:3000 where you can view an
 Send a custom email with raw HTML or text.
 
 **Headers:**
+
 - Authentication required (user must be signed in)
 
 **Body (FormData):**
+
 ```typescript
 {
     to: string | string[],      // Required
@@ -405,6 +414,7 @@ Send a custom email with raw HTML or text.
 ```
 
 **Response:**
+
 ```typescript
 {
     success: true,
@@ -418,6 +428,7 @@ Send a custom email with raw HTML or text.
 Send an email using a predefined template.
 
 **Body (FormData):**
+
 ```typescript
 {
     templateName: "verification" | "password-reset" | "welcome" | "transactional",
@@ -475,12 +486,12 @@ try {
 
 ### Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Failed to send email` | Invalid API key | Check `RESEND_API_KEY` in `.env` |
-| `Invalid sender` | Unverified domain | Verify domain in Resend dashboard |
-| `Rate limit exceeded` | Too many emails | Implement rate limiting or upgrade plan |
-| `Invalid recipient` | Malformed email | Validate email addresses |
+| Error                  | Cause             | Solution                                |
+| ---------------------- | ----------------- | --------------------------------------- |
+| `Failed to send email` | Invalid API key   | Check `RESEND_API_KEY` in `.env`        |
+| `Invalid sender`       | Unverified domain | Verify domain in Resend dashboard       |
+| `Rate limit exceeded`  | Too many emails   | Implement rate limiting or upgrade plan |
+| `Invalid recipient`    | Malformed email   | Validate email addresses                |
 
 ## Rate Limiting
 
@@ -533,55 +544,59 @@ export async function action({ request }: Route.ActionArgs) {
 ### ❌ Don't Do This
 
 1. **Don't call Resend SDK directly in routes**
-   ```typescript
-   // ❌ BAD
-   export async function action() {
-       await resend.emails.send({ ... });
-   }
 
-   // ✅ GOOD
-   export async function action() {
-       await sendEmail({ ... });
-   }
-   ```
+    ```typescript
+    // ❌ BAD
+    export async function action() {
+        await resend.emails.send({ ... });
+    }
+
+    // ✅ GOOD
+    export async function action() {
+        await sendEmail({ ... });
+    }
+    ```
 
 2. **Don't send emails without authentication**
-   ```typescript
-   // ❌ BAD
-   export async function action({ request }) {
-       await sendEmail({ ... });
-   }
 
-   // ✅ GOOD
-   export async function action({ request }) {
-       await requireUser(request); // Authenticate first
-       await sendEmail({ ... });
-   }
-   ```
+    ```typescript
+    // ❌ BAD
+    export async function action({ request }) {
+        await sendEmail({ ... });
+    }
+
+    // ✅ GOOD
+    export async function action({ request }) {
+        await requireUser(request); // Authenticate first
+        await sendEmail({ ... });
+    }
+    ```
 
 3. **Don't expose API keys to client**
-   ```bash
-   # ❌ BAD
-   VITE_RESEND_API_KEY="re_xxx"
 
-   # ✅ GOOD (no VITE_ prefix)
-   RESEND_API_KEY="re_xxx"
-   ```
+    ```bash
+    # ❌ BAD
+    VITE_RESEND_API_KEY="re_xxx"
+
+    # ✅ GOOD (no VITE_ prefix)
+    RESEND_API_KEY="re_xxx"
+    ```
 
 4. **Don't send unvalidated input**
-   ```typescript
-   // ❌ BAD
-   await sendEmail({
-       to: request.formData().get('email'), // Not validated
-       subject: 'Test'
-   });
 
-   // ✅ GOOD
-   const { data, errors } = await validateFormData(
-       formData,
-       zodResolver(sendEmailSchema)
-   );
-   ```
+    ```typescript
+    // ❌ BAD
+    await sendEmail({
+        to: request.formData().get('email'), // Not validated
+        subject: 'Test',
+    });
+
+    // ✅ GOOD
+    const { data, errors } = await validateFormData(
+        formData,
+        zodResolver(sendEmailSchema),
+    );
+    ```
 
 ## Advanced Features
 
@@ -592,10 +607,10 @@ Send multiple emails at once:
 ```typescript
 import { sendBatchEmails } from '~/models/email.server';
 
-const emails = users.map(user => ({
+const emails = users.map((user) => ({
     to: user.email,
     subject: 'Newsletter',
-    html: '<h1>Monthly Update</h1>'
+    html: '<h1>Monthly Update</h1>',
 }));
 
 const result = await sendBatchEmails(emails);
@@ -613,7 +628,7 @@ await sendTransactionalEmail({
     previewText: 'Your account has been approved',
     message: `Hi ${user.name}, your account has been approved and you can now access all features.`,
     buttonText: 'Get Started',
-    buttonUrl: 'https://yourdomain.com/dashboard'
+    buttonUrl: 'https://yourdomain.com/dashboard',
 });
 ```
 
@@ -630,9 +645,9 @@ await resend.emails.send({
     attachments: [
         {
             filename: 'invoice.pdf',
-            content: pdfBuffer
-        }
-    ]
+            content: pdfBuffer,
+        },
+    ],
 });
 ```
 
@@ -645,17 +660,18 @@ Email events are tracked with PostHog:
 posthog.capture('email_sent', {
     userId: user.id,
     templateName: 'welcome',
-    recipient: user.email
+    recipient: user.email,
 });
 
 // Failed send
 posthog.captureException(error, {
     userId: user.id,
-    context: 'email_api'
+    context: 'email_api',
 });
 ```
 
 View email metrics in PostHog dashboard:
+
 - Total emails sent
 - Success/failure rates
 - Template usage

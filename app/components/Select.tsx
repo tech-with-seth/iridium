@@ -5,7 +5,7 @@ export const selectVariants = cva({
     base: 'select select-bordered',
     variants: {
         variant: {
-            ghost: 'select-ghost'
+            ghost: 'select-ghost',
         },
         status: {
             neutral: 'select-neutral',
@@ -15,20 +15,20 @@ export const selectVariants = cva({
             info: 'select-info',
             success: 'select-success',
             warning: 'select-warning',
-            error: 'select-error'
+            error: 'select-error',
         },
         size: {
             xs: 'select-xs',
             sm: 'select-sm',
             md: 'select-md',
             lg: 'select-lg',
-            xl: 'select-xl'
-        }
+            xl: 'select-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface SelectOption {
@@ -38,10 +38,7 @@ interface SelectOption {
 }
 
 interface SelectProps
-    extends Omit<
-            React.SelectHTMLAttributes<HTMLSelectElement>,
-            'size'
-        >,
+    extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'>,
         VariantProps<typeof selectVariants> {
     label?: React.ReactNode;
     placeholder?: string;
@@ -80,9 +77,9 @@ export function Select({
                     selectVariants({
                         size,
                         status: error ? 'error' : status,
-                        variant
+                        variant,
                     }),
-                    className
+                    className,
                 )}
                 {...props}
             >
@@ -106,7 +103,7 @@ export function Select({
                 <span
                     className={cx(
                         'text-xs',
-                        error ? 'text-error' : 'text-base-content/70'
+                        error ? 'text-error' : 'text-base-content/70',
                     )}
                 >
                     {error || helperText}

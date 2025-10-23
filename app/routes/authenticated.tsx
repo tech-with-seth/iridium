@@ -7,7 +7,7 @@ import { loggingMiddleware } from '~/middleware/logging';
 
 export const middleware: Route.MiddlewareFunction[] = [
     authMiddleware,
-    loggingMiddleware
+    loggingMiddleware,
 ];
 
 export async function loader({ context }: Route.LoaderArgs) {
@@ -15,7 +15,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export default function AuthenticatedRoute({
-    loaderData
+    loaderData,
 }: Route.ComponentProps) {
     return (
         <>

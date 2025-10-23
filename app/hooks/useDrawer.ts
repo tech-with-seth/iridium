@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 
 export function useDrawer(): [
     boolean,
-    { openDrawer: () => void; closeDrawer: () => void }
+    { openDrawer: () => void; closeDrawer: () => void },
 ] {
     const [isOpen, dispatch] = useReducer((state, action) => {
         if (action.type === 'OPEN') {

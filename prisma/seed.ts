@@ -7,8 +7,8 @@ const userData = [
     {
         name: 'Seth Davis',
         email: 'seth@mail.com',
-        password: 'asdfasdf'
-    }
+        password: 'asdfasdf',
+    },
 ];
 
 export async function main() {
@@ -21,8 +21,8 @@ export async function main() {
                 body: {
                     email: userInfo.email,
                     password: userInfo.password,
-                    name: userInfo.name
-                }
+                    name: userInfo.name,
+                },
             });
 
             // Update additional fields that aren't handled in signup
@@ -30,13 +30,13 @@ export async function main() {
                 await prisma.user.update({
                     where: { id: result.user.id },
                     data: {
-                        emailVerified: true
-                    }
+                        emailVerified: true,
+                    },
                 });
             }
 
             console.log(
-                `Created user: ${userInfo.email} with id: ${result.user?.id}`
+                `Created user: ${userInfo.email} with id: ${result.user?.id}`,
             );
         } catch (error) {
             console.error(`Failed to create user ${userInfo.email}:`, error);

@@ -20,7 +20,7 @@ import {
     TableBody,
     TableRow,
     TableHeaderCell,
-    TableCell
+    TableCell,
 } from '~/components/Table';
 import { Tab, Tabs } from '~/components/Tabs';
 import { Textarea } from '~/components/Textarea';
@@ -56,24 +56,24 @@ export default function DesignRoute() {
                                 { content: '<Button>Outline</Button>' },
                                 {
                                     content:
-                                        '<Button variant="outline">Outline</Button>'
+                                        '<Button variant="outline">Outline</Button>',
                                 },
                                 {
                                     content:
-                                        '<Button variant="soft">Soft</Button>'
+                                        '<Button variant="soft">Soft</Button>',
                                 },
                                 {
                                     content:
-                                        '<Button variant="dash">Dash</Button>'
+                                        '<Button variant="dash">Dash</Button>',
                                 },
                                 {
                                     content:
-                                        '<Button variant="ghost">Ghost</Button>'
+                                        '<Button variant="ghost">Ghost</Button>',
                                 },
                                 {
                                     content:
-                                        '<Button variant="link">Link</Button>'
-                                }
+                                        '<Button variant="link">Link</Button>',
+                                },
                             ]}
                         />
                     </div>
@@ -94,12 +94,12 @@ export default function DesignRoute() {
                             lines={[
                                 {
                                     content:
-                                        '<Button status="primary">Primary</Button>'
+                                        '<Button status="primary">Primary</Button>',
                                 },
                                 {
                                     content:
-                                        '<Button status="error">Error</Button>'
-                                }
+                                        '<Button status="error">Error</Button>',
+                                },
                             ]}
                         />
                     </div>
@@ -114,7 +114,7 @@ export default function DesignRoute() {
                         <Code
                             lines={[
                                 { content: '<Button circle>+</Button>' },
-                                { content: '<Button wide>Wide</Button>' }
+                                { content: '<Button wide>Wide</Button>' },
                             ]}
                         />
                     </div>
@@ -138,7 +138,7 @@ export default function DesignRoute() {
                                 { content: '  label="Text Input"' },
                                 { content: '  placeholder="Enter text..."' },
                                 { content: '  helperText="Helper text"' },
-                                { content: '/>' }
+                                { content: '/>' },
                             ]}
                         />
                     </div>
@@ -149,7 +149,7 @@ export default function DesignRoute() {
                             options={[
                                 { value: '1', label: 'Option 1' },
                                 { value: '2', label: 'Option 2' },
-                                { value: '3', label: 'Option 3' }
+                                { value: '3', label: 'Option 3' },
                             ]}
                             helperText="Choose an option"
                         />
@@ -158,7 +158,7 @@ export default function DesignRoute() {
                                 { content: '<Select' },
                                 { content: '  label="Select"' },
                                 { content: '  options={options}' },
-                                { content: '/>' }
+                                { content: '/>' },
                             ]}
                         />
                     </div>
@@ -174,7 +174,7 @@ export default function DesignRoute() {
                                 { content: '<Textarea' },
                                 { content: '  label="Textarea"' },
                                 { content: '  rows={3}' },
-                                { content: '/>' }
+                                { content: '/>' },
                             ]}
                         />
                     </div>
@@ -188,9 +188,9 @@ export default function DesignRoute() {
                                 { content: '<Checkbox label="Option" />' },
                                 {
                                     content:
-                                        '<Radio label="Option" name="group" />'
+                                        '<Radio label="Option" name="group" />',
                                 },
-                                { content: '<Toggle label="Option" />' }
+                                { content: '<Toggle label="Option" />' },
                             ]}
                         />
                     </div>
@@ -207,7 +207,7 @@ export default function DesignRoute() {
                                 { content: '<Range' },
                                 { content: '  label="Range Slider"' },
                                 { content: '  min={0} max={100}' },
-                                { content: '/>' }
+                                { content: '/>' },
                             ]}
                         />
                     </div>
@@ -274,17 +274,17 @@ export default function DesignRoute() {
                             { content: '' },
                             {
                                 content:
-                                    '<Alert status="success" variant="outline">'
+                                    '<Alert status="success" variant="outline">',
                             },
                             { content: '  <span>Outlined success</span>' },
                             { content: '</Alert>' },
                             { content: '' },
                             {
                                 content:
-                                    '<Alert status="warning" icon={<Icon />}>'
+                                    '<Alert status="warning" icon={<Icon />}>',
                             },
                             { content: '  <span>With icon</span>' },
-                            { content: '</Alert>' }
+                            { content: '</Alert>' },
                         ]}
                     />
                 </div>
@@ -304,7 +304,7 @@ export default function DesignRoute() {
                             title="With Image"
                             image={{
                                 src: 'https://picsum.photos/400/200',
-                                alt: 'Placeholder'
+                                alt: 'Placeholder',
                             }}
                         >
                             <p>Image at top</p>
@@ -317,10 +317,11 @@ export default function DesignRoute() {
                     <Code
                         lines={[
                             {
-                                content: '<Card title="Title" variant="border">'
+                                content:
+                                    '<Card title="Title" variant="border">',
                             },
                             { content: '  <p>Content</p>' },
-                            { content: '</Card>' }
+                            { content: '</Card>' },
                         ]}
                     />
                 </div>
@@ -345,12 +346,12 @@ export default function DesignRoute() {
                         lines={[
                             {
                                 content:
-                                    '<Badge color="primary">Primary</Badge>'
+                                    '<Badge color="primary">Primary</Badge>',
                             },
                             {
                                 content:
-                                    '<Badge variant="outline">Outline</Badge>'
-                            }
+                                    '<Badge variant="outline">Outline</Badge>',
+                            },
                         ]}
                     />
                 </div>
@@ -378,9 +379,9 @@ export default function DesignRoute() {
                             { content: '<Avatar src="/img.jpg" size={16} />' },
                             {
                                 content:
-                                    '<Avatar status="online" placeholder>AB</Avatar>'
+                                    '<Avatar status="online" placeholder>AB</Avatar>',
                             },
-                            { content: '<AvatarGroup>...</AvatarGroup>' }
+                            { content: '<AvatarGroup>...</AvatarGroup>' },
                         ]}
                     />
                 </div>
@@ -426,13 +427,13 @@ export default function DesignRoute() {
                             { content: '<Table zebra scrollable>' },
                             {
                                 content:
-                                    '  <TableHead>...<TableRow>...</TableHead>'
+                                    '  <TableHead>...<TableRow>...</TableHead>',
                             },
                             {
                                 content:
-                                    '  <TableBody>...<TableRow hover>...</TableBody>'
+                                    '  <TableBody>...<TableRow hover>...</TableBody>',
                             },
-                            { content: '</Table>' }
+                            { content: '</Table>' },
                         ]}
                     />
                 </div>
@@ -465,7 +466,7 @@ export default function DesignRoute() {
                         lines={[
                             { content: '<Hero overlay image="/bg.jpg">' },
                             { content: '  <div>Content</div>' },
-                            { content: '</Hero>' }
+                            { content: '</Hero>' },
                         ]}
                     />
                 </div>
@@ -502,7 +503,7 @@ export default function DesignRoute() {
                             { content: '<Tabs variant="box">' },
                             { content: '  <Tab active={active}>Tab 1</Tab>' },
                             { content: '  <Tab>Tab 2</Tab>' },
-                            { content: '</Tabs>' }
+                            { content: '</Tabs>' },
                         ]}
                     />
                 </div>
@@ -541,11 +542,11 @@ export default function DesignRoute() {
                             { content: '<Accordion name="group">' },
                             {
                                 content:
-                                    '  <AccordionItem title="Item" name="group" variant="arrow">'
+                                    '  <AccordionItem title="Item" name="group" variant="arrow">',
                             },
                             { content: '    Content' },
                             { content: '  </AccordionItem>' },
-                            { content: '</Accordion>' }
+                            { content: '</Accordion>' },
                         ]}
                     />
                 </div>
@@ -591,11 +592,11 @@ export default function DesignRoute() {
                         lines={[
                             {
                                 content:
-                                    '<Modal open={open} onClose={handleClose} title="Title">'
+                                    '<Modal open={open} onClose={handleClose} title="Title">',
                             },
                             { content: '  <p>Content</p>' },
                             { content: '  <ModalActions>...</ModalActions>' },
-                            { content: '</Modal>' }
+                            { content: '</Modal>' },
                         ]}
                     />
                 </div>
@@ -625,7 +626,7 @@ export default function DesignRoute() {
                             { content: '  aspectRatio="aspect-16/9"' },
                             { content: '  item1={<img src="/before.jpg" />}' },
                             { content: '  item2={<img src="/after.jpg" />}' },
-                            { content: '/>' }
+                            { content: '/>' },
                         ]}
                     />
                 </div>
@@ -708,16 +709,16 @@ export default function DesignRoute() {
                         lines={[
                             {
                                 content:
-                                    '// Loader: Return promise without awaiting'
+                                    '// Loader: Return promise without awaiting',
                             },
                             { content: 'export async function loader() {' },
                             {
                                 content:
-                                    '  const critical = await getCritical();'
+                                    '  const critical = await getCritical();',
                             },
                             {
                                 content:
-                                    '  const deferred = getDeferred(); // No await!'
+                                    '  const deferred = getDeferred(); // No await!',
                             },
                             { content: '  return { critical, deferred };' },
                             { content: '}' },
@@ -725,28 +726,28 @@ export default function DesignRoute() {
                             { content: '// Component: Use Suspense + Await' },
                             {
                                 content:
-                                    'export default function Route({ loaderData }) {'
+                                    'export default function Route({ loaderData }) {',
                             },
                             { content: '  return (' },
                             { content: '    <div>' },
                             { content: '      <h1>{loaderData.critical}</h1>' },
                             {
                                 content:
-                                    '      <Suspense fallback={<Skeleton />}>'
+                                    '      <Suspense fallback={<Skeleton />}>',
                             },
                             {
                                 content:
-                                    '        <Await resolve={loaderData.deferred}>'
+                                    '        <Await resolve={loaderData.deferred}>',
                             },
                             {
                                 content:
-                                    '          {(data) => <Display data={data} />}'
+                                    '          {(data) => <Display data={data} />}',
                             },
                             { content: '        </Await>' },
                             { content: '      </Suspense>' },
                             { content: '    </div>' },
                             { content: '  );' },
-                            { content: '}' }
+                            { content: '}' },
                         ]}
                     />
                 </div>
@@ -781,10 +782,10 @@ export default function DesignRoute() {
                             lines={[
                                 {
                                     content:
-                                        '<Tooltip tip="Hello" position="top">'
+                                        '<Tooltip tip="Hello" position="top">',
                                 },
                                 { content: '  <Button>Hover me</Button>' },
-                                { content: '</Tooltip>' }
+                                { content: '</Tooltip>' },
                             ]}
                         />
                     </div>
@@ -820,10 +821,11 @@ export default function DesignRoute() {
                         <Code
                             lines={[
                                 {
-                                    content: '<Tooltip tip="Info" color="info">'
+                                    content:
+                                        '<Tooltip tip="Info" color="info">',
                                 },
                                 { content: '  <Button>Hover me</Button>' },
-                                { content: '</Tooltip>' }
+                                { content: '</Tooltip>' },
                             ]}
                         />
                     </div>
@@ -848,11 +850,12 @@ export default function DesignRoute() {
                             lines={[
                                 { content: '<Tooltip' },
                                 {
-                                    content: '  content={<div>Custom JSX</div>}'
+                                    content:
+                                        '  content={<div>Custom JSX</div>}',
                                 },
                                 { content: '>' },
                                 { content: '  <Button>Hover me</Button>' },
-                                { content: '</Tooltip>' }
+                                { content: '</Tooltip>' },
                             ]}
                         />
                     </div>
@@ -876,7 +879,7 @@ export default function DesignRoute() {
                             lines={[
                                 { content: '<Tooltip tip="Appears on hover">' },
                                 { content: '  <Button>Hover me</Button>' },
-                                { content: '</Tooltip>' }
+                                { content: '</Tooltip>' },
                             ]}
                         />
                     </div>

@@ -5,6 +5,7 @@
     "scripts": {
         "build": "react-router build",
         "dev": "react-router dev",
+        "format": "prettier --write .",
         "start": "react-router-serve ./build/server/index.js",
         "typecheck": "react-router typegen && tsc",
         "seed": "tsx prisma/seed.ts",
@@ -37,6 +38,7 @@
         "openai": "^5.23.1",
         "posthog-js": "^1.273.1",
         "posthog-node": "^5.9.5",
+        "prettier": "^3.6.2",
         "prisma": "^6.16.2",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
@@ -72,5 +74,12 @@
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
+    },
+    "prettier": {
+        "semi": true,
+        "singleQuote": true,
+        "trailingComma": "all",
+        "printWidth": 80,
+        "tabWidth": 4
     }
 }

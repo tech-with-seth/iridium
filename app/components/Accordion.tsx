@@ -6,22 +6,27 @@ export const accordionItemVariants = cva({
     variants: {
         variant: {
             arrow: 'collapse-arrow',
-            plus: 'collapse-plus'
+            plus: 'collapse-plus',
         },
         state: {
             open: 'collapse-open',
-            close: 'collapse-close'
-        }
+            close: 'collapse-close',
+        },
     },
     defaultVariants: {},
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
     name: string;
 }
 
-export function Accordion({ children, name, className, ...props }: AccordionProps) {
+export function Accordion({
+    children,
+    name,
+    className,
+    ...props
+}: AccordionProps) {
     return (
         <div className={cx('space-y-2', className)} {...props}>
             {children}
@@ -52,17 +57,13 @@ export function AccordionItem({
             className={cx(
                 accordionItemVariants({
                     variant,
-                    state
+                    state,
                 }),
-                className
+                className,
             )}
             {...props}
         >
-            <input
-                type="radio"
-                name={name}
-                defaultChecked={defaultOpen}
-            />
+            <input type="radio" name={name} defaultChecked={defaultOpen} />
             <div className="collapse-title">{title}</div>
             <div className="collapse-content">{children}</div>
         </div>

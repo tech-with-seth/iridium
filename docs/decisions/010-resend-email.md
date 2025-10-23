@@ -31,10 +31,10 @@ Resend is a modern email API built for developers, with first-class support for 
 
 ```typescript
 await resend.emails.send({
-  from: 'onboarding@resend.dev',
-  to: 'user@example.com',
-  subject: 'Welcome!',
-  html: '<h1>Hello World</h1>'
+    from: 'onboarding@resend.dev',
+    to: 'user@example.com',
+    subject: 'Welcome!',
+    html: '<h1>Hello World</h1>',
 });
 ```
 
@@ -52,11 +52,14 @@ await sendEmail({ to, subject, html });
 
 ```typescript
 export const auth = betterAuth({
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendVerificationEmail({ to: user.email, verificationUrl: url });
-    }
-  }
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            await sendVerificationEmail({
+                to: user.email,
+                verificationUrl: url,
+            });
+        },
+    },
 });
 ```
 
@@ -200,7 +203,7 @@ import { Resend } from 'resend';
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const DEFAULT_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 ```
 
 ### Model Layer
@@ -212,22 +215,22 @@ import { resend, DEFAULT_FROM_EMAIL } from '~/lib/resend.server';
 import WelcomeEmail from '~/emails/welcome-email';
 
 export async function sendWelcomeEmail({
-  to,
-  userName,
-  dashboardUrl
-}: {
-  to: string;
-  userName: string;
-  dashboardUrl: string;
-}) {
-  const html = await render(WelcomeEmail({ userName, dashboardUrl }));
-
-  return resend.emails.send({
-    from: DEFAULT_FROM_EMAIL,
     to,
-    subject: 'Welcome to TWS Foundations!',
-    html
-  });
+    userName,
+    dashboardUrl,
+}: {
+    to: string;
+    userName: string;
+    dashboardUrl: string;
+}) {
+    const html = await render(WelcomeEmail({ userName, dashboardUrl }));
+
+    return resend.emails.send({
+        from: DEFAULT_FROM_EMAIL,
+        to,
+        subject: 'Welcome to TWS Foundations!',
+        html,
+    });
 }
 ```
 
@@ -239,17 +242,17 @@ import { requireUser } from '~/lib/session.server';
 import { sendEmail } from '~/models/email.server';
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireUser(request); // Require authentication
+    await requireUser(request); // Require authentication
 
-  const formData = await request.formData();
-  const { data, errors } = await validateFormData(formData, sendEmailSchema);
+    const formData = await request.formData();
+    const { data, errors } = await validateFormData(formData, sendEmailSchema);
 
-  if (errors) {
-    return data({ errors }, { status: 400 });
-  }
+    if (errors) {
+        return data({ errors }, { status: 400 });
+    }
 
-  await sendEmail(data);
-  return data({ success: true });
+    await sendEmail(data);
+    return data({ success: true });
 }
 ```
 
@@ -258,34 +261,34 @@ export async function action({ request }: Route.ActionArgs) {
 ```tsx
 // app/emails/welcome-email.tsx
 import {
-  Body,
-  Button,
-  Container,
-  Heading,
-  Html,
-  Text
+    Body,
+    Button,
+    Container,
+    Heading,
+    Html,
+    Text,
 } from '@react-email/components';
 
 interface WelcomeEmailProps {
-  userName: string;
-  dashboardUrl: string;
+    userName: string;
+    dashboardUrl: string;
 }
 
 export default function WelcomeEmail({
-  userName,
-  dashboardUrl
+    userName,
+    dashboardUrl,
 }: WelcomeEmailProps) {
-  return (
-    <Html>
-      <Body>
-        <Container>
-          <Heading>Welcome {userName}!</Heading>
-          <Text>Thanks for joining TWS Foundations.</Text>
-          <Button href={dashboardUrl}>Get Started</Button>
-        </Container>
-      </Body>
-    </Html>
-  );
+    return (
+        <Html>
+            <Body>
+                <Container>
+                    <Heading>Welcome {userName}!</Heading>
+                    <Text>Thanks for joining TWS Foundations.</Text>
+                    <Button href={dashboardUrl}>Get Started</Button>
+                </Container>
+            </Body>
+        </Html>
+    );
 }
 ```
 
@@ -293,26 +296,29 @@ export default function WelcomeEmail({
 
 ```typescript
 // app/lib/auth.server.ts
-import { sendVerificationEmail, sendPasswordResetEmail } from '~/models/email.server';
+import {
+    sendVerificationEmail,
+    sendPasswordResetEmail,
+} from '~/models/email.server';
 
 export const auth = betterAuth({
-  emailAndPassword: {
-    sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({
-        to: user.email,
-        resetUrl: url
-      });
-    }
-  },
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendVerificationEmail({
-        to: user.email,
-        verificationUrl: url
-      });
+    emailAndPassword: {
+        sendResetPassword: async ({ user, url }) => {
+            await sendPasswordResetEmail({
+                to: user.email,
+                resetUrl: url,
+            });
+        },
     },
-    sendOnSignUp: true
-  }
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            await sendVerificationEmail({
+                to: user.email,
+                verificationUrl: url,
+            });
+        },
+        sendOnSignUp: true,
+    },
 });
 ```
 
@@ -396,13 +402,13 @@ RESEND_FROM_EMAIL="noreply@yourdomain.com"
 
 ```typescript
 test('sends welcome email', async () => {
-  const result = await sendWelcomeEmail({
-    to: 'test@example.com',
-    userName: 'Test User',
-    dashboardUrl: 'https://app.com/dashboard'
-  });
+    const result = await sendWelcomeEmail({
+        to: 'test@example.com',
+        userName: 'Test User',
+        dashboardUrl: 'https://app.com/dashboard',
+    });
 
-  expect(result.success).toBe(true);
+    expect(result.success).toBe(true);
 });
 ```
 
@@ -416,12 +422,12 @@ npx react-email dev
 
 ```typescript
 test('POST /api/email sends email', async () => {
-  const response = await fetch('/api/email', {
-    method: 'POST',
-    body: formData
-  });
+    const response = await fetch('/api/email', {
+        method: 'POST',
+        body: formData,
+    });
 
-  expect(response.status).toBe(200);
+    expect(response.status).toBe(200);
 });
 ```
 
@@ -431,9 +437,9 @@ Track email events with PostHog:
 
 ```typescript
 posthog.capture('email_sent', {
-  userId: user.id,
-  templateName: 'welcome',
-  recipient: user.email
+    userId: user.id,
+    templateName: 'welcome',
+    recipient: user.email,
 });
 ```
 
@@ -483,35 +489,35 @@ If migrating from another provider:
 
 1. **Install Dependencies:**
 
-   ```bash
-   npm install resend react-email @react-email/components
-   ```
+    ```bash
+    npm install resend react-email @react-email/components
+    ```
 
 2. **Create Templates:**
-   - Convert existing email HTML to React Email components
-   - Test templates with preview server
+    - Convert existing email HTML to React Email components
+    - Test templates with preview server
 
 3. **Set Up Model Layer:**
-   - Create `app/models/email.server.ts`
-   - Implement email sending functions
+    - Create `app/models/email.server.ts`
+    - Implement email sending functions
 
 4. **Update BetterAuth:**
-   - Configure email verification
-   - Configure password reset
+    - Configure email verification
+    - Configure password reset
 
 5. **Create API Endpoint:**
-   - Add `/api/email` route
-   - Implement validation and auth
+    - Add `/api/email` route
+    - Implement validation and auth
 
 6. **Test Thoroughly:**
-   - Unit tests for model functions
-   - Integration tests for API endpoint
-   - Manual testing in development
+    - Unit tests for model functions
+    - Integration tests for API endpoint
+    - Manual testing in development
 
 7. **Deploy:**
-   - Verify domain in Resend
-   - Update environment variables
-   - Monitor initial sends
+    - Verify domain in Resend
+    - Update environment variables
+    - Monitor initial sends
 
 ## References
 

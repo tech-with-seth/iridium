@@ -18,8 +18,8 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
                 capture_pageleave: true, // Automatically capture page leaves
                 capture_exceptions: true,
                 autocapture: {
-                    capture_copied_text: true
-                }
+                    capture_copied_text: true,
+                },
             });
         }
 

@@ -66,11 +66,11 @@ npm run start
 The build is configured in `react-router.config.ts`:
 
 ```typescript
-import type { Config } from "@react-router/dev/config";
+import type { Config } from '@react-router/dev/config';
 
 export default {
-  ssr: true,
-  serverBuildFile: "index.js",
+    ssr: true,
+    serverBuildFile: 'index.js',
 } satisfies Config;
 ```
 
@@ -143,28 +143,28 @@ Create a `docker-compose.yml`:
 version: '3.8'
 
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/app
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-    depends_on:
-      - db
+    app:
+        build: .
+        ports:
+            - '3000:3000'
+        environment:
+            DATABASE_URL: postgresql://postgres:password@db:5432/app
+            BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+            BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+        depends_on:
+            - db
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    db:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_DB: app
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: password
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
 
 volumes:
-  postgres-data:
+    postgres-data:
 ```
 
 Build and run:
@@ -219,8 +219,8 @@ Deploy to Cloudflare Pages:
 1. Create a new Pages project
 2. Connect your Git repository
 3. Configure build settings:
-   - Build command: `npm run build`
-   - Output directory: `build/client`
+    - Build command: `npm run build`
+    - Output directory: `build/client`
 4. Add environment variables
 5. Deploy
 
@@ -251,14 +251,14 @@ Configure caching headers in loaders:
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const data = await getData();
+    const data = await getData();
 
-  return new Response(JSON.stringify(data), {
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=3600",
-    },
-  });
+    return new Response(JSON.stringify(data), {
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=3600',
+        },
+    });
 }
 ```
 
@@ -298,14 +298,14 @@ Create a health check endpoint:
 ```typescript
 // app/routes/api/health.ts
 export async function loader() {
-  try {
-    // Check database connection
-    await db.$queryRaw`SELECT 1`;
+    try {
+        // Check database connection
+        await db.$queryRaw`SELECT 1`;
 
-    return Response.json({ status: "healthy" });
-  } catch (error) {
-    return Response.json({ status: "unhealthy" }, { status: 503 });
-  }
+        return Response.json({ status: 'healthy' });
+    } catch (error) {
+        return Response.json({ status: 'unhealthy' }, { status: 503 });
+    }
 }
 ```
 
@@ -322,23 +322,23 @@ Consider integrating error tracking:
 Use PostHog for performance monitoring:
 
 ```typescript
-import { posthog } from "~/lib/posthog.server";
+import { posthog } from '~/lib/posthog.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const start = Date.now();
+    const start = Date.now();
 
-  const data = await getData();
+    const data = await getData();
 
-  posthog.capture({
-    distinctId: "system",
-    event: "loader_performance",
-    properties: {
-      route: "/dashboard",
-      duration: Date.now() - start,
-    },
-  });
+    posthog.capture({
+        distinctId: 'system',
+        event: 'loader_performance',
+        properties: {
+            route: '/dashboard',
+            duration: Date.now() - start,
+        },
+    });
 
-  return data;
+    return data;
 }
 ```
 
@@ -370,31 +370,31 @@ Example workflow for automated deployment:
 name: Deploy
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
 
-      - run: npm install
-      - run: npm run typecheck
-      - run: npm run test:run
-      - run: npm run build
+            - run: npm install
+            - run: npm run typecheck
+            - run: npm run test:run
+            - run: npm run build
 
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          npm install -g @railway/cli
-          railway up
+            - name: Deploy to Railway
+              env:
+                  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+              run: |
+                  npm install -g @railway/cli
+                  railway up
 ```
 
 ## Security Considerations

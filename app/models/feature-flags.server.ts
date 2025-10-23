@@ -17,9 +17,9 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
-                }
-            }
+                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+                },
+            },
         );
 
         return featureFlagsResponse.json();
@@ -31,15 +31,15 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
         count: 0,
         next: null,
         previous: null,
-        results: []
-    }
+        results: [],
+    },
 );
 
 /**
  * Helper function to convert feature flags array to active flags object
  */
 export function getActiveFlags(
-    data: FeatureFlagsResponse
+    data: FeatureFlagsResponse,
 ): Record<string, boolean> {
     if (!data.results) return {};
 
@@ -48,6 +48,6 @@ export function getActiveFlags(
             acc[flag.key] = flag.active;
             return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
     );
 }

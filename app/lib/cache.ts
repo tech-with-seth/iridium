@@ -11,7 +11,7 @@ export function getCachedData<T>(key: string): T | undefined {
 export function setCachedData<T>(
     key: string,
     data: T,
-    ttlSeconds: number = 300
+    ttlSeconds: number = 300,
 ): void {
     cache.setKey(key, data);
     // Set expiration
@@ -58,7 +58,7 @@ export function createCachedClientLoader<T>(options: {
     let isInitialRequest = true;
 
     const clientLoader = async ({
-        serverLoader
+        serverLoader,
     }: {
         serverLoader: () => Promise<T>;
     }): Promise<T> => {
@@ -104,7 +104,7 @@ export function createCachedClientAction(options: { cacheKey: string }) {
     const { cacheKey } = options;
 
     return async ({
-        serverAction
+        serverAction,
     }: {
         serverAction: () => Promise<unknown>;
     }) => {
@@ -142,7 +142,7 @@ export function withCache<T>(
     fetcher: () => Promise<T>,
     cacheKey: string,
     ttl: number = 300,
-    fallback?: T
+    fallback?: T,
 ): () => Promise<T> {
     return async (): Promise<T> => {
         // Check cache first

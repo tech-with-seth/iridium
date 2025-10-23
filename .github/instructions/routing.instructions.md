@@ -20,7 +20,7 @@ Routes are configured with two required parts:
 import { type RouteConfig, route } from '@react-router/dev/routes';
 
 export default [
-    route('some/path', './some/file.tsx')
+    route('some/path', './some/file.tsx'),
     // pattern ^           ^ module file
 ] satisfies RouteConfig;
 ```
@@ -34,7 +34,7 @@ import {
     route,
     index,
     layout,
-    prefix
+    prefix,
 } from '@react-router/dev/routes';
 
 export default [
@@ -43,14 +43,14 @@ export default [
 
     layout('./auth/layout.tsx', [
         route('login', './auth/login.tsx'),
-        route('register', './auth/register.tsx')
+        route('register', './auth/register.tsx'),
     ]),
 
     ...prefix('concerts', [
         index('./concerts/home.tsx'),
         route(':city', './concerts/city.tsx'),
-        route('trending', './concerts/trending.tsx')
-    ])
+        route('trending', './concerts/trending.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -65,7 +65,7 @@ import { flatRoutes } from '@react-router/fs-routes';
 
 export default [
     route('/', './home.tsx'),
-    ...(await flatRoutes())
+    ...(await flatRoutes()),
 ] satisfies RouteConfig;
 ```
 
@@ -89,7 +89,7 @@ import { prisma } from '~/db.server';
 // Loads data before rendering (server-side)
 export async function loader({ params }: Route.LoaderArgs) {
     const team = await prisma.team.findUnique({
-        where: { id: params.teamId }
+        where: { id: params.teamId },
     });
     return { team };
 }
@@ -126,8 +126,8 @@ export default [
     route('dashboard', './dashboard.tsx', [
         // Child routes
         index('./home.tsx'), // Matches /dashboard
-        route('settings', './settings.tsx') // Matches /dashboard/settings
-    ])
+        route('settings', './settings.tsx'), // Matches /dashboard/settings
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -167,14 +167,14 @@ import {
     route,
     layout,
     index,
-    prefix
+    prefix,
 } from '@react-router/dev/routes';
 
 export default [
     // Marketing layout (no URL segment added)
     layout('./marketing/layout.tsx', [
         index('./marketing/home.tsx'), // Matches /
-        route('contact', './marketing/contact.tsx') // Matches /contact
+        route('contact', './marketing/contact.tsx'), // Matches /contact
     ]),
 
     // Projects with nested layout
@@ -182,9 +182,9 @@ export default [
         index('./projects/home.tsx'), // Matches /projects
         layout('./projects/project-layout.tsx', [
             route(':pid', './projects/project.tsx'), // Matches /projects/:pid
-            route(':pid/edit', './projects/edit-project.tsx') // Matches /projects/:pid/edit
-        ])
-    ])
+            route(':pid/edit', './projects/edit-project.tsx'), // Matches /projects/:pid/edit
+        ]),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -207,8 +207,8 @@ export default [
     // Protected routes with auth middleware
     layout('routes/authenticated.tsx', [
         route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-        route(Paths.PROFILE, 'routes/profile.tsx')
-    ])
+        route(Paths.PROFILE, 'routes/profile.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -245,8 +245,8 @@ export default [
     route('dashboard', './dashboard.tsx', [
         // Renders into dashboard.tsx <Outlet /> at /dashboard
         index('./dashboard-home.tsx'),
-        route('settings', './dashboard-settings.tsx') // /dashboard/settings
-    ])
+        route('settings', './dashboard-settings.tsx'), // /dashboard/settings
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -282,13 +282,13 @@ import {
     route,
     layout,
     index,
-    prefix
+    prefix,
 } from '@react-router/dev/routes';
 
 export default [
     layout('./marketing/layout.tsx', [
         index('./marketing/home.tsx'),
-        route('contact', './marketing/contact.tsx')
+        route('contact', './marketing/contact.tsx'),
     ]),
 
     // Prefix all routes with 'projects'
@@ -296,9 +296,9 @@ export default [
         index('./projects/home.tsx'), // /projects
         layout('./projects/project-layout.tsx', [
             route(':pid', './projects/project.tsx'), // /projects/:pid
-            route(':pid/edit', './projects/edit-project.tsx') // /projects/:pid/edit
-        ])
-    ])
+            route(':pid/edit', './projects/edit-project.tsx'), // /projects/:pid/edit
+        ]),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -351,7 +351,7 @@ import { prisma } from '~/db.server';
 export async function loader({ params }: Route.LoaderArgs) {
     // params is typed: { teamId: string }
     const team = await prisma.team.findUnique({
-        where: { id: params.teamId }
+        where: { id: params.teamId },
     });
     return { team };
 }
@@ -379,8 +379,8 @@ export async function loader({ params }: Route.LoaderArgs) {
     const product = await prisma.product.findUnique({
         where: {
             id: params.productId,
-            categoryId: params.categoryId
-        }
+            categoryId: params.categoryId,
+        },
     });
     return { product };
 }
@@ -493,7 +493,7 @@ export default [
     // ... your other routes
 
     // Must be last - catches everything not matched above
-    route('*', './catchall.tsx')
+    route('*', './catchall.tsx'),
 ] satisfies RouteConfig;
 ```
 
@@ -587,7 +587,7 @@ import {
     route,
     layout,
     index,
-    prefix
+    prefix,
 } from '@react-router/dev/routes';
 import { Paths } from './constants';
 
@@ -603,17 +603,17 @@ export default [
         route(Paths.PROFILE, 'routes/profile.tsx'),
 
         // Admin section
-        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')])
+        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')]),
     ]),
 
     // API routes
     ...prefix('api', [
         route('profile', 'routes/api/profile.ts'),
-        route('auth/*', 'routes/api/auth/better-auth.ts')
+        route('auth/*', 'routes/api/auth/better-auth.ts'),
     ]),
 
     // Payment routes
-    ...prefix('payment', [route('success', 'routes/payment/success.tsx')])
+    ...prefix('payment', [route('success', 'routes/payment/success.tsx')]),
 ] satisfies RouteConfig;
 ```
 

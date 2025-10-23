@@ -12,20 +12,20 @@ export const radioVariants = cva({
             success: 'radio-success',
             warning: 'radio-warning',
             info: 'radio-info',
-            error: 'radio-error'
+            error: 'radio-error',
         },
         size: {
             xs: 'radio-xs',
             sm: 'radio-sm',
             md: 'radio-md',
             lg: 'radio-lg',
-            xl: 'radio-xl'
-        }
+            xl: 'radio-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface RadioProps
@@ -57,9 +57,9 @@ export function Radio({
                 className={cx(
                     radioVariants({
                         color,
-                        size
+                        size,
                     }),
-                    className
+                    className,
                 )}
                 disabled={disabled}
                 {...props}
@@ -75,9 +75,9 @@ export function Radio({
                     className={cx(
                         radioVariants({
                             color: error ? 'error' : color,
-                            size
+                            size,
                         }),
-                        className
+                        className,
                     )}
                     disabled={disabled}
                     {...props}
@@ -94,7 +94,7 @@ export function Radio({
                     <span
                         className={cx(
                             'label-text-alt',
-                            error ? 'text-error' : 'text-base-content/70'
+                            error ? 'text-error' : 'text-base-content/70',
                         )}
                     >
                         {error || helperText}

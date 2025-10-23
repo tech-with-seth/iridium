@@ -31,8 +31,8 @@ Zod is a TypeScript-first schema validation library that provides runtime valida
 
 ```typescript
 const schema = z.object({
-  email: z.string().email(),
-  age: z.number().min(18),
+    email: z.string().email(),
+    age: z.number().min(18),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -45,9 +45,9 @@ type FormData = z.infer<typeof schema>;
 const result = schema.safeParse(data);
 
 if (!result.success) {
-  console.log(result.error.issues);
+    console.log(result.error.issues);
 } else {
-  console.log(result.data); // Fully typed
+    console.log(result.data); // Fully typed
 }
 ```
 
@@ -55,13 +55,13 @@ if (!result.success) {
 
 ```typescript
 const addressSchema = z.object({
-  street: z.string(),
-  city: z.string(),
+    street: z.string(),
+    city: z.string(),
 });
 
 const userSchema = z.object({
-  name: z.string(),
-  address: addressSchema,
+    name: z.string(),
+    address: addressSchema,
 });
 ```
 
@@ -207,11 +207,11 @@ const userSchema = z.object({
 ### Basic Validation
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type LoginData = z.infer<typeof loginSchema>;
@@ -220,53 +220,53 @@ type LoginData = z.infer<typeof loginSchema>;
 const result = loginSchema.safeParse(formData);
 
 if (!result.success) {
-  // Handle errors
-  const errors = result.error.flatten().fieldErrors;
-  // { email?: string[]; password?: string[]; }
+    // Handle errors
+    const errors = result.error.flatten().fieldErrors;
+    // { email?: string[]; password?: string[]; }
 } else {
-  // Use validated data
-  const data = result.data;
-  // { email: string; password: string; }
+    // Use validated data
+    const data = result.data;
+    // { email: string; password: string; }
 }
 ```
 
 ### Form Integration
 
 ```typescript
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const form = useForm({
-  resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema),
 });
 ```
 
 ### Server-Side Validation
 
 ```typescript
-import { Route } from "./+types/login";
-import { z } from "zod";
+import { Route } from './+types/login';
+import { z } from 'zod';
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+    email: z.string().email(),
+    password: z.string().min(8),
 });
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  const result = schema.safeParse(data);
+    const result = schema.safeParse(data);
 
-  if (!result.success) {
-    return {
-      errors: result.error.flatten().fieldErrors,
-    };
-  }
+    if (!result.success) {
+        return {
+            errors: result.error.flatten().fieldErrors,
+        };
+    }
 
-  // Process validated data
-  await login(result.data);
-  return redirect("/dashboard");
+    // Process validated data
+    await login(result.data);
+    return redirect('/dashboard');
 }
 ```
 
@@ -274,51 +274,54 @@ export async function action({ request }: Route.ActionArgs) {
 
 ```typescript
 const userSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  age: z.number().int().min(18).max(120),
-  role: z.enum(["admin", "user", "guest"]),
-  address: z.object({
-    street: z.string(),
-    city: z.string(),
-    zipCode: z.string().regex(/^\d{5}$/),
-  }),
-  tags: z.array(z.string()).min(1),
-  metadata: z.record(z.string()),
-  createdAt: z.date(),
+    name: z.string().min(2),
+    email: z.string().email(),
+    age: z.number().int().min(18).max(120),
+    role: z.enum(['admin', 'user', 'guest']),
+    address: z.object({
+        street: z.string(),
+        city: z.string(),
+        zipCode: z.string().regex(/^\d{5}$/),
+    }),
+    tags: z.array(z.string()).min(1),
+    metadata: z.record(z.string()),
+    createdAt: z.date(),
 });
 ```
 
 ### Custom Validation
 
 ```typescript
-const passwordSchema = z.string()
-  .min(8)
-  .refine((password) => /[A-Z]/.test(password), {
-    message: "Password must contain uppercase letter",
-  })
-  .refine((password) => /[0-9]/.test(password), {
-    message: "Password must contain number",
-  });
+const passwordSchema = z
+    .string()
+    .min(8)
+    .refine((password) => /[A-Z]/.test(password), {
+        message: 'Password must contain uppercase letter',
+    })
+    .refine((password) => /[0-9]/.test(password), {
+        message: 'Password must contain number',
+    });
 
-const signupSchema = z.object({
-  password: passwordSchema,
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const signupSchema = z
+    .object({
+        password: passwordSchema,
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match',
+        path: ['confirmPassword'],
+    });
 ```
 
 ### Async Validation
 
 ```typescript
 const usernameSchema = z.string().refine(
-  async (username) => {
-    const available = await checkUsernameAvailability(username);
-    return available;
-  },
-  { message: "Username already taken" }
+    async (username) => {
+        const available = await checkUsernameAvailability(username);
+        return available;
+    },
+    { message: 'Username already taken' },
 );
 ```
 
@@ -326,9 +329,9 @@ const usernameSchema = z.string().refine(
 
 ```typescript
 const schema = z.object({
-  email: z.string().email().toLowerCase(),
-  age: z.string().transform((val) => parseInt(val)),
-  tags: z.string().transform((val) => val.split(",")),
+    email: z.string().email().toLowerCase(),
+    age: z.string().transform((val) => parseInt(val)),
+    tags: z.string().transform((val) => val.split(',')),
 });
 ```
 
@@ -339,21 +342,21 @@ const schema = z.object({
 ```typescript
 // shared-schema.ts
 export const contactSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  message: z.string().min(10),
+    name: z.string().min(2),
+    email: z.string().email(),
+    message: z.string().min(10),
 });
 
 // Client-side
 const form = useForm({
-  resolver: zodResolver(contactSchema),
+    resolver: zodResolver(contactSchema),
 });
 
 // Server-side
 export async function action({ request }: Route.ActionArgs) {
-  const data = await request.formData();
-  const result = contactSchema.safeParse(Object.fromEntries(data));
-  // ...
+    const data = await request.formData();
+    const result = contactSchema.safeParse(Object.fromEntries(data));
+    // ...
 }
 ```
 
@@ -368,16 +371,16 @@ const omitSchema = userSchema.omit({ password: true });
 ### Union Types
 
 ```typescript
-const paymentSchema = z.discriminatedUnion("method", [
-  z.object({
-    method: z.literal("card"),
-    cardNumber: z.string(),
-    cvv: z.string(),
-  }),
-  z.object({
-    method: z.literal("paypal"),
-    email: z.string().email(),
-  }),
+const paymentSchema = z.discriminatedUnion('method', [
+    z.object({
+        method: z.literal('card'),
+        cardNumber: z.string(),
+        cvv: z.string(),
+    }),
+    z.object({
+        method: z.literal('paypal'),
+        email: z.string().email(),
+    }),
 ]);
 ```
 
@@ -387,16 +390,16 @@ const paymentSchema = z.discriminatedUnion("method", [
 const result = schema.safeParse(data);
 
 if (!result.success) {
-  // Formatted errors
-  const formatted = result.error.format();
+    // Formatted errors
+    const formatted = result.error.format();
 
-  // Flat errors
-  const flat = result.error.flatten();
+    // Flat errors
+    const flat = result.error.flatten();
 
-  // Individual issues
-  result.error.issues.forEach((issue) => {
-    console.log(issue.path, issue.message);
-  });
+    // Individual issues
+    result.error.issues.forEach((issue) => {
+        console.log(issue.path, issue.message);
+    });
 }
 ```
 

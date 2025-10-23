@@ -4,7 +4,7 @@ import { getUserFromSession } from '~/lib/session.server';
 
 export const loggingMiddleware = async (
     { request, context }: { request: Request; context: any },
-    next: () => Promise<Response>
+    next: () => Promise<Response>,
 ) => {
     const user = await getUserFromSession(request);
 
@@ -23,8 +23,8 @@ export const loggingMiddleware = async (
             url: request.url,
             status: response.status,
             duration,
-            requestId
-        }
+            requestId,
+        },
     });
 
     return response;

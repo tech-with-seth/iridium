@@ -9,22 +9,22 @@ export const tableVariants = cva({
             sm: 'table-sm',
             md: 'table-md',
             lg: 'table-lg',
-            xl: 'table-xl'
+            xl: 'table-xl',
         },
         zebra: {
-            true: 'table-zebra'
+            true: 'table-zebra',
         },
         pinRows: {
-            true: 'table-pin-rows'
+            true: 'table-pin-rows',
         },
         pinCols: {
-            true: 'table-pin-cols'
-        }
+            true: 'table-pin-cols',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface TableProps
@@ -50,9 +50,9 @@ export function Table({
                     size,
                     zebra,
                     pinRows,
-                    pinCols
+                    pinCols,
                 }),
-                className
+                className,
             )}
             {...props}
         >
@@ -67,7 +67,8 @@ export function Table({
     return table;
 }
 
-interface TableHeadProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+interface TableHeadProps
+    extends React.HTMLAttributes<HTMLTableSectionElement> {}
 
 export function TableHead({ children, className, ...props }: TableHeadProps) {
     return (
@@ -77,7 +78,8 @@ export function TableHead({ children, className, ...props }: TableHeadProps) {
     );
 }
 
-interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+interface TableBodyProps
+    extends React.HTMLAttributes<HTMLTableSectionElement> {}
 
 export function TableBody({ children, className, ...props }: TableBodyProps) {
     return (
@@ -87,7 +89,8 @@ export function TableBody({ children, className, ...props }: TableBodyProps) {
     );
 }
 
-interface TableFootProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+interface TableFootProps
+    extends React.HTMLAttributes<HTMLTableSectionElement> {}
 
 export function TableFoot({ children, className, ...props }: TableFootProps) {
     return (
@@ -111,11 +114,7 @@ export function TableRow({
 }: TableRowProps) {
     return (
         <tr
-            className={cx(
-                hover && 'hover',
-                active && 'active',
-                className
-            )}
+            className={cx(hover && 'hover', active && 'active', className)}
             {...props}
         >
             {children}
@@ -133,7 +132,8 @@ export function TableCell({ children, className, ...props }: TableCellProps) {
     );
 }
 
-interface TableHeaderCellProps extends React.ThHTMLAttributes<HTMLTableCellElement> {}
+interface TableHeaderCellProps
+    extends React.ThHTMLAttributes<HTMLTableCellElement> {}
 
 export function TableHeaderCell({
     children,

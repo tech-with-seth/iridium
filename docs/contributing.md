@@ -13,27 +13,32 @@ Thank you for your interest in contributing to TWS Foundations. This guide will 
 ### Initial Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd tws-foundations
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Run database migrations:
+
 ```bash
 npx prisma migrate dev
 ```
 
 5. Start development server:
+
 ```bash
 npm run dev
 ```
@@ -75,6 +80,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -84,6 +90,7 @@ Types:
 - `chore`: Maintenance tasks
 
 Examples:
+
 ```
 feat(auth): add password reset functionality
 fix(forms): correct validation error messages
@@ -93,6 +100,7 @@ docs(readme): update installation instructions
 ### Pull Requests
 
 1. Push your branch:
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -121,15 +129,16 @@ git push origin feature/your-feature-name
 - Use type aliases for unions and complex types
 
 Example:
+
 ```typescript
 type User = {
-  id: string;
-  email: string;
-  name: string | null;
+    id: string;
+    email: string;
+    name: string | null;
 };
 
 function getUser(id: string): Promise<User> {
-  // Implementation
+    // Implementation
 }
 ```
 
@@ -142,6 +151,7 @@ function getUser(id: string): Promise<User> {
 - Extract reusable logic into custom hooks
 
 Example:
+
 ```typescript
 import { Route } from "./+types/dashboard";
 
@@ -258,6 +268,7 @@ describe("Button", () => {
 ### Creating Issues
 
 Include:
+
 - Clear title and description
 - Steps to reproduce (for bugs)
 - Expected vs actual behavior
@@ -313,6 +324,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 ## Recognition
 
 Contributors are recognized in:
+
 - Git commit history
 - Pull request acknowledgments
 - Release notes

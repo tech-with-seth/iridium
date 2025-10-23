@@ -13,23 +13,23 @@ Better Auth provides a flexible, type-safe authentication solution that works se
 The authentication server is configured in `app/lib/auth.server.ts`:
 
 ```typescript
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { polar } from "@polar-sh/better-auth";
-import { db } from "~/db.server";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { polar } from '@polar-sh/better-auth';
+import { db } from '~/db.server';
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
-  plugins: [
-    polar({
-      // Polar configuration
+    database: prismaAdapter(db, {
+        provider: 'postgresql',
     }),
-  ],
+    emailAndPassword: {
+        enabled: true,
+    },
+    plugins: [
+        polar({
+            // Polar configuration
+        }),
+    ],
 });
 ```
 
@@ -38,10 +38,10 @@ export const auth = betterAuth({
 The authentication client is configured in `app/lib/auth-client.ts` for browser-side operations:
 
 ```typescript
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL,
+    baseURL: process.env.BETTER_AUTH_URL,
 });
 ```
 
@@ -104,17 +104,17 @@ model Verification {
 Use the authentication middleware to protect routes:
 
 ```typescript
-import { Route } from "./+types/home";
-import { auth } from "~/lib/auth.server";
+import { Route } from './+types/home';
+import { auth } from '~/lib/auth.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  return { user: session.user };
+    return { user: session.user };
 }
 ```
 
@@ -124,9 +124,9 @@ In server-side code (loaders, actions):
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  return { user: session?.user ?? null };
+    return { user: session?.user ?? null };
 }
 ```
 
@@ -217,14 +217,14 @@ You can extend session data by modifying the User model in your Prisma schema an
 The Polar plugin adds billing and subscription capabilities:
 
 ```typescript
-import { polar } from "@polar-sh/better-auth";
+import { polar } from '@polar-sh/better-auth';
 
 export const auth = betterAuth({
-  plugins: [
-    polar({
-      // Polar configuration
-    }),
-  ],
+    plugins: [
+        polar({
+            // Polar configuration
+        }),
+    ],
 });
 ```
 
@@ -259,16 +259,16 @@ POLAR_ORGANIZATION_ID=your-org-id
 When writing tests, you can mock authentication:
 
 ```typescript
-import { auth } from "~/lib/auth.server";
+import { auth } from '~/lib/auth.server';
 
-vi.mock("~/lib/auth.server", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn().mockResolvedValue({
-        user: { id: "test-user-id", email: "test@example.com" },
-      }),
+vi.mock('~/lib/auth.server', () => ({
+    auth: {
+        api: {
+            getSession: vi.fn().mockResolvedValue({
+                user: { id: 'test-user-id', email: 'test@example.com' },
+            }),
+        },
     },
-  },
 }));
 ```
 

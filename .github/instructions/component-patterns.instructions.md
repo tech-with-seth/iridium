@@ -122,6 +122,7 @@ See `app/components/TextInput.tsx` for reference implementation.
 **Button Component** (`app/components/Button.tsx`) is the canonical reference for this pattern.
 
 Key aspects demonstrated:
+
 - Comprehensive variant support
 - Clean props destructuring
 - Custom loading state implementation

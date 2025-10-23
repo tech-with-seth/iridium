@@ -81,30 +81,30 @@ export default function ContactForm({ loaderData }: Route.ComponentProps) {
 Always validate on the server, even with client-side validation:
 
 ```typescript
-import { z } from "zod";
-import { Route } from "./+types/contact";
+import { z } from 'zod';
+import { Route } from './+types/contact';
 
 const schema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  message: z.string().min(10),
+    name: z.string().min(2),
+    email: z.string().email(),
+    message: z.string().min(10),
 });
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  const result = schema.safeParse(data);
+    const result = schema.safeParse(data);
 
-  if (!result.success) {
-    return {
-      errors: result.error.flatten().fieldErrors,
-    };
-  }
+    if (!result.success) {
+        return {
+            errors: result.error.flatten().fieldErrors,
+        };
+    }
 
-  await sendContactMessage(result.data);
+    await sendContactMessage(result.data);
 
-  return redirect("/thank-you");
+    return redirect('/thank-you');
 }
 ```
 
@@ -258,27 +258,29 @@ export default function OrderForm() {
 ### Custom Validation
 
 ```typescript
-const schema = z.object({
-  password: z.string().min(8),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const schema = z
+    .object({
+        password: z.string().min(8),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match',
+        path: ['confirmPassword'],
+    });
 ```
 
 ### Conditional Validation
 
 ```typescript
-const schema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("email"),
-    email: z.string().email(),
-  }),
-  z.object({
-    type: z.literal("phone"),
-    phone: z.string().regex(/^\d{10}$/),
-  }),
+const schema = z.discriminatedUnion('type', [
+    z.object({
+        type: z.literal('email'),
+        email: z.string().email(),
+    }),
+    z.object({
+        type: z.literal('phone'),
+        phone: z.string().regex(/^\d{10}$/),
+    }),
 ]);
 ```
 
@@ -286,13 +288,13 @@ const schema = z.discriminatedUnion("type", [
 
 ```typescript
 const schema = z.object({
-  username: z.string().refine(
-    async (username) => {
-      const available = await checkUsernameAvailability(username);
-      return available;
-    },
-    { message: "Username is already taken" }
-  ),
+    username: z.string().refine(
+        async (username) => {
+            const available = await checkUsernameAvailability(username);
+            return available;
+        },
+        { message: 'Username is already taken' },
+    ),
 });
 ```
 
@@ -372,8 +374,8 @@ export default function MyForm() {
 const { register, getValues } = useForm();
 
 function checkValues() {
-  const values = getValues();
-  console.log(values);
+    const values = getValues();
+    console.log(values);
 }
 ```
 
@@ -383,7 +385,7 @@ function checkValues() {
 const { register, setValue } = useForm();
 
 function updateField() {
-  setValue("fieldName", "new value");
+    setValue('fieldName', 'new value');
 }
 ```
 
@@ -393,8 +395,8 @@ function updateField() {
 const { register, reset } = useForm();
 
 async function onSubmit(data: FormData) {
-  await submitForm(data);
-  reset(); // Reset to default values
+    await submitForm(data);
+    reset(); // Reset to default values
 }
 ```
 

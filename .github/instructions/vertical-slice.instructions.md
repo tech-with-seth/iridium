@@ -134,7 +134,7 @@ import { z } from 'zod';
 
 // Favorite toggle schema (simple on/off)
 export const toggleFavoriteSchema = z.object({
-    postId: z.string().cuid('Invalid post ID')
+    postId: z.string().cuid('Invalid post ID'),
 });
 
 export type ToggleFavoriteData = z.infer<typeof toggleFavoriteSchema>;
@@ -143,7 +143,7 @@ export type ToggleFavoriteData = z.infer<typeof toggleFavoriteSchema>;
 export const listFavoritesSchema = z.object({
     limit: z.number().min(1).max(100).default(20),
     offset: z.number().min(0).default(0),
-    sortBy: z.enum(['createdAt', 'title']).default('createdAt')
+    sortBy: z.enum(['createdAt', 'title']).default('createdAt'),
 });
 
 export type ListFavoritesData = z.infer<typeof listFavoritesSchema>;
@@ -210,7 +210,7 @@ import { prisma } from '~/db.server';
  */
 export function isFavorited({
     userId,
-    postId
+    postId,
 }: {
     userId: string;
     postId: string;
@@ -219,9 +219,9 @@ export function isFavorited({
         where: {
             userId_postId: {
                 userId,
-                postId
-            }
-        }
+                postId,
+            },
+        },
     });
 }
 
@@ -230,7 +230,7 @@ export function isFavorited({
  */
 export function addFavorite({
     userId,
-    postId
+    postId,
 }: {
     userId: string;
     postId: string;
@@ -238,8 +238,8 @@ export function addFavorite({
     return prisma.favorite.create({
         data: {
             userId,
-            postId
-        }
+            postId,
+        },
     });
 }
 
@@ -248,7 +248,7 @@ export function addFavorite({
  */
 export function removeFavorite({
     userId,
-    postId
+    postId,
 }: {
     userId: string;
     postId: string;
@@ -257,9 +257,9 @@ export function removeFavorite({
         where: {
             userId_postId: {
                 userId,
-                postId
-            }
-        }
+                postId,
+            },
+        },
     });
 }
 
@@ -268,7 +268,7 @@ export function removeFavorite({
  */
 export async function toggleFavorite({
     userId,
-    postId
+    postId,
 }: {
     userId: string;
     postId: string;
@@ -291,7 +291,7 @@ export function getUserFavorites({
     userId,
     limit = 20,
     offset = 0,
-    sortBy = 'createdAt' as const
+    sortBy = 'createdAt' as const,
 }: {
     userId: string;
     limit?: number;
@@ -306,16 +306,16 @@ export function getUserFavorites({
                     id: true,
                     title: true,
                     content: true,
-                    createdAt: true
-                }
-            }
+                    createdAt: true,
+                },
+            },
         },
         orderBy:
             sortBy === 'createdAt'
                 ? { createdAt: 'desc' }
                 : { post: { title: 'asc' } },
         take: limit,
-        skip: offset
+        skip: offset,
     });
 }
 
@@ -324,7 +324,7 @@ export function getUserFavorites({
  */
 export function countUserFavorites(userId: string) {
     return prisma.favorite.count({
-        where: { userId }
+        where: { userId },
     });
 }
 ```
@@ -340,14 +340,14 @@ import { requireUser } from '~/lib/session.server';
 import { getValidatedFormData } from '~/lib/form-validation.server';
 import {
     toggleFavoriteSchema,
-    type ToggleFavoriteData
+    type ToggleFavoriteData,
 } from '~/lib/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     getUserFavorites,
     countUserFavorites,
     toggleFavorite,
-    isFavorited
+    isFavorited,
 } from '~/models/favorite.server';
 
 // GET - List user's favorites
@@ -357,7 +357,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     try {
         const [favorites, total] = await Promise.all([
             getUserFavorites({ userId: user.id }),
-            countUserFavorites(user.id)
+            countUserFavorites(user.id),
         ]);
 
         return data({ favorites, total });
@@ -374,7 +374,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<ToggleFavoriteData>(
                 request,
-                zodResolver(toggleFavoriteSchema)
+                zodResolver(toggleFavoriteSchema),
             );
 
         if (errors) {
@@ -384,14 +384,14 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const result = await toggleFavorite({
                 userId: user.id,
-                postId: validatedData!.postId
+                postId: validatedData!.postId,
             });
 
             return data({ success: true, favorited: result.favorited });
         } catch (error) {
             return data(
                 { error: 'Failed to update favorite status' },
-                { status: 500 }
+                { status: 500 },
             );
         }
     }
@@ -409,14 +409,14 @@ import {
     type RouteConfig,
     route,
     prefix,
-    layout
+    layout,
 } from '@react-router/dev/routes';
 
 export default [
     // ... existing routes
 
     // Add favorites endpoint
-    ...prefix('api', [route('favorites', 'routes/api/favorites.ts')])
+    ...prefix('api', [route('favorites', 'routes/api/favorites.ts')]),
 ] satisfies RouteConfig;
 ```
 
@@ -587,8 +587,8 @@ export default [
 
     // Add to authenticated layout
     layout('routes/authenticated.tsx', [
-        route('favorites', 'routes/favorites.tsx')
-    ])
+        route('favorites', 'routes/favorites.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -711,7 +711,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<ToggleFavoriteData>(
                 request,
-                zodResolver(toggleFavoriteSchema)
+                zodResolver(toggleFavoriteSchema),
             );
 
         if (errors) {
@@ -721,14 +721,14 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const result = await toggleFavorite({
                 userId: user.id,
-                postId: validatedData!.postId
+                postId: validatedData!.postId,
             });
 
             return data({ success: true, favorited: result.favorited });
         } catch (error) {
             return data(
                 { error: 'Failed to update favorite status' },
-                { status: 500 }
+                { status: 500 },
             );
         }
     }
@@ -772,7 +772,7 @@ Add caching to reduce server requests and improve navigation speed.
 // app/routes/api/favorites.ts
 import {
     createCachedClientLoader,
-    createCachedClientAction
+    createCachedClientAction,
 } from '~/lib/cache';
 
 // Cache configuration
@@ -786,7 +786,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     try {
         const [favorites, total] = await Promise.all([
             getUserFavorites({ userId: user.id }),
-            countUserFavorites(user.id)
+            countUserFavorites(user.id),
         ]);
 
         return data({ favorites, total });
@@ -798,7 +798,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 // Client loader with automatic caching
 export const clientLoader = createCachedClientLoader({
     cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
+    ttl: CACHE_TTL,
 });
 
 // Server action (unchanged)
@@ -808,7 +808,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 // Client action with automatic cache invalidation
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY // Automatically clears cache on mutation
+    cacheKey: CACHE_KEY, // Automatically clears cache on mutation
 });
 ```
 
@@ -832,7 +832,7 @@ export const getFeaturedFavorites = withCache(
     },
     'favorites:featured',
     3600, // 1 hour TTL
-    { results: [] } // Fallback on error
+    { results: [] }, // Fallback on error
 );
 ```
 
@@ -898,7 +898,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const favoriteId = new URL(request.url).searchParams.get('id');
 
     const favorite = await prisma.favorite.findUnique({
-        where: { id: favoriteId }
+        where: { id: favoriteId },
     });
 
     // Intentionally throw 404 to error boundary
@@ -932,7 +932,7 @@ import { Checkout } from '@polar-sh/remix';
 export const loader = Checkout({
     accessToken: process.env.POLAR_ACCESS_TOKEN!,
     successUrl: `${process.env.BETTER_AUTH_URL}/payment/success`,
-    server: process.env.POLAR_SERVER as 'sandbox' | 'production' // From .env
+    server: process.env.POLAR_SERVER as 'sandbox' | 'production', // From .env
 });
 ```
 
@@ -964,8 +964,8 @@ export const action = Webhooks({
             data: {
                 role: 'EDITOR', // Upgrade role
                 subscriptionId: payload.data.id,
-                subscriptionStatus: 'active'
-            }
+                subscriptionStatus: 'active',
+            },
         });
     },
     onSubscriptionCanceled: async (payload) => {
@@ -974,14 +974,14 @@ export const action = Webhooks({
             where: { email: payload.data.customer_email },
             data: {
                 role: 'USER', // Downgrade role
-                subscriptionStatus: 'canceled'
-            }
+                subscriptionStatus: 'canceled',
+            },
         });
     },
     onOrderPaid: async (payload) => {
         // Handle one-time purchases
         console.log('Order paid:', payload.data.id);
-    }
+    },
 });
 ```
 

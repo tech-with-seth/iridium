@@ -15,20 +15,20 @@ import { prisma } from '~/db.server';
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
-        provider: 'postgresql'
+        provider: 'postgresql',
     }),
     emailAndPassword: {
         enabled: true,
         autoSignIn: true,
-        requireEmailVerification: false
+        requireEmailVerification: false,
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
-        updateAge: 60 * 60 * 24 // 1 day
+        updateAge: 60 * 60 * 24, // 1 day
     },
     plugins: [
         // Add plugins here as needed
-    ]
+    ],
 });
 ```
 
@@ -38,7 +38,7 @@ export const auth = betterAuth({
 import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
-    baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5173'
+    baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5173',
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;
@@ -97,7 +97,7 @@ import { type RouteConfig, route, prefix } from '@react-router/dev/routes';
 
 export default [
     // ... other routes
-    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')])
+    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')]),
 ] satisfies RouteConfig;
 ```
 
@@ -153,7 +153,7 @@ const { data, error } = await authClient.signUp.email(
         password: 'securePassword123',
         name: 'John Doe',
         image: 'https://example.com/avatar.jpg', // optional
-        callbackURL: '/dashboard' // optional
+        callbackURL: '/dashboard', // optional
     },
     {
         onRequest: () => {
@@ -166,8 +166,8 @@ const { data, error } = await authClient.signUp.email(
         onError: (ctx) => {
             // Display error message
             console.error(ctx.error.message);
-        }
-    }
+        },
+    },
 );
 ```
 
@@ -194,7 +194,7 @@ const { data, error } = await authClient.signIn.email(
         email: 'user@example.com',
         password: 'securePassword123',
         callbackURL: '/dashboard', // optional
-        rememberMe: true // optional - keep session after browser close
+        rememberMe: true, // optional - keep session after browser close
     },
     {
         onSuccess: (ctx) => {
@@ -202,8 +202,8 @@ const { data, error } = await authClient.signIn.email(
         },
         onError: (ctx) => {
             console.error(ctx.error.message);
-        }
-    }
+        },
+    },
 );
 ```
 
@@ -214,8 +214,8 @@ await authClient.signOut({
     fetchOptions: {
         onSuccess: () => {
             window.location.href = '/sign-in';
-        }
-    }
+        },
+    },
 });
 ```
 
@@ -225,12 +225,12 @@ await authClient.signOut({
 // Request reset
 await authClient.forgetPassword({
     email: 'user@example.com',
-    redirectTo: '/reset-password' // Where to redirect after clicking email link
+    redirectTo: '/reset-password', // Where to redirect after clicking email link
 });
 
 // Reset password
 await authClient.resetPassword({
-    newPassword: 'newSecurePassword123'
+    newPassword: 'newSecurePassword123',
 });
 ```
 
@@ -246,14 +246,14 @@ export const auth = betterAuth({
         github: {
             clientId: process.env.GITHUB_CLIENT_ID!,
             clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-            redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/github`
+            redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/github`,
         },
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`
-        }
-    }
+            redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
+        },
+    },
 });
 ```
 
@@ -263,13 +263,13 @@ export const auth = betterAuth({
 // Sign in with GitHub
 await authClient.signIn.social({
     provider: 'github',
-    callbackURL: '/dashboard'
+    callbackURL: '/dashboard',
 });
 
 // Sign in with Google
 await authClient.signIn.social({
     provider: 'google',
-    callbackURL: '/dashboard'
+    callbackURL: '/dashboard',
 });
 ```
 
@@ -306,7 +306,7 @@ import { auth } from '~/lib/auth.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
     const session = await auth.api.getSession({
-        headers: request.headers
+        headers: request.headers,
     });
 
     if (!session) {
@@ -421,9 +421,9 @@ export const auth = betterAuth({
     plugins: [
         twoFactor({
             issuer: 'YourApp',
-            totpWindow: 1 // Allow 30 seconds before/after for clock drift
-        })
-    ]
+            totpWindow: 1, // Allow 30 seconds before/after for clock drift
+        }),
+    ],
 });
 
 // Client
@@ -432,18 +432,18 @@ import { twoFactorClient } from 'better-auth/client/plugins';
 export const authClient = createAuthClient({
     plugins: [
         twoFactorClient({
-            twoFactorPage: '/two-factor' // Redirect here for 2FA verification
-        })
-    ]
+            twoFactorPage: '/two-factor', // Redirect here for 2FA verification
+        }),
+    ],
 });
 
 // Usage
 await authClient.twoFactor.enable({
-    password: 'userPassword'
+    password: 'userPassword',
 });
 
 await authClient.twoFactor.verifyTotp({
-    code: '123456'
+    code: '123456',
 });
 ```
 
@@ -454,14 +454,14 @@ await authClient.twoFactor.verifyTotp({
 import { username } from 'better-auth/plugins';
 
 export const auth = betterAuth({
-    plugins: [username()]
+    plugins: [username()],
 });
 
 // Client
 import { usernameClient } from 'better-auth/client/plugins';
 
 export const authClient = createAuthClient({
-    plugins: [usernameClient()]
+    plugins: [usernameClient()],
 });
 
 // Sign up with username
@@ -469,7 +469,7 @@ await authClient.signUp.username({
     username: 'johndoe',
     password: 'securePassword123',
     email: 'john@example.com',
-    name: 'John Doe'
+    name: 'John Doe',
 });
 ```
 
@@ -487,21 +487,21 @@ export const auth = betterAuth({
                 await sendEmail({
                     to: email,
                     subject: 'Your login code',
-                    body: `Your code is: ${otp}`
+                    body: `Your code is: ${otp}`,
                 });
-            }
-        })
-    ]
+            },
+        }),
+    ],
 });
 
 // Client usage
 await authClient.signIn.emailOtp({
-    email: 'user@example.com'
+    email: 'user@example.com',
 });
 
 await authClient.verifyEmailOtp({
     email: 'user@example.com',
-    otp: '123456'
+    otp: '123456',
 });
 ```
 
@@ -515,29 +515,29 @@ export const auth = betterAuth({
     plugins: [
         organization({
             allowUserToCreateOrganization: true,
-            organizationLimit: 5 // Max organizations per user
-        })
-    ]
+            organizationLimit: 5, // Max organizations per user
+        }),
+    ],
 });
 
 // Client
 import { organizationClient } from 'better-auth/client/plugins';
 
 export const authClient = createAuthClient({
-    plugins: [organizationClient()]
+    plugins: [organizationClient()],
 });
 
 // Create organization
 await authClient.organization.create({
     name: 'Acme Inc',
-    slug: 'acme-inc'
+    slug: 'acme-inc',
 });
 
 // Invite member
 await authClient.organization.inviteMember({
     organizationId: 'org_123',
     email: 'member@example.com',
-    role: 'member'
+    role: 'member',
 });
 ```
 
@@ -551,16 +551,16 @@ export const auth = betterAuth({
     plugins: [
         passkey({
             rpID: 'yourdomain.com',
-            rpName: 'Your App Name'
-        })
-    ]
+            rpName: 'Your App Name',
+        }),
+    ],
 });
 
 // Client
 import { passkeyClient } from 'better-auth/client/plugins';
 
 export const authClient = createAuthClient({
-    plugins: [passkeyClient()]
+    plugins: [passkeyClient()],
 });
 
 // Register passkey
@@ -577,7 +577,7 @@ await authClient.passkey.signIn();
 import { admin } from 'better-auth/plugins';
 
 export const auth = betterAuth({
-    plugins: [admin()]
+    plugins: [admin()],
 });
 
 // Grant admin privileges
@@ -703,14 +703,14 @@ await auth.api.updateUser({
     userId: 'user_123',
     data: {
         name: 'New Name',
-        image: 'https://example.com/new-avatar.jpg'
-    }
+        image: 'https://example.com/new-avatar.jpg',
+    },
 });
 
 // Client
 await authClient.updateUser({
     name: 'New Name',
-    image: 'https://example.com/new-avatar.jpg'
+    image: 'https://example.com/new-avatar.jpg',
 });
 ```
 
@@ -720,7 +720,7 @@ await authClient.updateUser({
 await authClient.changePassword({
     currentPassword: 'oldPassword',
     newPassword: 'newPassword123',
-    revokeOtherSessions: true // Sign out other sessions
+    revokeOtherSessions: true, // Sign out other sessions
 });
 ```
 
@@ -729,7 +729,7 @@ await authClient.changePassword({
 ```typescript
 await authClient.changeEmail({
     newEmail: 'newemail@example.com',
-    callbackURL: '/verify-email'
+    callbackURL: '/verify-email',
 });
 ```
 
@@ -738,7 +738,7 @@ await authClient.changeEmail({
 ```typescript
 // Server-side only
 await auth.api.deleteUser({
-    userId: 'user_123'
+    userId: 'user_123',
 });
 ```
 
@@ -757,7 +757,7 @@ export async function authMiddleware({ request }: Route.LoaderArgs) {
     if (!user) {
         const url = new URL(request.url);
         throw redirect(
-            `/sign-in?redirectTo=${encodeURIComponent(url.pathname)}`
+            `/sign-in?redirectTo=${encodeURIComponent(url.pathname)}`,
         );
     }
 
@@ -781,7 +781,7 @@ export function useAuthenticatedContext() {
     const context = useContext(AuthenticatedContext);
     if (!context) {
         throw new Error(
-            'useAuthenticatedContext must be used within AuthenticatedLayout'
+            'useAuthenticatedContext must be used within AuthenticatedLayout',
         );
     }
     return context;
@@ -825,7 +825,7 @@ export { AuthenticatedContext };
 ```typescript
 const { data, error } = await authClient.signIn.email({
     email,
-    password
+    password,
 });
 
 if (error) {
@@ -856,8 +856,8 @@ export const auth = betterAuth({
         enabled: true,
         window: 60, // Time window in seconds
         max: 10, // Max requests per window
-        storage: 'memory' // or 'database'
-    }
+        storage: 'memory', // or 'database'
+    },
 });
 ```
 
@@ -868,13 +868,13 @@ export const auth = betterAuth({
     advanced: {
         crossSubDomainCookies: {
             enabled: true,
-            domain: '.yourdomain.com'
+            domain: '.yourdomain.com',
         },
         generateId: () => {
             // Custom ID generation
             return crypto.randomUUID();
-        }
-    }
+        },
+    },
 });
 ```
 
@@ -911,7 +911,7 @@ export function mockUser() {
         emailVerified: new Date(),
         image: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
     };
 }
 
@@ -923,8 +923,8 @@ export function mockSession(user = mockUser()) {
             userId: user.id,
             expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
             ipAddress: '127.0.0.1',
-            userAgent: 'test-agent'
-        }
+            userAgent: 'test-agent',
+        },
     };
 }
 ```

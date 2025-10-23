@@ -73,8 +73,8 @@ export default [
 
         // Nested resources
         route('posts/:postId/comments', 'routes/api/comments.ts'),
-        route('posts/:postId/comments/:id', 'routes/api/comments.$id.ts')
-    ])
+        route('posts/:postId/comments/:id', 'routes/api/comments.$id.ts'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -93,7 +93,7 @@ export const createPostSchema = z.object({
     title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
     content: z.string().min(10, 'Content must be at least 10 characters'),
     published: z.boolean().default(false),
-    tags: z.array(z.string()).max(5, 'Maximum 5 tags').optional()
+    tags: z.array(z.string()).max(5, 'Maximum 5 tags').optional(),
 });
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
@@ -109,7 +109,7 @@ export const updatePostSchema = z.object({
         .min(10, 'Content must be at least 10 characters')
         .optional(),
     published: z.boolean().optional(),
-    tags: z.array(z.string()).max(5, 'Maximum 5 tags').optional()
+    tags: z.array(z.string()).max(5, 'Maximum 5 tags').optional(),
 });
 
 export type UpdatePostData = z.infer<typeof updatePostSchema>;
@@ -130,10 +130,10 @@ export function getPost(id: string) {
         where: { id },
         include: {
             author: {
-                select: { id: true, name: true, email: true }
+                select: { id: true, name: true, email: true },
             },
-            tags: true
-        }
+            tags: true,
+        },
     });
 }
 
@@ -141,7 +141,7 @@ export function getPosts({
     userId,
     published,
     limit = 20,
-    offset = 0
+    offset = 0,
 }: {
     userId?: string;
     published?: boolean;
@@ -151,22 +151,22 @@ export function getPosts({
     return prisma.post.findMany({
         where: {
             ...(userId && { authorId: userId }),
-            ...(published !== undefined && { published })
+            ...(published !== undefined && { published }),
         },
         include: {
             author: {
-                select: { id: true, name: true }
-            }
+                select: { id: true, name: true },
+            },
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
-        skip: offset
+        skip: offset,
     });
 }
 
 export function createPost({
     data,
-    authorId
+    authorId,
 }: {
     data: {
         title: string;
@@ -182,22 +182,22 @@ export function createPost({
             authorId,
             tags: data.tags
                 ? {
-                      create: data.tags.map((name) => ({ name }))
+                      create: data.tags.map((name) => ({ name })),
                   }
-                : undefined
+                : undefined,
         },
         include: {
             author: {
-                select: { id: true, name: true }
+                select: { id: true, name: true },
             },
-            tags: true
-        }
+            tags: true,
+        },
     });
 }
 
 export function updatePost({
     id,
-    data
+    data,
 }: {
     id: string;
     data: {
@@ -214,22 +214,22 @@ export function updatePost({
             tags: data.tags
                 ? {
                       deleteMany: {},
-                      create: data.tags.map((name) => ({ name }))
+                      create: data.tags.map((name) => ({ name })),
                   }
-                : undefined
+                : undefined,
         },
         include: {
             author: {
-                select: { id: true, name: true }
+                select: { id: true, name: true },
             },
-            tags: true
-        }
+            tags: true,
+        },
     });
 }
 
 export function deletePost(id: string) {
     return prisma.post.delete({
-        where: { id }
+        where: { id },
     });
 }
 
@@ -273,12 +273,12 @@ export async function loader({ request }: Route.LoaderArgs) {
             userId: userId || undefined,
             published: published ? published === 'true' : undefined,
             limit,
-            offset
+            offset,
         }),
         getPostCount({
             userId: userId || undefined,
-            published: published ? published === 'true' : undefined
-        })
+            published: published ? published === 'true' : undefined,
+        }),
     ]);
 
     return data({
@@ -287,8 +287,8 @@ export async function loader({ request }: Route.LoaderArgs) {
             page,
             limit,
             total,
-            totalPages: Math.ceil(total / limit)
-        }
+            totalPages: Math.ceil(total / limit),
+        },
     });
 }
 
@@ -300,7 +300,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<CreatePostData>(
                 request,
-                zodResolver(createPostSchema)
+                zodResolver(createPostSchema),
             );
 
         if (errors) {
@@ -310,7 +310,7 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const post = await createPost({
                 data: validatedData!,
-                authorId: user.id
+                authorId: user.id,
             });
 
             return data({ success: true, post }, { status: 201 });
@@ -366,7 +366,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     // Only the author can modify the post
     if (post.authorId !== user.id) {
         throw data('You do not have permission to modify this post', {
-            status: 403
+            status: 403,
         });
     }
 
@@ -375,7 +375,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<UpdatePostData>(
                 request,
-                zodResolver(updatePostSchema)
+                zodResolver(updatePostSchema),
             );
 
         if (errors) {
@@ -385,7 +385,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         try {
             const updatedPost = await updatePost({
                 id: params.id,
-                data: validatedData!
+                data: validatedData!,
             });
 
             return data({ success: true, post: updatedPost });
@@ -443,7 +443,7 @@ export async function action({ request }: Route.ActionArgs) {
         // Validate
         const { data: validatedData, errors } = await getValidatedFormData(
             request,
-            zodResolver(createSchema)
+            zodResolver(createSchema),
         );
 
         if (errors) {
@@ -453,7 +453,7 @@ export async function action({ request }: Route.ActionArgs) {
         // Create via model layer
         const resource = await createResource({
             data: validatedData!,
-            userId: user.id
+            userId: user.id,
         });
 
         // Return 201 Created
@@ -479,7 +479,7 @@ if (request.method === 'PUT' || request.method === 'PATCH') {
     // Validate
     const { data: validatedData, errors } = await getValidatedFormData(
         request,
-        zodResolver(updateSchema)
+        zodResolver(updateSchema),
     );
 
     if (errors) {
@@ -489,7 +489,7 @@ if (request.method === 'PUT' || request.method === 'PATCH') {
     // Update via model layer
     const updated = await updateResource({
         id: params.id,
-        data: validatedData!
+        data: validatedData!,
     });
 
     return data({ success: true, resource: updated });
@@ -563,7 +563,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
     if (resource.userId !== user.id) {
         throw data('You do not have permission to modify this resource', {
-            status: 403
+            status: 403,
         });
     }
 
@@ -586,7 +586,7 @@ export async function action({ request }: Route.ActionArgs) {
     const { data: validatedData, errors } =
         await getValidatedFormData<CreateData>(
             request,
-            zodResolver(createSchema)
+            zodResolver(createSchema),
         );
 
     if (errors) {
@@ -608,7 +608,7 @@ const querySchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(20),
     sort: z.enum(['asc', 'desc']).default('desc'),
-    filter: z.string().optional()
+    filter: z.string().optional(),
 });
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -623,7 +623,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     if (!result.success) {
         return data(
             { error: 'Invalid query parameters', issues: result.error.issues },
-            { status: 400 }
+            { status: 400 },
         );
     }
 
@@ -662,10 +662,10 @@ Use appropriate status codes for different scenarios:
 return data(
     {
         errors: {
-            email: { type: 'validation', message: 'Invalid email' }
-        }
+            email: { type: 'validation', message: 'Invalid email' },
+        },
     },
-    { status: 400 }
+    { status: 400 },
 );
 ```
 
@@ -681,7 +681,7 @@ throw data({ error: 'Post not found', id: params.id }, { status: 404 });
 
 ```typescript
 throw data('You do not have permission to perform this action', {
-    status: 403
+    status: 403,
 });
 ```
 
@@ -694,7 +694,7 @@ try {
     console.error('Operation failed:', error);
     return data(
         { error: 'Failed to complete operation. Please try again.' },
-        { status: 500 }
+        { status: 500 },
     );
 }
 ```
@@ -715,7 +715,7 @@ try {
         // Unique constraint violation
         return data(
             { error: 'A resource with this identifier already exists' },
-            { status: 409 }
+            { status: 409 },
         );
     }
 
@@ -736,7 +736,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     const [items, total] = await Promise.all([
         getItems({ limit, offset }),
-        getItemCount()
+        getItemCount(),
     ]);
 
     return data({
@@ -747,8 +747,8 @@ export async function loader({ request }: Route.LoaderArgs) {
             total,
             totalPages: Math.ceil(total / limit),
             hasNext: page * limit < total,
-            hasPrev: page > 1
-        }
+            hasPrev: page > 1,
+        },
     });
 }
 ```
@@ -762,7 +762,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const filters = {
         status: url.searchParams.get('status'),
         category: url.searchParams.get('category'),
-        search: url.searchParams.get('search')
+        search: url.searchParams.get('search'),
     };
 
     const sort = url.searchParams.get('sort') || 'createdAt';
@@ -775,18 +775,21 @@ export async function loader({ request }: Route.LoaderArgs) {
             ...(filters.search && {
                 OR: [
                     {
-                        title: { contains: filters.search, mode: 'insensitive' }
+                        title: {
+                            contains: filters.search,
+                            mode: 'insensitive',
+                        },
                     },
                     {
                         content: {
                             contains: filters.search,
-                            mode: 'insensitive'
-                        }
-                    }
-                ]
-            })
+                            mode: 'insensitive',
+                        },
+                    },
+                ],
+            }),
         },
-        orderBy: { [sort]: order }
+        orderBy: { [sort]: order },
     });
 
     return data({ items });
@@ -813,13 +816,13 @@ export async function action({ request }: Route.ActionArgs) {
             // Verify ownership for all items
             const items = await getItemsByIds(ids);
             const unauthorized = items.filter(
-                (item) => item.userId !== user.id
+                (item) => item.userId !== user.id,
             );
 
             if (unauthorized.length > 0) {
                 return data(
                     { error: 'Not authorized to delete some items' },
-                    { status: 403 }
+                    { status: 403 },
                 );
             }
 
@@ -869,7 +872,7 @@ export async function action({ request }: Route.ActionArgs) {
                 fileUrl: url,
                 fileName: file.name,
                 fileSize: file.size,
-                mimeType: file.type
+                mimeType: file.type,
             });
 
             return data({ success: true, resource }, { status: 201 });
@@ -912,7 +915,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (!checkRateLimit(user.id)) {
         return data(
             { error: 'Too many requests. Please try again later.' },
-            { status: 429 }
+            { status: 429 },
         );
     }
 
@@ -970,7 +973,7 @@ function CreatePostForm() {
 ```typescript
 async function deletePost(postId: string) {
     const response = await fetch(`/api/posts/${postId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
     });
 
     if (!response.ok) {
@@ -984,7 +987,7 @@ async function deletePost(postId: string) {
 async function getPosts({ page = 1, limit = 20 }) {
     const params = new URLSearchParams({
         page: page.toString(),
-        limit: limit.toString()
+        limit: limit.toString(),
     });
 
     const response = await fetch(`/api/posts?${params}`);
@@ -1049,7 +1052,7 @@ test('GET /api/posts returns paginated posts', async () => {
 
     // Mock requireUser
     vi.mock('~/lib/session.server', () => ({
-        requireUser: vi.fn().mockResolvedValue({ id: 'user-123' })
+        requireUser: vi.fn().mockResolvedValue({ id: 'user-123' }),
     }));
 
     const response = await loader({ request, params: {}, context: {} });
@@ -1074,8 +1077,8 @@ test('POST /api/posts creates a post', async () => {
         method: 'POST',
         body: formData,
         headers: {
-            Cookie: sessionCookie // Authenticated session
-        }
+            Cookie: sessionCookie, // Authenticated session
+        },
     });
 
     expect(response.status).toBe(201);
@@ -1089,8 +1092,8 @@ test('DELETE /api/posts/:id deletes a post', async () => {
     const response = await fetch(`http://localhost:5173/api/posts/${postId}`, {
         method: 'DELETE',
         headers: {
-            Cookie: sessionCookie
-        }
+            Cookie: sessionCookie,
+        },
     });
 
     expect(response.status).toBe(200);
@@ -1128,9 +1131,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         user: {
             id: profile.id,
             name: profile.name,
-            email: profile.email
+            email: profile.email,
             // Don't include: password, resetToken, etc.
-        }
+        },
     });
 }
 ```
@@ -1194,7 +1197,7 @@ export async function action({ request }) {
 export async function action({ request }) {
     const { data, errors } = await getValidatedFormData(
         request,
-        zodResolver(schema)
+        zodResolver(schema),
     );
     if (errors) return data({ errors }, { status: 400 });
     await saveToDatabase(data!); // ✅ Safe
@@ -1212,8 +1215,8 @@ return data({
     user: {
         id: user.id,
         name: user.name,
-        email: user.email
-    }
+        email: user.email,
+    },
 }); // ✅ Only safe fields
 ```
 
@@ -1226,7 +1229,7 @@ return data({ error: 'Error' }, { status: 500 }); // ❌ Not helpful
 // GOOD
 return data(
     { error: 'Failed to create post. Please try again.' },
-    { status: 500 }
+    { status: 500 },
 ); // ✅ Clear and actionable
 ```
 

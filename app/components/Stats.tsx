@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 interface StatsContainerProps {}
 
 export function StatsContainer({
-    children
+    children,
 }: PropsWithChildren<StatsContainerProps>) {
     return <div className="stats shadow">{children}</div>;
 }

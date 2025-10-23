@@ -5,7 +5,7 @@ export const heroVariants = cva({
     base: 'hero',
     variants: {},
     defaultVariants: {},
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface HeroProps
@@ -26,7 +26,7 @@ export function Hero({
     const combinedStyle = image
         ? {
               ...style,
-              backgroundImage: `url(${image})`
+              backgroundImage: `url(${image})`,
           }
         : style;
 
@@ -54,11 +54,7 @@ export function HeroContent({
 }: HeroContentProps) {
     return (
         <div
-            className={cx(
-                'hero-content',
-                centered && 'text-center',
-                className
-            )}
+            className={cx('hero-content', centered && 'text-center', className)}
             {...props}
         >
             {children}

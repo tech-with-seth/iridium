@@ -38,7 +38,7 @@ export function useHasRole(role: Role): boolean {
     const roleHierarchy = {
         [Role.USER]: 1,
         [Role.EDITOR]: 2,
-        [Role.ADMIN]: 3
+        [Role.ADMIN]: 3,
     };
 
     return roleHierarchy[userRole] >= roleHierarchy[role];

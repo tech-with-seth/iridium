@@ -7,23 +7,23 @@ export const alertVariants = cva({
         variant: {
             outline: 'alert-outline',
             dash: 'alert-dash',
-            soft: 'alert-soft'
+            soft: 'alert-soft',
         },
         status: {
             info: 'alert-info',
             success: 'alert-success',
             warning: 'alert-warning',
-            error: 'alert-error'
+            error: 'alert-error',
         },
         direction: {
             vertical: 'alert-vertical',
-            horizontal: 'alert-horizontal'
-        }
+            horizontal: 'alert-horizontal',
+        },
     },
     defaultVariants: {
-        direction: 'horizontal'
+        direction: 'horizontal',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface AlertProps
@@ -48,9 +48,9 @@ export function Alert({
                 alertVariants({
                     variant,
                     status,
-                    direction
+                    direction,
                 }),
-                className
+                className,
             )}
             {...props}
         >

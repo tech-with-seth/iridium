@@ -5,7 +5,7 @@ export const textInputVariants = cva({
     base: 'input',
     variants: {
         variant: {
-            ghost: 'input-ghost'
+            ghost: 'input-ghost',
         },
         color: {
             neutral: 'input-neutral',
@@ -15,20 +15,20 @@ export const textInputVariants = cva({
             info: 'input-info',
             success: 'input-success',
             warning: 'input-warning',
-            error: 'input-error'
+            error: 'input-error',
         },
         size: {
             xs: 'input-xs',
             sm: 'input-sm',
             md: 'input-md',
             lg: 'input-lg',
-            xl: 'input-xl'
-        }
+            xl: 'input-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface TextInputProps
@@ -67,9 +67,9 @@ export function TextInput({
                     textInputVariants({
                         size,
                         color: error ? 'error' : color,
-                        variant
+                        variant,
                     }),
-                    className
+                    className,
                 )}
                 {...props}
             />
@@ -78,7 +78,7 @@ export function TextInput({
                 <span
                     className={cx(
                         'text-xs',
-                        error ? 'text-error' : 'text-base-content/70'
+                        error ? 'text-error' : 'text-base-content/70',
                     )}
                 >
                     {error || helperText}

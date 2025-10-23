@@ -8,7 +8,7 @@ import {
     Link,
     Preview,
     Section,
-    Text
+    Text,
 } from '@react-email/components';
 
 interface PasswordResetEmailProps {
@@ -18,7 +18,7 @@ interface PasswordResetEmailProps {
 
 export default function PasswordResetEmail({
     resetUrl,
-    userEmail
+    userEmail,
 }: PasswordResetEmailProps) {
     return (
         <Html>
@@ -62,14 +62,14 @@ export default function PasswordResetEmail({
 const main = {
     backgroundColor: '#f6f9fc',
     fontFamily:
-        '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif'
+        '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
     backgroundColor: '#ffffff',
     margin: '0 auto',
     padding: '20px 0 48px',
-    marginBottom: '64px'
+    marginBottom: '64px',
 };
 
 const h1 = {
@@ -78,19 +78,19 @@ const h1 = {
     fontWeight: 'bold',
     margin: '40px 0',
     padding: '0',
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
 };
 
 const text = {
     color: '#333',
     fontSize: '16px',
     lineHeight: '26px',
-    margin: '16px 0'
+    margin: '16px 0',
 };
 
 const buttonContainer = {
     textAlign: 'center' as const,
-    margin: '32px 0'
+    margin: '32px 0',
 };
 
 const button = {
@@ -102,25 +102,25 @@ const button = {
     textDecoration: 'none',
     textAlign: 'center' as const,
     display: 'block',
-    padding: '12px 20px'
+    padding: '12px 20px',
 };
 
 const link = {
     color: '#5469d4',
     fontSize: '14px',
-    textDecoration: 'underline'
+    textDecoration: 'underline',
 };
 
 const warningText = {
     color: '#e63946',
     fontSize: '14px',
     fontWeight: 'bold',
-    margin: '16px 0'
+    margin: '16px 0',
 };
 
 const footer = {
     color: '#8898aa',
     fontSize: '12px',
     lineHeight: '16px',
-    marginTop: '32px'
+    marginTop: '32px',
 };

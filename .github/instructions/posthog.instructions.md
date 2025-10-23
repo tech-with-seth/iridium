@@ -26,8 +26,8 @@ PostHog packages are configured as SSR externals in `vite.config.ts`:
 export default defineConfig({
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     ssr: {
-        noExternal: ['posthog-js', 'posthog-js/react']
-    }
+        noExternal: ['posthog-js', 'posthog-js/react'],
+    },
 });
 ```
 
@@ -83,7 +83,7 @@ export default function MyComponent() {
         // Track custom event
         posthog?.capture('button_clicked', {
             button_name: 'Submit',
-            page: 'Dashboard'
+            page: 'Dashboard',
         });
     };
 
@@ -106,12 +106,12 @@ export default function SignUpForm() {
             // Track successful sign up
             posthog?.capture('user_signed_up', {
                 method: 'email',
-                plan: data.plan
+                plan: data.plan,
             });
         } catch (error) {
             // Track errors
             posthog?.capture('signup_error', {
-                error: error.message
+                error: error.message,
             });
         }
     };
@@ -138,7 +138,7 @@ export default function Dashboard() {
             // Identify user with their ID
             posthog.identify(user.id, {
                 email: user.email,
-                name: user.name
+                name: user.name,
                 // Add any other user properties
             });
         }
@@ -192,7 +192,7 @@ export default function AnnouncementBanner() {
     useEffect(() => {
         if (posthog) {
             const payload = posthog.getFeatureFlagPayload(
-                'announcement-banner'
+                'announcement-banner',
             );
             if (payload) {
                 setBannerConfig(payload);
@@ -234,7 +234,7 @@ export default function NewCheckoutFlow() {
 
             // Track which version user sees
             posthog.capture('checkout_version_shown', {
-                version: isEnabled ? 'new' : 'old'
+                version: isEnabled ? 'new' : 'old',
             });
         }
     }, [posthog]);
@@ -317,7 +317,7 @@ export default function OrganizationPage() {
             // Associate user with organization
             posthog.group('company', 'company_id_123', {
                 name: 'Acme Inc',
-                plan: 'enterprise'
+                plan: 'enterprise',
             });
         }
     }, [posthog]);
@@ -357,7 +357,7 @@ export default function PricingPage() {
             // Track exposure (user saw this variant)
             posthog.capture('$feature_flag_called', {
                 $feature_flag: 'pricing-experiment',
-                $feature_flag_response: experimentVariant
+                $feature_flag_response: experimentVariant,
             });
         }
     }, [posthog]);
@@ -384,7 +384,7 @@ export default function CheckoutButton() {
         // Track the conversion event for experiment analysis
         posthog?.capture('checkout_initiated', {
             price: 99.99,
-            plan: 'pro'
+            plan: 'pro',
         });
 
         // Proceed with checkout
@@ -444,7 +444,7 @@ export default function RecommendationEngine() {
             setShowRecommendations(!isInHoldout);
 
             posthog.capture('recommendations_exposure', {
-                group: isInHoldout ? 'holdout' : 'treatment'
+                group: isInHoldout ? 'holdout' : 'treatment',
             });
         }
     }, [posthog]);
@@ -475,8 +475,8 @@ posthog.init(apiKey, {
     capture_pageleave: true,
     // Enable automatic exception capture
     autocapture: {
-        capture_exceptions: true // Captures unhandled exceptions
-    }
+        capture_exceptions: true, // Captures unhandled exceptions
+    },
 });
 ```
 
@@ -504,7 +504,7 @@ export default function DataFetchingComponent() {
                 context: 'data_fetching',
                 endpoint: '/api/data',
                 userId: user?.id,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             // Show user-friendly error
@@ -549,7 +549,7 @@ export class ErrorBoundary extends Component<Props, State> {
         posthog.captureException(error, {
             errorInfo: errorInfo.componentStack,
             errorBoundary: true,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         console.error('Error caught by boundary:', error, errorInfo);
@@ -599,9 +599,9 @@ export default function SignUpForm() {
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
     } = useValidatedForm({
-        resolver: signUpSchema
+        resolver: signUpSchema,
     });
 
     // Track validation errors
@@ -610,7 +610,7 @@ export default function SignUpForm() {
             posthog?.capture('form_validation_error', {
                 form: 'sign_up',
                 fields: Object.keys(errors),
-                errorCount: Object.keys(errors).length
+                errorCount: Object.keys(errors).length,
             });
         }
     }, [errors, posthog]);
@@ -641,8 +641,8 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
                     endpoint,
                     status: response.status,
                     duration,
-                    method: options?.method || 'GET'
-                }
+                    method: options?.method || 'GET',
+                },
             );
         }
 
@@ -651,7 +651,7 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
             endpoint,
             status: response.status,
             duration,
-            success: response.ok
+            success: response.ok,
         });
 
         return response;
@@ -661,7 +661,7 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
         posthog?.captureException(error, {
             endpoint,
             duration,
-            type: 'network_error'
+            type: 'network_error',
         });
 
         throw error;
@@ -717,7 +717,7 @@ export default function SupportTicket() {
         submitTicket({
             ...ticketData,
             sessionRecordingUrl, // Support team can watch what happened
-            posthogPersonId: posthog?.get_distinct_id()
+            posthogPersonId: posthog?.get_distinct_id(),
         });
     };
 
@@ -763,17 +763,17 @@ const getPostHogConfig = () => {
         case 'production':
             return {
                 apiKey: import.meta.env.VITE_POSTHOG_API_KEY_PROD,
-                host: 'https://us.i.posthog.com'
+                host: 'https://us.i.posthog.com',
             };
         case 'staging':
             return {
                 apiKey: import.meta.env.VITE_POSTHOG_API_KEY_STAGING,
-                host: 'https://us.i.posthog.com'
+                host: 'https://us.i.posthog.com',
             };
         default:
             return {
                 apiKey: import.meta.env.VITE_POSTHOG_API_KEY_DEV,
-                host: 'https://us.i.posthog.com'
+                host: 'https://us.i.posthog.com',
             };
     }
 };
@@ -797,7 +797,7 @@ export default function HighVolumeComponent() {
         if (shouldSample && Math.random() < 0.1) {
             posthog?.capture('high_volume_event', {
                 sampled: true,
-                rate: 0.1
+                rate: 0.1,
             });
         }
     };
@@ -842,7 +842,7 @@ posthog?.capture('checkout_completed', {
     total_amount: 99.99,
     currency: 'USD',
     items_count: 3,
-    payment_method: 'credit_card'
+    payment_method: 'credit_card',
 });
 
 // ❌ Bad - no context
@@ -857,13 +857,13 @@ Avoid tracking sensitive information:
 // ❌ Bad - includes sensitive data
 posthog?.capture('payment_made', {
     credit_card_number: '4111111111111111', // Never!
-    ssn: '123-45-6789' // Never!
+    ssn: '123-45-6789', // Never!
 });
 
 // ✅ Good - uses IDs and non-sensitive data
 posthog?.capture('payment_made', {
     payment_method_id: 'pm_123',
-    amount: 99.99
+    amount: 99.99,
 });
 ```
 
@@ -926,7 +926,7 @@ export default function DebugPostHog() {
             console.log('PostHog distinct ID:', posthog.get_distinct_id());
         } else {
             console.warn(
-                'PostHog not initialized - check environment variables'
+                'PostHog not initialized - check environment variables',
             );
         }
     }, [posthog]);
@@ -963,7 +963,7 @@ export default function LocationBanner() {
 
             // Show country-specific banner via feature flag payload
             const payload = posthog.getFeatureFlagPayload(
-                `banner-${userCountry?.toLowerCase()}`
+                `banner-${userCountry?.toLowerCase()}`,
             );
             if (payload) {
                 setBanner(payload);
@@ -1000,7 +1000,7 @@ export default function DynamicPopup() {
             if (payload) {
                 // Check if user hasn't dismissed this popup version
                 const dismissedVersion = localStorage.getItem(
-                    'popup-dismissed-version'
+                    'popup-dismissed-version',
                 );
 
                 if (dismissedVersion !== payload.version) {
@@ -1016,7 +1016,7 @@ export default function DynamicPopup() {
 
         posthog?.capture('popup_dismissed', {
             version: popupConfig.version,
-            title: popupConfig.title
+            title: popupConfig.title,
         });
     };
 
@@ -1057,7 +1057,7 @@ export default function BetaFeatures() {
             if (isBetaUser) {
                 posthog.capture('beta_feature_accessed', {
                     feature: 'new-dashboard',
-                    userId: user.id
+                    userId: user.id,
                 });
             }
         }
@@ -1099,7 +1099,7 @@ export default function NewFeature() {
 
             if (!featureActive) {
                 posthog.capture('feature_disabled_by_killswitch', {
-                    feature: 'new-feature'
+                    feature: 'new-feature',
                 });
             }
         }
@@ -1127,7 +1127,7 @@ import { signUpSchema } from '~/lib/validations';
 export default function SignUpForm() {
     const posthog = usePostHog();
     const { register, handleSubmit, watch } = useValidatedForm({
-        resolver: signUpSchema
+        resolver: signUpSchema,
     });
 
     // Track field interactions
@@ -1137,7 +1137,7 @@ export default function SignUpForm() {
                 posthog?.capture('form_field_changed', {
                     form: 'sign_up',
                     field: name,
-                    hasValue: !!value[name]
+                    hasValue: !!value[name],
                 });
             }
         });
@@ -1171,7 +1171,7 @@ function RouteTracker() {
         if (posthog) {
             posthog.capture('$pageview', {
                 $current_url: window.location.href,
-                path: location.pathname
+                path: location.pathname,
             });
         }
     }, [location, posthog]);

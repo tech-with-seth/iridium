@@ -32,52 +32,52 @@ A theme consists of:
 Define custom themes in `tailwind.config.ts`:
 
 ```typescript
-import daisyui from "daisyui";
+import daisyui from 'daisyui';
 
 export default {
-  plugins: [daisyui],
-  daisyui: {
-    themes: [
-      {
-        mytheme: {
-          // Base colors
-          "base-100": "#ffffff",
-          "base-200": "#f7f7f7",
-          "base-300": "#e5e5e5",
-          "base-content": "#1f2937",
+    plugins: [daisyui],
+    daisyui: {
+        themes: [
+            {
+                mytheme: {
+                    // Base colors
+                    'base-100': '#ffffff',
+                    'base-200': '#f7f7f7',
+                    'base-300': '#e5e5e5',
+                    'base-content': '#1f2937',
 
-          // Brand colors
-          primary: "#570df8",
-          "primary-content": "#ffffff",
+                    // Brand colors
+                    primary: '#570df8',
+                    'primary-content': '#ffffff',
 
-          secondary: "#f000b8",
-          "secondary-content": "#ffffff",
+                    secondary: '#f000b8',
+                    'secondary-content': '#ffffff',
 
-          accent: "#1dcdbc",
-          "accent-content": "#ffffff",
+                    accent: '#1dcdbc',
+                    'accent-content': '#ffffff',
 
-          // Neutral
-          neutral: "#2b3440",
-          "neutral-content": "#ffffff",
+                    // Neutral
+                    neutral: '#2b3440',
+                    'neutral-content': '#ffffff',
 
-          // State colors
-          info: "#3abff8",
-          "info-content": "#ffffff",
+                    // State colors
+                    info: '#3abff8',
+                    'info-content': '#ffffff',
 
-          success: "#36d399",
-          "success-content": "#ffffff",
+                    success: '#36d399',
+                    'success-content': '#ffffff',
 
-          warning: "#fbbd23",
-          "warning-content": "#1f2937",
+                    warning: '#fbbd23',
+                    'warning-content': '#1f2937',
 
-          error: "#f87272",
-          "error-content": "#ffffff",
-        },
-      },
-      "light",
-      "dark",
-    ],
-  },
+                    error: '#f87272',
+                    'error-content': '#ffffff',
+                },
+            },
+            'light',
+            'dark',
+        ],
+    },
 };
 ```
 
@@ -217,7 +217,7 @@ Set theme on the HTML element:
 
 ```html
 <html data-theme="mytheme">
-  <!-- Your app -->
+    <!-- Your app -->
 </html>
 ```
 
@@ -322,21 +322,21 @@ Control the roundness of components:
 
 ```css
 --radius-selector: 0.75rem; /* Checkboxes, radios */
---radius-field: 0.5rem;     /* Input fields */
---radius-box: 1rem;         /* Cards, modals */
+--radius-field: 0.5rem; /* Input fields */
+--radius-box: 1rem; /* Cards, modals */
 ```
 
 ### Border Width
 
 ```css
---border: 1px;  /* Standard borders */
+--border: 1px; /* Standard borders */
 ```
 
 ### Effects
 
 ```css
---depth: 2;     /* Shadow depth (0-4) */
---noise: 0;     /* Texture noise (0-1) */
+--depth: 2; /* Shadow depth (0-4) */
+--noise: 0; /* Texture noise (0-1) */
 ```
 
 ## Component Examples
@@ -480,14 +480,14 @@ Tools:
 ```css
 /* Before: Custom CSS */
 .my-button {
-  background-color: #570df8;
-  color: white;
+    background-color: #570df8;
+    color: white;
 }
 
 /* After: Theme colors */
 .my-button {
-  background-color: oklch(var(--p));
-  color: oklch(var(--pc));
+    background-color: oklch(var(--p));
+    color: oklch(var(--pc));
 }
 ```
 
@@ -512,12 +512,12 @@ daisyui: {
 ### Theme-Specific Overrides
 
 ```css
-[data-theme="dark"] .special-element {
-  opacity: 0.8;
+[data-theme='dark'] .special-element {
+    opacity: 0.8;
 }
 
-[data-theme="light"] .special-element {
-  opacity: 1;
+[data-theme='light'] .special-element {
+    opacity: 1;
 }
 ```
 

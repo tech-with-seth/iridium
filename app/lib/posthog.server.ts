@@ -5,7 +5,7 @@ export default function PostHogClient() {
     const postHogClient = new PostHog(process.env.VITE_POSTHOG_API_KEY!, {
         host: process.env.VITE_POSTHOG_HOST,
         flushAt: 1,
-        flushInterval: 0
+        flushInterval: 0,
     });
 
     return postHogClient;
@@ -22,13 +22,13 @@ interface ServerSideLogProps {
 export async function serverSideLog({
     distinctId,
     event,
-    properties
+    properties,
 }: ServerSideLogProps) {
     const posthog = PostHogClient();
     posthog.capture({
         distinctId,
         event,
-        properties
+        properties,
     });
     await posthog.shutdown();
 }

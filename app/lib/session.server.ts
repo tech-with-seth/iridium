@@ -16,7 +16,7 @@ type UserWithRole = {
 export async function getUserFromSession(request: Request) {
     try {
         const session = await auth.api.getSession({
-            headers: request.headers
+            headers: request.headers,
         });
 
         return session?.user ?? null;
@@ -26,7 +26,7 @@ export async function getUserFromSession(request: Request) {
         // Track error with PostHog
         posthog.captureException(error, {
             context: 'session_retrieval',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         return null;
@@ -49,7 +49,7 @@ export async function requireAnonymous(request: Request) {
     if (user) {
         throw new Response('Already authenticated', {
             status: 302,
-            headers: { Location: '/dashboard' }
+            headers: { Location: '/dashboard' },
         });
     }
 }
@@ -58,7 +58,7 @@ export function hasRole(user: { role: Role }, role: Role): boolean {
     const roleHierarchy = {
         [Role.USER]: 1,
         [Role.EDITOR]: 2,
-        [Role.ADMIN]: 3
+        [Role.ADMIN]: 3,
     };
 
     return roleHierarchy[user.role] >= roleHierarchy[role];
@@ -66,7 +66,7 @@ export function hasRole(user: { role: Role }, role: Role): boolean {
 
 export async function requireRole(
     request: Request,
-    allowedRoles: Role[]
+    allowedRoles: Role[],
 ): Promise<UserWithRole> {
     const user = await requireUser(request);
 

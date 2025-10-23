@@ -5,7 +5,7 @@ export const diffVariants = cva({
     base: 'diff',
     variants: {},
     defaultVariants: {},
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface DiffProps
@@ -25,11 +25,7 @@ export function Diff({
 }: DiffProps) {
     return (
         <figure
-            className={cx(
-                diffVariants({}),
-                aspectRatio,
-                className
-            )}
+            className={cx(diffVariants({}), aspectRatio, className)}
             {...props}
         >
             <div className="diff-item-1">{item1}</div>

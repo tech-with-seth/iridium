@@ -7,7 +7,7 @@ interface ContainerProps {
 
 export function Container({
     children,
-    className
+    className,
 }: PropsWithChildren<ContainerProps>) {
     return <div className={cx('container mx-auto', className)}>{children}</div>;
 }

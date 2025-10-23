@@ -58,7 +58,7 @@ import { z } from 'zod';
 export const createFeatureSchema = z.object({
     field1: z.string().min(1, 'Field is required').max(200, 'Too long'),
     field2: z.string().email('Invalid email').optional(),
-    field3: z.number().min(0).max(100).default(50)
+    field3: z.number().min(0).max(100).default(50),
 });
 
 export type CreateFeatureData = z.infer<typeof createFeatureSchema>;
@@ -67,7 +67,7 @@ export type CreateFeatureData = z.infer<typeof createFeatureSchema>;
 export const listFeatureSchema = z.object({
     limit: z.number().min(1).max(100).default(20),
     offset: z.number().min(0).default(0),
-    sortBy: z.enum(['createdAt', 'name']).default('createdAt')
+    sortBy: z.enum(['createdAt', 'name']).default('createdAt'),
 });
 
 export type ListFeatureData = z.infer<typeof listFeatureSchema>;
@@ -146,10 +146,10 @@ export function getFeature(id: string) {
                 select: {
                     id: true,
                     name: true,
-                    email: true
-                }
-            }
-        }
+                    email: true,
+                },
+            },
+        },
     });
 }
 
@@ -160,7 +160,7 @@ export function getUserFeatures({
     userId,
     limit = 20,
     offset = 0,
-    sortBy = 'createdAt' as const
+    sortBy = 'createdAt' as const,
 }: {
     userId: string;
     limit?: number;
@@ -176,10 +176,10 @@ export function getUserFeatures({
             user: {
                 select: {
                     id: true,
-                    name: true
-                }
-            }
-        }
+                    name: true,
+                },
+            },
+        },
     });
 }
 
@@ -188,7 +188,7 @@ export function getUserFeatures({
  */
 export function createFeature({
     userId,
-    data
+    data,
 }: {
     userId: string;
     data: {
@@ -200,8 +200,8 @@ export function createFeature({
     return prisma.feature.create({
         data: {
             ...data,
-            userId
-        }
+            userId,
+        },
     });
 }
 
@@ -211,7 +211,7 @@ export function createFeature({
 export function updateFeature({
     id,
     userId,
-    data
+    data,
 }: {
     id: string;
     userId: string;
@@ -224,9 +224,9 @@ export function updateFeature({
     return prisma.feature.updateMany({
         where: {
             id,
-            userId // Authorization: only owner can update
+            userId, // Authorization: only owner can update
         },
-        data
+        data,
     });
 }
 
@@ -237,8 +237,8 @@ export function deleteFeature({ id, userId }: { id: string; userId: string }) {
     return prisma.feature.deleteMany({
         where: {
             id,
-            userId // Authorization: only owner can delete
-        }
+            userId, // Authorization: only owner can delete
+        },
     });
 }
 
@@ -247,7 +247,7 @@ export function deleteFeature({ id, userId }: { id: string; userId: string }) {
  */
 export function countUserFeatures(userId: string) {
     return prisma.feature.count({
-        where: { userId }
+        where: { userId },
     });
 }
 ```
@@ -279,7 +279,7 @@ import {
     createFeature,
     updateFeature,
     deleteFeature,
-    getFeature
+    getFeature,
 } from '~/models/[feature].server';
 
 // GET - List user's features
@@ -289,7 +289,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     try {
         const [features, total] = await Promise.all([
             getUserFeatures({ userId: user.id }),
-            countUserFeatures(user.id)
+            countUserFeatures(user.id),
         ]);
 
         return data({ features, total });
@@ -307,7 +307,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<CreateFeatureData>(
                 request,
-                zodResolver(createFeatureSchema)
+                zodResolver(createFeatureSchema),
             );
 
         if (errors) {
@@ -317,7 +317,7 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const feature = await createFeature({
                 userId: user.id,
-                data: validatedData!
+                data: validatedData!,
             });
 
             return data({ success: true, feature });
@@ -331,7 +331,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await getValidatedFormData<CreateFeatureData>(
                 request,
-                zodResolver(createFeatureSchema)
+                zodResolver(createFeatureSchema),
             );
 
         if (errors) {
@@ -349,13 +349,13 @@ export async function action({ request }: Route.ActionArgs) {
             const result = await updateFeature({
                 id,
                 userId: user.id,
-                data: validatedData!
+                data: validatedData!,
             });
 
             if (result.count === 0) {
                 return data(
                     { error: 'Feature not found or unauthorized' },
-                    { status: 404 }
+                    { status: 404 },
                 );
             }
 
@@ -377,13 +377,13 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const result = await deleteFeature({
                 id,
-                userId: user.id
+                userId: user.id,
             });
 
             if (result.count === 0) {
                 return data(
                     { error: 'Feature not found or unauthorized' },
-                    { status: 404 }
+                    { status: 404 },
                 );
             }
 
@@ -423,8 +423,8 @@ export default [
 
     ...prefix('api', [
         // ... existing API routes
-        route('[feature]', 'routes/api/[feature].ts')
-    ])
+        route('[feature]', 'routes/api/[feature].ts'),
+    ]),
 ] satisfies RouteConfig;
 ```
 

@@ -12,20 +12,20 @@ export const checkboxVariants = cva({
             success: 'checkbox-success',
             warning: 'checkbox-warning',
             info: 'checkbox-info',
-            error: 'checkbox-error'
+            error: 'checkbox-error',
         },
         size: {
             xs: 'checkbox-xs',
             sm: 'checkbox-sm',
             md: 'checkbox-md',
             lg: 'checkbox-lg',
-            xl: 'checkbox-xl'
-        }
+            xl: 'checkbox-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface CheckboxProps
@@ -57,9 +57,9 @@ export function Checkbox({
                 className={cx(
                     checkboxVariants({
                         color,
-                        size
+                        size,
                     }),
-                    className
+                    className,
                 )}
                 disabled={disabled}
                 {...props}
@@ -75,9 +75,9 @@ export function Checkbox({
                     className={cx(
                         checkboxVariants({
                             color: error ? 'error' : color,
-                            size
+                            size,
                         }),
-                        className
+                        className,
                     )}
                     disabled={disabled}
                     {...props}
@@ -94,7 +94,7 @@ export function Checkbox({
                     <span
                         className={cx(
                             'label-text-alt',
-                            error ? 'text-error' : 'text-base-content/70'
+                            error ? 'text-error' : 'text-base-content/70',
                         )}
                     >
                         {error || helperText}

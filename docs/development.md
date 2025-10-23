@@ -134,11 +134,11 @@ export default function About({ loaderData }: Route.ComponentProps) {
 2. Register route in `app/routes.ts`:
 
 ```typescript
-import { type RouteConfig, route } from "@react-router/dev/routes";
+import { type RouteConfig, route } from '@react-router/dev/routes';
 
 export default [
-  // ... existing routes
-  route("about", "routes/about.tsx"),
+    // ... existing routes
+    route('about', 'routes/about.tsx'),
 ] satisfies RouteConfig;
 ```
 
@@ -212,32 +212,36 @@ npx prisma migrate dev --name add-post-model
 #### Querying the Database
 
 ```typescript
-import { db } from "~/db.server";
+import { db } from '~/db.server';
 
 export async function getPosts() {
-  return db.post.findMany({
-    include: {
-      author: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    return db.post.findMany({
+        include: {
+            author: true,
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
 }
 
 export async function getPost(id: string) {
-  return db.post.findUnique({
-    where: { id },
-    include: {
-      author: true,
-    },
-  });
+    return db.post.findUnique({
+        where: { id },
+        include: {
+            author: true,
+        },
+    });
 }
 
-export async function createPost(data: { title: string; content: string; authorId: string }) {
-  return db.post.create({
-    data,
-  });
+export async function createPost(data: {
+    title: string;
+    content: string;
+    authorId: string;
+}) {
+    return db.post.create({
+        data,
+    });
 }
 ```
 
@@ -246,11 +250,11 @@ export async function createPost(data: { title: string; content: string; authorI
 1. Create validation schema:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  content: z.string().min(10, "Content must be at least 10 characters"),
+    title: z.string().min(1, 'Title is required'),
+    content: z.string().min(10, 'Content must be at least 10 characters'),
 });
 ```
 
@@ -292,17 +296,17 @@ export default function PostForm() {
 1. Protect a route:
 
 ```typescript
-import { auth } from "~/lib/auth.server";
-import { redirect } from "react-router";
+import { auth } from '~/lib/auth.server';
+import { redirect } from 'react-router';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  return { user: session.user };
+    return { user: session.user };
 }
 ```
 
@@ -330,12 +334,12 @@ Add console logs in loaders and actions:
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  console.log("Request URL:", request.url);
+    console.log('Request URL:', request.url);
 
-  const data = await getData();
-  console.log("Data:", data);
+    const data = await getData();
+    console.log('Data:', data);
 
-  return data;
+    return data;
 }
 ```
 
@@ -359,7 +363,7 @@ Enable query logging in Prisma:
 
 ```typescript
 const db = new PrismaClient({
-  log: ["query", "error", "warn"],
+    log: ['query', 'error', 'warn'],
 });
 ```
 
@@ -438,13 +442,10 @@ Keep loaders fast:
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  // Parallel requests
-  const [user, posts] = await Promise.all([
-    getUser(request),
-    getPosts(),
-  ]);
+    // Parallel requests
+    const [user, posts] = await Promise.all([getUser(request), getPosts()]);
 
-  return { user, posts };
+    return { user, posts };
 }
 ```
 
@@ -466,16 +467,16 @@ model User {
 Use flat-cache for server-side caching:
 
 ```typescript
-import { cache } from "~/lib/cache";
+import { cache } from '~/lib/cache';
 
 export async function getExpensiveData() {
-  const cached = cache.getKey("expensive-data");
-  if (cached) return cached;
+    const cached = cache.getKey('expensive-data');
+    if (cached) return cached;
 
-  const data = await fetchExpensiveData();
-  cache.setKey("expensive-data", data);
+    const data = await fetchExpensiveData();
+    cache.setKey('expensive-data', data);
 
-  return data;
+    return data;
 }
 ```
 

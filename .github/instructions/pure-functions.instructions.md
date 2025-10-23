@@ -141,11 +141,11 @@ app/
 // app/lib/utils/formatters.ts
 export function formatCurrency(
     amount: number,
-    currency: string = 'USD'
+    currency: string = 'USD',
 ): string {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency
+        currency,
     }).format(amount);
 }
 
@@ -204,7 +204,7 @@ export function toUserSummary(user: User): UserSummary {
     return {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
     };
 }
 
@@ -225,7 +225,7 @@ export function groupUsersByRole(users: User[]): GroupedUsers {
         const role = user.role;
         return {
             ...groups,
-            [role]: [...(groups[role] || []), user]
+            [role]: [...(groups[role] || []), user],
         };
     }, {} as GroupedUsers);
 }
@@ -239,10 +239,10 @@ export function sortUsersByName(users: User[]): User[] {
 }
 
 export function sortByCreatedAt<T extends { createdAt: Date }>(
-    items: T[]
+    items: T[],
 ): T[] {
     return [...items].sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
 }
 ```
@@ -284,7 +284,7 @@ export interface PriceBreakdown {
 export function calculatePrice(
     subtotal: number,
     taxRate: number,
-    discountPercent: number = 0
+    discountPercent: number = 0,
 ): PriceBreakdown {
     const discount = subtotal * (discountPercent / 100);
     const taxableAmount = subtotal - discount;
@@ -295,13 +295,13 @@ export function calculatePrice(
         subtotal,
         tax,
         discount,
-        total
+        total,
     };
 }
 
 export function applyVolumeDiscount(
     quantity: number,
-    pricePerUnit: number
+    pricePerUnit: number,
 ): number {
     if (quantity >= 100) return pricePerUnit * 0.8; // 20% off
     if (quantity >= 50) return pricePerUnit * 0.9; // 10% off
@@ -355,7 +355,7 @@ import { Role } from '~/generated/prisma/client';
 export function canEditContent(
     userRole: Role,
     contentOwnerId: string,
-    userId: string
+    userId: string,
 ): boolean {
     // Admins can edit anything
     if (userRole === Role.ADMIN) return true;
@@ -385,7 +385,7 @@ export function canDeleteUser(performerRole: Role, targetRole: Role): boolean {
 
 export function formatDate(
     date: Date,
-    format: 'short' | 'long' | 'relative'
+    format: 'short' | 'long' | 'relative',
 ): string {
     const now = new Date();
 
@@ -407,7 +407,7 @@ export function formatDate(
         return date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
-            year: 'numeric'
+            year: 'numeric',
         });
     }
 
@@ -415,7 +415,7 @@ export function formatDate(
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 }
 ```
@@ -425,11 +425,11 @@ export function formatDate(
 ```typescript
 export function formatCurrency(
     amount: number,
-    currency: string = 'USD'
+    currency: string = 'USD',
 ): string {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency
+        currency,
     }).format(amount);
 }
 
@@ -464,7 +464,7 @@ export function slugify(str: string): string {
 export function pluralize(
     count: number,
     singular: string,
-    plural?: string
+    plural?: string,
 ): string {
     const pluralForm = plural || `${singular}s`;
     return count === 1 ? singular : pluralForm;
@@ -538,7 +538,7 @@ export function hasRole(user: User, role: Role): boolean {
     const roleHierarchy: Record<Role, number> = {
         USER: 1,
         EDITOR: 2,
-        ADMIN: 3
+        ADMIN: 3,
     };
 
     return roleHierarchy[user.role] >= roleHierarchy[role];
@@ -592,7 +592,7 @@ export async function createOrder(userId: string, items: CartItem[]) {
     // ❌ Business logic mixed with DB operation
     const total = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
     );
     const tax = total * 0.08;
     const finalTotal = total + tax;
@@ -603,8 +603,8 @@ export async function createOrder(userId: string, items: CartItem[]) {
             items: { create: items },
             subtotal: total,
             tax,
-            total: finalTotal
-        }
+            total: finalTotal,
+        },
     });
 }
 ```
@@ -628,11 +628,11 @@ export interface OrderCalculation {
 //  PURE - Business logic extracted
 export function calculateOrderTotal(
     items: CartItem[],
-    taxRate: number
+    taxRate: number,
 ): OrderCalculation {
     const subtotal = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
     );
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
@@ -646,7 +646,7 @@ import { calculateOrderTotal } from '~/routes/checkout/helpers';
 export async function createOrder(
     userId: string,
     items: CartItem[],
-    taxRate: number
+    taxRate: number,
 ) {
     //  PURE - Use pure calculation
     const { subtotal, tax, total } = calculateOrderTotal(items, taxRate);
@@ -658,8 +658,8 @@ export async function createOrder(
             items: { create: items },
             subtotal,
             tax,
-            total
-        }
+            total,
+        },
     });
 }
 ```
@@ -711,7 +711,7 @@ export function sortPostsByPopularity(posts: Post[]): Post[] {
 
 export function sortPostsByDate(posts: Post[]): Post[] {
     return [...posts].sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
 }
 
@@ -800,7 +800,7 @@ describe('calculatePrice', () => {
             subtotal: 100,
             tax: 8,
             discount: 0,
-            total: 108
+            total: 108,
         });
     });
 
@@ -810,7 +810,7 @@ describe('calculatePrice', () => {
             subtotal: 100,
             tax: 7.2,
             discount: 10,
-            total: 97.2
+            total: 97.2,
         });
     });
 });
@@ -843,7 +843,7 @@ describe('sortUsersByName', () => {
             fc.property(fc.array(fc.record({ name: fc.string() })), (users) => {
                 const sorted = sortUsersByName(users);
                 expect(sorted).toHaveLength(users.length);
-            })
+            }),
         );
     });
 
@@ -853,7 +853,7 @@ describe('sortUsersByName', () => {
                 const original = [...users];
                 sortUsersByName(users);
                 expect(users).toEqual(original);
-            })
+            }),
         );
     });
 });
@@ -883,7 +883,7 @@ function addToList<T>(list: T[], item: T): T[] {
 function calculateShipping(
     weight: number,
     distance: number,
-    ratePerKm: number
+    ratePerKm: number,
 ): number {
     return weight * distance * ratePerKm;
 }
@@ -910,7 +910,7 @@ function calculateTotal(subtotal: number, tax: number): number {
 // L BAD - Does too many things
 function processPurchase(
     items: Item[],
-    taxRate: number
+    taxRate: number,
 ): {
     subtotal: number;
     tax: number;
@@ -955,7 +955,7 @@ export interface PriceCalculation {
 
 export function calculatePrice(
     subtotal: number,
-    taxRate: number
+    taxRate: number,
 ): PriceCalculation {
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
@@ -967,7 +967,7 @@ export function calculatePrice(subtotal: any, taxRate: any): any {
     return {
         subtotal,
         tax: subtotal * taxRate,
-        total: subtotal + subtotal * taxRate
+        total: subtotal + subtotal * taxRate,
     };
 }
 ```
@@ -987,7 +987,7 @@ export function calculateCompoundInterest(
     principal: number,
     rate: number,
     years: number,
-    compoundsPerYear: number = 12
+    compoundsPerYear: number = 12,
 ): number {
     return (
         principal *

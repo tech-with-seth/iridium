@@ -78,18 +78,22 @@ POLAR_WEBHOOK_SECRET="your-webhook-secret"
 
 ```typescript
 // app/routes.ts - Single source of truth
-import { type RouteConfig, route, layout, prefix, index } from "@react-router/dev/routes";
-import { Paths } from "./constants";
+import {
+    type RouteConfig,
+    route,
+    layout,
+    prefix,
+    index,
+} from '@react-router/dev/routes';
+import { Paths } from './constants';
 
 export default [
-    index("routes/home.tsx"),
-    route(Paths.SIGN_IN, "routes/sign-in.tsx"),
-    layout("routes/authenticated.tsx", [
-        route(Paths.DASHBOARD, "routes/dashboard.tsx"),
+    index('routes/home.tsx'),
+    route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
+    layout('routes/authenticated.tsx', [
+        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
     ]),
-    ...prefix("api", [
-        route("endpoint", "routes/api/endpoint.ts")
-    ])
+    ...prefix('api', [route('endpoint', 'routes/api/endpoint.ts')]),
 ] satisfies RouteConfig;
 ```
 
@@ -109,9 +113,7 @@ export default function MyRoute() {
         <>
             <title>Page Title - TWS Foundations</title>
             <meta name="description" content="Page description" />
-            <Container>
-                {/* Page content */}
-            </Container>
+            <Container>{/* Page content */}</Container>
         </>
     );
 }
@@ -123,7 +125,7 @@ export default function MyRoute() {
 
 ```tsx
 // app/routes/authenticated.tsx - Layout with middleware
-import { authMiddleware } from "~/middleware/auth";
+import { authMiddleware } from '~/middleware/auth';
 
 export async function loader(args: Route.LoaderArgs) {
     return authMiddleware(args);
@@ -140,7 +142,7 @@ export default function AuthenticatedLayout() {
 **API Routes** - Manually require auth:
 
 ```tsx
-import { requireUser } from "~/lib/session.server";
+import { requireUser } from '~/lib/session.server';
 
 export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
@@ -161,8 +163,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 ```typescript
 // CORRECT - Use singleton from db.server.ts
-import { prisma } from "~/db.server";
-import type { User } from "~/generated/prisma/client";
+import { prisma } from '~/db.server';
+import type { User } from '~/generated/prisma/client';
 
 // WRONG - Do not import from @prisma/client
 // import { PrismaClient } from "@prisma/client";
@@ -261,31 +263,31 @@ export function Component({
 
 ```typescript
 // Prisma client (custom output path)
-import { prisma } from "~/db.server";
-import type { User, Session } from "~/generated/prisma/client";
+import { prisma } from '~/db.server';
+import type { User, Session } from '~/generated/prisma/client';
 
 // Route types (ALWAYS relative import)
-import type { Route } from "./+types/dashboard";
+import type { Route } from './+types/dashboard';
 
 // Auth helpers
-import { requireUser, getUser, requireAnonymous } from "~/lib/session.server";
-import { authClient } from "~/lib/auth-client";
+import { requireUser, getUser, requireAnonymous } from '~/lib/session.server';
+import { authClient } from '~/lib/auth-client';
 
 // AI client
-import { ai } from "~/lib/ai";
+import { ai } from '~/lib/ai';
 
 // CVA utilities
-import { cx, cva, compose } from "~/cva.config";
-import type { VariantProps } from "cva";
+import { cx, cva, compose } from '~/cva.config';
+import type { VariantProps } from 'cva';
 
 // Validation
-import { signInSchema, signUpSchema } from "~/lib/validations";
+import { signInSchema, signUpSchema } from '~/lib/validations';
 
 // Constants
-import { Paths } from "~/constants";
+import { Paths } from '~/constants';
 
 // Contexts (in protected routes)
-import { useAuthenticatedContext } from "~/hooks/useAuthenticatedContext";
+import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 ```
 
 ## Testing Instructions
@@ -365,31 +367,31 @@ npm run dev
 
 1. Add route to `app/routes.ts` under authenticated layout:
 
-   ```typescript
-   layout("routes/authenticated.tsx", [
-       route("new-feature", "routes/new-feature.tsx")
-   ])
-   ```
+    ```typescript
+    layout('routes/authenticated.tsx', [
+        route('new-feature', 'routes/new-feature.tsx'),
+    ]);
+    ```
 
 2. Create route file `app/routes/new-feature.tsx`:
 
-   ```tsx
-   import type { Route } from "./+types/new-feature";
-   import { useAuthenticatedContext } from "~/hooks/useAuthenticatedContext";
-   import { Container } from "~/components/Container";
+    ```tsx
+    import type { Route } from './+types/new-feature';
+    import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
+    import { Container } from '~/components/Container';
 
-   export default function NewFeature() {
-       const { user } = useAuthenticatedContext();
-       return (
-           <>
-               <title>New Feature - TWS Foundations</title>
-               <Container>
-                   <h1>Welcome {user.email}</h1>
-               </Container>
-           </>
-       );
-   }
-   ```
+    export default function NewFeature() {
+        const { user } = useAuthenticatedContext();
+        return (
+            <>
+                <title>New Feature - TWS Foundations</title>
+                <Container>
+                    <h1>Welcome {user.email}</h1>
+                </Container>
+            </>
+        );
+    }
+    ```
 
 3. Run `npm run typecheck` to generate types
 
@@ -397,32 +399,32 @@ npm run dev
 
 1. Add route to `api` prefix in `app/routes.ts`:
 
-   ```typescript
-   ...prefix("api", [
-       route("new-endpoint", "routes/api/new-endpoint.ts")
-   ])
-   ```
+    ```typescript
+    ...prefix("api", [
+        route("new-endpoint", "routes/api/new-endpoint.ts")
+    ])
+    ```
 
 2. Create API route `app/routes/api/new-endpoint.ts`:
 
-   ```typescript
-   import type { Route } from "./+types/new-endpoint";
-   import { data } from "react-router";
-   import { requireUser } from "~/lib/session.server";
-   import { prisma } from "~/db.server";
+    ```typescript
+    import type { Route } from './+types/new-endpoint';
+    import { data } from 'react-router';
+    import { requireUser } from '~/lib/session.server';
+    import { prisma } from '~/db.server';
 
-   export async function action({ request }: Route.ActionArgs) {
-       const user = await requireUser(request);
-       
-       if (request.method === "POST") {
-           const data = await request.json();
-           // Handle POST
-           return data({ success: true });
-       }
-       
-       return data({ error: "Method not allowed" }, { status: 405 });
-   }
-   ```
+    export async function action({ request }: Route.ActionArgs) {
+        const user = await requireUser(request);
+
+        if (request.method === 'POST') {
+            const data = await request.json();
+            // Handle POST
+            return data({ success: true });
+        }
+
+        return data({ error: 'Method not allowed' }, { status: 405 });
+    }
+    ```
 
 3. Run `npm run typecheck`
 
@@ -432,31 +434,31 @@ npm run dev
 
 2. Define CVA variants with DaisyUI classes:
 
-   ```typescript
-   import type { VariantProps } from "cva";
-   import { cva, cx } from "~/cva.config";
+    ```typescript
+    import type { VariantProps } from 'cva';
+    import { cva, cx } from '~/cva.config';
 
-   export const badgeVariants = cva({
-       base: "badge",
-       variants: {
-           status: {
-               primary: "badge-primary",
-               secondary: "badge-secondary",
-               accent: "badge-accent",
-               neutral: "badge-neutral"
-           },
-           size: {
-               sm: "badge-sm",
-               md: "badge-md",
-               lg: "badge-lg"
-           }
-       },
-       defaultVariants: {
-           status: "primary",
-           size: "md"
-       }
-   });
-   ```
+    export const badgeVariants = cva({
+        base: 'badge',
+        variants: {
+            status: {
+                primary: 'badge-primary',
+                secondary: 'badge-secondary',
+                accent: 'badge-accent',
+                neutral: 'badge-neutral',
+            },
+            size: {
+                sm: 'badge-sm',
+                md: 'badge-md',
+                lg: 'badge-lg',
+            },
+        },
+        defaultVariants: {
+            status: 'primary',
+            size: 'md',
+        },
+    });
+    ```
 
 3. Define props interface extending HTML attributes + CVA variants
 
@@ -468,51 +470,51 @@ npm run dev
 
 1. Edit `prisma/schema.prisma`:
 
-   ```prisma
-   model Post {
-       id        String   @id @default(cuid())
-       title     String
-       content   String
-       userId    String
-       user      User     @relation(fields: [userId], references: [id])
-       createdAt DateTime @default(now())
-   }
-   ```
+    ```prisma
+    model Post {
+        id        String   @id @default(cuid())
+        title     String
+        content   String
+        userId    String
+        user      User     @relation(fields: [userId], references: [id])
+        createdAt DateTime @default(now())
+    }
+    ```
 
 2. Create migration:
 
-   ```bash
-   npx prisma migrate dev --name add_post_model
-   ```
+    ```bash
+    npx prisma migrate dev --name add_post_model
+    ```
 
 3. Regenerate client:
 
-   ```bash
-   npx prisma generate
-   ```
+    ```bash
+    npx prisma generate
+    ```
 
 4. Restart dev server
 
 5. Import types:
 
-   ```typescript
-   import type { Post } from "~/generated/prisma/client";
-   ```
+    ```typescript
+    import type { Post } from '~/generated/prisma/client';
+    ```
 
 ### Using AI Features
 
 ```typescript
-import { streamText } from "ai";
-import { ai } from "~/lib/ai";
+import { streamText } from 'ai';
+import { ai } from '~/lib/ai';
 
 export async function action({ request }: Route.ActionArgs) {
     const { prompt } = await request.json();
-    
+
     const result = streamText({
-        model: ai("gpt-4"),
-        prompt
+        model: ai('gpt-4'),
+        prompt,
     });
-    
+
     return result.toDataStreamResponse();
 }
 ```
@@ -520,10 +522,10 @@ export async function action({ request }: Route.ActionArgs) {
 **Client-side**:
 
 ```typescript
-import { useChat } from "@ai-sdk/react";
+import { useChat } from '@ai-sdk/react';
 
 const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "/api/chat"
+    api: '/api/chat',
 });
 ```
 
@@ -591,16 +593,16 @@ OPENAI_API_KEY
 ## Additional Resources
 
 - **Detailed Instructions**: See `.github/instructions/` for framework-specific patterns
-  - `react-router.instructions.md` - React Router 7 patterns
-  - `better-auth.instructions.md` - Authentication implementation
-  - `component-patterns.instructions.md` - UI component standards
-  - `polar.instructions.md` - Billing integration
-  - `posthog.instructions.md` - Analytics and feature flags integration
-  - `prisma.instructions.md` - Database patterns
-  - `cva.instructions.md` - Component variant patterns
-  - `daisyui.instructions.md` - DaisyUI component library
-  - `zod.instructions.md` - Validation patterns
-  - `react-hook-form.instructions.md` - Form handling
+    - `react-router.instructions.md` - React Router 7 patterns
+    - `better-auth.instructions.md` - Authentication implementation
+    - `component-patterns.instructions.md` - UI component standards
+    - `polar.instructions.md` - Billing integration
+    - `posthog.instructions.md` - Analytics and feature flags integration
+    - `prisma.instructions.md` - Database patterns
+    - `cva.instructions.md` - Component variant patterns
+    - `daisyui.instructions.md` - DaisyUI component library
+    - `zod.instructions.md` - Validation patterns
+    - `react-hook-form.instructions.md` - Form handling
 
 - **React Router 7 Docs**: <https://reactrouter.com/>
 - **BetterAuth Docs**: <https://better-auth.com/>

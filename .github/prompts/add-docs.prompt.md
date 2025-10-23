@@ -18,7 +18,7 @@ tools:
         'edit',
         'runNotebooks',
         'search',
-        'new'
+        'new',
     ]
 description: 'Update documentation to reflect recent code changes'
 ---

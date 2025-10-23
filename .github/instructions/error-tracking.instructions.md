@@ -39,8 +39,8 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
                 // Enable automatic exception capture
                 autocapture: {
                     capture_copied_text: true,
-                    capture_exceptions: true // ⚠️ Add this for automatic error tracking
-                }
+                    capture_exceptions: true, // ⚠️ Add this for automatic error tracking
+                },
             });
         }
 
@@ -138,6 +138,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 ```
 
 **Best Practice**: Most routes should NOT have error boundaries. Only add them for:
+
 - Custom 404 pages with specific messaging
 - Custom unauthorized access pages
 - Routes requiring different error UX
@@ -155,7 +156,7 @@ import { prisma } from '~/db.server';
 
 export async function loader({ params }: Route.LoaderArgs) {
     const product = await prisma.product.findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
     });
 
     // ✅ Intentional 404 - caught by error boundary
@@ -165,7 +166,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
     // ❌ Unhandled database error - caught by error boundary + PostHog
     // If prisma.product.findUnique throws, it bubbles up automatically
-    
+
     return { product };
 }
 ```
@@ -183,16 +184,16 @@ import { requireUser } from '~/lib/session.server';
 export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
     const formData = await request.formData();
-    
+
     try {
         const product = await prisma.product.create({
             data: {
                 name: formData.get('name') as string,
                 price: Number(formData.get('price')),
-                userId: user.id
-            }
+                userId: user.id,
+            },
         });
-        
+
         return redirect(`/products/${product.id}`);
     } catch (error) {
         // ✅ Manually track error with PostHog (client-side)
@@ -211,13 +212,13 @@ React component errors are caught by the closest error boundary:
 ```tsx
 export default function ProductDetails({ loaderData }: Route.ComponentProps) {
     const { product } = loaderData;
-    
+
     // ❌ If this throws, error boundary catches it
     // const price = product.price.toFixed(2); // Throws if price is undefined
-    
+
     // ✅ Better: Handle potential errors gracefully
     const price = product.price ? product.price.toFixed(2) : 'N/A';
-    
+
     return (
         <div>
             <h1>{product.name}</h1>
@@ -234,12 +235,12 @@ Errors in `clientLoader` are caught by error boundaries:
 ```tsx
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     const response = await fetch(`/api/products/${params.id}`);
-    
+
     if (!response.ok) {
         // ✅ Throw intentional error
         throw data('Failed to load product', { status: response.status });
     }
-    
+
     return response.json();
 }
 ```
@@ -255,7 +256,7 @@ import { useState } from 'react';
 export default function DataFetchingComponent() {
     const posthog = usePostHog();
     const [error, setError] = useState<string | null>(null);
-    
+
     const fetchData = async () => {
         try {
             const response = await fetch('/api/data');
@@ -269,14 +270,14 @@ export default function DataFetchingComponent() {
             posthog?.captureException(error, {
                 context: 'data_fetching',
                 endpoint: '/api/data',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
-            
+
             // Show user-friendly error
             setError('Failed to load data. Please try again.');
         }
     };
-    
+
     return (
         <div>
             {error && <div className="alert alert-error">{error}</div>}
@@ -291,6 +292,7 @@ export default function DataFetchingComponent() {
 ### Automatic Error Capture
 
 PostHog automatically captures:
+
 - Unhandled JavaScript errors
 - Unhandled promise rejections
 - Errors in event handlers
@@ -307,7 +309,7 @@ import { usePostHog } from 'posthog-js/react';
 
 export default function PaymentForm() {
     const posthog = usePostHog();
-    
+
     const handlePayment = async (data: PaymentData) => {
         try {
             await processPayment(data);
@@ -318,14 +320,14 @@ export default function PaymentForm() {
                 userId: user.id,
                 amount: data.amount,
                 paymentMethod: data.method,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
-            
+
             // Show user-friendly error
             toast.error('Payment failed. Please try again.');
         }
     };
-    
+
     return <form onSubmit={handleSubmit(handlePayment)}>...</form>;
 }
 ```
@@ -353,22 +355,22 @@ export class PostHogErrorBoundary extends Component<Props, State> {
         super(props);
         this.state = { hasError: false };
     }
-    
+
     static getDerivedStateFromError(error: Error): State {
         return { hasError: true, error };
     }
-    
+
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         // ✅ Send error to PostHog with component stack
         posthog.captureException(error, {
             errorInfo: errorInfo.componentStack,
             errorBoundary: true,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
-        
+
         console.error('Error caught by boundary:', error, errorInfo);
     }
-    
+
     render() {
         if (this.state.hasError) {
             return (
@@ -386,7 +388,7 @@ export class PostHogErrorBoundary extends Component<Props, State> {
                 )
             );
         }
-        
+
         return this.props.children;
     }
 }
@@ -417,22 +419,22 @@ export default function SignUpForm() {
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
     } = useValidatedForm({
-        resolver: signUpSchema
+        resolver: signUpSchema,
     });
-    
+
     // ✅ Track validation errors (not exceptions)
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             posthog?.capture('form_validation_error', {
                 form: 'sign_up',
                 fields: Object.keys(errors),
-                errorCount: Object.keys(errors).length
+                errorCount: Object.keys(errors).length,
             });
         }
     }, [errors, posthog]);
-    
+
     return <form onSubmit={handleSubmit}>...</form>;
 }
 ```
@@ -447,11 +449,11 @@ import { usePostHog } from 'posthog-js/react';
 export async function apiCall(endpoint: string, options?: RequestInit) {
     const posthog = usePostHog();
     const startTime = Date.now();
-    
+
     try {
         const response = await fetch(endpoint, options);
         const duration = Date.now() - startTime;
-        
+
         if (!response.ok) {
             // ✅ Track API errors
             posthog?.captureException(
@@ -460,30 +462,30 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
                     endpoint,
                     status: response.status,
                     duration,
-                    method: options?.method || 'GET'
-                }
+                    method: options?.method || 'GET',
+                },
             );
         }
-        
+
         // Track successful API calls
         posthog?.capture('api_call_completed', {
             endpoint,
             status: response.status,
             duration,
-            success: response.ok
+            success: response.ok,
         });
-        
+
         return response;
     } catch (error) {
         const duration = Date.now() - startTime;
-        
+
         // ✅ Track network errors
         posthog?.captureException(error, {
             endpoint,
             duration,
-            type: 'network_error'
+            type: 'network_error',
         });
-        
+
         throw error;
     }
 }
@@ -503,6 +505,7 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
 ### Error Context
 
 Each error captured by PostHog includes:
+
 - **Stack trace** - Full error stack
 - **User information** - User ID, email (if identified)
 - **Session recording** - Watch what happened before the error
@@ -519,18 +522,18 @@ import { usePostHog } from 'posthog-js/react';
 
 export default function SupportTicket() {
     const posthog = usePostHog();
-    
+
     const handleSubmitTicket = (ticketData: TicketData) => {
         // ✅ Include session recording URL in support ticket
         const sessionRecordingUrl = posthog?.get_session_replay_url();
-        
+
         submitTicket({
             ...ticketData,
             sessionRecordingUrl, // Support team can watch what happened
-            posthogPersonId: posthog?.get_distinct_id()
+            posthogPersonId: posthog?.get_distinct_id(),
         });
     };
-    
+
     return <TicketForm onSubmit={handleSubmitTicket} />;
 }
 ```
@@ -604,21 +607,24 @@ posthog?.capture('validation_error', { fields: ['email', 'password'] });
 // Add a test route to trigger errors
 export default function TestErrors() {
     const posthog = usePostHog();
-    
+
     return (
         <div>
-            <button onClick={() => {
-                throw new Error('Test error');
-            }}>
+            <button
+                onClick={() => {
+                    throw new Error('Test error');
+                }}
+            >
                 Throw Error
             </button>
-            
-            <button onClick={() => {
-                posthog?.captureException(
-                    new Error('Manual test error'),
-                    { context: 'test' }
-                );
-            }}>
+
+            <button
+                onClick={() => {
+                    posthog?.captureException(new Error('Manual test error'), {
+                        context: 'test',
+                    });
+                }}
+            >
                 Manual Error
             </button>
         </div>

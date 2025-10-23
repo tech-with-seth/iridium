@@ -21,7 +21,7 @@ export const loader = Checkout({
     accessToken: 'xxx', // Or set an environment variable to POLAR_ACCESS_TOKEN
     successUrl: process.env.SUCCESS_URL,
     server: 'sandbox', // Use sandbox if you're testing Polar - omit the parameter or pass 'production' otherwise
-    theme: 'dark' // Enforces the theme - System-preferred theme will be set if left omitted
+    theme: 'dark', // Enforces the theme - System-preferred theme will be set if left omitted
 });
 ```
 
@@ -46,7 +46,7 @@ import { CustomerPortal } from '@polar-sh/remix';
 export const loader = CustomerPortal({
     accessToken: 'xxx', // Or set an environment variable to POLAR_ACCESS_TOKEN
     getCustomerId: (event) => '', // Function to resolve a Polar Customer ID
-    server: 'sandbox' // Use sandbox if you're testing Polar - omit the parameter or pass 'production' otherwise
+    server: 'sandbox', // Use sandbox if you're testing Polar - omit the parameter or pass 'production' otherwise
 });
 ```
 

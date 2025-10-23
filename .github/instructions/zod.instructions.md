@@ -25,7 +25,7 @@ Create schemas in `app/lib/validations.ts` following existing patterns:
 export const userSchema = z.object({
     username: z.string().min(3).max(20),
     email: z.string().email(),
-    xp: z.number().int().positive()
+    xp: z.number().int().positive(),
 });
 ```
 
@@ -60,9 +60,9 @@ export async function action({ request }: Route.ActionArgs) {
     if (!result.success) {
         return data(
             {
-                errors: result.error.issues
+                errors: result.error.issues,
             },
-            { status: 400 }
+            { status: 400 },
         );
     }
 
@@ -83,7 +83,7 @@ const asyncSchema = z.string().refine(
         const exists = await checkDatabaseForValue(val);
         return !exists;
     },
-    { message: 'Value already exists' }
+    { message: 'Value already exists' },
 );
 
 // In loader/action
@@ -138,7 +138,7 @@ if (!result.success) {
             acc[path] = issue.message;
             return acc;
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
     );
 
     return data({ errors: fieldErrors }, { status: 400 });
@@ -153,7 +153,7 @@ if (!result.success) {
 export const contactFormSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
-    message: z.string().min(10, 'Message must be at least 10 characters')
+    message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 ```
 
@@ -164,7 +164,7 @@ export const createPostSchema = z.object({
     title: z.string().min(1),
     content: z.string(),
     published: z.boolean().default(false),
-    tags: z.array(z.string()).optional().default([])
+    tags: z.array(z.string()).optional().default([]),
 });
 ```
 
@@ -174,11 +174,11 @@ export const createPostSchema = z.object({
 export const passwordSchema = z
     .object({
         password: z.string().min(8),
-        confirmPassword: z.string()
+        confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords don't match",
-        path: ['confirmPassword'] // Error path
+        path: ['confirmPassword'], // Error path
     });
 ```
 
@@ -199,7 +199,7 @@ export const numericStringSchema = z.string().transform((val) => {
 ```typescript
 export const apiResponseSchema = z.discriminatedUnion('status', [
     z.object({ status: z.literal('success'), data: z.any() }),
-    z.object({ status: z.literal('error'), message: z.string() })
+    z.object({ status: z.literal('error'), message: z.string() }),
 ]);
 ```
 

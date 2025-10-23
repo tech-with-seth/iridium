@@ -61,7 +61,7 @@ export const profileUpdateSchema = z.object({
     phoneNumber: z
         .string()
         .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
-        .optional()
+        .optional(),
 });
 
 // Type inference
@@ -72,7 +72,7 @@ export const createPostSchema = z.object({
     title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
     content: z.string().min(10, 'Content must be at least 10 characters'),
     published: z.boolean().default(false),
-    tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional()
+    tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
 });
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
@@ -252,15 +252,15 @@ import {
     type RouteConfig,
     index,
     route,
-    prefix
+    prefix,
 } from '@react-router/dev/routes';
 
 export default [
     // ... existing routes
     ...prefix('api', [
-        route('[feature]', 'routes/api/[feature].ts')
+        route('[feature]', 'routes/api/[feature].ts'),
         // With params: route('[feature]/:id', 'routes/api/[feature].$id.ts')
-    ])
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -555,7 +555,7 @@ try {
 ```typescript
 // Test GET
 const response = await fetch('/api/[feature]', {
-    headers: { Cookie: sessionCookie }
+    headers: { Cookie: sessionCookie },
 });
 expect(response.status).toBe(200);
 
@@ -563,7 +563,7 @@ expect(response.status).toBe(200);
 const response = await fetch('/api/[feature]', {
     method: 'PUT',
     headers: { Cookie: sessionCookie },
-    body: formData
+    body: formData,
 });
 expect(response.status).toBe(200);
 expect(await response.json()).toHaveProperty('success', true);
@@ -571,7 +571,7 @@ expect(await response.json()).toHaveProperty('success', true);
 // Test DELETE
 const response = await fetch('/api/[feature]', {
     method: 'DELETE',
-    headers: { Cookie: sessionCookie }
+    headers: { Cookie: sessionCookie },
 });
 expect(response.status).toBe(200);
 ```
@@ -596,7 +596,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (intent === 'create') {
         const { data, errors } = await validateFormData<CreateData>(
             formData,
-            zodResolver(createSchema)
+            zodResolver(createSchema),
         );
         if (errors) return data({ errors }, { status: 400 });
         // ... handle creation
@@ -605,7 +605,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (intent === 'update') {
         const { data, errors } = await validateFormData<UpdateData>(
             formData,
-            zodResolver(updateSchema)
+            zodResolver(updateSchema),
         );
         if (errors) return data({ errors }, { status: 400 });
         // ... handle update

@@ -1,69 +1,98 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const signInSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
+    email: z
+        .string()
+        .min(1, 'Email is required')
+        .email('Invalid email address'),
+    password: z.string().min(1, 'Password is required'),
 });
 
 export const signUpSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Za-z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    name: z.string().min(1, 'Name is required'),
+    email: z
+        .string()
+        .min(1, 'Email is required')
+        .email('Invalid email address'),
+    password: z
+        .string()
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Za-z]/, 'Password must contain at least one letter')
+        .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
 export const chatMessageSchema = z.object({
-  messages: z.array(z.object({
-    role: z.enum(["user", "assistant", "system"]),
-    content: z.string(),
-  })),
+    messages: z.array(
+        z.object({
+            role: z.enum(['user', 'assistant', 'system']),
+            content: z.string(),
+        }),
+    ),
 });
 
 export const profileUpdateSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  bio: z.string().max(500, "Bio must be 500 characters or less").optional().or(z.literal("")),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
-  location: z.string().max(100, "Location must be 100 characters or less").optional().or(z.literal("")),
-  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number").optional().or(z.literal("")),
+    name: z.string().min(1, 'Name is required'),
+    bio: z
+        .string()
+        .max(500, 'Bio must be 500 characters or less')
+        .optional()
+        .or(z.literal('')),
+    website: z.string().url('Invalid URL').optional().or(z.literal('')),
+    location: z
+        .string()
+        .max(100, 'Location must be 100 characters or less')
+        .optional()
+        .or(z.literal('')),
+    phoneNumber: z
+        .string()
+        .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
+        .optional()
+        .or(z.literal('')),
 });
 
 // EMAIL VALIDATION SCHEMAS
 
-export const sendEmailSchema = z.object({
-  to: z.union([
-    z.string().email("Invalid recipient email address"),
-    z.array(z.string().email("Invalid recipient email address"))
-  ]),
-  from: z.string().email("Invalid sender email address").optional(),
-  subject: z.string().min(1, "Subject is required").max(200, "Subject must be 200 characters or less"),
-  html: z.string().min(1, "Email body is required").optional(),
-  text: z.string().min(1, "Email body is required").optional(),
-  replyTo: z.string().email("Invalid reply-to email address").optional(),
-  cc: z.union([
-    z.string().email("Invalid CC email address"),
-    z.array(z.string().email("Invalid CC email address"))
-  ]).optional(),
-  bcc: z.union([
-    z.string().email("Invalid BCC email address"),
-    z.array(z.string().email("Invalid BCC email address"))
-  ]).optional(),
-}).refine((data) => data.html || data.text, {
-  message: "Either 'html' or 'text' must be provided",
-  path: ["html"]
-});
+export const sendEmailSchema = z
+    .object({
+        to: z.union([
+            z.string().email('Invalid recipient email address'),
+            z.array(z.string().email('Invalid recipient email address')),
+        ]),
+        from: z.string().email('Invalid sender email address').optional(),
+        subject: z
+            .string()
+            .min(1, 'Subject is required')
+            .max(200, 'Subject must be 200 characters or less'),
+        html: z.string().min(1, 'Email body is required').optional(),
+        text: z.string().min(1, 'Email body is required').optional(),
+        replyTo: z.string().email('Invalid reply-to email address').optional(),
+        cc: z
+            .union([
+                z.string().email('Invalid CC email address'),
+                z.array(z.string().email('Invalid CC email address')),
+            ])
+            .optional(),
+        bcc: z
+            .union([
+                z.string().email('Invalid BCC email address'),
+                z.array(z.string().email('Invalid BCC email address')),
+            ])
+            .optional(),
+    })
+    .refine((data) => data.html || data.text, {
+        message: "Either 'html' or 'text' must be provided",
+        path: ['html'],
+    });
 
 export const emailTemplateSchema = z.object({
-  templateName: z.enum([
-    "verification",
-    "password-reset",
-    "welcome",
-    "transactional"
-  ]),
-  to: z.string().email("Invalid recipient email address"),
-  props: z.record(z.any()).optional()
+    templateName: z.enum([
+        'verification',
+        'password-reset',
+        'welcome',
+        'transactional',
+    ]),
+    to: z.string().email('Invalid recipient email address'),
+    props: z.record(z.any()).optional(),
 });
 
 export type SignInData = z.infer<typeof signInSchema>;

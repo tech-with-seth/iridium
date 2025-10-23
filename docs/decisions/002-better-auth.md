@@ -34,9 +34,9 @@ const session = await auth.api.getSession({ headers: request.headers });
 
 ```typescript
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
-  }),
+    database: prismaAdapter(db, {
+        provider: 'postgresql',
+    }),
 });
 ```
 
@@ -44,10 +44,10 @@ export const auth = betterAuth({
 
 ```typescript
 plugins: [
-  polar({
-    // Billing integration
-  }),
-]
+    polar({
+        // Billing integration
+    }),
+];
 ```
 
 **React Integration**: Built-in React hooks:
@@ -182,17 +182,17 @@ const { data: session } = authClient.useSession();
 
 ```typescript
 // app/lib/auth.server.ts
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { db } from "~/db.server";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { db } from '~/db.server';
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
+    database: prismaAdapter(db, {
+        provider: 'postgresql',
+    }),
+    emailAndPassword: {
+        enabled: true,
+    },
 });
 ```
 
@@ -200,10 +200,10 @@ export const auth = betterAuth({
 
 ```typescript
 // app/lib/auth-client.ts
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL,
+    baseURL: process.env.BETTER_AUTH_URL,
 });
 ```
 
@@ -211,13 +211,13 @@ export const authClient = createAuthClient({
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  return { user: session.user };
+    return { user: session.user };
 }
 ```
 

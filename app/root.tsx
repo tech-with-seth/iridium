@@ -5,7 +5,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useFetcher
+    useFetcher,
 } from 'react-router';
 import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
@@ -30,12 +30,12 @@ export const links: Route.LinksFunction = () => [
     {
         rel: 'preconnect',
         href: 'https://fonts.gstatic.com',
-        crossOrigin: 'anonymous'
+        crossOrigin: 'anonymous',
     },
     {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:ital,wght@0,100..900;1,100..900&display=swap'
-    }
+        href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:ital,wght@0,100..900;1,100..900&display=swap',
+    },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -48,9 +48,9 @@ export async function loader({ request }: Route.LoaderArgs) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`
-            }
-        }
+                Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+            },
+        },
     );
 
     const featureFlagsData = await featureFlagsResponse.json();
@@ -59,7 +59,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         user,
         role: roleObj?.role,
         activeFlags: getActiveFlags(featureFlagsData),
-        featureFlags: featureFlagsData.results
+        featureFlags: featureFlagsData.results,
     };
 }
 
@@ -110,12 +110,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                 {
                                     active: !flag.active,
                                     flagId: flag.id,
-                                    intent: 'toggleFeatureFlag'
+                                    intent: 'toggleFeatureFlag',
                                 },
                                 {
                                     method: 'PATCH',
-                                    action: '/api/posthog/feature-flags'
-                                }
+                                    action: '/api/posthog/feature-flags',
+                                },
                             );
 
                         return (

@@ -48,8 +48,8 @@ Type-safe ORM with:
 
 ```typescript
 const user = await db.user.findUnique({
-  where: { id: "123" },
-  include: { posts: true },
+    where: { id: '123' },
+    include: { posts: true },
 });
 // user is fully typed
 ```
@@ -231,7 +231,7 @@ model User {
 
 ```typescript
 // app/db.server.ts
-import { PrismaClient } from "~/generated/prisma";
+import { PrismaClient } from '~/generated/prisma';
 
 const db = new PrismaClient();
 

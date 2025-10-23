@@ -10,7 +10,7 @@ import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
 import posthog from 'posthog-js';
 import {
     createCachedClientLoader,
-    createCachedClientAction
+    createCachedClientAction,
 } from '~/lib/cache';
 
 // Cache configuration
@@ -33,7 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 // Client loader - Manages cache for user profile
 export const clientLoader = createCachedClientLoader({
     cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL
+    ttl: CACHE_TTL,
 });
 
 // PUT/DELETE - Update or Delete profile
@@ -47,7 +47,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await validateFormData<ProfileUpdateData>(
                 formData,
-                zodResolver(profileUpdateSchema)
+                zodResolver(profileUpdateSchema),
             );
 
         if (errors) {
@@ -57,13 +57,13 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             const updatedUser = await updateUser({
                 userId: user.id,
-                data: validatedData!
+                data: validatedData!,
             });
 
             return data({
                 success: true,
                 profile: updatedUser,
-                message: 'Profile updated successfully'
+                message: 'Profile updated successfully',
             });
         } catch (error) {
             // Track error with PostHog
@@ -71,12 +71,12 @@ export async function action({ request }: Route.ActionArgs) {
                 userId: user.id,
                 context: 'profile_update',
                 data: validatedData,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             return data(
                 { error: 'Failed to update profile. Please try again.' },
-                { status: 500 }
+                { status: 500 },
             );
         }
     }
@@ -89,7 +89,7 @@ export async function action({ request }: Route.ActionArgs) {
 
             // Sign out the user
             await auth.api.signOut({
-                headers: request.headers
+                headers: request.headers,
             });
 
             return redirect(Paths.HOME);
@@ -100,12 +100,12 @@ export async function action({ request }: Route.ActionArgs) {
             posthog.captureException(error, {
                 userId: user.id,
                 context: 'account_deletion',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             return data(
                 { error: 'Failed to delete account. Please try again.' },
-                { status: 500 }
+                { status: 500 },
             );
         }
     }
@@ -115,7 +115,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 // Client action - Invalidates cache on mutations
 export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY
+    cacheKey: CACHE_KEY,
 });
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -125,9 +125,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
             {
                 error: 'An unexpected error occurred',
                 message: import.meta.env.DEV ? error.message : undefined,
-                stack: import.meta.env.DEV ? error.stack : undefined
+                stack: import.meta.env.DEV ? error.stack : undefined,
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 

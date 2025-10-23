@@ -1,17 +1,23 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { polar, checkout, portal, usage, webhooks } from '@polar-sh/better-auth';
+import {
+    polar,
+    checkout,
+    portal,
+    usage,
+    webhooks,
+} from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
 import { polarClient } from './polar.server';
 import {
     sendVerificationEmail,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
 } from '~/models/email.server';
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
-        provider: 'postgresql'
+        provider: 'postgresql',
     }),
     emailAndPassword: {
         enabled: true,
@@ -20,23 +26,23 @@ export const auth = betterAuth({
             // Send password reset email via Resend
             await sendPasswordResetEmail({
                 to: user.email,
-                resetUrl: url
+                resetUrl: url,
             });
-        }
+        },
     },
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             // Send verification email via Resend
             await sendVerificationEmail({
                 to: user.email,
-                verificationUrl: url
+                verificationUrl: url,
             });
         },
-        sendOnSignUp: true // Automatically send verification email on signup
+        sendOnSignUp: true, // Automatically send verification email on signup
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
-        updateAge: 60 * 60 * 24 // 1 day
+        updateAge: 60 * 60 * 24, // 1 day
     },
     onAPIError: {
         throw: false, // Don't throw errors automatically
@@ -44,9 +50,9 @@ export const auth = betterAuth({
             // Log errors but don't crash the application
             console.error('Better Auth API Error:', {
                 error: error instanceof Error ? error.message : String(error),
-                context: ctx
+                context: ctx,
             });
-        }
+        },
     },
     plugins: [
         polar({
@@ -58,7 +64,7 @@ export const auth = betterAuth({
                     // products: [{ productId: "your-product-id", slug: "pro" }],
                     successUrl:
                         process.env.POLAR_SUCCESS_URL || '/payment/success',
-                    authenticatedUsersOnly: true
+                    authenticatedUsersOnly: true,
                 }),
                 portal(),
                 usage(),
@@ -72,9 +78,9 @@ export const auth = betterAuth({
                     },
                     onPayload: async (payload) => {
                         console.log('Polar webhook received:', payload);
-                    }
-                })
-            ]
-        })
-    ]
+                    },
+                }),
+            ],
+        }),
+    ],
 });

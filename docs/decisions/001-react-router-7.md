@@ -33,8 +33,8 @@ We chose React Router 7 (formerly Remix v3) as our full-stack framework.
 
 ```typescript
 export default [
-  index("routes/home.tsx"),
-  route("about", "routes/about.tsx"),
+    index('routes/home.tsx'),
+    route('about', 'routes/about.tsx'),
 ] satisfies RouteConfig;
 ```
 
@@ -42,11 +42,11 @@ export default [
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  return { data: "example" };
+    return { data: 'example' };
 }
 
 export default function MyRoute({ loaderData }: Route.ComponentProps) {
-  // loaderData is fully typed
+    // loaderData is fully typed
 }
 ```
 
@@ -54,8 +54,8 @@ export default function MyRoute({ loaderData }: Route.ComponentProps) {
 
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  // Handle form submission
+    const formData = await request.formData();
+    // Handle form submission
 }
 ```
 
@@ -168,14 +168,19 @@ export async function action({ request }: Route.ActionArgs) {
 Routes are defined in `app/routes.ts`:
 
 ```typescript
-import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
+import {
+    type RouteConfig,
+    index,
+    layout,
+    route,
+} from '@react-router/dev/routes';
 
 export default [
-  index("routes/home.tsx"),
-  route("login", "routes/login.tsx"),
-  layout("routes/app/layout.tsx", [
-    route("dashboard", "routes/app/dashboard.tsx"),
-  ]),
+    index('routes/home.tsx'),
+    route('login', 'routes/login.tsx'),
+    layout('routes/app/layout.tsx', [
+        route('dashboard', 'routes/app/dashboard.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 

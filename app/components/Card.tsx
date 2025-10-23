@@ -7,26 +7,26 @@ export const cardVariants = cva({
     variants: {
         variant: {
             border: 'card-border',
-            dash: 'card-dash'
+            dash: 'card-dash',
         },
         size: {
             xs: 'card-xs',
             sm: 'card-sm',
             md: 'card-md',
             lg: 'card-lg',
-            xl: 'card-xl'
+            xl: 'card-xl',
         },
         side: {
-            true: 'card-side'
+            true: 'card-side',
         },
         imageFull: {
-            true: 'image-full'
-        }
+            true: 'image-full',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface CardProps
@@ -62,9 +62,9 @@ export function Card({
                     size,
                     variant,
                     side,
-                    imageFull
+                    imageFull,
                 }),
-                className
+                className,
             )}
             {...props}
         >

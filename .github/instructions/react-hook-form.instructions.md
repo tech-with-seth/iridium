@@ -13,11 +13,13 @@ npm install react-hook-form @hookform/resolvers
 ## Core Concepts
 
 ### Performance-First Design
+
 - Uncontrolled components by default (minimal re-renders)
 - Form state isolated from React render cycle
 - Subscription-based updates for optimal performance
 
 ### HTML Standard Alignment
+
 - Leverages native form validation
 - Supports standard HTML input attributes
 - Works with browser validation APIs
@@ -26,7 +28,12 @@ npm install react-hook-form @hookform/resolvers
 
 ```typescript
 // Core hooks
-import { useForm, useFormContext, useController, useFieldArray } from 'react-hook-form';
+import {
+    useForm,
+    useFormContext,
+    useController,
+    useFieldArray,
+} from 'react-hook-form';
 
 // Zod integration
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,9 +55,9 @@ All validation schemas live in `app/lib/validations.ts`:
 import { z } from 'zod';
 
 export const contactFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -117,23 +124,23 @@ import type { Route } from './+types/contact';
 import { contactFormSchema } from '~/lib/validations';
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  // Validate with Zod
-  const result = contactFormSchema.safeParse(data);
+    // Validate with Zod
+    const result = contactFormSchema.safeParse(data);
 
-  if (!result.success) {
-    return data(
-      { errors: result.error.flatten().fieldErrors },
-      { status: 400 }
-    );
-  }
+    if (!result.success) {
+        return data(
+            { errors: result.error.flatten().fieldErrors },
+            { status: 400 },
+        );
+    }
 
-  // Process validated data
-  await sendEmail(result.data);
+    // Process validated data
+    await sendEmail(result.data);
 
-  return redirect('/success');
+    return redirect('/success');
 }
 ```
 
@@ -173,28 +180,28 @@ export default function ContactForm() {
 
 ```typescript
 const form = useForm({
-  // Validation mode
-  mode: 'onSubmit',              // 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all'
-  reValidateMode: 'onChange',    // When to re-validate after error
+    // Validation mode
+    mode: 'onSubmit', // 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all'
+    reValidateMode: 'onChange', // When to re-validate after error
 
-  // Default values (highly recommended)
-  defaultValues: {
-    username: '',
-    email: ''
-  },
+    // Default values (highly recommended)
+    defaultValues: {
+        username: '',
+        email: '',
+    },
 
-  // Schema validation
-  resolver: zodResolver(mySchema),
+    // Schema validation
+    resolver: zodResolver(mySchema),
 
-  // Focus management
-  shouldFocusError: true,        // Auto-focus first error field
+    // Focus management
+    shouldFocusError: true, // Auto-focus first error field
 
-  // Error display
-  criteriaMode: 'firstError',    // 'firstError' | 'all'
+    // Error display
+    criteriaMode: 'firstError', // 'firstError' | 'all'
 
-  // Advanced options
-  shouldUnregister: false,       // Keep values when inputs unmount
-  shouldUseNativeValidation: false,
+    // Advanced options
+    shouldUnregister: false, // Keep values when inputs unmount
+    shouldUseNativeValidation: false,
 });
 ```
 
@@ -202,43 +209,43 @@ const form = useForm({
 
 ```typescript
 const {
-  // Field registration
-  register,                      // Register input with validation
-  unregister,                    // Remove input from form
+    // Field registration
+    register, // Register input with validation
+    unregister, // Remove input from form
 
-  // Form submission
-  handleSubmit,                  // Validate and submit handler
+    // Form submission
+    handleSubmit, // Validate and submit handler
 
-  // Form state
-  formState: {
-    errors,                      // Field validation errors
-    isDirty,                     // Any field modified
-    dirtyFields,                 // Which fields modified
-    touchedFields,               // Which fields touched
-    isSubmitting,                // Currently submitting
-    isSubmitted,                 // Has been submitted
-    isSubmitSuccessful,          // Submitted without errors
-    isValid,                     // Form is valid
-    isValidating,                // Currently validating
-    submitCount                  // Number of submissions
-  },
+    // Form state
+    formState: {
+        errors, // Field validation errors
+        isDirty, // Any field modified
+        dirtyFields, // Which fields modified
+        touchedFields, // Which fields touched
+        isSubmitting, // Currently submitting
+        isSubmitted, // Has been submitted
+        isSubmitSuccessful, // Submitted without errors
+        isValid, // Form is valid
+        isValidating, // Currently validating
+        submitCount, // Number of submissions
+    },
 
-  // Field manipulation
-  watch,                         // Watch field values
-  getValues,                     // Get current values
-  setValue,                      // Set field value programmatically
-  reset,                         // Reset entire form
-  resetField,                    // Reset single field
-  setFocus,                      // Focus specific field
+    // Field manipulation
+    watch, // Watch field values
+    getValues, // Get current values
+    setValue, // Set field value programmatically
+    reset, // Reset entire form
+    resetField, // Reset single field
+    setFocus, // Focus specific field
 
-  // Validation
-  trigger,                       // Manually trigger validation
-  setError,                      // Set custom error
-  clearErrors,                   // Clear errors
+    // Validation
+    trigger, // Manually trigger validation
+    setError, // Set custom error
+    clearErrors, // Clear errors
 
-  // Advanced
-  control,                       // For Controller/useController
-  getFieldState                  // Get field-specific state
+    // Advanced
+    control, // For Controller/useController
+    getFieldState, // Get field-specific state
 } = useForm();
 ```
 
@@ -281,18 +288,18 @@ const {
 
 ### Validation Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `required` | `boolean \| string` | Field is required |
-| `min` | `number \| { value: number, message: string }` | Minimum value (numbers) |
-| `max` | `number \| { value: number, message: string }` | Maximum value (numbers) |
-| `minLength` | `number \| { value: number, message: string }` | Minimum length (strings) |
-| `maxLength` | `number \| { value: number, message: string }` | Maximum length (strings) |
-| `pattern` | `RegExp \| { value: RegExp, message: string }` | Regex pattern |
-| `validate` | `Function \| Object` | Custom validation function(s) |
-| `disabled` | `boolean` | Disable field |
-| `onChange` | `(e: Event) => void` | Custom onChange handler |
-| `onBlur` | `(e: Event) => void` | Custom onBlur handler |
+| Option      | Type                                           | Description                   |
+| ----------- | ---------------------------------------------- | ----------------------------- |
+| `required`  | `boolean \| string`                            | Field is required             |
+| `min`       | `number \| { value: number, message: string }` | Minimum value (numbers)       |
+| `max`       | `number \| { value: number, message: string }` | Maximum value (numbers)       |
+| `minLength` | `number \| { value: number, message: string }` | Minimum length (strings)      |
+| `maxLength` | `number \| { value: number, message: string }` | Maximum length (strings)      |
+| `pattern`   | `RegExp \| { value: RegExp, message: string }` | Regex pattern                 |
+| `validate`  | `Function \| Object`                           | Custom validation function(s) |
+| `disabled`  | `boolean`                                      | Disable field                 |
+| `onChange`  | `(e: Event) => void`                           | Custom onChange handler       |
+| `onBlur`    | `(e: Event) => void`                           | Custom onBlur handler         |
 
 ## Controlled Components with Controller
 
@@ -491,14 +498,14 @@ const { formState: { errors } } = useForm();
 const { setError } = useForm();
 
 setError('username', {
-  type: 'server',
-  message: 'This username is already taken'
+    type: 'server',
+    message: 'This username is already taken',
 });
 
 // Multiple fields
 setError('root.serverError', {
-  type: 'server',
-  message: 'Something went wrong'
+    type: 'server',
+    message: 'Something went wrong',
 });
 ```
 
@@ -507,9 +514,9 @@ setError('root.serverError', {
 ```typescript
 const { clearErrors } = useForm();
 
-clearErrors('username');        // Clear single field
+clearErrors('username'); // Clear single field
 clearErrors(['email', 'name']); // Clear multiple
-clearErrors();                  // Clear all
+clearErrors(); // Clear all
 ```
 
 ## Form State Management
@@ -530,10 +537,10 @@ const [username, email] = watch(['username', 'email']);
 
 // Watch with callback (for subscriptions)
 useEffect(() => {
-  const subscription = watch((value, { name, type }) => {
-    console.log(value, name, type);
-  });
-  return () => subscription.unsubscribe();
+    const subscription = watch((value, { name, type }) => {
+        console.log(value, name, type);
+    });
+    return () => subscription.unsubscribe();
 }, [watch]);
 ```
 
@@ -562,9 +569,9 @@ setValue('username', 'john_doe');
 
 // With options
 setValue('username', 'john_doe', {
-  shouldValidate: true,    // Trigger validation
-  shouldDirty: true,       // Mark as dirty
-  shouldTouch: true        // Mark as touched
+    shouldValidate: true, // Trigger validation
+    shouldDirty: true, // Mark as dirty
+    shouldTouch: true, // Mark as touched
 });
 ```
 
@@ -578,15 +585,15 @@ reset();
 
 // Reset to new values
 reset({
-  username: 'new_username',
-  email: 'new@email.com'
+    username: 'new_username',
+    email: 'new@email.com',
 });
 
 // Reset specific fields
 reset(undefined, {
-  keepErrors: true,
-  keepDirty: true,
-  keepValues: false
+    keepErrors: true,
+    keepDirty: true,
+    keepValues: false,
 });
 ```
 
@@ -687,6 +694,7 @@ CustomInput.displayName = 'CustomInput';
 ```
 
 **Why forwardRef is required:**
+
 - `register()` returns a `ref` that React Hook Form uses for validation and value management
 - Without `forwardRef`, the ref cannot be passed to the underlying input element
 - This will cause validation to fail and form values won't be tracked properly
@@ -699,8 +707,8 @@ CustomInput.displayName = 'CustomInput';
 import { z } from 'zod';
 
 const schema = z.object({
-  username: z.string(),
-  age: z.number()
+    username: z.string(),
+    age: z.number(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -708,8 +716,8 @@ type FormData = z.infer<typeof schema>;
 const { handleSubmit } = useForm<FormData>();
 
 const onSubmit: SubmitHandler<FormData> = (data) => {
-  // data is fully typed
-  console.log(data.username);
+    // data is fully typed
+    console.log(data.username);
 };
 ```
 
@@ -720,10 +728,10 @@ import type { FieldErrors } from 'react-hook-form';
 import type { ContactFormData } from '~/lib/validations';
 
 function showErrors(errors: FieldErrors<ContactFormData>) {
-  // Fully typed errors object
-  if (errors.email) {
-    console.log(errors.email.message);
-  }
+    // Fully typed errors object
+    if (errors.email) {
+        console.log(errors.email.message);
+    }
 }
 ```
 
@@ -733,17 +741,17 @@ function showErrors(errors: FieldErrors<ContactFormData>) {
 import type { Resolver } from 'react-hook-form';
 
 const customResolver: Resolver<FormData> = async (values) => {
-  return {
-    values: values.email ? values : {},
-    errors: !values.email
-      ? {
-          email: {
-            type: 'required',
-            message: 'Email is required'
-          }
-        }
-      : {}
-  };
+    return {
+        values: values.email ? values : {},
+        errors: !values.email
+            ? {
+                  email: {
+                      type: 'required',
+                      message: 'Email is required',
+                  },
+              }
+            : {},
+    };
 };
 ```
 
@@ -764,12 +772,12 @@ const email = watch('email');
 ```typescript
 // For side effects, use subscription instead of watch()
 useEffect(() => {
-  const subscription = watch((value, { name }) => {
-    if (name === 'country') {
-      // Update state list based on country
-    }
-  });
-  return () => subscription.unsubscribe();
+    const subscription = watch((value, { name }) => {
+        if (name === 'country') {
+            // Update state list based on country
+        }
+    });
+    return () => subscription.unsubscribe();
 }, [watch]);
 ```
 
@@ -818,8 +826,8 @@ const { register } = useForm({
 ```typescript
 // For better UX, validate on submit, re-validate on change
 const form = useForm({
-  mode: 'onSubmit',        // Don't annoy users while typing
-  reValidateMode: 'onChange' // But show fixes immediately after error
+    mode: 'onSubmit', // Don't annoy users while typing
+    reValidateMode: 'onChange', // But show fixes immediately after error
 });
 ```
 
@@ -827,15 +835,14 @@ const form = useForm({
 
 ```typescript
 const checkUsername = debounce(async (username: string) => {
-  const response = await fetch(`/api/check-username?username=${username}`);
-  return response.ok;
+    const response = await fetch(`/api/check-username?username=${username}`);
+    return response.ok;
 }, 500);
 
 const schema = z.object({
-  username: z.string().refine(
-    async (val) => await checkUsername(val),
-    { message: 'Username already taken' }
-  )
+    username: z.string().refine(async (val) => await checkUsername(val), {
+        message: 'Username already taken',
+    }),
 });
 ```
 
@@ -1005,12 +1012,12 @@ function AccessibleForm() {
 
 ```typescript
 const { setFocus } = useForm({
-  shouldFocusError: true  // Auto-focus first error on submit
+    shouldFocusError: true, // Auto-focus first error on submit
 });
 
 // Manual focus
 useEffect(() => {
-  setFocus('username');
+    setFocus('username');
 }, [setFocus]);
 ```
 

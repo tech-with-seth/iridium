@@ -6,7 +6,7 @@ import { Paths } from '~/constants';
 
 export async function authMiddleware({
     request,
-    context
+    context,
 }: {
     request: Request;
     context: any;

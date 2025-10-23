@@ -9,7 +9,7 @@ export const buttonVariants = cva({
             dash: 'btn-dash',
             soft: 'btn-soft',
             ghost: 'btn-ghost',
-            link: 'btn-link'
+            link: 'btn-link',
         },
         status: {
             neutral: 'btn-neutral',
@@ -19,33 +19,33 @@ export const buttonVariants = cva({
             info: 'btn-info',
             success: 'btn-success',
             warning: 'btn-warning',
-            error: 'btn-error'
+            error: 'btn-error',
         },
         size: {
             sm: 'btn-sm',
             md: 'btn-md',
             lg: 'btn-lg',
-            xl: 'btn-xl'
+            xl: 'btn-xl',
         },
         active: {
-            true: 'btn-active'
+            true: 'btn-active',
         },
         disabled: {
-            true: 'btn-disabled'
+            true: 'btn-disabled',
         },
         wide: {
-            true: 'btn-wide'
+            true: 'btn-wide',
         },
         block: {
-            true: 'btn-block'
+            true: 'btn-block',
         },
         circle: { true: 'btn-circle' },
-        square: { true: 'btn-square' }
+        square: { true: 'btn-square' },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface ButtonProps
@@ -86,9 +86,9 @@ export function Button({
                     square,
                     status,
                     variant,
-                    wide
+                    wide,
                 }),
-                className
+                className,
             )}
             {...props}
         >

@@ -30,13 +30,13 @@ Flat-cache is a simple, file-based caching library that persists data to disk, m
 **Simple API**:
 
 ```typescript
-import { cache } from "~/lib/cache";
+import { cache } from '~/lib/cache';
 
 // Get cached value
-const value = cache.getKey("my-key");
+const value = cache.getKey('my-key');
 
 // Set cached value
-cache.setKey("my-key", { data: "value" });
+cache.setKey('my-key', { data: 'value' });
 
 // Save to disk
 cache.save();
@@ -177,29 +177,29 @@ cache.save();
 
 ```typescript
 // app/lib/cache.ts
-import flatCache from "flat-cache";
-import path from "path";
+import flatCache from 'flat-cache';
+import path from 'path';
 
-const cacheDir = path.resolve(".flat-cache");
-const cache = flatCache.create("app-cache", cacheDir);
+const cacheDir = path.resolve('.flat-cache');
+const cache = flatCache.create('app-cache', cacheDir);
 
 // Helper to get with default
 function getOrSet<T>(key: string, factory: () => T, ttl?: number): T {
-  const cached = cache.getKey(key);
+    const cached = cache.getKey(key);
 
-  if (cached !== undefined) {
-    return cached as T;
-  }
+    if (cached !== undefined) {
+        return cached as T;
+    }
 
-  const value = factory();
-  cache.setKey(key, value);
+    const value = factory();
+    cache.setKey(key, value);
 
-  if (ttl) {
-    setTimeout(() => cache.removeKey(key), ttl);
-  }
+    if (ttl) {
+        setTimeout(() => cache.removeKey(key), ttl);
+    }
 
-  cache.save();
-  return value;
+    cache.save();
+    return value;
 }
 
 export { cache, getOrSet };
@@ -208,16 +208,16 @@ export { cache, getOrSet };
 ### Basic Usage
 
 ```typescript
-import { cache } from "~/lib/cache";
+import { cache } from '~/lib/cache';
 
 // Get value
-const value = cache.getKey("feature-flags");
+const value = cache.getKey('feature-flags');
 
 if (!value) {
-  // Fetch and cache
-  const flags = await fetchFeatureFlags();
-  cache.setKey("feature-flags", flags);
-  cache.save();
+    // Fetch and cache
+    const flags = await fetchFeatureFlags();
+    cache.setKey('feature-flags', flags);
+    cache.save();
 }
 ```
 
@@ -225,25 +225,25 @@ if (!value) {
 
 ```typescript
 function cacheWithTTL<T>(key: string, value: T, ttlMs: number): void {
-  cache.setKey(key, {
-    value,
-    expiresAt: Date.now() + ttlMs,
-  });
-  cache.save();
+    cache.setKey(key, {
+        value,
+        expiresAt: Date.now() + ttlMs,
+    });
+    cache.save();
 }
 
 function getCached<T>(key: string): T | null {
-  const cached = cache.getKey(key);
+    const cached = cache.getKey(key);
 
-  if (!cached) return null;
+    if (!cached) return null;
 
-  if (cached.expiresAt < Date.now()) {
-    cache.removeKey(key);
-    cache.save();
-    return null;
-  }
+    if (cached.expiresAt < Date.now()) {
+        cache.removeKey(key);
+        cache.save();
+        return null;
+    }
 
-  return cached.value as T;
+    return cached.value as T;
 }
 ```
 
@@ -251,38 +251,38 @@ function getCached<T>(key: string): T | null {
 
 ```typescript
 // app/models/feature-flags.server.ts
-import { cache } from "~/lib/cache";
-import { posthog } from "~/lib/posthog.server";
+import { cache } from '~/lib/cache';
+import { posthog } from '~/lib/posthog.server';
 
-const CACHE_KEY = "feature-flags";
+const CACHE_KEY = 'feature-flags';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function getFeatureFlags(userId: string) {
-  const cacheKey = `${CACHE_KEY}:${userId}`;
-  const cached = cache.getKey(cacheKey);
+    const cacheKey = `${CACHE_KEY}:${userId}`;
+    const cached = cache.getKey(cacheKey);
 
-  if (cached) {
-    return cached;
-  }
+    if (cached) {
+        return cached;
+    }
 
-  const flags = await posthog.getFeatureFlags(userId);
+    const flags = await posthog.getFeatureFlags(userId);
 
-  cache.setKey(cacheKey, flags);
-  cache.save();
-
-  // Auto-expire after 5 minutes
-  setTimeout(() => {
-    cache.removeKey(cacheKey);
+    cache.setKey(cacheKey, flags);
     cache.save();
-  }, CACHE_TTL);
 
-  return flags;
+    // Auto-expire after 5 minutes
+    setTimeout(() => {
+        cache.removeKey(cacheKey);
+        cache.save();
+    }, CACHE_TTL);
+
+    return flags;
 }
 
 export function invalidateFeatureFlags(userId: string) {
-  const cacheKey = `${CACHE_KEY}:${userId}`;
-  cache.removeKey(cacheKey);
-  cache.save();
+    const cacheKey = `${CACHE_KEY}:${userId}`;
+    cache.removeKey(cacheKey);
+    cache.save();
 }
 ```
 
@@ -290,21 +290,21 @@ export function invalidateFeatureFlags(userId: string) {
 
 ```typescript
 export async function getExpensiveData(params: string) {
-  const cacheKey = `expensive:${params}`;
-  const cached = cache.getKey(cacheKey);
+    const cacheKey = `expensive:${params}`;
+    const cached = cache.getKey(cacheKey);
 
-  if (cached) {
-    console.log("Cache hit");
-    return cached;
-  }
+    if (cached) {
+        console.log('Cache hit');
+        return cached;
+    }
 
-  console.log("Cache miss, computing...");
-  const data = await expensiveOperation(params);
+    console.log('Cache miss, computing...');
+    const data = await expensiveOperation(params);
 
-  cache.setKey(cacheKey, data);
-  cache.save();
+    cache.setKey(cacheKey, data);
+    cache.save();
 
-  return data;
+    return data;
 }
 ```
 
@@ -314,7 +314,7 @@ export async function getExpensiveData(params: string) {
 
 ```typescript
 // Clear specific key
-cache.removeKey("feature-flags");
+cache.removeKey('feature-flags');
 cache.save();
 
 // Clear all cache
@@ -326,17 +326,17 @@ cache.destroy();
 ```typescript
 // app/lib/cache.ts
 export function clearExpiredCache() {
-  const keys = cache.keys();
+    const keys = cache.keys();
 
-  keys.forEach((key) => {
-    const value = cache.getKey(key);
+    keys.forEach((key) => {
+        const value = cache.getKey(key);
 
-    if (value?.expiresAt && value.expiresAt < Date.now()) {
-      cache.removeKey(key);
-    }
-  });
+        if (value?.expiresAt && value.expiresAt < Date.now()) {
+            cache.removeKey(key);
+        }
+    });
 
-  cache.save();
+    cache.save();
 }
 
 // Run periodically
@@ -347,11 +347,11 @@ setInterval(clearExpiredCache, 60 * 1000); // Every minute
 
 ```typescript
 export async function updateUser(userId: string, data: UserData) {
-  await db.user.update({ where: { id: userId }, data });
+    await db.user.update({ where: { id: userId }, data });
 
-  // Invalidate user cache
-  cache.removeKey(`user:${userId}`);
-  cache.save();
+    // Invalidate user cache
+    cache.removeKey(`user:${userId}`);
+    cache.save();
 }
 ```
 

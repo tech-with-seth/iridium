@@ -11,17 +11,22 @@ React Router 7 (formerly Remix v3) combines client-side routing with server-side
 Routes are configured in `app/routes.ts` using config-based routing:
 
 ```typescript
-import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
+import {
+    type RouteConfig,
+    index,
+    layout,
+    route,
+} from '@react-router/dev/routes';
 
 export default [
-  index("routes/home.tsx"),
-  route("login", "routes/login.tsx"),
-  route("signup", "routes/signup.tsx"),
+    index('routes/home.tsx'),
+    route('login', 'routes/login.tsx'),
+    route('signup', 'routes/signup.tsx'),
 
-  layout("routes/app/layout.tsx", [
-    route("dashboard", "routes/app/dashboard.tsx"),
-    route("profile", "routes/app/profile.tsx"),
-  ]),
+    layout('routes/app/layout.tsx', [
+        route('dashboard', 'routes/app/dashboard.tsx'),
+        route('profile', 'routes/app/profile.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -34,18 +39,18 @@ Each route file exports three main functions:
 The `loader` function runs on the server before rendering and provides data to the component:
 
 ```typescript
-import { Route } from "./+types/dashboard";
+import { Route } from './+types/dashboard';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  const user = await getUserById(session.user.id);
+    const user = await getUserById(session.user.id);
 
-  return { user };
+    return { user };
 }
 ```
 
@@ -54,15 +59,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 The `action` function handles form submissions and mutations:
 
 ```typescript
-import { Route } from "./+types/profile";
+import { Route } from './+types/profile';
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const name = formData.get("name");
+    const formData = await request.formData();
+    const name = formData.get('name');
 
-  await updateUser(params.userId, { name });
+    await updateUser(params.userId, { name });
 
-  return { success: true };
+    return { success: true };
 }
 ```
 
@@ -90,15 +95,15 @@ React Router 7 generates types for each route in the `+types` directory:
 
 ```typescript
 // Automatically generated types for your route
-import { Route } from "./+types/dashboard";
+import { Route } from './+types/dashboard';
 
 // Use these types in your loader, action, and component
 export async function loader({ request, params }: Route.LoaderArgs) {
-  // params are typed based on your route definition
+    // params are typed based on your route definition
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  // loaderData is typed based on your loader return type
+    // loaderData is typed based on your loader return type
 }
 ```
 
@@ -108,12 +113,12 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const query = url.searchParams.get("q");
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q');
 
-  const results = await searchDatabase(query);
+    const results = await searchDatabase(query);
 
-  return { results, query };
+    return { results, query };
 }
 ```
 
@@ -121,13 +126,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
+    const user = await getUser(request);
 
-  if (!user) {
-    throw new Response("Not Found", { status: 404 });
-  }
+    if (!user) {
+        throw new Response('Not Found', { status: 404 });
+    }
 
-  return { user };
+    return { user };
 }
 ```
 
@@ -138,10 +143,11 @@ React Router 7 automatically parallelizes loader calls:
 ```typescript
 // Both loaders run in parallel
 export default [
-  route("dashboard", "routes/dashboard.tsx"),  // loader runs
-  layout("routes/layout.tsx", [               // loader runs
-    // nested routes
-  ]),
+    route('dashboard', 'routes/dashboard.tsx'), // loader runs
+    layout('routes/layout.tsx', [
+        // loader runs
+        // nested routes
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -177,25 +183,25 @@ export async function action({ request }: Route.ActionArgs) {
 Use Zod for validation in actions:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+    email: z.string().email(),
+    password: z.string().min(8),
 });
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-  const result = schema.safeParse(data);
+    const result = schema.safeParse(data);
 
-  if (!result.success) {
-    return { errors: result.error.flatten() };
-  }
+    if (!result.success) {
+        return { errors: result.error.flatten() };
+    }
 
-  await createUser(result.data);
-  return redirect("/dashboard");
+    await createUser(result.data);
+    return redirect('/dashboard');
 }
 ```
 
@@ -222,8 +228,8 @@ Use `redirect` in loaders and actions:
 
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  await performAction();
-  return redirect("/success");
+    await performAction();
+    return redirect('/success');
 }
 ```
 
@@ -249,32 +255,32 @@ Create API endpoints using resource routes:
 
 ```typescript
 // app/routes/api/users.ts
-import { Route } from "./+types/api.users";
+import { Route } from './+types/api.users';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const users = await getUsers();
-  return Response.json(users);
+    const users = await getUsers();
+    return Response.json(users);
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  if (request.method === "POST") {
-    const data = await request.json();
-    const user = await createUser(data);
-    return Response.json(user, { status: 201 });
-  }
+    if (request.method === 'POST') {
+        const data = await request.json();
+        const user = await createUser(data);
+        return Response.json(user, { status: 201 });
+    }
 
-  if (request.method === "PUT") {
-    const data = await request.json();
-    const user = await updateUser(data);
-    return Response.json(user);
-  }
+    if (request.method === 'PUT') {
+        const data = await request.json();
+        const user = await updateUser(data);
+        return Response.json(user);
+    }
 
-  if (request.method === "DELETE") {
-    await deleteUser(request);
-    return new Response(null, { status: 204 });
-  }
+    if (request.method === 'DELETE') {
+        await deleteUser(request);
+        return new Response(null, { status: 204 });
+    }
 
-  return new Response("Method Not Allowed", { status: 405 });
+    return new Response('Method Not Allowed', { status: 405 });
 }
 ```
 
@@ -310,14 +316,14 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 Export a `meta` function to set page metadata:
 
 ```typescript
-import { Route } from "./+types/about";
+import { Route } from './+types/about';
 
 export function meta({ data }: Route.MetaArgs) {
-  return [
-    { title: "About Us" },
-    { name: "description", content: "Learn about our company" },
-    { property: "og:title", content: "About Us" },
-  ];
+    return [
+        { title: 'About Us' },
+        { name: 'description', content: 'Learn about our company' },
+        { property: 'og:title', content: 'About Us' },
+    ];
 }
 ```
 
@@ -394,13 +400,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (!session) {
-    throw redirect("/login");
-  }
+    if (!session) {
+        throw redirect('/login');
+    }
 
-  return { user: session.user };
+    return { user: session.user };
 }
 ```
 
@@ -408,13 +414,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers });
 
-  if (session) {
-    throw redirect("/dashboard");
-  }
+    if (session) {
+        throw redirect('/dashboard');
+    }
 
-  return {};
+    return {};
 }
 ```
 
@@ -422,11 +428,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") ?? "1");
-  const results = await getPaginatedResults(page);
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') ?? '1');
+    const results = await getPaginatedResults(page);
 
-  return { results, page };
+    return { results, page };
 }
 ```
 

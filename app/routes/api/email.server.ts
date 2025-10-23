@@ -6,7 +6,7 @@ import {
     sendEmailSchema,
     emailTemplateSchema,
     type SendEmailData,
-    type EmailTemplateData
+    type EmailTemplateData,
 } from '~/lib/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -14,7 +14,7 @@ import {
     sendVerificationEmail,
     sendPasswordResetEmail,
     sendWelcomeEmail,
-    sendTransactionalEmail
+    sendTransactionalEmail,
 } from '~/models/email.server';
 import posthog from 'posthog-js';
 
@@ -51,7 +51,7 @@ export async function action({ request }: Route.ActionArgs) {
             const { data: validatedData, errors } =
                 await validateFormData<EmailTemplateData>(
                     formData,
-                    zodResolver(emailTemplateSchema)
+                    zodResolver(emailTemplateSchema),
                 );
 
             if (errors) {
@@ -68,14 +68,14 @@ export async function action({ request }: Route.ActionArgs) {
                     if (!props?.verificationUrl) {
                         return data(
                             {
-                                error: 'verificationUrl is required for verification template'
+                                error: 'verificationUrl is required for verification template',
                             },
-                            { status: 400 }
+                            { status: 400 },
                         );
                     }
                     result = await sendVerificationEmail({
                         to,
-                        verificationUrl: props.verificationUrl
+                        verificationUrl: props.verificationUrl,
                     });
                     break;
 
@@ -83,14 +83,14 @@ export async function action({ request }: Route.ActionArgs) {
                     if (!props?.resetUrl) {
                         return data(
                             {
-                                error: 'resetUrl is required for password-reset template'
+                                error: 'resetUrl is required for password-reset template',
                             },
-                            { status: 400 }
+                            { status: 400 },
                         );
                     }
                     result = await sendPasswordResetEmail({
                         to,
-                        resetUrl: props.resetUrl
+                        resetUrl: props.resetUrl,
                     });
                     break;
 
@@ -98,15 +98,15 @@ export async function action({ request }: Route.ActionArgs) {
                     if (!props?.userName || !props?.dashboardUrl) {
                         return data(
                             {
-                                error: 'userName and dashboardUrl are required for welcome template'
+                                error: 'userName and dashboardUrl are required for welcome template',
                             },
-                            { status: 400 }
+                            { status: 400 },
                         );
                     }
                     result = await sendWelcomeEmail({
                         to,
                         userName: props.userName,
-                        dashboardUrl: props.dashboardUrl
+                        dashboardUrl: props.dashboardUrl,
                     });
                     break;
 
@@ -118,9 +118,9 @@ export async function action({ request }: Route.ActionArgs) {
                     ) {
                         return data(
                             {
-                                error: 'heading, previewText, and message are required for transactional template'
+                                error: 'heading, previewText, and message are required for transactional template',
                             },
-                            { status: 400 }
+                            { status: 400 },
                         );
                     }
                     result = await sendTransactionalEmail({
@@ -130,14 +130,14 @@ export async function action({ request }: Route.ActionArgs) {
                         message: props.message,
                         buttonText: props.buttonText,
                         buttonUrl: props.buttonUrl,
-                        footerText: props.footerText
+                        footerText: props.footerText,
                     });
                     break;
 
                 default:
                     return data(
                         { error: `Unknown template: ${templateName}` },
-                        { status: 400 }
+                        { status: 400 },
                     );
             }
 
@@ -146,13 +146,13 @@ export async function action({ request }: Route.ActionArgs) {
                 userId: user.id,
                 templateName,
                 recipient: to,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             return data({
                 success: true,
                 message: 'Email sent successfully',
-                data: result.data
+                data: result.data,
             });
         }
 
@@ -162,7 +162,7 @@ export async function action({ request }: Route.ActionArgs) {
         const { data: validatedData, errors } =
             await validateFormData<SendEmailData>(
                 formData,
-                zodResolver(sendEmailSchema)
+                zodResolver(sendEmailSchema),
             );
 
         if (errors) {
@@ -177,13 +177,13 @@ export async function action({ request }: Route.ActionArgs) {
             type: 'custom',
             recipient: validatedData!.to,
             subject: validatedData!.subject,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         return data({
             success: true,
             message: 'Email sent successfully',
-            data: result.data
+            data: result.data,
         });
     } catch (error) {
         console.error('Email sending error:', error);
@@ -192,7 +192,7 @@ export async function action({ request }: Route.ActionArgs) {
         posthog.captureException(error, {
             userId: user.id,
             context: 'email_api',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         return data(
@@ -201,9 +201,9 @@ export async function action({ request }: Route.ActionArgs) {
                 details:
                     import.meta.env.DEV && error instanceof Error
                         ? error.message
-                        : undefined
+                        : undefined,
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }
@@ -215,9 +215,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
             {
                 error: 'An unexpected error occurred while sending email',
                 message: import.meta.env.DEV ? error.message : undefined,
-                stack: import.meta.env.DEV ? error.stack : undefined
+                stack: import.meta.env.DEV ? error.stack : undefined,
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 

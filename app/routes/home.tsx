@@ -19,7 +19,7 @@ export default function Home() {
                         !data?.activeFlags['home_page_hero_image'] &&
                             'bg-[url(possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]',
                         data?.activeFlags['home_page_hero_image'] &&
-                            'bg-[url(uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center'
+                            'bg-[url(uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center',
                     )}
                 ></div>
                 <h1 className="text-5xl font-bold mb-8">TWS Foundations</h1>

@@ -29,6 +29,12 @@ jobs:
             - name: Generate Prisma Client
               run: npx prisma generate
 
+            - name: Start dev server
+              run: npm run dev -- --port 5173 &
+
+            - name: Wait for dev server
+              run: npx wait-on http://127.0.0.1:5173
+
             - name: Install Playwright browsers
               run: npx playwright install --with-deps
 

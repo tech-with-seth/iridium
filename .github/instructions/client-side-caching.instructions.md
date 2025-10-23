@@ -79,7 +79,7 @@ import { prisma } from '~/db.server';
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
     const serverData = await prisma.dashboard.findUnique({
-        where: { userId: user.id }
+        where: { userId: user.id },
     });
     return { serverData };
 }
@@ -87,16 +87,16 @@ export async function loader({ request }: Route.LoaderArgs) {
 // (4) Client: Merge server + client data
 export async function clientLoader({
     request,
-    serverLoader
+    serverLoader,
 }: Route.ClientLoaderArgs) {
     const [serverData, clientData] = await Promise.all([
         serverLoader(),
-        getClientData(request) // IndexedDB, localStorage, etc.
+        getClientData(request), // IndexedDB, localStorage, etc.
     ]);
 
     return {
         ...serverData,
-        ...clientData
+        ...clientData,
     };
 }
 
@@ -240,7 +240,7 @@ import { cache, getUserScopedKey } from '~/lib/cache';
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
     const products = await prisma.product.findMany({
-        where: { userId: user.id }
+        where: { userId: user.id },
     });
     return { products };
 }
@@ -253,8 +253,8 @@ export async function action({ request }: Route.ActionArgs) {
     await prisma.product.create({
         data: {
             name: formData.get('name') as string,
-            userId: user.id
-        }
+            userId: user.id,
+        },
     });
 
     return { ok: true };
@@ -265,7 +265,7 @@ let isInitialRequest = true;
 // (2) Client: Cache management
 export async function clientLoader({
     request,
-    serverLoader
+    serverLoader,
 }: Route.ClientLoaderArgs) {
     const cacheKey = generateKey(request);
 
@@ -294,7 +294,7 @@ clientLoader.hydrate = true;
 // (4) Invalidate cache on mutations
 export async function clientAction({
     request,
-    serverAction
+    serverAction,
 }: Route.ClientActionArgs) {
     const cacheKey = generateKey(request);
 
@@ -352,7 +352,7 @@ if (isCacheExpired(cacheKey)) {
 ```tsx
 export async function clientAction({
     request,
-    serverAction
+    serverAction,
 }: Route.ClientActionArgs) {
     const cacheKey = generateKey(request);
     cache.delete(cacheKey); // Clear before mutation

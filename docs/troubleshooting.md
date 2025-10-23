@@ -224,9 +224,9 @@ npm run build
 
 ```json
 {
-  "scripts": {
-    "build": "prisma generate && react-router build"
-  }
+    "scripts": {
+        "build": "prisma generate && react-router build"
+    }
 }
 ```
 
@@ -265,13 +265,15 @@ npx vitest --clearCache
 Ensure mock is before imports:
 
 ```typescript
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
-vi.mock("~/lib/auth.server", () => ({
-  auth: { /* mock */ },
+vi.mock('~/lib/auth.server', () => ({
+    auth: {
+        /* mock */
+    },
 }));
 
-import { auth } from "~/lib/auth.server";
+import { auth } from '~/lib/auth.server';
 ```
 
 ### Test database issues
@@ -299,7 +301,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/test_db
 
 ```typescript
 const form = useForm({
-  resolver: zodResolver(schema),
+    resolver: zodResolver(schema),
 });
 ```
 
@@ -338,10 +340,10 @@ const form = useForm({
 1. Verify DaisyUI is in `tailwind.config.ts`:
 
 ```typescript
-import daisyui from "daisyui";
+import daisyui from 'daisyui';
 
 export default {
-  plugins: [daisyui],
+    plugins: [daisyui],
 };
 ```
 
@@ -400,10 +402,10 @@ npm run start
 
 ```typescript
 export async function loader() {
-  const start = Date.now();
-  const data = await getData();
-  console.log("Loader took:", Date.now() - start, "ms");
-  return data;
+    const start = Date.now();
+    const data = await getData();
+    console.log('Loader took:', Date.now() - start, 'ms');
+    return data;
 }
 ```
 
@@ -454,10 +456,10 @@ If you cannot find a solution:
 2. Review React Router 7 documentation
 3. Check Prisma documentation
 4. Open a new issue with:
-   - Error message
-   - Steps to reproduce
-   - Environment details
-   - What you have tried
+    - Error message
+    - Steps to reproduce
+    - Environment details
+    - What you have tried
 
 ## Useful Commands
 

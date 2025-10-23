@@ -20,7 +20,7 @@ import type { Resolver, FieldValues } from 'react-hook-form';
  */
 export async function validateFormData<T extends FieldValues>(
     formData: FormData,
-    resolver: Resolver<T>
+    resolver: Resolver<T>,
 ): Promise<{
     data?: T;
     errors?: Record<string, { type: string; message: string }>;
@@ -43,33 +43,40 @@ export async function validateFormData<T extends FieldValues>(
     });
 
     // Run validation through the resolver
-    const result = await resolver(receivedValues as T, {}, {
-        shouldUseNativeValidation: false,
-        fields: {}
-    });
+    const result = await resolver(
+        receivedValues as T,
+        {},
+        {
+            shouldUseNativeValidation: false,
+            fields: {},
+        },
+    );
 
     // If there are errors, format them for easy consumption
     if (result.errors && Object.keys(result.errors).length > 0) {
-        const formattedErrors: Record<string, { type: string; message: string }> = {};
+        const formattedErrors: Record<
+            string,
+            { type: string; message: string }
+        > = {};
 
         Object.entries(result.errors).forEach(([key, error]) => {
             if (error) {
                 formattedErrors[key] = {
                     type: String(error.type || 'validation'),
-                    message: String(error.message || 'Invalid value')
+                    message: String(error.message || 'Invalid value'),
                 };
             }
         });
 
         return {
             errors: formattedErrors,
-            receivedValues
+            receivedValues,
         };
     }
 
     // Return validated data
     return {
         data: result.values as T | undefined,
-        receivedValues
+        receivedValues,
     };
 }

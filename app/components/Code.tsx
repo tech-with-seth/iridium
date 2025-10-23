@@ -5,7 +5,7 @@ export const codeVariants = cva({
     base: 'mockup-code',
     variants: {},
     defaultVariants: {},
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface CodeLine {
@@ -27,7 +27,9 @@ export function Code({ lines, className, ...props }: CodeProps) {
                 <pre
                     key={index}
                     data-prefix={line.prefix || ''}
-                    className={line.highlight ? 'bg-warning text-warning-content' : ''}
+                    className={
+                        line.highlight ? 'bg-warning text-warning-content' : ''
+                    }
                 >
                     <code>{line.content}</code>
                 </pre>
@@ -65,7 +67,7 @@ export function CodeLine({
             data-prefix={prefix || ''}
             className={cx(
                 highlight && 'bg-warning text-warning-content',
-                className
+                className,
             )}
             {...props}
         >

@@ -61,7 +61,7 @@ import { isFeatureEnabled } from '~/lib/posthog.server';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
     const product = await prisma.product.findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
     });
 
     // Evaluate feature flag server-side
@@ -70,8 +70,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return {
         product,
         featureFlags: {
-            showNewLayout
-        }
+            showNewLayout,
+        },
     };
 }
 ```
@@ -118,7 +118,7 @@ The server-side PostHog client is configured in `app/lib/posthog.server.ts`.
 // Check if feature is enabled for current user
 export async function isFeatureEnabled(
     flagName: string,
-    request: Request
+    request: Request,
 ): Promise<boolean>;
 
 // Example usage in loader
@@ -225,7 +225,7 @@ export default function PricingExperiment() {
             // Manual tracking if needed:
             posthog.capture('$feature_flag_called', {
                 $feature_flag: 'pricing-test-q1',
-                $feature_flag_response: experimentVariant
+                $feature_flag_response: experimentVariant,
             });
         }
     }, [posthog]);
@@ -253,7 +253,7 @@ export default function CheckoutButton() {
         posthog?.capture('checkout_initiated', {
             price: 99.99,
             plan: 'pro',
-            currency: 'USD'
+            currency: 'USD',
         });
 
         // Proceed with checkout
@@ -284,14 +284,14 @@ export default function RecommendationEngine() {
         if (posthog) {
             // 95% see recommendations, 5% holdout group
             const holdoutFlag = posthog.getFeatureFlag(
-                'recommendations-holdout'
+                'recommendations-holdout',
             );
             const isInHoldout = holdoutFlag === 'holdout';
             setShowRecommendations(!isInHoldout);
 
             posthog.capture('recommendations_exposure', {
                 group: isInHoldout ? 'holdout' : 'treatment',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
         }
     }, [posthog]);
@@ -353,7 +353,7 @@ Override flags in development:
 // In browser console during development
 posthog.featureFlags.override({
     'new-feature': true,
-    'beta-ui': 'test-variant'
+    'beta-ui': 'test-variant',
 });
 
 // Clear overrides

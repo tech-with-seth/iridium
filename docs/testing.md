@@ -18,20 +18,20 @@ The testing strategy includes:
 Tests are configured in `vitest.config.ts`:
 
 ```typescript
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
-  test: {
-    environment: "happy-dom",
-    setupFiles: ["./app/test/setup.ts"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html"],
+    plugins: [react(), tsconfigPaths()],
+    test: {
+        environment: 'happy-dom',
+        setupFiles: ['./app/test/setup.ts'],
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'html'],
+        },
     },
-  },
 });
 ```
 
@@ -54,23 +54,23 @@ npm run test:coverage
 ### Writing Unit Tests
 
 ```typescript
-import { describe, test, expect } from "vitest";
-import { calculateTotal } from "./utils";
+import { describe, test, expect } from 'vitest';
+import { calculateTotal } from './utils';
 
-describe("calculateTotal", () => {
-  test("calculates total with tax", () => {
-    const result = calculateTotal(100, 0.1);
-    expect(result).toBe(110);
-  });
+describe('calculateTotal', () => {
+    test('calculates total with tax', () => {
+        const result = calculateTotal(100, 0.1);
+        expect(result).toBe(110);
+    });
 
-  test("handles zero values", () => {
-    const result = calculateTotal(0, 0.1);
-    expect(result).toBe(0);
-  });
+    test('handles zero values', () => {
+        const result = calculateTotal(0, 0.1);
+        expect(result).toBe(0);
+    });
 
-  test("throws on negative values", () => {
-    expect(() => calculateTotal(-100, 0.1)).toThrow();
-  });
+    test('throws on negative values', () => {
+        expect(() => calculateTotal(-100, 0.1)).toThrow();
+    });
 });
 ```
 
@@ -170,33 +170,33 @@ describe("ContactForm", () => {
 ### Testing Hooks
 
 ```typescript
-import { renderHook, waitFor } from "@testing-library/react";
-import { describe, test, expect } from "vitest";
-import { useUserData } from "./use-user-data";
+import { renderHook, waitFor } from '@testing-library/react';
+import { describe, test, expect } from 'vitest';
+import { useUserData } from './use-user-data';
 
-describe("useUserData", () => {
-  test("fetches user data", async () => {
-    const { result } = renderHook(() => useUserData("user-id"));
+describe('useUserData', () => {
+    test('fetches user data', async () => {
+        const { result } = renderHook(() => useUserData('user-id'));
 
-    expect(result.current.isLoading).toBe(true);
+        expect(result.current.isLoading).toBe(true);
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        });
+
+        expect(result.current.data).toEqual({
+            id: 'user-id',
+            name: 'John Doe',
+        });
     });
 
-    expect(result.current.data).toEqual({
-      id: "user-id",
-      name: "John Doe",
-    });
-  });
+    test('handles errors', async () => {
+        const { result } = renderHook(() => useUserData('invalid-id'));
 
-  test("handles errors", async () => {
-    const { result } = renderHook(() => useUserData("invalid-id"));
-
-    await waitFor(() => {
-      expect(result.current.error).toBeTruthy();
+        await waitFor(() => {
+            expect(result.current.error).toBeTruthy();
+        });
     });
-  });
 });
 ```
 
@@ -205,72 +205,72 @@ describe("useUserData", () => {
 #### Mocking Modules
 
 ```typescript
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi } from 'vitest';
 
-vi.mock("~/lib/auth.server", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn().mockResolvedValue({
-        user: { id: "test-user", email: "test@example.com" },
-      }),
+vi.mock('~/lib/auth.server', () => ({
+    auth: {
+        api: {
+            getSession: vi.fn().mockResolvedValue({
+                user: { id: 'test-user', email: 'test@example.com' },
+            }),
+        },
     },
-  },
 }));
 
-test("gets user session", async () => {
-  const { auth } = await import("~/lib/auth.server");
-  const session = await auth.api.getSession({ headers: new Headers() });
+test('gets user session', async () => {
+    const { auth } = await import('~/lib/auth.server');
+    const session = await auth.api.getSession({ headers: new Headers() });
 
-  expect(session.user.email).toBe("test@example.com");
+    expect(session.user.email).toBe('test@example.com');
 });
 ```
 
 #### Mocking Fetch
 
 ```typescript
-import { describe, test, expect, beforeEach, vi } from "vitest";
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 
 beforeEach(() => {
-  global.fetch = vi.fn();
+    global.fetch = vi.fn();
 });
 
-test("fetches data from API", async () => {
-  (global.fetch as any).mockResolvedValueOnce({
-    ok: true,
-    json: async () => ({ data: "test" }),
-  });
+test('fetches data from API', async () => {
+    (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: 'test' }),
+    });
 
-  const response = await fetch("/api/data");
-  const data = await response.json();
+    const response = await fetch('/api/data');
+    const data = await response.json();
 
-  expect(data).toEqual({ data: "test" });
-  expect(global.fetch).toHaveBeenCalledWith("/api/data");
+    expect(data).toEqual({ data: 'test' });
+    expect(global.fetch).toHaveBeenCalledWith('/api/data');
 });
 ```
 
 #### Mocking Timers
 
 ```typescript
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 
 beforeEach(() => {
-  vi.useFakeTimers();
+    vi.useFakeTimers();
 });
 
 afterEach(() => {
-  vi.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 
-test("delays execution", () => {
-  const callback = vi.fn();
+test('delays execution', () => {
+    const callback = vi.fn();
 
-  setTimeout(callback, 1000);
+    setTimeout(callback, 1000);
 
-  expect(callback).not.toHaveBeenCalled();
+    expect(callback).not.toHaveBeenCalled();
 
-  vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
-  expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledTimes(1);
 });
 ```
 
@@ -281,30 +281,30 @@ test("delays execution", () => {
 Configuration in `playwright.config.ts`:
 
 ```typescript
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: "./tests",
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
-  use: {
-    baseURL: "http://localhost:5173",
-    trace: "on-first-retry",
-  },
-  projects: [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+    testDir: './tests',
+    fullyParallel: true,
+    forbidOnly: !!process.env.CI,
+    retries: process.env.CI ? 2 : 0,
+    workers: process.env.CI ? 1 : undefined,
+    reporter: 'html',
+    use: {
+        baseURL: 'http://localhost:5173',
+        trace: 'on-first-retry',
     },
-  ],
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-  },
+    projects: [
+        {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+        },
+    ],
+    webServer: {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: !process.env.CI,
+    },
 });
 ```
 
@@ -330,38 +330,38 @@ npm run e2e:report
 ### Writing End-to-End Tests
 
 ```typescript
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("user can sign up", async ({ page }) => {
-  await page.goto("/signup");
+test('user can sign up', async ({ page }) => {
+    await page.goto('/signup');
 
-  await page.fill('input[name="email"]', "test@example.com");
-  await page.fill('input[name="password"]', "password123");
-  await page.fill('input[name="name"]', "Test User");
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="name"]', 'Test User');
 
-  await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]');
 
-  await expect(page).toHaveURL("/dashboard");
-  await expect(page.locator("text=Welcome, Test User")).toBeVisible();
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.locator('text=Welcome, Test User')).toBeVisible();
 });
 
-test("shows validation errors", async ({ page }) => {
-  await page.goto("/signup");
+test('shows validation errors', async ({ page }) => {
+    await page.goto('/signup');
 
-  await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]');
 
-  await expect(page.locator("text=Email is required")).toBeVisible();
-  await expect(page.locator("text=Password is required")).toBeVisible();
+    await expect(page.locator('text=Email is required')).toBeVisible();
+    await expect(page.locator('text=Password is required')).toBeVisible();
 });
 
-test("user can navigate between pages", async ({ page }) => {
-  await page.goto("/");
+test('user can navigate between pages', async ({ page }) => {
+    await page.goto('/');
 
-  await page.click("text=About");
-  await expect(page).toHaveURL("/about");
+    await page.click('text=About');
+    await expect(page).toHaveURL('/about');
 
-  await page.click("text=Contact");
-  await expect(page).toHaveURL("/contact");
+    await page.click('text=Contact');
+    await expect(page).toHaveURL('/contact');
 });
 ```
 
@@ -369,59 +369,59 @@ test("user can navigate between pages", async ({ page }) => {
 
 ```typescript
 // tests/pages/login-page.ts
-import { Page } from "@playwright/test";
+import { Page } from '@playwright/test';
 
 export class LoginPage {
-  constructor(private page: Page) {}
+    constructor(private page: Page) {}
 
-  async goto() {
-    await this.page.goto("/login");
-  }
+    async goto() {
+        await this.page.goto('/login');
+    }
 
-  async login(email: string, password: string) {
-    await this.page.fill('input[name="email"]', email);
-    await this.page.fill('input[name="password"]', password);
-    await this.page.click('button[type="submit"]');
-  }
+    async login(email: string, password: string) {
+        await this.page.fill('input[name="email"]', email);
+        await this.page.fill('input[name="password"]', password);
+        await this.page.click('button[type="submit"]');
+    }
 
-  async getErrorMessage() {
-    return this.page.locator(".alert-error").textContent();
-  }
+    async getErrorMessage() {
+        return this.page.locator('.alert-error').textContent();
+    }
 }
 
 // tests/auth.spec.ts
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "./pages/login-page";
+import { test, expect } from '@playwright/test';
+import { LoginPage } from './pages/login-page';
 
-test("user can login", async ({ page }) => {
-  const loginPage = new LoginPage(page);
+test('user can login', async ({ page }) => {
+    const loginPage = new LoginPage(page);
 
-  await loginPage.goto();
-  await loginPage.login("test@example.com", "password123");
+    await loginPage.goto();
+    await loginPage.login('test@example.com', 'password123');
 
-  await expect(page).toHaveURL("/dashboard");
+    await expect(page).toHaveURL('/dashboard');
 });
 ```
 
 ### Testing API Routes
 
 ```typescript
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("API returns user data", async ({ request }) => {
-  const response = await request.get("/api/users/123");
+test('API returns user data', async ({ request }) => {
+    const response = await request.get('/api/users/123');
 
-  expect(response.ok()).toBeTruthy();
+    expect(response.ok()).toBeTruthy();
 
-  const data = await response.json();
-  expect(data).toHaveProperty("id", "123");
-  expect(data).toHaveProperty("email");
+    const data = await response.json();
+    expect(data).toHaveProperty('id', '123');
+    expect(data).toHaveProperty('email');
 });
 
-test("API validates authentication", async ({ request }) => {
-  const response = await request.get("/api/protected");
+test('API validates authentication', async ({ request }) => {
+    const response = await request.get('/api/protected');
 
-  expect(response.status()).toBe(401);
+    expect(response.status()).toBe(401);
 });
 ```
 
@@ -490,19 +490,19 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+    test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
 
-      - run: npm install
-      - run: npm run test:run
-      - run: npx playwright install --with-deps
-      - run: npm run e2e
+            - run: npm install
+            - run: npm run test:run
+            - run: npx playwright install --with-deps
+            - run: npm run e2e
 ```
 
 ## Further Reading

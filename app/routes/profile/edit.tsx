@@ -22,7 +22,7 @@ export async function action({ request }: Route.ActionArgs) {
     try {
         await updateUser({
             userId,
-            data: { name }
+            data: { name },
         });
 
         return redirect('/profile');
@@ -34,12 +34,12 @@ export async function action({ request }: Route.ActionArgs) {
             userId,
             context: 'profile_edit',
             name,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
 
         return data(
             { error: 'Failed to update profile. Please try again.' },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

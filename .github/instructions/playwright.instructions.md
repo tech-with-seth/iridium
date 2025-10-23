@@ -53,12 +53,14 @@ Playwright configuration is defined in `playwright.config.ts`:
 import { test, expect } from '@playwright/test';
 
 test.describe('Feature Name', () => {
-  test('should do something', async ({ page }) => {
-    await page.goto('/');
+    test('should do something', async ({ page }) => {
+        await page.goto('/');
 
-    // Your test assertions
-    await expect(page.getByRole('heading', { name: 'Title' })).toBeVisible();
-  });
+        // Your test assertions
+        await expect(
+            page.getByRole('heading', { name: 'Title' }),
+        ).toBeVisible();
+    });
 });
 ```
 
@@ -74,10 +76,10 @@ test.describe('Feature Name', () => {
 
 ```typescript
 test('protected routes redirect to sign-in', async ({ page }) => {
-  await page.goto('/dashboard');
+    await page.goto('/dashboard');
 
-  // Should redirect unauthenticated users
-  await expect(page).toHaveURL(/sign-in/);
+    // Should redirect unauthenticated users
+    await expect(page).toHaveURL(/sign-in/);
 });
 ```
 
@@ -85,14 +87,16 @@ test('protected routes redirect to sign-in', async ({ page }) => {
 
 ```typescript
 test('submits form with valid data', async ({ page }) => {
-  await page.goto('/sign-in');
+    await page.goto('/sign-in');
 
-  await page.getByRole('textbox', { name: /email/i }).fill('user@example.com');
-  await page.getByLabel(/password/i).fill('password123');
-  await page.getByRole('button', { name: /sign in/i }).click();
+    await page
+        .getByRole('textbox', { name: /email/i })
+        .fill('user@example.com');
+    await page.getByLabel(/password/i).fill('password123');
+    await page.getByRole('button', { name: /sign in/i }).click();
 
-  // Assert success state
-  await expect(page).toHaveURL('/dashboard');
+    // Assert success state
+    await expect(page).toHaveURL('/dashboard');
 });
 ```
 
@@ -104,10 +108,10 @@ Playwright tests the **result** of loaders/actions, not their implementation:
 
 ```typescript
 test('displays data from loader', async ({ page }) => {
-  await page.goto('/profile');
+    await page.goto('/profile');
 
-  // Verify the page displays data loaded by the loader
-  await expect(page.getByText(/user profile/i)).toBeVisible();
+    // Verify the page displays data loaded by the loader
+    await expect(page.getByText(/user profile/i)).toBeVisible();
 });
 ```
 
@@ -115,11 +119,11 @@ test('displays data from loader', async ({ page }) => {
 
 ```typescript
 test('middleware protects authenticated routes', async ({ page }) => {
-  // No authentication cookie/session
-  await page.goto('/dashboard');
+    // No authentication cookie/session
+    await page.goto('/dashboard');
 
-  // Should redirect to sign-in via middleware
-  await expect(page).toHaveURL(/sign-in/);
+    // Should redirect to sign-in via middleware
+    await expect(page).toHaveURL(/sign-in/);
 });
 ```
 
@@ -127,14 +131,17 @@ test('middleware protects authenticated routes', async ({ page }) => {
 
 ```typescript
 test('has correct page meta information', async ({ page }) => {
-  await page.goto('/');
+    await page.goto('/');
 
-  // Check document title
-  await expect(page).toHaveTitle('TWS Foundations');
+    // Check document title
+    await expect(page).toHaveTitle('TWS Foundations');
 
-  // Check meta description
-  const metaDescription = page.locator('meta[name="description"]');
-  await expect(metaDescription).toHaveAttribute('content', /Modern full-stack/);
+    // Check meta description
+    const metaDescription = page.locator('meta[name="description"]');
+    await expect(metaDescription).toHaveAttribute(
+        'content',
+        /Modern full-stack/,
+    );
 });
 ```
 
@@ -147,6 +154,7 @@ npm run e2e:ui
 ```
 
 UI mode provides:
+
 - Visual test runner
 - Time-travel debugging
 - Step-by-step execution
@@ -159,6 +167,7 @@ npm run e2e:debug
 ```
 
 Opens Playwright Inspector for step-by-step debugging with:
+
 - Breakpoints
 - DOM snapshots
 - Network logs
@@ -187,25 +196,25 @@ Playwright is configured for CI environments:
 name: Playwright Tests
 on: [push, pull_request]
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npm run e2e
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+            - name: Install dependencies
+              run: npm ci
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+            - name: Run Playwright tests
+              run: npm run e2e
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 30
 ```
 
 ## Test Reports
@@ -217,6 +226,7 @@ npm run e2e:report
 ```
 
 The report includes:
+
 - Test results (pass/fail/skip)
 - Screenshots on failure
 - Execution traces
@@ -228,10 +238,10 @@ The report includes:
 
 ```typescript
 test('displays content based on feature flag', async ({ page }) => {
-  await page.goto('/');
+    await page.goto('/');
 
-  // Test default content (flag off)
-  await expect(page.getByText(/production-ready SaaS/i)).toBeVisible();
+    // Test default content (flag off)
+    await expect(page.getByText(/production-ready SaaS/i)).toBeVisible();
 });
 ```
 
@@ -239,13 +249,15 @@ test('displays content based on feature flag', async ({ page }) => {
 
 ```typescript
 test('admin routes require admin role', async ({ page, context }) => {
-  // Set up authenticated user with USER role
-  await context.addCookies([/* auth cookies */]);
+    // Set up authenticated user with USER role
+    await context.addCookies([
+        /* auth cookies */
+    ]);
 
-  await page.goto('/admin/design');
+    await page.goto('/admin/design');
 
-  // Should show 403 or redirect
-  await expect(page.getByText(/forbidden|not authorized/i)).toBeVisible();
+    // Should show 403 or redirect
+    await expect(page.getByText(/forbidden|not authorized/i)).toBeVisible();
 });
 ```
 
@@ -253,20 +265,22 @@ test('admin routes require admin role', async ({ page, context }) => {
 
 ```typescript
 test('form submission calls API endpoint', async ({ page }) => {
-  // Listen for API calls
-  const responsePromise = page.waitForResponse(
-    response => response.url().includes('/api/profile') && response.status() === 200
-  );
+    // Listen for API calls
+    const responsePromise = page.waitForResponse(
+        (response) =>
+            response.url().includes('/api/profile') &&
+            response.status() === 200,
+    );
 
-  await page.goto('/profile/edit');
-  await page.getByRole('textbox', { name: /name/i }).fill('John Doe');
-  await page.getByRole('button', { name: /save/i }).click();
+    await page.goto('/profile/edit');
+    await page.getByRole('textbox', { name: /name/i }).fill('John Doe');
+    await page.getByRole('button', { name: /save/i }).click();
 
-  // Verify API was called successfully
-  await responsePromise;
+    // Verify API was called successfully
+    await responsePromise;
 
-  // Verify UI updates
-  await expect(page.getByText('Profile updated')).toBeVisible();
+    // Verify UI updates
+    await expect(page.getByText('Profile updated')).toBeVisible();
 });
 ```
 

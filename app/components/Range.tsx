@@ -12,20 +12,20 @@ export const rangeVariants = cva({
             success: 'range-success',
             warning: 'range-warning',
             info: 'range-info',
-            error: 'range-error'
+            error: 'range-error',
         },
         size: {
             xs: 'range-xs',
             sm: 'range-sm',
             md: 'range-md',
             lg: 'range-lg',
-            xl: 'range-xl'
-        }
+            xl: 'range-xl',
+        },
     },
     defaultVariants: {
-        size: 'md'
+        size: 'md',
     },
-    compoundVariants: []
+    compoundVariants: [],
 });
 
 interface RangeProps
@@ -63,7 +63,7 @@ export function Range({
         showSteps && stepNum
             ? Array.from(
                   { length: Math.floor((maxNum - minNum) / stepNum) + 1 },
-                  (_, i) => minNum + i * stepNum
+                  (_, i) => minNum + i * stepNum,
               )
             : [];
 
@@ -84,9 +84,9 @@ export function Range({
                 className={cx(
                     rangeVariants({
                         color: error ? 'error' : color,
-                        size
+                        size,
                     }),
-                    className
+                    className,
                 )}
                 disabled={disabled}
                 {...props}
@@ -104,7 +104,7 @@ export function Range({
                 <span
                     className={cx(
                         'text-xs',
-                        error ? 'text-error' : 'text-base-content/70'
+                        error ? 'text-error' : 'text-base-content/70',
                     )}
                 >
                     {error || helperText}

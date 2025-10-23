@@ -228,7 +228,7 @@ export default function WelcomeEmail({ userName, dashboardUrl }: WelcomeEmailPro
 // app/lib/auth.server.ts
 import {
     sendVerificationEmail,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
 } from '~/models/email.server';
 
 export const auth = betterAuth({
@@ -236,18 +236,18 @@ export const auth = betterAuth({
         sendResetPassword: async ({ user, url }) => {
             await sendPasswordResetEmail({
                 to: user.email,
-                resetUrl: url
+                resetUrl: url,
             });
-        }
+        },
     },
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             await sendVerificationEmail({
                 to: user.email,
-                verificationUrl: url
+                verificationUrl: url,
             });
-        }
-    }
+        },
+    },
 });
 ```
 
@@ -347,12 +347,12 @@ import { ServiceSDK } from 'service-sdk';
 
 // Initialize singleton
 export const serviceClient = new ServiceSDK({
-    apiKey: process.env.SERVICE_API_KEY
+    apiKey: process.env.SERVICE_API_KEY,
 });
 
 // Export configuration
 export const SERVICE_CONFIG = {
-    defaultOption: process.env.SERVICE_DEFAULT || 'default-value'
+    defaultOption: process.env.SERVICE_DEFAULT || 'default-value',
 };
 ```
 
@@ -368,7 +368,7 @@ import { serviceClient } from '~/lib/[service].server';
  */
 export async function doSomethingUseful({
     param1,
-    param2
+    param2,
 }: {
     param1: string;
     param2: number;
@@ -376,7 +376,7 @@ export async function doSomethingUseful({
     try {
         const result = await serviceClient.performAction({
             param1,
-            param2
+            param2,
         });
 
         return { success: true, data: result };
@@ -417,7 +417,7 @@ describe('[service] model', () => {
     test('doSomethingUseful() returns success', async () => {
         const result = await doSomethingUseful({
             param1: 'test',
-            param2: 123
+            param2: 123,
         });
 
         expect(result.success).toBe(true);
@@ -428,8 +428,8 @@ describe('[service] model', () => {
         await expect(
             doSomethingUseful({
                 param1: '',
-                param2: -1
-            })
+                param2: -1,
+            }),
         ).rejects.toThrow('Failed to perform action');
     });
 });

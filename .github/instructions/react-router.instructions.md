@@ -55,12 +55,12 @@ export default [
     route('about', 'routes/about.tsx'),
     route('products/:id', 'routes/product.tsx', [
         index('routes/product-overview.tsx'),
-        route('reviews', 'routes/product-reviews.tsx')
+        route('reviews', 'routes/product-reviews.tsx'),
     ]),
     route('categories', 'routes/categories-layout.tsx', [
         index('routes/categories-list.tsx'),
-        route(':slug', 'routes/category-details.tsx')
-    ])
+        route(':slug', 'routes/category-details.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -207,7 +207,9 @@ export async function loader({ params }: Route.LoaderArgs) {
 // Client-side navigation and SPA mode
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     return {
-        product: await fetch(`/api/products/${params.id}`).then((r) => r.json())
+        product: await fetch(`/api/products/${params.id}`).then((r) =>
+            r.json(),
+        ),
     };
 }
 
@@ -263,7 +265,7 @@ export async function loader({}: Route.LoaderArgs) {
     return {
         user, // Resolved value
         analytics, // Promise (streams)
-        notifications // Promise (streams)
+        notifications, // Promise (streams)
     };
 }
 ```
@@ -428,8 +430,8 @@ export default [
     route('products', 'routes/products-layout.tsx', [
         index('routes/products-list.tsx'),
         route(':id', 'routes/product-details.tsx'),
-        route(':id/edit', 'routes/product-edit.tsx')
-    ])
+        route(':id/edit', 'routes/product-edit.tsx'),
+    ]),
 ] satisfies RouteConfig;
 ```
 

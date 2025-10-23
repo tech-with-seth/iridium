@@ -49,9 +49,9 @@ export default [
     layout('routes/authenticated.tsx', [
         route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
         route(Paths.PROFILE, 'routes/profile.tsx'),
-        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')])
+        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')]),
     ]),
-    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')])
+    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')]),
 ] satisfies RouteConfig;
 ```
 
@@ -98,7 +98,7 @@ npx prisma migrate dev --name <description> # Apply database migrations
 // 1. Add to app/routes.ts using constants
 import { Paths } from './constants';
 layout('routes/authenticated.tsx', [
-    route('new-feature', 'routes/new-feature.tsx')
+    route('new-feature', 'routes/new-feature.tsx'),
 ]);
 
 // 2. Create route file - middleware handles auth automatically
