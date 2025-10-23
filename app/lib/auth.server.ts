@@ -4,6 +4,10 @@ import { polar, checkout, portal, usage, webhooks } from '@polar-sh/better-auth'
 
 import { prisma } from '~/db.server';
 import { polarClient } from './polar.server';
+import {
+    sendVerificationEmail,
+    sendPasswordResetEmail
+} from '~/models/email.server';
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -11,7 +15,24 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: false
+        requireEmailVerification: false, // Set to true to require email verification
+        sendResetPassword: async ({ user, url }) => {
+            // Send password reset email via Resend
+            await sendPasswordResetEmail({
+                to: user.email,
+                resetUrl: url
+            });
+        }
+    },
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            // Send verification email via Resend
+            await sendVerificationEmail({
+                to: user.email,
+                verificationUrl: url
+            });
+        },
+        sendOnSignUp: true // Automatically send verification email on signup
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -35,7 +56,8 @@ export const auth = betterAuth({
                 checkout({
                     // Add your product configurations here
                     // products: [{ productId: "your-product-id", slug: "pro" }],
-                    successUrl: process.env.POLAR_SUCCESS_URL || '/payment/success',
+                    successUrl:
+                        process.env.POLAR_SUCCESS_URL || '/payment/success',
                     authenticatedUsersOnly: true
                 }),
                 portal(),

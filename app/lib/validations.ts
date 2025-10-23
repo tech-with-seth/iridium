@@ -30,7 +30,45 @@ export const profileUpdateSchema = z.object({
   phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number").optional().or(z.literal("")),
 });
 
+// EMAIL VALIDATION SCHEMAS
+
+export const sendEmailSchema = z.object({
+  to: z.union([
+    z.string().email("Invalid recipient email address"),
+    z.array(z.string().email("Invalid recipient email address"))
+  ]),
+  from: z.string().email("Invalid sender email address").optional(),
+  subject: z.string().min(1, "Subject is required").max(200, "Subject must be 200 characters or less"),
+  html: z.string().min(1, "Email body is required").optional(),
+  text: z.string().min(1, "Email body is required").optional(),
+  replyTo: z.string().email("Invalid reply-to email address").optional(),
+  cc: z.union([
+    z.string().email("Invalid CC email address"),
+    z.array(z.string().email("Invalid CC email address"))
+  ]).optional(),
+  bcc: z.union([
+    z.string().email("Invalid BCC email address"),
+    z.array(z.string().email("Invalid BCC email address"))
+  ]).optional(),
+}).refine((data) => data.html || data.text, {
+  message: "Either 'html' or 'text' must be provided",
+  path: ["html"]
+});
+
+export const emailTemplateSchema = z.object({
+  templateName: z.enum([
+    "verification",
+    "password-reset",
+    "welcome",
+    "transactional"
+  ]),
+  to: z.string().email("Invalid recipient email address"),
+  props: z.record(z.any()).optional()
+});
+
 export type SignInData = z.infer<typeof signInSchema>;
 export type SignUpData = z.infer<typeof signUpSchema>;
 export type ChatMessageData = z.infer<typeof chatMessageSchema>;
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
+export type SendEmailData = z.infer<typeof sendEmailSchema>;
+export type EmailTemplateData = z.infer<typeof emailTemplateSchema>;

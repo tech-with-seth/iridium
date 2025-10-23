@@ -17,6 +17,7 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Caching** - Three-tier caching strategy: client-side route caching, model layer caching, manual caching
 - **Analytics** - PostHog integration for product analytics and feature flags
 - **Billing** - Polar.sh integration via BetterAuth plugin (optional)
+- **Email** - Resend integration with React Email templates, BetterAuth email flows, and centralized API endpoint
 - **Documentation** - Comprehensive patterns documented in `.github/instructions/`
 
 ## 🏗️ Architecture
@@ -31,6 +32,7 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Forms**: React Hook Form + Zod validation
 - **Caching**: FlatCache with TTL support (three-tier strategy)
 - **Billing**: Polar.sh integration via BetterAuth plugin (optional)
+- **Email**: Resend with React Email templates
 
 ### Key Patterns
 
@@ -84,6 +86,8 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
    - `POLAR_SERVER` - "sandbox" or "production" (optional)
    - `POLAR_SUCCESS_URL` - Checkout success redirect URL (optional)
    - `POLAR_WEBHOOK_SECRET` - Polar webhook secret (optional)
+   - `RESEND_API_KEY` - Resend API key for sending emails (required)
+   - `RESEND_FROM_EMAIL` - Default sender email address (optional, defaults to `onboarding@resend.dev`)
 
 3. **Set up the database**
 
@@ -111,6 +115,11 @@ app/
 │   ├── Card.tsx, Modal.tsx, etc.
 ├── constants/
 │   └── index.ts         # Path constants enum
+├── emails/              # React Email templates
+│   ├── verification-email.tsx
+│   ├── password-reset-email.tsx
+│   ├── welcome-email.tsx
+│   └── transactional-email.tsx
 ├── generated/
 │   └── prisma/          # Prisma client (custom output path)
 ├── hooks/
@@ -123,6 +132,7 @@ app/
 │   ├── ai.ts                 # OpenAI client singleton
 │   ├── cache.ts              # FlatCache with three-tier caching utilities
 │   ├── polar.server.ts       # Polar SDK client singleton
+│   ├── resend.server.ts      # Resend SDK client singleton
 │   ├── form-hooks.ts         # useValidatedForm hook
 │   ├── form-validation.server.ts  # Server-side form validation
 │   └── validations.ts        # Zod schemas
@@ -132,6 +142,7 @@ app/
 │   └── logging.ts            # Request logging
 ├── models/                   # Model layer (data access layer)
 │   ├── user.server.ts        # User CRUD operations
+│   ├── email.server.ts       # Email operations (Resend)
 │   └── feature-flags.server.ts  # PostHog feature flags with caching
 ├── routes/
 │   ├── api/
@@ -140,6 +151,7 @@ app/
 │   │   │   └── better-auth.ts    # BetterAuth handler
 │   │   ├── posthog/
 │   │   │   └── feature-flags.server.ts  # Feature flags API
+│   │   ├── email.server.ts       # Email API (send from anywhere)
 │   │   └── profile.server.ts     # Profile API (canonical CRUD example)
 │   ├── admin/
 │   │   └── design.tsx            # Component showcase
@@ -154,6 +166,7 @@ app/
 │   └── posthog.ts        # PostHog type definitions
 ├── cva.config.ts         # CVA utilities (cx, cva, compose)
 ├── db.server.ts          # Prisma client singleton
+├── env.d.ts              # TypeScript environment types
 └── routes.ts             # Config-based routing (single source of truth)
 
 prisma/
@@ -342,6 +355,7 @@ This project includes comprehensive pattern documentation in `.github/instructio
 
 - **`polar.instructions.md`** - Polar billing integration via BetterAuth plugin
 - **`posthog.instructions.md`** - PostHog analytics, feature flags, and error tracking
+- **`resend.instructions.md`** - Resend email integration with React Email templates and BetterAuth
 
 All patterns include:
 
@@ -370,6 +384,8 @@ Make sure to set all required environment variables in your production environme
 - `POSTHOG_API_KEY` - PostHog API key (if using analytics)
 - `POSTHOG_PROJECT_ID` - PostHog project ID (if using analytics)
 - `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key (if using server-side features)
+- `RESEND_API_KEY` - Resend API key for sending emails (required)
+- `RESEND_FROM_EMAIL` - Verified sender email domain (required for production)
 - Optional: Polar.sh credentials if using billing (`POLAR_ACCESS_TOKEN`, `POLAR_SERVER`, `POLAR_SUCCESS_URL`, `POLAR_WEBHOOK_SECRET`)
 
 ### Database Migrations
@@ -396,6 +412,8 @@ npx prisma migrate deploy
 - [React Hook Form](https://react-hook-form.com) - Form validation patterns
 - [Zod Docs](https://zod.dev) - Schema validation
 - [Polar.sh Docs](https://docs.polar.sh) - Billing integration (optional)
+- [Resend Docs](https://resend.com/docs) - Email service integration
+- [React Email Docs](https://react.email/docs) - Email template development
 
 ## 🤝 Contributing
 

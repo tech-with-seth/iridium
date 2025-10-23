@@ -50,6 +50,10 @@ Each ADR follows this structure:
 - [008: PostHog Analytics](./008-posthog.md) - Product analytics
 - [009: Polar Billing](./009-polar-billing.md) - Subscription management
 
+### Email and Communication
+
+- [010: Resend Email](./010-resend-email.md) - Transactional email service
+
 ## Creating a New ADR
 
 When making a significant architectural decision:

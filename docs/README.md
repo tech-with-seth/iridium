@@ -30,6 +30,7 @@ npm run dev
 ### Core Concepts
 
 - [Authentication](./authentication.md) - Better Auth setup with Polar billing integration
+- [Email](./email.md) - Resend email service with React Email templates
 - [Routing](./routing.md) - React Router 7 patterns and conventions
 - [Forms](./forms.md) - Form validation with Zod and React Hook Form
 - [Components](./components.md) - DaisyUI and CVA component patterns
@@ -61,6 +62,7 @@ We document significant architectural decisions in the [decisions](./decisions/R
 - [007: Flat-Cache](./decisions/007-flat-cache.md)
 - [008: PostHog Analytics](./decisions/008-posthog.md)
 - [009: Polar Billing](./decisions/009-polar-billing.md)
+- [010: Resend Email](./decisions/010-resend-email.md)
 
 ## Technology Stack
 
@@ -83,6 +85,8 @@ We document significant architectural decisions in the [decisions](./decisions/R
 
 - **Polar** - Billing and subscription management
 - **PostHog** - Product analytics and feature flags
+- **Resend** - Transactional email service
+- **React Email** - Email template development
 - **OpenAI** - AI SDK integration
 
 ### Testing
@@ -104,6 +108,7 @@ tws-foundations/
 ├── app/
 │   ├── routes/              # Route components and loaders
 │   ├── components/          # Reusable UI components
+│   ├── emails/              # React Email templates
 │   ├── lib/                 # Utility functions and configurations
 │   ├── models/              # Data models and business logic
 │   ├── hooks/               # Custom React hooks

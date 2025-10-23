@@ -43,6 +43,7 @@ const apiRoutes = prefix(Paths.API, [
     route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.server.ts'),
     route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.server.ts'),
     route(Paths.PROFILE, 'routes/api/profile.server.ts'),
+    route('email', 'routes/api/email.server.ts'),
     ...postHogRoutes
 ]);
 
