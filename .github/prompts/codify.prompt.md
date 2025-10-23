@@ -5,10 +5,12 @@
 ## Execution Steps
 
 1. **Identify Core Concepts**: Extract the key patterns, decisions, or conventions from the conversation
-2. **Determine Scope**: Assess which documentation files require updates based on the topic's nature
+2. **Determine Scope**: Assess which documentation files require updates based on the topic's nature, including high-level summaries (`README.md`), reference manuals (`docs/`), and decision records (`docs/decisions/`)
 3. **Verify Existing Documentation**: Check current state of relevant documentation files
 4. **Update Documentation**: Add or modify content to reflect the new canonical patterns
 5. **Ensure Consistency**: Verify documentation alignment across all files
+
+> Not every change belongs everywhere. Choose the location that best matches the audience and permanence of the decision so documentation stays focused and meaningful.
 
 ## Documentation Hierarchy
 
@@ -30,6 +32,24 @@
 - **Content**: Framework/library-specific patterns and conventions
 - **Structure**: One file per major framework/concern
 - **Update when**: Framework-specific patterns or best practices are established
+
+### README.md (project root)
+
+- **Audience**: New contributors and stakeholders seeking the big-picture overview
+- **Content**: High-level product description, feature list, architecture summary, setup steps
+- **Update when**: Top-level messaging, onboarding instructions, or flagship capabilities change
+
+### docs/
+
+- **Audience**: Developers looking for in-depth walkthroughs, workflows, and operational guides
+- **Content**: Topic-specific manuals (authentication, routing, testing, deployment), living documentation for day-to-day development
+- **Update when**: Detailed processes or platform behaviors evolve beyond quick references
+
+### docs/decisions/
+
+- **Audience**: Engineers and product leaders reviewing historical context for architectural choices
+- **Content**: Architecture Decision Records (ADRs) capturing the “why” behind significant decisions
+- **Update when**: A new decision is made or a previous decision is superseded; include rationale, consequences, and alternatives considered
 
 ## Documentation Categories
 
