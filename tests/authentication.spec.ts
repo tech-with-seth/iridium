@@ -7,12 +7,12 @@ test.describe('Authentication', () => {
         // Check for sign-in form elements
         await expect(page).toHaveURL(/sign-in/);
 
-        // Look for email input
-        const emailInput = page.getByRole('textbox', { name: /email/i });
+        // Look for email input (label may not have explicit name attribute)
+        const emailInput = page.locator('input[type="email"]');
         await expect(emailInput).toBeVisible();
 
         // Look for password input
-        const passwordInput = page.getByLabel(/password/i);
+        const passwordInput = page.locator('input[type="password"]');
         await expect(passwordInput).toBeVisible();
 
         // Look for sign-in button

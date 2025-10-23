@@ -8,9 +8,9 @@ test.describe('Home Page', () => {
         const heading = page.getByRole('heading', { name: 'TWS Foundations' });
         await expect(heading).toBeVisible();
 
-        // Check for description text
+        // Check for description text (handles both feature flag variations)
         await expect(
-            page.getByText(/production-ready SaaS boilerplate/i),
+            page.getByText(/production-ready (SaaS )?boilerplate/i),
         ).toBeVisible();
     });
 
