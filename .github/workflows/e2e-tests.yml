@@ -11,23 +11,11 @@ jobs:
         name: Run Playwright Suite
         runs-on: ubuntu-latest
         timeout-minutes: 30
-        services:
-            postgres:
-                image: postgres:16
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: tws_test
-                options: >-
-                    --health-cmd pg_isready
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
-                ports:
-                    - 5432:5432
         env:
             CI: true
-            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            # Required by server startup (middleware, auth initialization)
+            # Not used by actual tests - all external services are mocked in-memory
+            DATABASE_URL: file:./test.db
             BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
             BETTER_AUTH_URL: http://localhost:5173
             OPENAI_API_KEY: sk-test-key
@@ -50,12 +38,6 @@ jobs:
 
             - name: Generate Prisma Client
               run: npx prisma generate
-
-            - name: Run database migrations
-              run: npx prisma migrate deploy
-
-            - name: Seed database
-              run: npm run seed
 
             - name: Install Playwright browsers
               run: npx playwright install --with-deps

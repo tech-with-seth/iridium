@@ -226,23 +226,11 @@ jobs:
         name: Run Playwright Suite
         runs-on: ubuntu-latest
         timeout-minutes: 30
-        services:
-            postgres:
-                image: postgres:16
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: tws_test
-                options: >-
-                    --health-cmd pg_isready
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
-                ports:
-                    - 5432:5432
         env:
             CI: true
-            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            # Required by server startup (middleware, auth initialization)
+            # Not used by actual tests - all external services are mocked in-memory
+            DATABASE_URL: file:./test.db
             BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
             BETTER_AUTH_URL: http://localhost:5173
             OPENAI_API_KEY: sk-test-key
@@ -266,12 +254,6 @@ jobs:
             - name: Generate Prisma Client
               run: npx prisma generate
 
-            - name: Run database migrations
-              run: npx prisma migrate deploy
-
-            - name: Seed database
-              run: npm run seed
-
             - name: Install Playwright browsers
               run: npx playwright install --with-deps
 
@@ -290,31 +272,62 @@ jobs:
 
 ### Critical CI/CD Points
 
-1. **PostgreSQL Service Required**: The app needs a database, so use GitHub Actions services
-2. **All Environment Variables**: Even dummy values are required for imports that use them
-3. **Database Setup**: Generate Prisma client → migrate → seed (in that order)
+1. **No Database Required**: Current E2E tests only verify UI and redirects, not actual data interactions
+2. **SQLite In-Memory**: Uses `file:./test.db` for Prisma client generation only
+3. **Minimal Environment Variables**: Only what's needed for server startup and module imports
 4. **No Manual Server Start**: Playwright's `webServer` config handles this automatically
 5. **PostHog Integration**: Logging middleware uses PostHog, so `VITE_POSTHOG_API_KEY` is required
 6. **Artifacts**: Always upload reports for debugging (use `if: always()`)
+
+### When to Add Database Setup
+
+Add PostgreSQL service, migrations, and seeding when you have E2E tests that:
+
+- Authenticate users and test protected flows
+- Create, read, update, or delete actual data
+- Test data relationships and constraints
+- Verify database-driven business logic
+
+Example of when database is needed:
+
+```typescript
+// This test WOULD require database setup:
+test('user can update profile', async ({ page }) => {
+    // Login with seeded user
+    await page.goto('/sign-in');
+    await page.getByLabel('Email').fill('seth@mail.com');
+    await page.getByLabel('Password').fill('password123');
+    await page.getByRole('button', { name: /sign in/i }).click();
+
+    // Navigate and update profile
+    await page.goto('/profile');
+    await page.getByLabel('Name').fill('New Name');
+    await page.getByRole('button', { name: /save/i }).click();
+
+    // Verify data persisted (requires database)
+    await page.reload();
+    await expect(page.getByText('New Name')).toBeVisible();
+});
+```
 
 ### Troubleshooting CI Failures
 
 **Server won't start:**
 
 - Check all required environment variables are set
-- Verify database migrations ran successfully
 - Check `webServer.timeout` is sufficient (default 120s)
+- Review server startup logs in CI output
 
-**Database connection errors:**
+**Prisma generation errors:**
 
-- Ensure PostgreSQL service is healthy before running migrations
-- Verify `DATABASE_URL` matches the service configuration
+- Ensure `DATABASE_URL` is set (even if SQLite in-memory)
+- Verify `npx prisma generate` step completes successfully
 
 **Tests timeout:**
 
 - Increase `timeout-minutes` at job level
-- Check server startup logs in CI output
-- Verify seed data creates necessary test users
+- Check for network issues or slow operations
+- Verify test assertions are not waiting for non-existent elements
 
 ## Test Reports
 

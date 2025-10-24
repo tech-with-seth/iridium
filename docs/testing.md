@@ -486,7 +486,7 @@ The project includes GitHub Actions workflows for automated testing:
 
 ### Unit Tests Workflow
 
-`.github/workflows/unit-tests.yml` runs Vitest tests:
+`.github/workflows/unit-tests.yml` runs Vitest tests with minimal setup since all external services are mocked:
 
 ```yaml
 name: Unit Tests
@@ -504,14 +504,9 @@ jobs:
         timeout-minutes: 15
         env:
             CI: true
-            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
-            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
-            BETTER_AUTH_URL: http://localhost:5173
-            OPENAI_API_KEY: sk-test-key
-            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
-            VITE_POSTHOG_HOST: https://us.i.posthog.com
-            RESEND_API_KEY: re_test_key_for_ci
-            RESEND_FROM_EMAIL: test@example.com
+            # Required for Prisma client generation only
+            # All database calls are mocked in unit tests
+            DATABASE_URL: file:./test.db
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
@@ -521,11 +516,19 @@ jobs:
             - run: npm ci
             - run: npx prisma generate
             - run: npm run test:run
+            - run: npm run typecheck
 ```
+
+**Unit Test Strategy:**
+
+- All database operations mocked with `vi.mock('~/db.server')`
+- All external services (Resend, OpenAI, PostHog, Polar) mocked
+- Only `DATABASE_URL` required for Prisma type generation
+- Fast execution (~30-60 seconds total)
 
 ### E2E Tests Workflow
 
-`.github/workflows/e2e-tests.yml` runs Playwright tests with a full PostgreSQL database:
+`.github/workflows/e2e-tests.yml` runs Playwright tests with minimal setup for current test suite:
 
 ```yaml
 name: E2E Tests
@@ -541,23 +544,11 @@ jobs:
         name: Run Playwright Suite
         runs-on: ubuntu-latest
         timeout-minutes: 30
-        services:
-            postgres:
-                image: postgres:16
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: tws_test
-                options: >-
-                    --health-cmd pg_isready
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
-                ports:
-                    - 5432:5432
         env:
             CI: true
-            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            # Required by server startup (middleware, auth initialization)
+            # Not used by actual tests - all external services are mocked in-memory
+            DATABASE_URL: file:./test.db
             BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
             BETTER_AUTH_URL: http://localhost:5173
             OPENAI_API_KEY: sk-test-key
@@ -573,8 +564,6 @@ jobs:
                   cache: npm
             - run: npm ci
             - run: npx prisma generate
-            - run: npx prisma migrate deploy
-            - run: npm run seed
             - run: npx playwright install --with-deps
             - run: npm run e2e
             - uses: actions/upload-artifact@v4
@@ -585,13 +574,48 @@ jobs:
                   retention-days: 7
 ```
 
-**Key CI/CD Considerations:**
+**E2E Test Strategy:**
 
-- **PostgreSQL Service**: E2E tests require a database; use GitHub Actions services
-- **Environment Variables**: All required env vars must be set, even with dummy values
-- **Playwright webServer**: Automatically starts dev server (no manual setup needed)
-- **Artifacts**: Upload test reports for debugging failures
-- **Timeouts**: Set appropriate timeouts (15 min for unit, 30 min for E2E)
+- Current tests only verify UI visibility and redirects
+- No authentication flows or database interactions yet
+- Environment variables required for server startup (imports use them)
+- SQLite in-memory sufficient for Prisma client generation
+
+**When to Add PostgreSQL Service:**
+
+Add full database setup (PostgreSQL service + migrations + seed) when you write E2E tests that:
+
+1. Authenticate users (fill sign-in form, submit, verify dashboard)
+2. Create/read/update/delete data (test CRUD operations end-to-end)
+3. Test data relationships (verify foreign keys, cascades)
+4. Test database-driven business logic (permissions, role checks)
+
+Example of test requiring database:
+
+```typescript
+test('user can update profile', async ({ page }) => {
+    // Login with seeded user (requires database + seed)
+    await page.goto('/sign-in');
+    await page.getByLabel('Email').fill('seth@mail.com');
+    await page.getByLabel('Password').fill('password123');
+    await page.getByRole('button', { name: /sign in/i }).click();
+
+    // Test data persistence (requires database)
+    await page.goto('/profile');
+    await page.getByLabel('Name').fill('New Name');
+    await page.getByRole('button', { name: /save/i }).click();
+    await page.reload();
+    await expect(page.getByText('New Name')).toBeVisible();
+});
+```
+
+**Key CI/CD Principles:**
+
+- **Minimal Setup**: Only include infrastructure tests actually use
+- **Fast Feedback**: Simple tests run in ~2-3 minutes total
+- **Clear Intent**: Workflows match what tests do (no unused services)
+- **Incremental Complexity**: Add database when tests need it, not before
+- **Artifacts**: Always upload reports for debugging (use `if: always()`)
 
 ## Further Reading
 
@@ -599,3 +623,4 @@ jobs:
 - [Testing Library Documentation](https://testing-library.com/)
 - [Playwright Documentation](https://playwright.dev/)
 - [Development Workflow](./development.md)
+- [ADR 007: Simplified CI Testing](./decisions/007-simplified-ci-testing.md)

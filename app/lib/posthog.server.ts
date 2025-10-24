@@ -24,12 +24,19 @@ export async function serverSideLog({
     event,
     properties,
 }: ServerSideLogProps) {
+    // Skip logging in development or with test keys to avoid rate limiting
+    if (process.env.NODE_ENV === 'development') {
+        return;
+    }
+
     const posthog = PostHogClient();
+
     posthog.capture({
         distinctId,
         event,
         properties,
     });
+
     await posthog.shutdown();
 }
 

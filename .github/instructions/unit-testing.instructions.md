@@ -447,6 +447,121 @@ beforeEach(() => {
 
 ### Suppressing Console Output
 
+## CI/CD Integration
+
+Unit tests run in GitHub Actions on every push and pull request. The workflow is minimal since all external dependencies (database, email service, etc.) are mocked.
+
+### Unit Test Workflow
+
+Location: `.github/workflows/unit-tests.yml`
+
+```yaml
+name: Unit Tests
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+
+jobs:
+    vitest:
+        name: Run Vitest Suite
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        env:
+            CI: true
+            # Required for Prisma client generation only
+            # All database calls are mocked in unit tests
+            DATABASE_URL: file:./test.db
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Generate Prisma Client
+              run: npx prisma generate
+
+            - name: Run unit tests
+              run: npm run test:run
+
+            - name: Run TypeScript checks
+              run: npm run typecheck
+```
+
+### Key CI/CD Principles
+
+1. **No Database Required**: All database operations are mocked with `vi.mock('~/db.server')`
+2. **SQLite In-Memory**: `DATABASE_URL=file:./test.db` only used for Prisma client generation
+3. **No External Services**: Resend, OpenAI, PostHog, Polar all mocked
+4. **Fast Execution**: No network calls, no container setup, just pure unit tests
+5. **Type Safety**: TypeScript check ensures type errors caught before deployment
+
+### Why No Database?
+
+Unit tests use mocks instead of real database connections:
+
+```ts
+// All tests mock Prisma completely
+vi.mock('~/db.server', () => ({
+    prisma: {
+        user: {
+            findUnique: vi.fn(),
+            create: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
+        },
+    },
+}));
+
+// Tests verify business logic, not database operations
+it('creates user with valid data', async () => {
+    const mockUser = { id: '1', email: 'test@example.com' };
+    vi.mocked(prisma.user.create).mockResolvedValue(mockUser);
+
+    const result = await createUser({ email: 'test@example.com' });
+
+    expect(result).toEqual(mockUser);
+    expect(prisma.user.create).toHaveBeenCalledWith({
+        data: { email: 'test@example.com' },
+    });
+});
+```
+
+Benefits:
+
+- **Fast**: No database startup or connections
+- **Isolated**: Tests don't affect each other via shared state
+- **Reliable**: No network issues or database drift
+- **Portable**: Runs anywhere without infrastructure
+
+### Troubleshooting CI Failures
+
+**Prisma generation fails:**
+
+- Ensure `DATABASE_URL` is set (even if dummy value)
+- Check `schema.prisma` is valid
+
+**Tests pass locally but fail in CI:**
+
+- Check for hard-coded paths or environment-specific behavior
+- Ensure mocks are properly configured in `beforeEach`
+- Verify no reliance on local files or services
+
+**Type errors in CI:**
+
+- Run `npm run typecheck` locally first
+- Ensure route types are generated (`npm run typecheck`)
+- Check import paths use correct aliases (`~/` prefix)
+
 For tests that intentionally trigger errors (testing error handling), suppress console output to keep test output clean:
 
 ```ts

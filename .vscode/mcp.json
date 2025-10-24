@@ -23,6 +23,10 @@
                 // Ex: export POSTHOG_PERSONAL_API_KEY=your_api_key
                 "POSTHOG_AUTH_HEADER": "${env:POSTHOG_PERSONAL_API_KEY}"
             }
+        },
+        "playwright": {
+            "command": "npx",
+            "args": ["@playwright/mcp@latest"]
         }
     }
 }
