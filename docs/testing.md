@@ -482,28 +482,116 @@ Coverage reports are saved to `coverage/` directory. Aim for:
 
 ## Continuous Integration
 
-Example GitHub Actions workflow:
+The project includes GitHub Actions workflows for automated testing:
+
+### Unit Tests Workflow
+
+`.github/workflows/unit-tests.yml` runs Vitest tests:
 
 ```yaml
-name: Tests
+name: Unit Tests
 
-on: [push, pull_request]
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
 
 jobs:
-    test:
+    vitest:
+        name: Run Vitest Suite
         runs-on: ubuntu-latest
-
+        timeout-minutes: 15
+        env:
+            CI: true
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
+            BETTER_AUTH_URL: http://localhost:5173
+            OPENAI_API_KEY: sk-test-key
+            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
+            VITE_POSTHOG_HOST: https://us.i.posthog.com
+            RESEND_API_KEY: re_test_key_for_ci
+            RESEND_FROM_EMAIL: test@example.com
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-
-            - run: npm install
+                  cache: npm
+            - run: npm ci
+            - run: npx prisma generate
             - run: npm run test:run
+```
+
+### E2E Tests Workflow
+
+`.github/workflows/e2e-tests.yml` runs Playwright tests with a full PostgreSQL database:
+
+```yaml
+name: E2E Tests
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+
+jobs:
+    playwright:
+        name: Run Playwright Suite
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: tws_test
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 5432:5432
+        env:
+            CI: true
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
+            BETTER_AUTH_URL: http://localhost:5173
+            OPENAI_API_KEY: sk-test-key
+            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
+            VITE_POSTHOG_HOST: https://us.i.posthog.com
+            RESEND_API_KEY: re_test_key_for_ci
+            RESEND_FROM_EMAIL: test@example.com
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - run: npm ci
+            - run: npx prisma generate
+            - run: npx prisma migrate deploy
+            - run: npm run seed
             - run: npx playwright install --with-deps
             - run: npm run e2e
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: playwright-report
+                  retention-days: 7
 ```
+
+**Key CI/CD Considerations:**
+
+- **PostgreSQL Service**: E2E tests require a database; use GitHub Actions services
+- **Environment Variables**: All required env vars must be set, even with dummy values
+- **Playwright webServer**: Automatically starts dev server (no manual setup needed)
+- **Artifacts**: Upload test reports for debugging failures
+- **Timeouts**: Set appropriate timeouts (15 min for unit, 30 min for E2E)
 
 ## Further Reading
 

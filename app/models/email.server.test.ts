@@ -6,16 +6,13 @@ import {
 } from '~/lib/email-test-helpers';
 
 // Assertion helpers
-function assertEmailSentTo(
-    mockFn: ReturnType<typeof vi.fn>,
-    recipient: string,
-) {
+function assertEmailSentTo(mockFn: any, recipient: string) {
     expect(mockFn).toHaveBeenCalledWith(
         expect.objectContaining({ to: recipient }),
     );
 }
 
-function assertEmailSubject(mockFn: ReturnType<typeof vi.fn>, subject: string) {
+function assertEmailSubject(mockFn: any, subject: string) {
     expect(mockFn).toHaveBeenCalledWith(expect.objectContaining({ subject }));
 }
 
@@ -42,7 +39,8 @@ vi.mock('~/lib/resend.server', () => ({
 
 // Mock React Email render and components - Return mocked HTML and React components
 vi.mock('@react-email/components', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual =
+        await importOriginal<typeof import('@react-email/components')>();
     return {
         ...actual,
         render: vi.fn().mockResolvedValue('<html>Mocked Email</html>'),

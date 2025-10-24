@@ -189,33 +189,132 @@ Playwright is configured for CI environments:
 - **Workers**: 1 worker on CI (parallel locally)
 - **Reporter**: HTML report generated after test runs
 - **Fail on `.only`**: Prevents accidental commits of focused tests
+- **webServer**: Automatically starts dev server in CI (don't start manually)
+- **reuseExistingServer**: Set to `!process.env.CI` to always start fresh in CI
 
-### GitHub Actions Example
+### Playwright Configuration for CI
+
+In `playwright.config.ts`:
+
+```typescript
+export default defineConfig({
+    // ... other config
+    webServer: {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: !process.env.CI, // Fresh server in CI
+        timeout: 120000, // 2 minutes for server startup
+    },
+});
+```
+
+### Complete GitHub Actions Workflow
+
+The actual workflow at `.github/workflows/e2e-tests.yml`:
 
 ```yaml
-name: Playwright Tests
-on: [push, pull_request]
+name: E2E Tests
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+
 jobs:
-    test:
+    playwright:
+        name: Run Playwright Suite
         runs-on: ubuntu-latest
+        timeout-minutes: 30
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: tws_test
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 5432:5432
+        env:
+            CI: true
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
+            BETTER_AUTH_URL: http://localhost:5173
+            OPENAI_API_KEY: sk-test-key
+            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
+            VITE_POSTHOG_HOST: https://us.i.posthog.com
+            RESEND_API_KEY: re_test_key_for_ci
+            RESEND_FROM_EMAIL: test@example.com
         steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
               with:
                   node-version: 20
+                  cache: npm
+
             - name: Install dependencies
               run: npm ci
-            - name: Install Playwright Browsers
+
+            - name: Generate Prisma Client
+              run: npx prisma generate
+
+            - name: Run database migrations
+              run: npx prisma migrate deploy
+
+            - name: Seed database
+              run: npm run seed
+
+            - name: Install Playwright browsers
               run: npx playwright install --with-deps
+
             - name: Run Playwright tests
               run: npm run e2e
-            - uses: actions/upload-artifact@v4
-              if: always()
+
+            - name: Upload Playwright report
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
               with:
                   name: playwright-report
-                  path: playwright-report/
-                  retention-days: 30
+                  path: playwright-report
+                  retention-days: 7
+                  if-no-files-found: warn
 ```
+
+### Critical CI/CD Points
+
+1. **PostgreSQL Service Required**: The app needs a database, so use GitHub Actions services
+2. **All Environment Variables**: Even dummy values are required for imports that use them
+3. **Database Setup**: Generate Prisma client → migrate → seed (in that order)
+4. **No Manual Server Start**: Playwright's `webServer` config handles this automatically
+5. **PostHog Integration**: Logging middleware uses PostHog, so `VITE_POSTHOG_API_KEY` is required
+6. **Artifacts**: Always upload reports for debugging (use `if: always()`)
+
+### Troubleshooting CI Failures
+
+**Server won't start:**
+
+- Check all required environment variables are set
+- Verify database migrations ran successfully
+- Check `webServer.timeout` is sufficient (default 120s)
+
+**Database connection errors:**
+
+- Ensure PostgreSQL service is healthy before running migrations
+- Verify `DATABASE_URL` matches the service configuration
+
+**Tests timeout:**
+
+- Increase `timeout-minutes` at job level
+- Check server startup logs in CI output
+- Verify seed data creates necessary test users
 
 ## Test Reports
 

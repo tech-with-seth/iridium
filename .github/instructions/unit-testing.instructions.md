@@ -365,6 +365,52 @@ vi.mock('~/db.server', () => ({
 import { prisma } from '~/db.server';
 ```
 
+### Typing Async Module Imports
+
+When mocking modules with async imports (like React Email components), properly type the import to avoid TypeScript errors:
+
+```ts
+// ✅ CORRECT: Type the importOriginal result
+vi.mock('@react-email/components', async (importOriginal) => {
+    const actual =
+        await importOriginal<typeof import('@react-email/components')>();
+    return {
+        ...actual,
+        render: vi.fn().mockResolvedValue('<html>Mocked Email</html>'),
+    };
+});
+
+// ❌ WRONG: Missing type causes "Spread types may only be created from object types" error
+vi.mock('@react-email/components', async (importOriginal) => {
+    const actual = await importOriginal(); // TypeScript doesn't know this is an object
+    return {
+        ...actual, // Error: Can't spread unknown type
+        render: vi.fn(),
+    };
+});
+```
+
+### Typing Mock Functions in Helper Utilities
+
+For assertion helpers that accept mocked functions, use `any` type to avoid complex mock type issues:
+
+```ts
+// ✅ CORRECT: Use `any` for flexible mock type acceptance
+function assertEmailSentTo(mockFn: any, recipient: string) {
+    expect(mockFn).toHaveBeenCalledWith(
+        expect.objectContaining({ to: recipient }),
+    );
+}
+
+// ❌ PROBLEMATIC: Strict typing causes issues with mocked SDK functions
+function assertEmailSentTo(
+    mockFn: ReturnType<typeof vi.fn>, // Too restrictive
+    recipient: string,
+) {
+    // Fails when mockFn is resend.emails.send (SDK function type)
+}
+```
+
 ### Function Mocking
 
 Mock functions with return values or implementations:
@@ -396,6 +442,26 @@ Reset mock state between tests:
 beforeEach(() => {
     vi.clearAllMocks(); // Clear call history
     vi.resetAllMocks(); // Also reset implementations
+});
+```
+
+### Suppressing Console Output
+
+For tests that intentionally trigger errors (testing error handling), suppress console output to keep test output clean:
+
+```ts
+beforeEach(() => {
+    vi.clearAllMocks();
+    // Suppress console.error during tests to avoid cluttering output
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+// Example: Testing error handling without console noise
+it('handles errors gracefully', async () => {
+    vi.mocked(someFunction).mockRejectedValue(new Error('Expected error'));
+
+    await expect(functionUnderTest()).rejects.toThrow('Expected error');
+    // Console.error was called but output is suppressed
 });
 ```
 
