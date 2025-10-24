@@ -45,7 +45,8 @@ npm run dev
 
 ### Deployment
 
-- [Deployment Guide](./deployment.md) - Production deployment instructions
+- **[Deployment Quick Start](./deployment-quick-start.md)** - ⚡ Fast 5-minute Railway deployment
+- [Deployment Guide](./deployment.md) - Production deployment instructions for all platforms
 
 ## Architecture Decisions
 

@@ -1,58 +1,331 @@
-# Deployment
+# Deployment Guide
 
-This guide covers deploying TWS Foundations to production environments.
+This guide provides step-by-step instructions for deploying TWS Foundations to production. Choose your platform below and follow the specific deployment steps.
 
-## Prerequisites
+## Quick Navigation
 
-Before deploying, ensure you have:
+- [Railway Deployment](#railway-recommended) - Recommended for beginners (PostgreSQL included, automatic SSL)
+- [Docker Deployment](#docker) - For custom infrastructure
+- [Vercel Deployment](#vercel) - Serverless deployment (with limitations)
+- [Environment Variables Reference](#environment-variables-reference)
+- [Post-Deployment Checklist](#post-deployment-checklist)
 
-- PostgreSQL database configured
-- Environment variables set
-- Build process tested locally
-- Domain configured (optional)
+---
 
-## Environment Variables
+## Railway (Recommended)
 
-Required environment variables for production:
+Railway provides the simplest deployment experience with automatic PostgreSQL provisioning, SSL certificates, and zero-config deployments.
 
-```env
-# Application
-NODE_ENV=production
+### Prerequisites
 
-# Database
-DATABASE_URL=postgresql://user:password@host:5432/database
+- Railway account ([sign up free](https://railway.app))
+- Railway CLI installed: `brew install railway` (or see [Railway docs](https://docs.railway.com/guides/cli))
+- Repository pushed to GitHub
 
-# Better Auth
-BETTER_AUTH_SECRET=your-production-secret-key
-BETTER_AUTH_URL=https://yourdomain.com
-
-# Polar (optional)
-POLAR_ACCESS_TOKEN=your-polar-token
-POLAR_ORGANIZATION_ID=your-org-id
-
-# PostHog (optional)
-POSTHOG_API_KEY=your-posthog-key
-POSTHOG_HOST=https://app.posthog.com
-
-# OpenAI (optional)
-OPENAI_API_KEY=your-openai-key
-```
-
-## Build Process
-
-### Local Build Test
-
-Test the production build locally:
+### Step 1: Initial Setup
 
 ```bash
-# Install dependencies
+# Login to Railway
+railway login
+
+# Create new project (or link existing one)
+railway init
+
+# Add PostgreSQL database
+railway add --plugin postgresql
+```
+
+### Step 2: Configure Environment Variables
+
+Set required environment variables:
+
+```bash
+# Generate secure secret (REQUIRED)
+railway variables set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+
+# Email service (REQUIRED)
+railway variables set RESEND_API_KEY=your_resend_key_here
+railway variables set RESEND_FROM_EMAIL=noreply@yourdomain.com
+
+# OpenAI (optional - only if using AI features)
+railway variables set OPENAI_API_KEY=sk-proj-your-key-here
+
+# PostHog Analytics (optional)
+railway variables set VITE_POSTHOG_API_KEY=phc_your-key-here
+railway variables set VITE_POSTHOG_HOST=https://us.i.posthog.com
+railway variables set VITE_POSTHOG_PROJECT_ID=12345
+railway variables set POSTHOG_PERSONAL_API_KEY=phx_your-personal-key
+
+# Polar Billing (optional)
+railway variables set POLAR_ACCESS_TOKEN=polar_at_your-token
+railway variables set POLAR_SERVER=sandbox  # or "production"
+railway variables set POLAR_WEBHOOK_SECRET=your-webhook-secret
+```
+
+**Note:** `DATABASE_URL` is automatically set by Railway when you add PostgreSQL.
+
+### Step 3: Deploy
+
+```bash
+# Deploy your application
+railway up
+
+# Railway will build using your Dockerfile and deploy automatically
+# Watch the deployment logs in your terminal
+```
+
+After deployment completes, Railway will provide your app URL.
+
+### Step 4: Post-Deployment Setup
+
+```bash
+# Run database migrations
+railway run npx prisma migrate deploy
+
+# Generate Prisma client (if needed)
+railway run npx prisma generate
+
+# Seed database (optional - development/staging only)
+railway run npm run seed
+```
+
+### Step 5: Update Auth URL
+
+Once you have your Railway URL, update the auth configuration:
+
+```bash
+# Replace with your actual Railway URL
+railway variables set BETTER_AUTH_URL=https://your-app-name.railway.app
+
+# Trigger a redeploy to apply the change
+railway up
+```
+
+### Continuous Deployment
+
+Railway automatically deploys when you push to your connected Git branch. To configure:
+
+1. Go to Railway dashboard → Your project → Settings
+2. Connect your GitHub repository
+3. Select branch (usually `main` or `production`)
+4. Railway will auto-deploy on every push
+
+### Railway Configuration File (Optional)
+
+Create `railway.json` at repository root for advanced configuration:
+
+```json
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "Dockerfile"
+    },
+    "deploy": {
+        "numReplicas": 1,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+    }
+}
+```
+
+### Common Railway Issues
+
+**Build taking too long?**
+
+- First build takes 5-10 minutes due to multi-stage Docker build
+- Subsequent builds are faster with layer caching
+
+**App won't start?**
+
+- Check `railway logs` for errors
+- Verify all required environment variables are set
+- Ensure `DATABASE_URL` is present (check Railway dashboard)
+
+**Database connection issues?**
+
+- Railway PostgreSQL is on private network - no additional config needed
+- Verify `DATABASE_URL` in Railway dashboard matches expectations
+
+---
+
+## Environment Variables Reference
+
+### Required Variables
+
+These must be set for the application to function:
+
+```env
+# Database (automatically set by Railway with PostgreSQL add-on)
+DATABASE_URL=postgresql://user:password@host:5432/database
+
+# Authentication (CRITICAL - must be unique per environment)
+BETTER_AUTH_SECRET=minimum-32-character-random-string
+BETTER_AUTH_URL=https://yourdomain.com
+
+# Email Service (required for auth flows)
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com  # Must be verified in Resend
+```
+
+### Optional Variables
+
+Add these based on features you're using:
+
+```env
+# AI Features (OpenAI integration)
+OPENAI_API_KEY=sk-proj-your-openai-key
+
+# PostHog Analytics & Feature Flags
+VITE_POSTHOG_API_KEY=phc_your-project-key           # Client-side (public)
+VITE_POSTHOG_HOST=https://us.i.posthog.com         # US or EU region
+VITE_POSTHOG_PROJECT_ID=12345                       # Project ID
+POSTHOG_PERSONAL_API_KEY=phx_your-personal-key     # Server-side (private)
+
+# Polar Billing Integration
+POLAR_ACCESS_TOKEN=polar_at_your-access-token
+POLAR_SERVER=sandbox                                 # or "production"
+POLAR_WEBHOOK_SECRET=your-webhook-secret
+```
+
+### Generating Secrets
+
+```bash
+# Generate BETTER_AUTH_SECRET (minimum 32 characters)
+openssl rand -base64 32
+
+# Or use Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+**⚠️ Security Warning:**
+
+- Never commit `.env` files to version control
+- Use different secrets for development, staging, and production
+- Rotate `BETTER_AUTH_SECRET` regularly and on security incidents
+- Keep API keys secure - they have access to sensitive services
+
+---
+
+## Post-Deployment Checklist
+
+After deploying to any platform, verify everything works:
+
+### 1. Application Health
+
+- [ ] Application loads without errors
+- [ ] Homepage renders correctly
+- [ ] Static assets (CSS, images) load properly
+- [ ] SSL certificate is valid (HTTPS)
+- [ ] Check health endpoint: `https://yourdomain.com/api/health` (if implemented)
+
+### 2. Database & Migrations
+
+```bash
+# For Railway
+railway run npx prisma migrate status
+
+# For other platforms
+npx prisma migrate status
+```
+
+- [ ] All migrations applied successfully
+- [ ] Prisma client generated correctly
+- [ ] Database connection works (test by signing in)
+
+### 3. Authentication Flow
+
+- [ ] Sign up page loads
+- [ ] Can create new account
+- [ ] Verification email sent (check Resend dashboard)
+- [ ] Can sign in with credentials
+- [ ] Session persists across page refreshes
+- [ ] Sign out works correctly
+- [ ] Protected routes require authentication
+
+### 4. Email Functionality
+
+Test email flows in Resend dashboard or your inbox:
+
+- [ ] Welcome email sent on signup
+- [ ] Password reset email works
+- [ ] Email verification works
+- [ ] Emails have correct branding and links
+- [ ] Links point to production URL (not localhost)
+
+### 5. Integrations
+
+**PostHog (if enabled):**
+
+- [ ] Events appearing in PostHog dashboard
+- [ ] Feature flags loading correctly
+- [ ] Session recordings working (if enabled)
+
+**Polar (if enabled):**
+
+- [ ] Checkout flow works
+- [ ] Webhooks configured in Polar dashboard
+- [ ] Test subscription creation (use sandbox mode)
+
+**OpenAI (if enabled):**
+
+- [ ] AI features respond correctly
+- [ ] API key has sufficient credits
+- [ ] Rate limits appropriate for production
+
+### 6. Performance & Monitoring
+
+- [ ] Application response time is acceptable (<2s)
+- [ ] No console errors in browser
+- [ ] Check deployment logs for errors
+- [ ] Set up error tracking (Sentry, PostHog, etc.)
+- [ ] Configure uptime monitoring (UptimeRobot, Better Uptime)
+
+### 7. Security
+
+- [ ] `BETTER_AUTH_URL` points to production domain
+- [ ] All secrets are production values (not dev/test)
+- [ ] Database not publicly accessible
+- [ ] CORS configured correctly
+- [ ] Rate limiting enabled (if implemented)
+- [ ] Environment variables secured
+
+---`
+
+---
+
+## Docker
+
+For custom infrastructure or self-hosting, use the included multi-stage Dockerfile.
+
+### Using Existing Dockerfile
+
+```bash
+npm run typecheck
+```
+
+Fix any TypeScript errors before proceeding.
+
+### 2. Run Tests
+
+```bash
+# Unit tests
+npm run test:run
+
+# E2E tests
+npm run e2e
+```
+
+Ensure all tests pass.
+
+### 3. Test Production Build Locally
+
+```bash
+# Install dependencies (if needed)
 npm install
 
-# Run type checking
-npm run typecheck
-
-# Run tests
-npm run test:run
+# Generate Prisma client
+npx prisma generate
 
 # Build for production
 npm run build
@@ -61,83 +334,197 @@ npm run build
 npm run start
 ```
 
-### Build Configuration
+Visit `http://localhost:3000` and verify:
 
-The build is configured in `react-router.config.ts`:
+- Application loads without errors
+- Authentication works
+- All pages render correctly
+- API endpoints respond
+
+### 4. Verify Environment Variables
+
+Check your `.env.example` against your actual configuration:
+
+```bash
+# See what variables are used
+grep -r "process.env" app/ | grep -v node_modules | cut -d: -f2 | sort -u
+
+# Compare with your .env file
+diff <(grep -v "^#" .env.example | cut -d= -f1 | sort) \
+     <(grep -v "^#" .env | cut -d= -f1 | sort)
+```
+
+---
+
+## Database Migration Strategy
+
+### Safe Migration Process
+
+1. **Backup Production Database**
+
+```bash
+# For Railway
+railway run pg_dump $DATABASE_URL > backup.sql
+```
+
+2. **Test Migrations in Staging**
+
+Always test migrations in a staging environment first:
+
+```bash
+# Create staging branch migration
+git checkout -b migration/add-user-fields
+
+# Create migration
+npx prisma migrate dev --name add_user_fields
+
+# Test thoroughly in staging environment
+railway run --environment staging npx prisma migrate deploy
+```
+
+3. **Apply to Production**
+
+Only after staging verification:
+
+```bash
+# Apply to production
+railway run --environment production npx prisma migrate deploy
+```
+
+### Migration Rollback
+
+Prisma doesn't support automatic rollbacks. Instead:
+
+1. Create a new migration that reverses changes
+2. Test in staging
+3. Apply to production
+
+```bash
+# Example: Rollback added column
+npx prisma migrate dev --name remove_user_phone_number
+```
+
+---
+
+## Monitoring and Logging
+
+### Application Logs
+
+**Railway:**
+
+```bash
+railway logs
+railway logs --follow  # Stream logs
+```
+
+**Docker:**
+
+```bash
+docker logs -f <container-id>
+docker-compose logs -f app
+```
+
+### Health Check Endpoint
+
+Create `app/routes/api/health.ts`:
 
 ```typescript
-import type { Config } from '@react-router/dev/config';
+import type { Route } from './+types/health';
+import { prisma } from '~/db.server';
 
-export default {
-    ssr: true,
-    serverBuildFile: 'index.js',
-} satisfies Config;
+export async function loader({ request }: Route.LoaderArgs) {
+    try {
+        // Check database connection
+        await prisma.$queryRaw`SELECT 1`;
+
+        return Response.json({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            database: 'connected',
+        });
+    } catch (error) {
+        return Response.json(
+            {
+                status: 'unhealthy',
+                timestamp: new Date().toISOString(),
+                error: error instanceof Error ? error.message : 'Unknown error',
+            },
+            { status: 503 }
+        );
+    }
+}
 ```
 
-## Database Setup
+Add route to `app/routes.ts`:
 
-### Running Migrations
+```typescript
+...prefix('api', [
+    route('health', 'routes/api/health.ts'),
+    // ... other routes
+])
+```
 
-Apply database migrations in production:
+### Uptime Monitoring
+
+Set up external monitoring:
+
+- [UptimeRobot](https://uptimerobot.com/) - Free tier available
+- [Better Uptime](https://betteruptime.com/) - Modern monitoring
+- [Pingdom](https://www.pingdom.com/) - Enterprise option
+
+Configure to check: `https://yourdomain.com/api/health`
+
+### Error Tracking
+
+Integrate error tracking service:
+
+**PostHog (already integrated):**
+
+```typescript
+// app/lib/posthog.server.ts already configured
+// Errors automatically tracked in production
+```
+
+**Sentry (optional):**
 
 ```bash
-# Generate Prisma client
-npx prisma generate
-
-# Run migrations
-npx prisma migrate deploy
+npm install @sentry/react @sentry/remix
 ```
 
-### Database Seeding
+```typescript
+// app/entry.client.tsx
+import * as Sentry from '@sentry/react';
 
-Optionally seed the database:
+if (process.env.NODE_ENV === 'production') {
+    Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.NODE_ENV,
+    });
+}
+```
+
+---
+
+### Using Existing Dockerfile
+
+The repository includes an optimized production Dockerfile:
 
 ```bash
-npm run seed
+# Build the image
+docker build -t tws-foundations .
+
+# Run with environment variables
+docker run -p 3000:3000 \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/db \
+  -e BETTER_AUTH_SECRET=your-secret \
+  -e BETTER_AUTH_URL=https://yourdomain.com \
+  -e RESEND_API_KEY=your-key \
+  tws-foundations
 ```
 
-**Warning:** Only run seed in development or staging environments. Never seed production with test data.
+### Docker Compose Setup
 
-## Deployment Platforms
-
-### Docker
-
-Create a `Dockerfile`:
-
-```dockerfile
-FROM node:20-alpine AS base
-
-# Install dependencies
-FROM base AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-
-# Build application
-FROM base AS build
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-
-# Production image
-FROM base AS production
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY --from=build /app/build ./build
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/prisma ./prisma
-
-EXPOSE 3000
-
-CMD ["npm", "run", "start"]
-```
-
-Create a `docker-compose.yml`:
+Create `docker-compose.yml` for local production testing:
 
 ```yaml
 version: '3.8'
@@ -150,9 +537,11 @@ services:
         environment:
             DATABASE_URL: postgresql://postgres:password@db:5432/app
             BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-            BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+            BETTER_AUTH_URL: http://localhost:3000
+            RESEND_API_KEY: ${RESEND_API_KEY}
         depends_on:
-            - db
+            db:
+                condition: service_healthy
 
     db:
         image: postgres:16-alpine
@@ -162,219 +551,318 @@ services:
             POSTGRES_PASSWORD: password
         volumes:
             - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
     postgres-data:
 ```
 
-Build and run:
+Run with:
 
 ```bash
+# Create .env file with secrets
+echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" > .env
+echo "RESEND_API_KEY=your_key" >> .env
+
+# Start services
 docker-compose up -d
+
+# Run migrations
+docker-compose exec app npx prisma migrate deploy
+
+# View logs
+docker-compose logs -f app
 ```
 
-### Railway
+### Docker Deployment Notes
 
-Deploy to Railway:
+- The Dockerfile uses multi-stage builds to minimize image size
+- Custom Prisma output path (`app/generated/prisma`) is included
+- Application listens on port 3000 by default
+- Build time: ~5-10 minutes on first build
 
-1. Create a new project on [Railway](https://railway.app)
-2. Connect your Git repository
-3. Add a PostgreSQL database
-4. Set environment variables
-5. Deploy
+---
 
-Railway will automatically:
+## Vercel
 
-- Install dependencies
-- Run build command
-- Start the application
+**⚠️ Note:** Vercel works best with serverless architectures. TWS Foundations uses a long-running server, so Railway is the better choice. Use Vercel only if you understand serverless limitations.
 
-### Fly.io
+### Quick Deploy
 
-Deploy to Fly.io:
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-1. Install Fly CLI: `brew install flyctl`
-2. Login: `fly auth login`
-3. Launch app: `fly launch`
-4. Add PostgreSQL: `fly postgres create`
-5. Set secrets: `fly secrets set BETTER_AUTH_SECRET=...`
-6. Deploy: `fly deploy`
+# Login
+vercel login
 
-### Vercel
+# Deploy
+vercel
 
-Deploy to Vercel:
+# Production deployment
+vercel --prod
+```
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Login: `vercel login`
-3. Deploy: `vercel`
-4. Set environment variables in Vercel dashboard
-5. Deploy to production: `vercel --prod`
+### Configuration
 
-**Note:** Ensure your database is accessible from Vercel's network.
+Create `vercel.json`:
 
-### Cloudflare Pages
-
-Deploy to Cloudflare Pages:
-
-1. Create a new Pages project
-2. Connect your Git repository
-3. Configure build settings:
-    - Build command: `npm run build`
-    - Output directory: `build/client`
-4. Add environment variables
-5. Deploy
-
-## HTTPS and SSL
-
-### Production Checklist
-
-- [ ] Use HTTPS in production
-- [ ] Set `BETTER_AUTH_URL` to HTTPS URL
-- [ ] Configure secure cookies
-- [ ] Set up SSL certificate
-- [ ] Enable HTTP to HTTPS redirect
-
-### Certificate Management
-
-Most platforms handle SSL automatically:
-
-- Railway: Automatic SSL
-- Fly.io: Automatic SSL with `fly certs add`
-- Vercel: Automatic SSL
-- Cloudflare: Automatic SSL
-
-## Performance Optimization
-
-### Caching
-
-Configure caching headers in loaders:
-
-```typescript
-export async function loader({ request }: Route.LoaderArgs) {
-    const data = await getData();
-
-    return new Response(JSON.stringify(data), {
-        headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=3600',
-        },
-    });
+```json
+{
+    "buildCommand": "npm run build",
+    "outputDirectory": "build/client",
+    "framework": null,
+    "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
 }
 ```
 
-### CDN Configuration
+Set environment variables in Vercel dashboard:
 
-Use a CDN for static assets:
+- Project Settings → Environment Variables
+- Add all required variables from [Environment Variables Reference](#environment-variables-reference)
 
-1. Configure asset URLs in `react-router.config.ts`
-2. Upload build files to CDN
-3. Update environment variables
+### Important Vercel Limitations
+
+- PostgreSQL must be externally hosted (use Supabase, Neon, Railway)
+- Ensure database accessible from Vercel's network
+- Serverless function timeout limits (10s hobby, 60s pro)
+- Consider edge runtime limitations
+
+---
+
+## Pre-Deployment Verification
+
+Test everything locally before deploying to production.
+
+### 1. Run Type Checking
+
+```bash
+npm run typecheck
+```
+
+Fix any TypeScript errors before proceeding.
+
+### 2. Run Tests
+
+```bash
+# Unit tests
+npm run test:run
+
+# E2E tests
+npm run e2e
+```
+
+Ensure all tests pass.
+
+### 3. Test Production Build Locally
+
+```bash
+# Install dependencies (if needed)
+npm install
+
+# Generate Prisma client
+npx prisma generate
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+```
+
+Visit `http://localhost:3000` and verify:
+
+- Application loads without errors
+- Authentication works
+- All pages render correctly
+- API endpoints respond
+
+### 4. Verify Environment Variables
+
+Check your `.env.example` against your actual configuration:
+
+```bash
+# See what variables are used
+grep -r "process.env" app/ | grep -v node_modules | cut -d: -f2 | sort -u
+
+# Compare with your .env file
+diff <(grep -v "^#" .env.example | cut -d= -f1 | sort) \
+     <(grep -v "^#" .env | cut -d= -f1 | sort)
+```
+
+---
+
+## Performance Optimization
 
 ### Database Connection Pooling
 
-Use connection pooling for PostgreSQL:
+Configure Prisma connection pooling for production:
 
-```typescript
+```prisma
 // prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") // For migrations
+  // Optional: Direct connection for migrations
+  directUrl = env("DIRECT_URL")
 }
 ```
 
-Set connection pool size:
+Add connection pool parameters to `DATABASE_URL`:
 
 ```env
-DATABASE_URL=postgresql://user:password@host:5432/db?connection_limit=10
+DATABASE_URL=postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=10
 ```
 
-## Monitoring
+### Caching Strategy
 
-### Health Checks
+TWS Foundations includes three-tier caching (see `.github/instructions/caching-pattern.instructions.md`):
 
-Create a health check endpoint:
+1. **Client-side route caching** - Automatic via React Router
+2. **Model layer caching** - Built into `app/models/*.server.ts`
+3. **Manual caching** - Using `app/lib/cache.ts` utilities
+
+Example model layer caching:
 
 ```typescript
-// app/routes/api/health.ts
-export async function loader() {
-    try {
-        // Check database connection
-        await db.$queryRaw`SELECT 1`;
+// app/models/user.server.ts
+import { cache, getUserScopedKey, isCacheExpired } from '~/lib/cache';
 
-        return Response.json({ status: 'healthy' });
-    } catch (error) {
-        return Response.json({ status: 'unhealthy' }, { status: 503 });
+export async function getUserProfile(userId: string) {
+    const cacheKey = getUserScopedKey(userId, 'profile');
+
+    // Check cache first
+    if (!isCacheExpired(cacheKey)) {
+        const cached = cache.getKey(cacheKey);
+        if (cached) return cached;
     }
-}
-```
 
-### Error Tracking
-
-Consider integrating error tracking:
-
-- Sentry
-- Bugsnag
-- Rollbar
-
-### Performance Monitoring
-
-Use PostHog for performance monitoring:
-
-```typescript
-import { posthog } from '~/lib/posthog.server';
-
-export async function loader({ request }: Route.LoaderArgs) {
-    const start = Date.now();
-
-    const data = await getData();
-
-    posthog.capture({
-        distinctId: 'system',
-        event: 'loader_performance',
-        properties: {
-            route: '/dashboard',
-            duration: Date.now() - start,
-        },
+    // Fetch from database
+    const profile = await prisma.user.findUnique({
+        where: { id: userId },
     });
 
-    return data;
+    // Cache for 1 hour
+    cache.setKey(cacheKey, profile);
+    return profile;
 }
 ```
 
-## Rollback Strategy
+### CDN for Static Assets
 
-### Database Rollback
+For optimal performance, serve static assets via CDN:
 
-Prisma migration rollback is not supported. Instead:
+**Cloudflare CDN (free tier available):**
 
-1. Create a new migration to revert changes
-2. Test thoroughly in staging
-3. Apply to production
+1. Add your domain to Cloudflare
+2. Enable "Always Use HTTPS"
+3. Enable "Auto Minify" for JS/CSS/HTML
+4. Set caching rules for static assets
 
-### Application Rollback
+---
 
-Most platforms support easy rollbacks:
+## Security Hardening
 
-- Railway: Rollback from dashboard
-- Fly.io: `fly releases list && fly releases rollback <version>`
-- Vercel: Rollback from dashboard
+### Environment-Specific Secrets
+
+**Never reuse secrets across environments:**
+
+```bash
+# Development
+BETTER_AUTH_SECRET=dev_secret_min_32_chars
+
+# Staging
+BETTER_AUTH_SECRET=staging_secret_min_32_chars
+
+# Production
+BETTER_AUTH_SECRET=prod_secret_min_32_chars
+```
+
+### Secret Rotation
+
+Rotate secrets regularly:
+
+```bash
+# Generate new secret
+NEW_SECRET=$(openssl rand -base64 32)
+
+# Update in Railway
+railway variables set BETTER_AUTH_SECRET=$NEW_SECRET
+
+# Redeploy application
+railway up
+```
+
+**⚠️ Warning:** Rotating `BETTER_AUTH_SECRET` invalidates all existing sessions.
+
+### Security Headers
+
+Add security headers in `app/root.tsx`:
+
+```typescript
+export async function loader({ request }: Route.LoaderArgs) {
+    return data(
+        { /* your data */ },
+        {
+            headers: {
+                'X-Frame-Options': 'DENY',
+                'X-Content-Type-Options': 'nosniff',
+                'Referrer-Policy': 'strict-origin-when-cross-origin',
+                'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+            },
+        }
+    );
+}
+```
+
+### Rate Limiting
+
+Implement rate limiting for API endpoints (example):
+
+```typescript
+// app/lib/rate-limit.server.ts
+import { cache } from '~/lib/cache';
+
+export function checkRateLimit(
+    identifier: string,
+    limit: number = 100,
+    window: number = 60
+): boolean {
+    const key = `ratelimit:${identifier}`;
+    const current = cache.getKey(key) || 0;
+
+    if (current >= limit) {
+        return false;
+    }
+
+    cache.setKey(key, current + 1);
+    return true;
+}
+```
+
+---
 
 ## Continuous Deployment
 
-### GitHub Actions
+### GitHub Actions (Railway)
 
-Example workflow for automated deployment:
+Create `.github/workflows/deploy.yml`:
 
 ```yaml
-name: Deploy
+name: Deploy to Railway
 
 on:
     push:
         branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-    deploy:
+    test:
         runs-on: ubuntu-latest
 
         steps:
@@ -383,69 +871,210 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
+                  cache: 'npm'
 
-            - run: npm install
-            - run: npm run typecheck
-            - run: npm run test:run
-            - run: npm run build
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Type check
+              run: npm run typecheck
+
+            - name: Run tests
+              run: npm run test:run
+
+            - name: Build
+              run: npm run build
+
+    deploy:
+        needs: test
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Railway CLI
+              run: npm install -g @railway/cli
 
             - name: Deploy to Railway
               env:
                   RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-              run: |
-                  npm install -g @railway/cli
-                  railway up
+              run: railway up --service tws-foundations
+
+            - name: Run Migrations
+              env:
+                  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+              run: railway run npx prisma migrate deploy
 ```
 
-## Security Considerations
+**Setup instructions:**
 
-- [ ] Rotate secrets regularly
-- [ ] Use environment variables for sensitive data
-- [ ] Enable CORS only for trusted domains
-- [ ] Set secure HTTP headers
-- [ ] Keep dependencies updated
-- [ ] Enable rate limiting
-- [ ] Monitor for suspicious activity
+1. Get Railway token: `railway login --token`
+2. Add `RAILWAY_TOKEN` to GitHub repository secrets
+3. Push to `main` branch to trigger deployment
 
-## Post-Deployment Checklist
+---
 
-- [ ] Verify application is running
-- [ ] Test authentication flow
-- [ ] Check database connection
-- [ ] Verify environment variables
-- [ ] Test critical user paths
-- [ ] Check error tracking
-- [ ] Monitor performance
-- [ ] Verify SSL certificate
-- [ ] Test form submissions
-- [ ] Check external integrations (Polar, PostHog)
-
-## Troubleshooting
+## Troubleshooting Deployment Issues
 
 ### Application Won't Start
 
-1. Check environment variables
-2. Verify database connection
-3. Review build logs
-4. Check for missing dependencies
+**Check logs:**
 
-### Database Connection Issues
+```bash
+railway logs          # Railway
+docker logs <id>      # Docker
+```
+
+**Common causes:**
+
+- Missing environment variables (especially `DATABASE_URL`, `BETTER_AUTH_SECRET`)
+- Database connection failed
+- Prisma client not generated
+- Port binding issues
+
+**Solution:**
+
+```bash
+# Verify environment variables
+railway variables    # Railway
+
+# Regenerate Prisma client
+railway run npx prisma generate
+```
+
+### Database Connection Errors
+
+**Symptoms:**
+
+- "Can't reach database server"
+- "Connection timeout"
+- "ECONNREFUSED"
+
+**Solutions:**
 
 1. Verify `DATABASE_URL` is correct
-2. Check network access to database
-3. Verify connection pool limits
-4. Test database credentials
+2. Check database is running (Railway dashboard)
+3. Verify network access (private network vs public)
+4. Check connection pool limits
+
+```bash
+# Test connection
+railway run npx prisma db execute --stdin <<< "SELECT 1"
+```
 
 ### Build Failures
 
-1. Run `npm run typecheck` locally
-2. Check for missing environment variables at build time
-3. Verify Prisma client is generated
-4. Review build logs for errors
+**Common causes:**
 
-## Further Reading
+- TypeScript errors
+- Missing dependencies
+- Build script failures
+- Out of memory
 
-- [React Router 7 Deployment](https://reactrouter.com/dev/start/deployment)
-- [Prisma Deployment](https://www.prisma.io/docs/guides/deployment)
-- [Better Auth Production Guide](https://better-auth.com/docs/production)
+**Solutions:**
+
+```bash
+# Test build locally
+npm run build
+
+# Check for type errors
+npm run typecheck
+
+# Clear cache and rebuild
+rm -rf node_modules .react-router
+npm install
+npm run build
+```
+
+### Migration Failures
+
+**Symptoms:**
+
+- "Migration already applied"
+- "Database schema drift"
+- "Migration failed"
+
+**Solutions:**
+
+```bash
+# Check migration status
+railway run npx prisma migrate status
+
+# Resolve drift (destructive!)
+railway run npx prisma migrate resolve --rolled-back <migration-name>
+
+# Force reset (DEVELOPMENT ONLY!)
+railway run npx prisma migrate reset
+```
+
+### SSL Certificate Issues
+
+**Railway:** SSL is automatic. If issues persist:
+
+1. Wait 5-10 minutes after first deployment
+2. Check custom domain DNS settings
+3. Verify domain ownership in platform dashboard
+
+---
+
+## Rollback Procedures
+
+### Application Rollback
+
+**Railway:**
+
+1. Go to Railway dashboard → Your project
+2. Click "Deployments" tab
+3. Click "Redeploy" on previous working deployment
+
+**Docker:
+
+```bash
+# List previous images
+docker images
+
+# Run previous image
+docker run -p 3000:3000 tws-foundations:<previous-tag>
+```
+
+### Database Rollback
+
+**⚠️ Critical:** Prisma doesn't support automatic rollbacks.
+
+**Manual rollback process:**
+
+1. Restore from backup:
+
+```bash
+# Railway
+railway run psql $DATABASE_URL < backup.sql
+```
+
+2. Create compensating migration:
+
+```bash
+# Example: Revert column addition
+npx prisma migrate dev --name revert_user_phone
+```
+
+---
+
+## Additional Resources
+
+- [React Router 7 Deployment Docs](https://reactrouter.com/start/framework/deployment)
+- [Prisma Production Best Practices](https://www.prisma.io/docs/guides/performance-and-optimization/connection-management)
+- [Better Auth Production Guide](https://better-auth.com/docs/concepts/production)
+- [Railway Documentation](https://docs.railway.com/)
 - [Troubleshooting Guide](./troubleshooting.md)
+
+---
+
+## Need Help?
+
+If you encounter issues not covered here:
+
+1. Check [Troubleshooting Guide](./troubleshooting.md)
+2. Review platform-specific documentation
+3. Search existing GitHub issues
+4. Open a new issue with deployment logs

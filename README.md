@@ -365,27 +365,50 @@ All patterns include:
 
 ## 🚀 Deployment
 
-### Build for Production
+**Ready to deploy?** Choose your path:
+
+### ⚡ Quick Start (5 Minutes)
+
+Follow the [Deployment Quick Start](./docs/deployment-quick-start.md) for Railway:
 
 ```bash
-npm run build
-npm start
+railway login && railway init && railway add --plugin postgresql
+railway variables set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+railway variables set RESEND_API_KEY=your_key
+railway up && railway run npx prisma migrate deploy
 ```
 
-### Environment Variables
+### 📖 Comprehensive Guide
 
-Make sure to set all required environment variables in your production environment:
+See the full [Deployment Guide](./docs/deployment.md) for:
 
-- `DATABASE_URL` - Production PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Secure random secret (min 32 characters)
-- `BETTER_AUTH_URL` - Your production domain URL
-- `OPENAI_API_KEY` - OpenAI API key (if using AI features)
-- `POSTHOG_API_KEY` - PostHog API key (if using analytics)
-- `POSTHOG_PROJECT_ID` - PostHog project ID (if using analytics)
-- `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key (if using server-side features)
-- `RESEND_API_KEY` - Resend API key for sending emails (required)
-- `RESEND_FROM_EMAIL` - Verified sender email domain (required for production)
-- Optional: Polar.sh credentials if using billing (`POLAR_ACCESS_TOKEN`, `POLAR_SERVER`, `POLAR_SUCCESS_URL`, `POLAR_WEBHOOK_SECRET`)
+- **Railway** - Recommended for beginners (PostgreSQL included, automatic SSL)
+- **Docker** - Self-hosted or custom infrastructure
+- **Vercel** - Serverless deployment (with limitations)
+
+### Essential Environment Variables
+
+```env
+DATABASE_URL=postgresql://...              # Your PostgreSQL connection
+BETTER_AUTH_SECRET=<min-32-chars>         # Generate: openssl rand -base64 32
+BETTER_AUTH_URL=https://yourdomain.com    # Your production URL
+RESEND_API_KEY=re_...                     # From resend.com (required)
+RESEND_FROM_EMAIL=noreply@yourdomain.com  # Verified sender (required)
+```
+
+**Optional variables** for AI, analytics, and billing - see [Environment Variables Reference](./docs/deployment.md#environment-variables-reference).
+
+### Post-Deployment
+
+After deploying, verify:
+
+- ✅ App loads without errors
+- ✅ Sign up/sign in works
+- ✅ Email verification sends
+- ✅ Protected routes require auth
+- ✅ Database migrations applied
+
+Full checklist: [Post-Deployment Checklist](./docs/deployment.md#post-deployment-checklist)
 
 ### Database Migrations
 

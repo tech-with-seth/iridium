@@ -24,7 +24,7 @@
                 "POSTHOG_AUTH_HEADER": "${env:POSTHOG_PERSONAL_API_KEY}"
             }
         },
-        "playwright": {
+        "Playwright": {
             "command": "npx",
             "args": ["@playwright/mcp@latest"]
         }
