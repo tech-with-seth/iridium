@@ -13,6 +13,14 @@ jobs:
         timeout-minutes: 15
         env:
             CI: true
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
+            BETTER_AUTH_URL: http://localhost:5173
+            OPENAI_API_KEY: sk-test-key
+            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
+            VITE_POSTHOG_HOST: https://us.i.posthog.com
+            RESEND_API_KEY: re_test_key_for_ci
+            RESEND_FROM_EMAIL: test@example.com
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4

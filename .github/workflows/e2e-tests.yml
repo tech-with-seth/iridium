@@ -11,8 +11,30 @@ jobs:
         name: Run Playwright Suite
         runs-on: ubuntu-latest
         timeout-minutes: 30
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: tws_test
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 5432:5432
         env:
             CI: true
+            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tws_test
+            BETTER_AUTH_SECRET: test-secret-key-for-ci-at-least-32-characters-long
+            BETTER_AUTH_URL: http://localhost:5173
+            OPENAI_API_KEY: sk-test-key
+            VITE_POSTHOG_API_KEY: phc_test_key_for_ci_testing
+            VITE_POSTHOG_HOST: https://us.i.posthog.com
+            RESEND_API_KEY: re_test_key_for_ci
+            RESEND_FROM_EMAIL: test@example.com
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -29,11 +51,11 @@ jobs:
             - name: Generate Prisma Client
               run: npx prisma generate
 
-            - name: Start dev server
-              run: npm run dev -- --port 5173 &
+            - name: Run database migrations
+              run: npx prisma migrate deploy
 
-            - name: Wait for dev server
-              run: npx wait-on http://127.0.0.1:5173
+            - name: Seed database
+              run: npm run seed
 
             - name: Install Playwright browsers
               run: npx playwright install --with-deps
@@ -48,3 +70,7 @@ jobs:
                   name: playwright-report
                   path: playwright-report
                   retention-days: 7
+                  if-no-files-found: warn
+                  compression-level: 6
+                  overwrite: false
+                  include-hidden-files: false
