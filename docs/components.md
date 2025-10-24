@@ -1,6 +1,6 @@
 # Component Development
 
-TWS Foundations uses DaisyUI for pre-built components and CVA (Class Variance Authority) for managing component variants with type safety.
+Iridium uses DaisyUI for pre-built components and CVA (Class Variance Authority) for managing component variants with type safety.
 
 ## Overview
 
@@ -407,7 +407,7 @@ function Header() {
   return (
     <header className="navbar bg-base-100 shadow-lg">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">TWS Foundations</a>
+        <a className="btn btn-ghost text-xl">Iridium</a>
       </div>
       <div className="flex-none">
         <Navigation />

@@ -23,7 +23,7 @@
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Page description" />
             <Container>
                 {/* Page content */}
@@ -55,7 +55,7 @@ import { Container } from '~/components/Container';
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta
                 name="description"
                 content="A clear, concise description of this page's content for search engines and social sharing."
@@ -71,19 +71,19 @@ export default function MyRoute() {
 
 ### Title Format
 
-**Standard pattern:** `[Page Name] - TWS Foundations`
+**Standard pattern:** `[Page Name] - Iridium`
 
 ```tsx
 // ✅ Good title formats
-<title>Dashboard - TWS Foundations</title>
-<title>Sign In - TWS Foundations</title>
-<title>Payment Successful - TWS Foundations</title>
+<title>Dashboard - Iridium</title>
+<title>Sign In - Iridium</title>
+<title>Payment Successful - Iridium</title>
 
 // ✅ Homepage can be just brand name
-<title>TWS Foundations</title>
+<title>Iridium</title>
 
 // ❌ Avoid too long (>60 characters gets truncated in search results)
-<title>This Is An Extremely Long Page Title That Will Get Truncated In Search Engine Results - TWS Foundations</title>
+<title>This Is An Extremely Long Page Title That Will Get Truncated In Search Engine Results - Iridium</title>
 ```
 
 ### Description Guidelines
@@ -104,7 +104,7 @@ export default function MyRoute() {
 
 <meta
     name="description"
-    content="Overview of your TWS Foundations account and activity."
+    content="Overview of your Iridium account and activity."
 />
 
 // ❌ Too short (not descriptive enough)
@@ -144,7 +144,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
             <meta
                 name="description"
                 content={`${product.name}: ${product.description.slice(0, 155)}`}
@@ -168,13 +168,13 @@ export default function AuthPage() {
 
     return (
         <>
-            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - TWS Foundations`}</title>
+            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - Iridium`}</title>
             <meta
                 name="description"
                 content={
                     isSignIn
-                        ? 'Sign in to your TWS Foundations account'
-                        : 'Create a new TWS Foundations account'
+                        ? 'Sign in to your Iridium account'
+                        : 'Create a new Iridium account'
                 }
             />
             <Container>
@@ -195,7 +195,7 @@ Open Graph tags control how your pages appear when shared on social media platfo
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Page description" />
 
             {/* Open Graph tags */}
@@ -232,7 +232,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
             <meta name="description" content={product.description} />
 
             <meta property="og:title" content={product.name} />
@@ -262,7 +262,7 @@ Twitter Cards control how your pages appear on Twitter/X. Twitter also uses Open
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
 
             {/* Twitter Card tags */}
             <meta name="twitter:card" content="summary" />
@@ -288,7 +288,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{post.title} - TWS Foundations Blog</title>
+            <title>{post.title} - Iridium Blog</title>
             <meta name="description" content={post.excerpt} />
 
             {/* Twitter large image card */}
@@ -358,7 +358,7 @@ Control search engine indexing:
 export default function AdminDashboard() {
     return (
         <>
-            <title>Admin Dashboard - TWS Foundations</title>
+            <title>Admin Dashboard - Iridium</title>
             <meta name="robots" content="noindex, nofollow" />
             <Container>{/* Admin content */}</Container>
         </>
@@ -371,7 +371,7 @@ export default function PreviewPage() {
 
     return (
         <>
-            <title>Preview Page - TWS Foundations</title>
+            <title>Preview Page - Iridium</title>
             {!isProduction && <meta name="robots" content="noindex, nofollow" />}
             <Container>{/* Page content */}</Container>
         </>
@@ -390,7 +390,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
             <link rel="canonical" href={canonicalUrl} />
             <Container>{/* Product content */}</Container>
         </>
@@ -404,7 +404,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta property="og:locale" content="en_US" />
             <meta property="og:locale:alternate" content="es_ES" />
             <Container>{/* Page content */}</Container>
@@ -437,7 +437,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
             <meta name="description" content={product.description} />
 
             {/* Structured Data */}
@@ -477,7 +477,7 @@ export default function MyRoute() {
         <Container>
             <div className="content-wrapper">
                 {/* These will be hoisted to <head> automatically */}
-                <title>Page Title - TWS Foundations</title>
+                <title>Page Title - Iridium</title>
                 <meta name="description" content="Description" />
 
                 <h1>Page Content</h1>
@@ -495,7 +495,7 @@ export default function MyRoute() {
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Description" />
             <Container>{/* content */}</Container>
         </>
@@ -505,7 +505,7 @@ export default function MyRoute() {
 export default function MyRoute() {
     return (
         <Container>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Description" />
             {/* content */}
         </Container>
@@ -549,7 +549,7 @@ export default function Root() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
                 {/* Global meta tags */}
-                <meta name="application-name" content="TWS Foundations" />
+                <meta name="application-name" content="Iridium" />
                 <meta name="theme-color" content="#000000" />
 
                 {/* Route-specific meta tags render here */}
@@ -609,12 +609,12 @@ import { Container } from '~/components/Container';
 export default function Home() {
     return (
         <>
-            <title>TWS Foundations</title>
+            <title>Iridium</title>
             <meta
                 name="description"
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
             />
-            <meta property="og:title" content="TWS Foundations" />
+            <meta property="og:title" content="Iridium" />
             <meta
                 property="og:description"
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
@@ -624,7 +624,7 @@ export default function Home() {
             <meta property="og:image" content="https://yoursite.com/og-home.jpg" />
 
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="TWS Foundations" />
+            <meta name="twitter:title" content="Iridium" />
             <meta
                 name="twitter:description"
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
@@ -648,10 +648,10 @@ export default function Dashboard() {
 
     return (
         <>
-            <title>Dashboard - TWS Foundations</title>
+            <title>Dashboard - Iridium</title>
             <meta
                 name="description"
-                content="Overview of your TWS Foundations account and activity."
+                content="Overview of your Iridium account and activity."
             />
             <meta name="robots" content="noindex, nofollow" />
 
@@ -697,7 +697,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
         image: product.imageUrl,
         brand: {
             '@type': 'Brand',
-            name: 'TWS Foundations'
+            name: 'Iridium'
         },
         offers: {
             '@type': 'Offer',
@@ -711,7 +711,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
             <meta name="description" content={truncatedDescription} />
             <link rel="canonical" href={productUrl} />
 
@@ -786,7 +786,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
         },
         publisher: {
             '@type': 'Organization',
-            name: 'TWS Foundations',
+            name: 'Iridium',
             logo: {
                 '@type': 'ImageObject',
                 url: 'https://yoursite.com/logo.png'
@@ -796,7 +796,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{post.title} - TWS Foundations Blog</title>
+            <title>{post.title} - Iridium Blog</title>
             <meta name="description" content={post.excerpt} />
             <link rel="canonical" href={postUrl} />
 

@@ -182,7 +182,7 @@ export async function sendWelcomeEmail({
     return resend.emails.send({
         from: DEFAULT_FROM_EMAIL,
         to,
-        subject: 'Welcome to TWS Foundations!',
+        subject: 'Welcome to Iridium!',
         html
     });
 }
@@ -213,7 +213,7 @@ export default function WelcomeEmail({ userName, dashboardUrl }: WelcomeEmailPro
             <Body>
                 <Container>
                     <Heading>Welcome {userName}!</Heading>
-                    <Text>Thanks for joining TWS Foundations.</Text>
+                    <Text>Thanks for joining Iridium.</Text>
                     <Button href={dashboardUrl}>Get Started</Button>
                 </Container>
             </Body>

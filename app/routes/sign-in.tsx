@@ -99,13 +99,13 @@ export default function AuthPage() {
 
     return (
         <>
-            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - TWS Foundations`}</title>
+            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - Iridium`}</title>
             <meta
                 name="description"
                 content={
                     isSignIn
-                        ? 'Access your TWS Foundations account with your email and password.'
-                        : 'Create your TWS Foundations account to explore the SaaS starter kit.'
+                        ? 'Access your Iridium account with your email and password.'
+                        : 'Create your Iridium account to explore the SaaS starter kit.'
                 }
             />
             <div className="flex items-center justify-center p-24">

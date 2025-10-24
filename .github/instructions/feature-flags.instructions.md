@@ -87,7 +87,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>{product.name} - TWS Foundations</title>
+            <title>{product.name} - Iridium</title>
 
             <Container>
                 {featureFlags.showNewLayout ? (

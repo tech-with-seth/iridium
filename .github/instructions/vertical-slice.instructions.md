@@ -452,7 +452,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function FavoritesPage({ loaderData }: Route.ComponentProps) {
   return (
     <>
-      <title>My Favorites - TWS Foundations</title>
+      <title>My Favorites - Iridium</title>
       <meta name="description" content="View your favorite posts" />
 
       <Container className="pt-12">
@@ -635,7 +635,7 @@ export default function FavoritesPage({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>My Favorites - TWS Foundations</title>
+            <title>My Favorites - Iridium</title>
             <meta name="description" content="View your favorite posts" />
 
             <Container className="pt-12">

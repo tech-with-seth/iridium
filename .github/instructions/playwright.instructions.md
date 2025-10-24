@@ -134,7 +134,7 @@ test('has correct page meta information', async ({ page }) => {
     await page.goto('/');
 
     // Check document title
-    await expect(page).toHaveTitle('TWS Foundations');
+    await expect(page).toHaveTitle('Iridium');
 
     // Check meta description
     const metaDescription = page.locator('meta[name="description"]');

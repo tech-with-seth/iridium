@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This directory contains Architecture Decision Records (ADRs) for TWS Foundations. ADRs document significant architectural decisions made during the development of the project.
+This directory contains Architecture Decision Records (ADRs) for Iridium. ADRs document significant architectural decisions made during the development of the project.
 
 ## What is an ADR?
 

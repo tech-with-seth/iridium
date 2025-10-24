@@ -1,4 +1,4 @@
-# TWS Foundations
+# Iridium
 
 A modern full-stack SaaS boilerplate built with React Router 7, featuring authentication, AI integration, and everything you need to ship quickly.
 
@@ -63,7 +63,7 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 
     ```bash
     git clone <your-repo>
-    cd tws-foundations
+    cd iridium
     npm install
     ```
 
@@ -241,7 +241,7 @@ The Prisma schema includes:
         const { user } = useAuthenticatedContext();
         return (
             <>
-                <title>New Feature - TWS Foundations</title>
+                <title>New Feature - Iridium</title>
                 <h1>Welcome {user.email}</h1>
             </>
         );

@@ -7,10 +7,10 @@ export default function Dashboard() {
 
     return (
         <>
-            <title>Dashboard - TWS Foundations</title>
+            <title>Dashboard - Iridium</title>
             <meta
                 name="description"
-                content="Overview of your TWS Foundations account and activity."
+                content="Overview of your Iridium account and activity."
             />
             <Container className="pt-12">
                 <h1 className="text-2xl font-bold">

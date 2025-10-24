@@ -1,10 +1,10 @@
 # Custom Theming
 
-This guide covers creating and customizing themes for TWS Foundations using DaisyUI and Tailwind CSS.
+This guide covers creating and customizing themes for Iridium using DaisyUI and Tailwind CSS.
 
 ## Overview
 
-TWS Foundations uses DaisyUI for theming, which provides a powerful system for customizing colors, spacing, and visual styles across your entire application. Custom themes allow you to:
+Iridium uses DaisyUI for theming, which provides a powerful system for customizing colors, spacing, and visual styles across your entire application. Custom themes allow you to:
 
 - Define brand colors consistently
 - Support light and dark modes

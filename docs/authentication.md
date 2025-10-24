@@ -1,6 +1,6 @@
 # Authentication
 
-TWS Foundations uses [Better Auth](https://better-auth.com/) for authentication and session management, with the [Polar plugin](https://better-auth.com/docs/plugins/polar) for billing integration.
+Iridium uses [Better Auth](https://better-auth.com/) for authentication and session management, with the [Polar plugin](https://better-auth.com/docs/plugins/polar) for billing integration.
 
 ## Overview
 

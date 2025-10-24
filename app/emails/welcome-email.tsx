@@ -22,10 +22,10 @@ export default function WelcomeEmail({
     return (
         <Html>
             <Head />
-            <Preview>Welcome to TWS Foundations!</Preview>
+            <Preview>Welcome to Iridium!</Preview>
             <Body style={main}>
                 <Container style={container}>
-                    <Heading style={h1}>Welcome to TWS Foundations!</Heading>
+                    <Heading style={h1}>Welcome to Iridium!</Heading>
                     <Text style={text}>
                         Hi <strong>{userName}</strong>,
                     </Text>
@@ -58,7 +58,7 @@ export default function WelcomeEmail({
                     <Text style={footer}>
                         Welcome aboard!
                         <br />
-                        The TWS Foundations Team
+                        The Iridium Team
                     </Text>
                 </Container>
             </Body>

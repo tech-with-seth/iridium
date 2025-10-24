@@ -1,6 +1,6 @@
 # Forms and Validation
 
-TWS Foundations uses React Hook Form for form state management and Zod for schema validation, providing type-safe forms with excellent developer experience.
+Iridium uses React Hook Form for form state management and Zod for schema validation, providing type-safe forms with excellent developer experience.
 
 ## Overview
 

@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to TWS Foundations. This guide will help you get started with contributing to the project.
+Thank you for your interest in contributing to Iridium. This guide will help you get started with contributing to the project.
 
 ## Getting Started
 
@@ -15,8 +15,9 @@ Thank you for your interest in contributing to TWS Foundations. This guide will 
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd tws-foundations
+git clone https://github.com/yourusername/iridium.git
+cd iridium
+npm install
 ```
 
 2. Install dependencies:
@@ -329,4 +330,4 @@ Contributors are recognized in:
 - Pull request acknowledgments
 - Release notes
 
-Thank you for contributing to TWS Foundations!
+Thank you for contributing to Iridium!

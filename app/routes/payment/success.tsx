@@ -8,7 +8,7 @@ import { Paths } from '~/constants';
 export default function PaymentSuccess() {
     return (
         <>
-            <title>Payment Successful - TWS Foundations</title>
+            <title>Payment Successful - Iridium</title>
             <meta
                 name="description"
                 content="Your payment was processed successfully."

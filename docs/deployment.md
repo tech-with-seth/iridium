@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide provides step-by-step instructions for deploying TWS Foundations to production. Choose your platform below and follow the specific deployment steps.
+This guide provides step-by-step instructions for deploying Iridium to production. Choose your platform below and follow the specific deployment steps.
 
 ## Quick Navigation
 
@@ -511,7 +511,7 @@ The repository includes an optimized production Dockerfile:
 
 ```bash
 # Build the image
-docker build -t tws-foundations .
+docker build -t iridium .
 
 # Run with environment variables
 docker run -p 3000:3000 \
@@ -519,7 +519,7 @@ docker run -p 3000:3000 \
   -e BETTER_AUTH_SECRET=your-secret \
   -e BETTER_AUTH_URL=https://yourdomain.com \
   -e RESEND_API_KEY=your-key \
-  tws-foundations
+  iridium
 ```
 
 ### Docker Compose Setup
@@ -589,7 +589,7 @@ docker-compose logs -f app
 
 ## Vercel
 
-**⚠️ Note:** Vercel works best with serverless architectures. TWS Foundations uses a long-running server, so Railway is the better choice. Use Vercel only if you understand serverless limitations.
+**⚠️ Note:** Vercel works best with serverless architectures. Iridium uses a long-running server, so Railway is the better choice. Use Vercel only if you understand serverless limitations.
 
 ### Quick Deploy
 
@@ -720,7 +720,7 @@ DATABASE_URL=postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeou
 
 ### Caching Strategy
 
-TWS Foundations includes three-tier caching (see `.github/instructions/caching-pattern.instructions.md`):
+Iridium includes three-tier caching (see `.github/instructions/caching-pattern.instructions.md`):
 
 1. **Client-side route caching** - Automatic via React Router
 2. **Model layer caching** - Built into `app/models/*.server.ts`
@@ -899,7 +899,7 @@ jobs:
             - name: Deploy to Railway
               env:
                   RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-              run: railway up --service tws-foundations
+              run: railway up --service iridium
 
             - name: Run Migrations
               env:
@@ -1035,7 +1035,7 @@ railway run npx prisma migrate reset
 docker images
 
 # Run previous image
-docker run -p 3000:3000 tws-foundations:<previous-tag>
+docker run -p 3000:3000 iridium:<previous-tag>
 ```
 
 ### Database Rollback

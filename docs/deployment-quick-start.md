@@ -1,6 +1,6 @@
 # Deployment Quick Start
 
-**⚡ Quick reference for deploying TWS Foundations.** For detailed instructions, see [Deployment Guide](./deployment.md).
+**⚡ Quick reference for deploying Iridium.** For detailed instructions, see [Deployment Guide](./deployment.md).
 
 ---
 

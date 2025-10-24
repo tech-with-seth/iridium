@@ -346,7 +346,7 @@ export default function FeaturePage({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>[Feature] - TWS Foundations</title>
+            <title>[Feature] - Iridium</title>
             <meta name="description" content="Manage your [feature]" />
 
             <Container className="pt-12">

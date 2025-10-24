@@ -465,7 +465,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function FeaturePage({ loaderData }: Route.ComponentProps) {
     return (
         <>
-            <title>Features - TWS Foundations</title>
+            <title>Features - Iridium</title>
             <meta name="description" content="Manage your features" />
 
             <Container className="pt-12">

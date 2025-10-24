@@ -1,10 +1,10 @@
-# TWS Foundations Documentation
+# Iridium Documentation
 
-Welcome to the TWS Foundations documentation. This project is a modern full-stack web application built with React Router 7, Better Auth, and a carefully selected set of technologies designed for developer experience and production reliability.
+Welcome to the Iridium documentation. This project is a modern full-stack web application built with React Router 7, Better Auth, and a carefully selected set of technologies designed for developer experience and production reliability.
 
 ## Overview
 
-TWS Foundations is a production-ready starter template that includes authentication, database management, billing integration, analytics, and a comprehensive component system. It follows modern best practices and patterns for building scalable web applications.
+Iridium is a production-ready starter template that includes authentication, database management, billing integration, analytics, and a comprehensive component system. It follows modern best practices and patterns for building scalable web applications.
 
 ## Quick Start
 
@@ -105,7 +105,7 @@ We document significant architectural decisions in the [decisions](./decisions/R
 ## Project Structure
 
 ```
-tws-foundations/
+iridium/
 ├── app/
 │   ├── routes/              # Route components and loaders
 │   ├── components/          # Reusable UI components

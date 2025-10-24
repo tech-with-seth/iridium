@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions for TWS Foundations
+# GitHub Copilot Instructions for Iridium
 
 ## Project Overview
 
@@ -33,7 +33,7 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Page description here" />
             <Container>{/* Page content */}</Container>
         </>

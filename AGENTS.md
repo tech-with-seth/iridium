@@ -1,10 +1,10 @@
 # AGENTS.md
 
-A comprehensive guide for AI coding agents working with the TWS Foundations codebase.
+A comprehensive guide for AI coding agents working with the Iridium codebase.
 
 ## Project Overview
 
-TWS Foundations is a modern full-stack SaaS boilerplate built with:
+Iridium is a modern full-stack SaaS boilerplate built with:
 
 - **React Router 7** (config-based routing, not v6 file-based)
 - **React 19** (with native meta tags)
@@ -111,7 +111,7 @@ export default [
 export default function MyRoute() {
     return (
         <>
-            <title>Page Title - TWS Foundations</title>
+            <title>Page Title - Iridium</title>
             <meta name="description" content="Page description" />
             <Container>{/* Page content */}</Container>
         </>
@@ -384,7 +384,7 @@ npm run dev
         const { user } = useAuthenticatedContext();
         return (
             <>
-                <title>New Feature - TWS Foundations</title>
+                <title>New Feature - Iridium</title>
                 <Container>
                     <h1>Welcome {user.email}</h1>
                 </Container>
@@ -593,16 +593,16 @@ OPENAI_API_KEY
 ## Additional Resources
 
 - **Detailed Instructions**: See `.github/instructions/` for framework-specific patterns
-    - `react-router.instructions.md` - React Router 7 patterns
-    - `better-auth.instructions.md` - Authentication implementation
-    - `component-patterns.instructions.md` - UI component standards
-    - `polar.instructions.md` - Billing integration
-    - `posthog.instructions.md` - Analytics and feature flags integration
-    - `prisma.instructions.md` - Database patterns
-    - `cva.instructions.md` - Component variant patterns
-    - `daisyui.instructions.md` - DaisyUI component library
-    - `zod.instructions.md` - Validation patterns
-    - `react-hook-form.instructions.md` - Form handling
+  - `react-router.instructions.md` - React Router 7 patterns
+  - `better-auth.instructions.md` - Authentication implementation
+  - `component-patterns.instructions.md` - UI component standards
+  - `polar.instructions.md` - Billing integration
+  - `posthog.instructions.md` - Analytics and feature flags integration
+  - `prisma.instructions.md` - Database patterns
+  - `cva.instructions.md` - Component variant patterns
+  - `daisyui.instructions.md` - DaisyUI component library
+  - `zod.instructions.md` - Validation patterns
+  - `react-hook-form.instructions.md` - Form handling
 
 - **React Router 7 Docs**: <https://reactrouter.com/>
 - **BetterAuth Docs**: <https://better-auth.com/>

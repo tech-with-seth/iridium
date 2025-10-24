@@ -1,6 +1,6 @@
 # Testing
 
-TWS Foundations uses Vitest for unit and integration testing, and Playwright for end-to-end testing.
+Iridium uses Vitest for unit and integration testing, and Playwright for end-to-end testing.
 
 ## Overview
 

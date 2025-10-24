@@ -5,7 +5,7 @@ test.describe('Home Page', () => {
         await page.goto('/');
 
         // Check for main heading
-        const heading = page.getByRole('heading', { name: 'TWS Foundations' });
+        const heading = page.getByRole('heading', { name: 'Iridium' });
         await expect(heading).toBeVisible();
 
         // Check for description text (handles both feature flag variations)
@@ -26,7 +26,7 @@ test.describe('Home Page', () => {
         await page.goto('/');
 
         // Check page title
-        await expect(page).toHaveTitle('TWS Foundations');
+        await expect(page).toHaveTitle('Iridium');
 
         // Check meta description
         const metaDescription = page.locator('meta[name="description"]');

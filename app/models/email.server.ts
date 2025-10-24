@@ -151,7 +151,7 @@ export async function sendWelcomeEmail({
     return sendEmail({
         to,
         from: from || DEFAULT_FROM_EMAIL,
-        subject: 'Welcome to TWS Foundations!',
+        subject: 'Welcome to Iridium!',
         html,
     });
 }

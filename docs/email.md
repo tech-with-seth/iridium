@@ -1,6 +1,6 @@
 # Email
 
-TWS Foundations uses [Resend](https://resend.com/) for transactional email delivery, integrated with [React Email](https://react.email/) for building professional HTML email templates.
+Iridium uses [Resend](https://resend.com/) for transactional email delivery, integrated with [React Email](https://react.email/) for building professional HTML email templates.
 
 ## Overview
 
@@ -26,7 +26,7 @@ RESEND_API_KEY="re_your-api-key-here"
 RESEND_FROM_EMAIL="noreply@yourdomain.com"
 ```
 
-Get your API key from: https://resend.com/api-keys
+Get your API key from: <https://resend.com/api-keys>
 
 ### Server Configuration
 
@@ -347,9 +347,10 @@ Emails sent from this domain will be delivered but marked as test emails.
 
 ### Production Setup
 
-1. Add your domain to Resend: https://resend.com/domains
+1. Add your domain to Resend: <https://resend.com/domains>
 2. Verify DNS records (SPF, DKIM, DMARC)
 3. Update `RESEND_FROM_EMAIL` to use your verified domain:
+
     ```bash
     RESEND_FROM_EMAIL="noreply@yourdomain.com"
     ```

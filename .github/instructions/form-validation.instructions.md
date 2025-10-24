@@ -223,7 +223,7 @@ export default function ContactPage() {
 
   return (
     <>
-      <title>Contact Us - TWS Foundations</title>
+      <title>Contact Us - Iridium</title>
       <meta name="description" content="Get in touch with our team" />
 
       <Card>

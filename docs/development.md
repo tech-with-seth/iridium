@@ -1,6 +1,6 @@
 # Development Workflow
 
-This guide covers day-to-day development practices for working on TWS Foundations.
+This guide covers day-to-day development practices for working on Iridium.
 
 ## Getting Started
 

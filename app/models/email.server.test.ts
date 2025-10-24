@@ -310,7 +310,7 @@ describe('Email Model', () => {
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'newuser@example.com',
-                    subject: 'Welcome to TWS Foundations!',
+                    subject: 'Welcome to Iridium!',
                     html: '<html>Welcome</html>',
                 }),
             );
@@ -335,7 +335,7 @@ describe('Email Model', () => {
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'newuser@example.com',
-                    subject: 'Welcome to TWS Foundations!',
+                    subject: 'Welcome to Iridium!',
                     html: '<html>Welcome Email</html>',
                 }),
             );

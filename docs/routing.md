@@ -1,6 +1,6 @@
 # Routing with React Router 7
 
-TWS Foundations uses React Router 7, which provides a modern, type-safe framework for building full-stack web applications.
+Iridium uses React Router 7, which provides a modern, type-safe framework for building full-stack web applications.
 
 ## Overview
 

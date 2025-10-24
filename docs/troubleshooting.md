@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and solutions for TWS Foundations.
+Common issues and solutions for Iridium.
 
 ## Installation Issues
 

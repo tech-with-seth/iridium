@@ -187,7 +187,7 @@ export function DevTools() {
 ```bash
 # .env (committed - safe defaults)
 VITE_API_URL=http://localhost:3000
-VITE_APP_NAME=TWS Foundations
+VITE_APP_NAME=Iridium
 
 # .env.local (gitignored - local secrets)
 DATABASE_URL=postgresql://localhost:5432/mydb
