@@ -94,6 +94,23 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 }
 ```
 
+DO NOT create a variable and destructure in this fashion:
+
+```ts
+export async function action(args: Route.ActionArgs) {
+    const { request } = args;
+    // relevant code here...
+}
+```
+
+DO destructure `request` like this:
+
+```ts
+export async function action({ request }: Route.ActionArgs) {
+    // relevant code here...
+}
+```
+
 ### Layout/Parent Routes with Outlet
 
 **For layout routes that have child routes, ALWAYS use `<Outlet />` to render child routes:**
@@ -441,6 +458,45 @@ export default [
 - Use **kebab-case** for consistency (`product-details.tsx`)
 - Organize by **feature** rather than file naming conventions
 - The **route configuration** is the source of truth, not file names
+
+### ❌ NEVER Use Flat Route Naming Convention
+
+**BAD** - Flat route style with `$` for parameters:
+
+```text
+organizations.$slug.invitations.ts
+organizations.$slug.members.ts
+organizations.$slug.settings.general.tsx
+```
+
+**GOOD** - Directory-based organization:
+
+```text
+organizations/invitations.ts
+organizations/members.ts
+organizations/settings/general.tsx
+```
+
+**Critical Rules:**
+
+1. **DO NOT** use `$` in file names - use kebab-case for dynamic segments
+2. **DO NOT** give dynamic segments their own directory - organize by business logic/feature
+3. **DO NOT** abbreviate directory names - spell out full words (use `organization-slug` not `org-slug`)
+4. **DO NOT** namespace using periods - use directories instead (e.g., `slug/invitations.ts` not `slug.invitations.ts`)
+5. **DO** leverage directories to organize related routes
+6. **DO** add routes to `app/routes.ts` file with proper path configuration
+
+**Examples:**
+
+```text
+❌ BAD - Period-based namespacing:
+/api/organizations/slug.invitations.ts
+/api/organizations/slug.members.ts
+
+✅ GOOD - Directory-based namespacing:
+/api/organizations/slug/invitations.ts
+/api/organizations/slug/members.ts
+```
 
 ## Error Handling & Boundaries
 
