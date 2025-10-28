@@ -4,6 +4,15 @@
             "type": "sse",
             "url": "https://gitmcp.io/remix-run/react-router"
         },
+        "context7": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@upstash/context7-mcp@latest"]
+        },
+        "daisyUI": {
+            "type": "sse",
+            "url": "https://gitmcp.io/saadeghi/daisyui"
+        },
         "Railway": {
             "type": "stdio",
             "command": "npx",
