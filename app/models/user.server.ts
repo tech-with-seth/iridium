@@ -2,6 +2,18 @@ import { prisma } from '~/db.server';
 import type { User } from '~/generated/prisma/client';
 import { Role } from '~/generated/prisma/client';
 
+export function getUserByEmail(email: string) {
+    return prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true,
+        },
+    });
+}
+
 export function getUserRole(userId: string) {
     return prisma.user.findUnique({
         where: { id: userId },

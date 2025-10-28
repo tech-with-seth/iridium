@@ -14,6 +14,12 @@ enum Role {
     ADMIN
 }
 
+enum OrganizationRole {
+    OWNER
+    ADMIN
+    MEMBER
+}
+
 model User {
     id            String   @id @default(cuid())
     createdAt     DateTime @default(now())
@@ -28,8 +34,10 @@ model User {
     phoneNumber   String?
     role          Role     @default(USER)
 
-    sessions Session[]
-    accounts Account[]
+    sessions            Session[]
+    accounts            Account[]
+    organizationMembers OrganizationMember[]
+    ownedOrganizations  Organization[]       @relation("OrganizationOwner")
 
     @@index([email])
     @@map("user")
@@ -78,4 +86,54 @@ model Verification {
     updatedAt  DateTime @default(now()) @updatedAt
 
     @@map("verification")
+}
+
+model Organization {
+    id        String    @id @default(cuid())
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    name      String
+    slug      String    @unique
+    ownerId   String
+    owner     User      @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    deletedAt DateTime?
+
+    members     OrganizationMember[]
+    invitations OrganizationInvitation[]
+
+    @@index([slug])
+    @@index([ownerId])
+    @@map("organization")
+}
+
+model OrganizationMember {
+    id             String           @id @default(cuid())
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    organizationId String
+    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    userId         String
+    user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role           OrganizationRole @default(MEMBER)
+
+    @@unique([organizationId, userId])
+    @@index([userId])
+    @@map("organization_member")
+}
+
+model OrganizationInvitation {
+    id             String           @id @default(cuid())
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    organizationId String
+    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    email          String
+    role           OrganizationRole @default(MEMBER)
+    token          String           @unique
+    expiresAt      DateTime
+    acceptedAt     DateTime?
+
+    @@index([token])
+    @@index([email])
+    @@map("organization_invitation")
 }

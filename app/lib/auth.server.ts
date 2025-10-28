@@ -31,12 +31,15 @@ export const auth = betterAuth({
         },
     },
     emailVerification: {
-        sendVerificationEmail: async ({ user, url }) => {
-            // Send verification email via Resend
-            await sendVerificationEmail({
-                to: user.email,
-                verificationUrl: url,
-            });
+        // sendVerificationEmail: async ({ user, url }) => {
+        //     // Send verification email via Resend
+        //     await sendVerificationEmail({
+        //         to: user.email,
+        //         verificationUrl: url,
+        //     });
+        // },
+        sendVerificationEmail: async () => {
+            console.log('Verification email sending is currently disabled.');
         },
         sendOnSignUp: true, // Automatically send verification email on signup
     },
@@ -59,27 +62,27 @@ export const auth = betterAuth({
             client: polarClient,
             createCustomerOnSignUp: true,
             use: [
-                checkout({
-                    // Add your product configurations here
-                    // products: [{ productId: "your-product-id", slug: "pro" }],
-                    successUrl:
-                        process.env.POLAR_SUCCESS_URL || '/payment/success',
-                    authenticatedUsersOnly: true,
-                }),
-                portal(),
+                // checkout({
+                //     // Add your product configurations here
+                //     products: [{ productId: "your-product-id", slug: "pro" }],
+                //     successUrl:
+                //         process.env.POLAR_SUCCESS_URL || '/payment/success',
+                //     authenticatedUsersOnly: true,
+                // }),
+                // portal(),
                 usage(),
-                webhooks({
-                    secret: process.env.POLAR_WEBHOOK_SECRET!,
-                    onCustomerStateChanged: async (payload) => {
-                        console.log('Customer state changed:', payload);
-                    },
-                    onOrderPaid: async (payload) => {
-                        console.log('Order paid:', payload);
-                    },
-                    onPayload: async (payload) => {
-                        console.log('Polar webhook received:', payload);
-                    },
-                }),
+                // webhooks({
+                //     secret: process.env.POLAR_WEBHOOK_SECRET!,
+                //     onCustomerStateChanged: async (payload) => {
+                //         console.log('Customer state changed:', payload);
+                //     },
+                //     onOrderPaid: async (payload) => {
+                //         console.log('Order paid:', payload);
+                //     },
+                //     onPayload: async (payload) => {
+                //         console.log('Polar webhook received:', payload);
+                //     },
+                // }),
             ],
         }),
     ],

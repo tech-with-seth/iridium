@@ -30,6 +30,15 @@ interface SendEmailOptions {
  * Use this for one-off emails or when you don't have a template
  */
 export async function sendEmail(options: SendEmailOptions) {
+    // If Resend is not configured, log and skip (useful for seeding/dev)
+    if (!resend) {
+        console.warn(
+            '[Email] Resend not configured (missing RESEND_API_KEY), skipping email:',
+            options.subject,
+        );
+        return { success: true, data: null, skipped: true };
+    }
+
     try {
         const emailPayload: {
             from: string;
