@@ -9,6 +9,8 @@ export enum Paths {
     DESIGN = '/design',
     FORGOT_PASSWORD = '/forgot-password',
     HOME = '/',
+    INVITATIONS = '/invitations',
+    ORGANIZATIONS = '/organizations',
     PAYMENT_SUCCESS = '/payment/success',
     PROFILE = '/profile',
     POSTHOG = '/posthog',
