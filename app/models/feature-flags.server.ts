@@ -1,4 +1,4 @@
-import { withCache } from '~/lib/cache';
+import { withCache } from '~/lib/cache.server';
 import type { FeatureFlagsResponse } from '~/types/posthog';
 
 // Cache configuration
