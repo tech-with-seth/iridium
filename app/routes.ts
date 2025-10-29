@@ -36,14 +36,14 @@ const authenticatedRoutes = [
 // API ROUTES ==========
 
 const postHogRoutes = prefix(Paths.POSTHOG, [
-    route('feature-flags', 'routes/api/posthog/feature-flags.server.ts'),
+    route('feature-flags', 'routes/api/posthog/feature-flags.ts'),
 ]);
 
 const apiRoutes = prefix(Paths.API, [
-    route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.server.ts'),
-    route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.server.ts'),
-    route(Paths.PROFILE, 'routes/api/profile.server.ts'),
-    route('email', 'routes/api/email.server.ts'),
+    route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+    route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.ts'),
+    route(Paths.PROFILE, 'routes/api/profile.ts'),
+    route('email', 'routes/api/email.ts'),
     ...postHogRoutes,
 ]);
 

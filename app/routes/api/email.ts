@@ -1,4 +1,4 @@
-import type { Route } from './+types/email.server';
+import type { Route } from './+types/email';
 import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { validateFormData } from '~/lib/form-validation.server';

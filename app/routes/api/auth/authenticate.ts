@@ -1,5 +1,5 @@
 import { data, redirect } from 'react-router';
-import type { Route } from './+types/authenticate.server';
+import type { Route } from './+types/authenticate';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
 import posthog from 'posthog-js';
