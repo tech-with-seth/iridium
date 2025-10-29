@@ -12,6 +12,7 @@ FROM node:20-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
+RUN npx prisma generate
 RUN npx prisma generate --schema=./prisma/schema.prisma
 RUN npm run build
 
