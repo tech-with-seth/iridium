@@ -1,4 +1,4 @@
-import type { Route } from './+types/profile.server';
+import type { Route } from './+types/profile';
 import { data, redirect } from 'react-router';
 import { requireUser } from '~/lib/session.server';
 import { validateFormData } from '~/lib/form-validation.server';

@@ -1,10 +1,6 @@
 import { data } from 'react-router';
 import posthog from 'posthog-js';
-import type { Route } from './+types/feature-flags.server';
-import { deleteCachedData } from '~/lib/cache';
-
-// Cache configuration
-const CACHE_KEY = 'posthog:feature-flags';
+import type { Route } from './+types/feature-flags';
 
 // Resource route for feature flag operations
 // This is a server-only API endpoint - no client exports needed
