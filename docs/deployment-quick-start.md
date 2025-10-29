@@ -7,25 +7,27 @@
 ## 🚀 Railway (Recommended - 5 Minutes)
 
 ```bash
-# 1. Login and setup
+# 1. Login and create project
 railway login
 railway init
-railway add --plugin postgresql
 
-# 2. Set required environment variables
-railway variables set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
-railway variables set RESEND_API_KEY=your_resend_key
-railway variables set RESEND_FROM_EMAIL=noreply@yourdomain.com
+# 2. Add PostgreSQL database
+railway add --database postgres
 
-# 3. Deploy
+# 3. Set required environment variables
+railway variables --set "BETTER_AUTH_SECRET=$(openssl rand -base64 32)"
+railway variables --set "RESEND_API_KEY=your_resend_key"
+railway variables --set "RESEND_FROM_EMAIL=noreply@yourdomain.com"
+
+# 4. Deploy
 railway up
 
-# 4. Run migrations
+# 5. Run migrations
 railway run npx prisma migrate deploy
 
-# 5. Update auth URL (after getting Railway URL)
-railway variables set BETTER_AUTH_URL=https://your-app.railway.app
-railway up
+# 6. Get your Railway URL and update auth URL
+railway open  # Opens dashboard to see your URL
+railway variables --set "BETTER_AUTH_URL=https://your-app.railway.app"
 ```
 
 **✅ Done!** Your app is live at `https://your-app.railway.app`
@@ -80,12 +82,15 @@ Quick verification after deployment:
 ### Railway
 
 ```bash
-railway logs                  # View logs
-railway logs --follow         # Stream logs
-railway variables             # List environment variables
-railway run <command>         # Run command in production
-railway status                # Check deployment status
-railway open                  # Open in browser
+railway logs                    # View logs
+railway logs --deployment       # View deployment logs
+railway logs --build            # View build logs
+railway variables               # List environment variables
+railway variables --set "KEY=value"  # Set environment variable
+railway run <command>           # Run command in production
+railway status                  # Check deployment status
+railway open                    # Open dashboard in browser
+railway connect postgres        # Connect to PostgreSQL shell
 ```
 
 ### Docker
