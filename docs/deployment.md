@@ -32,7 +32,7 @@ railway login
 railway init
 
 # Add PostgreSQL database
-railway add --plugin postgresql
+railway add --database postgres
 ```
 
 ### Step 2: Configure Environment Variables
@@ -41,25 +41,25 @@ Set required environment variables:
 
 ```bash
 # Generate secure secret (REQUIRED)
-railway variables set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+railway variables --set "BETTER_AUTH_SECRET=$(openssl rand -base64 32)"
 
 # Email service (REQUIRED)
-railway variables set RESEND_API_KEY=your_resend_key_here
-railway variables set RESEND_FROM_EMAIL=noreply@yourdomain.com
+railway variables --set "RESEND_API_KEY=your_resend_key_here"
+railway variables --set "RESEND_FROM_EMAIL=noreply@yourdomain.com"
 
 # OpenAI (optional - only if using AI features)
-railway variables set OPENAI_API_KEY=sk-proj-your-key-here
+railway variables --set "OPENAI_API_KEY=sk-proj-your-key-here"
 
 # PostHog Analytics (optional)
-railway variables set VITE_POSTHOG_API_KEY=phc_your-key-here
-railway variables set VITE_POSTHOG_HOST=https://us.i.posthog.com
-railway variables set VITE_POSTHOG_PROJECT_ID=12345
-railway variables set POSTHOG_PERSONAL_API_KEY=phx_your-personal-key
+railway variables --set "VITE_POSTHOG_API_KEY=phc_your-key-here"
+railway variables --set "VITE_POSTHOG_HOST=https://us.i.posthog.com"
+railway variables --set "VITE_POSTHOG_PROJECT_ID=12345"
+railway variables --set "POSTHOG_PERSONAL_API_KEY=phx_your-personal-key"
 
 # Polar Billing (optional)
-railway variables set POLAR_ACCESS_TOKEN=polar_at_your-token
-railway variables set POLAR_SERVER=sandbox  # or "production"
-railway variables set POLAR_WEBHOOK_SECRET=your-webhook-secret
+railway variables --set "POLAR_ACCESS_TOKEN=polar_at_your-token"
+railway variables --set "POLAR_SERVER=sandbox"  # or "production"
+railway variables --set "POLAR_WEBHOOK_SECRET=your-webhook-secret"
 ```
 
 **Note:** `DATABASE_URL` is automatically set by Railway when you add PostgreSQL.
@@ -95,7 +95,7 @@ Once you have your Railway URL, update the auth configuration:
 
 ```bash
 # Replace with your actual Railway URL
-railway variables set BETTER_AUTH_URL=https://your-app-name.railway.app
+railway variables --set "BETTER_AUTH_URL=https://your-app-name.railway.app"
 
 # Trigger a redeploy to apply the change
 railway up
@@ -363,8 +363,10 @@ diff <(grep -v "^#" .env.example | cut -d= -f1 | sort) \
 1. **Backup Production Database**
 
 ```bash
-# For Railway
-railway run pg_dump $DATABASE_URL > backup.sql
+# For Railway (connect to database and run pg_dump)
+railway connect postgres
+# Then in the psql shell:
+\! pg_dump $DATABASE_URL > backup.sql
 ```
 
 2. **Test Migrations in Staging**
@@ -413,8 +415,9 @@ npx prisma migrate dev --name remove_user_phone_number
 **Railway:**
 
 ```bash
-railway logs
-railway logs --follow  # Stream logs
+railway logs                # View recent logs
+railway logs --deployment   # View deployment logs
+railway logs --build        # View build logs
 ```
 
 **Docker:**
@@ -791,7 +794,7 @@ Rotate secrets regularly:
 NEW_SECRET=$(openssl rand -base64 32)
 
 # Update in Railway
-railway variables set BETTER_AUTH_SECRET=$NEW_SECRET
+railway variables --set "BETTER_AUTH_SECRET=$NEW_SECRET"
 
 # Redeploy application
 railway up
