@@ -5,6 +5,7 @@ export enum Paths {
     AUTH = '/auth',
     AUTHENTICATE = '/authenticate',
     BILLING = '/billing',
+    CHAT = '/chat',
     DASHBOARD = '/dashboard',
     DESIGN = '/design',
     FORGOT_PASSWORD = '/forgot-password',

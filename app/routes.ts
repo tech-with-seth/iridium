@@ -18,6 +18,7 @@ const publicRoutes = [
 
 const adminRoutes = prefix(Paths.ADMIN, [
     route(Paths.DESIGN, 'routes/admin/design.tsx'),
+    route(Paths.CHAT, 'routes/admin/chat.tsx')
 ]);
 
 const profileRoutes = prefix(Paths.PROFILE, [
@@ -35,6 +36,8 @@ const authenticatedRoutes = [
 
 // API ROUTES ==========
 
+const chatRoutes = [route('chat', 'routes/api/chat.ts')];
+
 const postHogRoutes = prefix(Paths.POSTHOG, [
     route('feature-flags', 'routes/api/posthog/feature-flags.ts'),
 ]);
@@ -44,6 +47,7 @@ const apiRoutes = prefix(Paths.API, [
     route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.ts'),
     route(Paths.PROFILE, 'routes/api/profile.ts'),
     route('email', 'routes/api/email.ts'),
+    ...chatRoutes,
     ...postHogRoutes,
 ]);
 
