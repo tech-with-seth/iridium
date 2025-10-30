@@ -35,6 +35,7 @@ npm run dev
 - [Forms](./forms.md) - Form validation with Zod and React Hook Form
 - [Components](./components.md) - DaisyUI and CVA component patterns
 - [Custom Theming](./custom-theming.md) - Creating and customizing DaisyUI themes
+- [AI Chat Integration](./ai.md) - Vercel AI SDK endpoint and streaming chat workflow
 
 ### Development
 

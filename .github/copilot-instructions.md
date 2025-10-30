@@ -135,9 +135,12 @@ export async function action({ request }: Route.ActionArgs) {
 
 ### AI Features (OpenAI + Vercel AI SDK)
 
-- OpenAI client in `app/lib/ai.ts` (imported as `ai`, not `openai`)
-- Streaming responses using `streamText()` from `ai` package
-- Client-side integration with `useChat()` hook from `@ai-sdk/react`
+- Chat endpoint lives at `app/routes/api/chat.ts` and uses `streamText()` with `openai('gpt-4o')`
+- Always call `convertToModelMessages()` on incoming `UIMessage[]` before passing them to the model
+- Guard runaway tool loops with `stopWhen: stepCountIs(5)` (raise carefully if you extend reasoning depth)
+- Register tools via `tool({ description, inputSchema, execute })`; return JSON-safe payloads from `execute`
+- Stream the response back with `result.toUIMessageStreamResponse()` so `@ai-sdk/react` can render partial updates
+- Client-side chat flows use `useChat()` from `@ai-sdk/react` (defaults to `/api/chat`)
 
 ### Caching Strategy
 

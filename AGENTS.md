@@ -503,21 +503,57 @@ npm run dev
 
 ### Using AI Features
 
+Iridium ships with a streaming chat endpoint powered by the Vercel AI SDK and OpenAI. The server action accepts `UIMessage[]` payloads, converts them into model friendly messages, and returns a streaming UI response that the client hook can consume.
+
 ```typescript
-import { streamText } from 'ai';
-import { ai } from '~/lib/ai';
+import type { Route } from './+types/chat';
+import {
+    convertToModelMessages,
+    stepCountIs,
+    streamText,
+    tool,
+    type UIMessage,
+} from 'ai';
+import { openai } from '@ai-sdk/openai';
+import z from 'zod';
 
 export async function action({ request }: Route.ActionArgs) {
-    const { prompt } = await request.json();
+    if (request.method !== 'POST') {
+        return null;
+    }
+
+    const { messages }: { messages: UIMessage[] } = await request.json();
 
     const result = streamText({
-        model: ai('gpt-4'),
-        prompt,
+        model: openai('gpt-4o'),
+        messages: convertToModelMessages(messages),
+        stopWhen: stepCountIs(5),
+        tools: {
+            weather: tool({
+                description: 'Get the weather in a location (fahrenheit)',
+                inputSchema: z.object({
+                    location: z.string().describe(
+                        'The location to get the weather for',
+                    ),
+                }),
+                execute: async ({ location }) => ({
+                    location,
+                    temperature: 72,
+                }),
+            }),
+        },
     });
 
-    return result.toDataStreamResponse();
+    return result.toUIMessageStreamResponse();
 }
 ```
+
+Key points:
+
+- Use `convertToModelMessages()` whenever the client sends `UIMessage[]` payloads.
+- Apply `stepCountIs()` (currently capped at five reasoning steps) to constrain tool loops.
+- Register tools with `tool({ description, inputSchema, execute })`; update the `execute` implementation with real data sources when productionizing.
+- Return `result.toUIMessageStreamResponse()` so the client receives incremental updates that match the Vercel AI SDK expectations.
 
 **Client-side**:
 
@@ -528,6 +564,8 @@ const { messages, input, handleInputChange, handleSubmit } = useChat({
     api: '/api/chat',
 });
 ```
+
+The `useChat` hook defaults to `/api/chat`, streams the `UIMessage` payloads, and emits each assistant update as it arrives. Supply custom `api` paths or callbacks to tune the behaviour for other endpoints.
 
 ## Security Considerations
 
