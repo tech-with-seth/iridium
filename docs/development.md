@@ -27,6 +27,8 @@ npm run seed
 npm run dev
 ```
 
+The seed script primes your local database with demo users and organizations. Run it when setting up a fresh database or after dropping data; routine development workflows usually do not need repeated seeding.
+
 Visit `http://localhost:5173` to see your application.
 
 ## Development Commands

@@ -50,6 +50,8 @@ npx prisma migrate deploy                    # Production migrations
 npx prisma studio                            # Open database GUI
 ```
 
+> Seed data is intended for initializing fresh databases (local dev, new staging instances, or after a deliberate reset). Do not run `npm run seed` as part of every deploy—production data should evolve through the app itself.
+
 ## Environment Variables
 
 Required `.env` file at repository root:
@@ -597,6 +599,8 @@ BETTER_AUTH_SECRET
 BETTER_AUTH_URL  # Your production domain
 OPENAI_API_KEY
 ```
+
+> ℹ️ Railway deployments (and any environment using the provided Docker image) automatically execute `npx prisma migrate deploy` on container startup. Use the manual command above when running outside that image or when you need to reapply migrations explicitly.
 
 ## Troubleshooting
 

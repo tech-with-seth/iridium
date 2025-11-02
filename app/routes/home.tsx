@@ -2,8 +2,14 @@ import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export default function Home() {
     const data = useRootData();
+
+    const homePageHeroActive = data?.activeFlags['home_page_hero_image'];
+    const homePageVariant1 = `bg-[url(${isProduction ? 'assets/' : ''}uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center`;
+    const homePageVariant2 = `bg-[url(${isProduction ? 'assets/' : ''}possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]`;
 
     return (
         <>
@@ -15,11 +21,9 @@ export default function Home() {
             <Container className="p-4">
                 <div
                     className={cx(
-                        `bg-cover rounded-xl h-[30rem] border-1 border-black mb-8`,
-                        !data?.activeFlags['home_page_hero_image'] &&
-                            'bg-[url(possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]',
-                        data?.activeFlags['home_page_hero_image'] &&
-                            'bg-[url(uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center',
+                        `bg-cover rounded-xl h-[30rem] border border-black mb-8`,
+                        homePageHeroActive && homePageVariant1,
+                        !homePageHeroActive && homePageVariant2,
                     )}
                 ></div>
                 <h1 className="text-5xl font-bold mb-8">Iridium</h1>

@@ -22,8 +22,8 @@ railway variables --set "RESEND_FROM_EMAIL=noreply@yourdomain.com"
 # 4. Deploy
 railway up
 
-# 5. Run migrations
-railway run npx prisma migrate deploy
+# 5. (Auto) Database migrations run on deploy
+#    Need to re-run manually? Use: railway run npx prisma migrate deploy
 
 # 6. Get your Railway URL and update auth URL
 railway open  # Opens dashboard to see your URL
@@ -52,8 +52,8 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com  # Verified sender
 # Build and run with docker-compose
 docker-compose up -d
 
-# Run migrations
-docker-compose exec app npx prisma migrate deploy
+# Prisma migrations run automatically on container boot
+# Run manually (if needed): docker-compose exec app npx prisma migrate deploy
 
 # View logs
 docker-compose logs -f app

@@ -79,7 +79,8 @@ After deployment completes, Railway will provide your app URL.
 ### Step 4: Post-Deployment Setup
 
 ```bash
-# Run database migrations
+# Database migrations run automatically when the container boots
+# Re-run manually (if needed)
 railway run npx prisma migrate deploy
 
 # Generate Prisma client (if needed)
@@ -87,7 +88,10 @@ railway run npx prisma generate
 
 # Seed database (optional - development/staging only)
 railway run npm run seed
+# Recommended for first-time environment bootstrap or after wiping the database
 ```
+
+Run the seed script only when you need the canonical demo data in an empty environment—typically the first deploy to staging, preview instances, or anytime you intentionally reset the database. Avoid invoking it on routine production deploys so you do not overwrite organic data.
 
 ### Step 5: Update Auth URL
 
@@ -371,7 +375,7 @@ railway connect postgres
 
 2. **Test Migrations in Staging**
 
-Always test migrations in a staging environment first:
+Always test migrations in a staging environment first. Triggering a redeploy on the staging environment will apply migrations automatically, or run them manually with:
 
 ```bash
 # Create staging branch migration
@@ -380,16 +384,16 @@ git checkout -b migration/add-user-fields
 # Create migration
 npx prisma migrate dev --name add_user_fields
 
-# Test thoroughly in staging environment
+# Test thoroughly in staging environment (manual invocation optional)
 railway run --environment staging npx prisma migrate deploy
 ```
 
 3. **Apply to Production**
 
-Only after staging verification:
+Only after staging verification. A production redeploy will apply migrations automatically, but you can invoke them directly when needed:
 
 ```bash
-# Apply to production
+# Apply to production manually (optional)
 railway run --environment production npx prisma migrate deploy
 ```
 
@@ -574,7 +578,8 @@ echo "RESEND_API_KEY=your_key" >> .env
 # Start services
 docker-compose up -d
 
-# Run migrations
+# Prisma migrations run automatically when the container starts
+# Run manually (if needed)
 docker-compose exec app npx prisma migrate deploy
 
 # View logs
@@ -904,7 +909,7 @@ jobs:
                   RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
               run: railway up --service iridium
 
-            - name: Run Migrations
+                        - name: Run Migrations (optional)
               env:
                   RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
               run: railway run npx prisma migrate deploy
@@ -915,6 +920,8 @@ jobs:
 1. Get Railway token: `railway login --token`
 2. Add `RAILWAY_TOKEN` to GitHub repository secrets
 3. Push to `main` branch to trigger deployment
+
+> ℹ️ The Docker entrypoint runs Prisma migrations automatically on every Railway deploy. Keep the optional CI step if you prefer an explicit invocation or need to reapply migrations after a failure.
 
 ---
 
