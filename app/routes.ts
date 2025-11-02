@@ -18,7 +18,7 @@ const publicRoutes = [
 
 const adminRoutes = prefix(Paths.ADMIN, [
     route(Paths.DESIGN, 'routes/admin/design.tsx'),
-    route(Paths.CHAT, 'routes/admin/chat.tsx')
+    route(Paths.CHAT, 'routes/admin/chat.tsx'),
 ]);
 
 const profileRoutes = prefix(Paths.PROFILE, [
@@ -44,6 +44,7 @@ const postHogRoutes = prefix(Paths.POSTHOG, [
 
 const apiRoutes = prefix(Paths.API, [
     route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+    route(Paths.CLOUDINARY, 'routes/api/cloudinary.ts'),
     route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.ts'),
     route(Paths.PROFILE, 'routes/api/profile.ts'),
     route('email', 'routes/api/email.ts'),

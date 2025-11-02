@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { TextInput } from '~/components/TextInput';
 import { ChatBubble, ChatBubbleMessage } from '~/components/ChatBubble';
+import { Container } from '~/components/Container';
 
 export default function ChatRoute() {
     const [input, setInput] = useState('');
     const { messages, sendMessage } = useChat();
 
     return (
-        <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+        <Container>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -59,6 +60,6 @@ export default function ChatRoute() {
                     })}
                 </div>
             ))}
-        </div>
+        </Container>
     );
 }
