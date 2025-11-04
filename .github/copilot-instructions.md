@@ -90,6 +90,8 @@ npx prisma generate   # Regenerate Prisma client (after schema changes)
 npx prisma migrate dev --name <description> # Apply database migrations
 ```
 
+> Tip: the repo ships with VS Code tasks (`.vscode/tasks.json`) for these commands plus Railway helpers (`railway:migrate`, `railway:seed`, `railway:shell`) so you can run them via **Run Task…**.
+
 ### Adding New Features
 
 #### 1. Protected Routes

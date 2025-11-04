@@ -85,6 +85,24 @@
             }
         },
         {
+            "label": "railway:migrate",
+            "type": "shell",
+            "command": "railway run -- bash -lc \"cd /app && npx prisma migrate deploy\"",
+            "problemMatcher": []
+        },
+        {
+            "label": "railway:seed",
+            "type": "shell",
+            "command": "railway run -- bash -lc \"cd /app && npm run seed\"",
+            "problemMatcher": []
+        },
+        {
+            "label": "railway:shell",
+            "type": "shell",
+            "command": "railway shell",
+            "problemMatcher": []
+        },
+        {
             "label": "test",
             "type": "shell",
             "command": "npm test",

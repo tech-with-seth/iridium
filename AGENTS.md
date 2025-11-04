@@ -305,6 +305,17 @@ npm run build
 npm run dev
 ```
 
+## VS Code Tasks Reference
+
+The repo ships with predefined VS Code tasks in `.vscode/tasks.json` so common workflows stay consistent:
+
+- `dev`, `build`, `start`, `typecheck`, `test:*`, `e2e:*` mirror the npm scripts.
+- `prisma:*` tasks cover `generate`, `migrate dev`, and `studio`.
+- `railway:migrate` and `railway:seed` run `npx prisma migrate deploy` or `npm run seed` inside the linked Railway service via `railway run -- bash -lc "cd /app && …"`.
+- `railway:shell` opens a subshell with all Railway environment variables loaded.
+
+Use these tasks from the VS Code command palette (`Run Task…`) when you need a one-click way to apply migrations, seed data, or open Railway shells.
+
 **Before committing**:
 
 1. Run `npm run typecheck` - Ensure no TypeScript errors

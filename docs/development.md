@@ -58,6 +58,16 @@ npm run build
 npm run start
 ```
 
+### VS Code Tasks
+
+If you prefer running commands via VS Code, open the command palette and choose **Run Task…**. The `.vscode/tasks.json` file exposes the npm scripts above plus:
+
+- `prisma:*` helpers for schema work (`generate`, `migrate dev`, `studio`).
+- `railway:migrate` and `railway:seed` which wrap `railway run -- bash -lc "cd /app && …"` to execute Prisma deploys or the seed script inside your Railway service.
+- `railway:shell` to launch a subshell with the project’s Railway variables preloaded.
+
+These tasks assume you have the Railway CLI linked to the correct project/service; add `--service`/`--environment` flags in the task definition if you need to target something else.
+
 ### Database Commands
 
 ```bash
