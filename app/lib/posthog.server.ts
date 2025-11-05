@@ -53,3 +53,34 @@ export async function isFeatureEnabled(flagName: string, request: Request) {
 
     return isEnabled;
 }
+
+export async function getAllFeatureFlags(request: Request) {
+    const user = await getUserFromSession(request);
+
+    if (!user) {
+        return {};
+    }
+
+    const posthog = PostHogClient();
+    const featureFlags = await posthog.getAllFlags(user?.id);
+    await posthog.shutdown();
+
+    return featureFlags;
+}
+
+export async function isExperimentEnabled(
+    request: Request,
+    experimentName: string,
+) {
+    const user = await getUserFromSession(request);
+
+    if (!user) {
+        return false;
+    }
+
+    const posthog = PostHogClient();
+    const isEnabled = await posthog.getFeatureFlag(experimentName, user?.id);
+    await posthog.shutdown();
+
+    return isEnabled;
+}

@@ -10,8 +10,8 @@ export function Header() {
     const data = useRootData();
 
     return (
-        <header className="my-8">
-            <Container>
+        <header className="my-4">
+            <Container className="px-4">
                 <Navbar
                     brand={
                         <Link to="/" className="px-4 text-xl font-bold">

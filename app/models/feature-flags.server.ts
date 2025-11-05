@@ -1,16 +1,8 @@
-import { withCache } from '~/lib/cache.server';
+import { posthog } from 'posthog-js';
 import type { FeatureFlagsResponse } from '~/types/posthog';
 
-// Cache configuration
-const CACHE_KEY = 'posthog:feature-flags';
-const CACHE_TTL = 600; // 10 minutes
-
-/**
- * Fetches feature flags from PostHog API with caching
- * Used by root.tsx loader for server-side rendering
- */
-export const getFeatureFlags = withCache<FeatureFlagsResponse>(
-    async () => {
+export async function getFeatureFlags() {
+    try {
         const featureFlagsResponse = await fetch(
             `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/feature_flags/`,
             {
@@ -22,18 +14,27 @@ export const getFeatureFlags = withCache<FeatureFlagsResponse>(
             },
         );
 
-        return featureFlagsResponse.json();
-    },
-    CACHE_KEY,
-    CACHE_TTL,
-    {
-        // Fallback value on error
-        count: 0,
-        next: null,
-        previous: null,
-        results: [],
-    },
-);
+        if (!featureFlagsResponse.ok) {
+            const notOkError = new Error(
+                `Error fetching feature flags: ${featureFlagsResponse.status} ${featureFlagsResponse.statusText}`,
+            );
+
+            posthog.captureException(notOkError.message, {
+                timestamp: new Date().toISOString(),
+            });
+        }
+
+        const data: FeatureFlagsResponse = await featureFlagsResponse.json();
+
+        return data;
+    } catch (error) {
+        posthog.captureException(error, {
+            timestamp: new Date().toISOString(),
+        });
+
+        return { results: [] };
+    }
+}
 
 /**
  * Helper function to convert feature flags array to active flags object

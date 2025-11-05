@@ -12,16 +12,17 @@ import { CogIcon, FileQuestionIcon } from 'lucide-react';
 import { Button } from './components/Button';
 import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
+import { getAllFeatureFlags } from './lib/posthog.server';
+import { getFeatureFlags } from './models/feature-flags.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import { getActiveFlags } from './models/feature-flags.server';
 import { Header } from './components/Header';
 import { PHProvider } from './components/PostHogProvider';
 import { Toggle } from './components/Toggle';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
-import type { Route } from './+types/root';
 import type { FeatureFlag } from './types/posthog';
+import type { Route } from './+types/root';
 
 import './app.css';
 
@@ -42,24 +43,14 @@ export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
     const roleObj = user ? await getUserRole(user?.id) : null;
 
-    const featureFlagsResponse = await fetch(
-        `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/feature_flags/`,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
-            },
-        },
-    );
-
-    const featureFlagsData = await featureFlagsResponse.json();
+    const allFlags = await getFeatureFlags();
+    const flagsMap = await getAllFeatureFlags(request);
 
     return {
-        user,
+        allFlags: allFlags.results,
+        flagsMap,
         role: roleObj?.role,
-        activeFlags: getActiveFlags(featureFlagsData),
-        featureFlags: featureFlagsData.results,
+        user,
     };
 }
 
@@ -71,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
     const DrawerContents = () => {
-        const flags = data?.featureFlags ?? [];
+        const flags = data?.allFlags ?? [];
 
         return (
             <div>
@@ -181,7 +172,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <body className="min-h-screen flex flex-col">
                 <PHProvider>
                     <Header />
-                    <main className="flex-grow">{mainContent}</main>
+                    <main className="grow">{mainContent}</main>
                     <Footer />
                     {hasAccessPermissions && <DrawerTrigger />}
                     <ScrollRestoration />

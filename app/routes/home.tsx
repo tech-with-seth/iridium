@@ -1,3 +1,4 @@
+import { Alert } from '~/components/Alert';
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
@@ -5,9 +6,10 @@ import { useRootData } from '~/hooks/useRootData';
 export default function Home() {
     const data = useRootData();
 
-    const homePageHeroActive = data?.activeFlags['home_page_hero_image'];
-    const foundationImage = `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273336/unsplash/uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center`;
-    const blocksImage = `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273334/unsplash/possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]`;
+    const homePageHeroActive = data?.flagsMap['home_page_hero_image'];
+    const heroImage = homePageHeroActive
+        ? `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273336/unsplash/uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center`
+        : `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273334/unsplash/possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]`;
 
     return (
         <>
@@ -16,17 +18,21 @@ export default function Home() {
                 name="description"
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
             />
-            <Container className="p-4">
+            <Container className="px-4">
+                {data?.flagsMap['alert-experiment'] && (
+                    <Alert status="warning" className="mb-4">
+                        You are in the experiment
+                    </Alert>
+                )}
                 <div
                     className={cx(
                         `bg-cover rounded-xl h-[30rem] border border-black mb-8`,
-                        homePageHeroActive && foundationImage,
-                        !homePageHeroActive && blocksImage,
+                        heroImage,
                     )}
                 ></div>
                 <h1 className="text-5xl font-bold mb-8">Iridium</h1>
                 <div className="mb-12">
-                    {data?.activeFlags['home_page_intro_copy'] ? (
+                    {data?.flagsMap['home_page_intro_copy'] ? (
                         <p className="leading-relaxed">
                             Hi-ho! Kermit the Frog here, and let me tell you
                             about Iridium. It's not easy being green, and it's
