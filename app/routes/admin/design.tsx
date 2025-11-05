@@ -1,4 +1,6 @@
 import { Suspense, useState } from 'react';
+import { Form } from 'react-router';
+import type { Route } from './+types/design';
 import { Accordion, AccordionItem } from '~/components/Accordion';
 import { Alert } from '~/components/Alert';
 import { Avatar, AvatarGroup } from '~/components/Avatar';
@@ -9,6 +11,7 @@ import { Checkbox } from '~/components/Checkbox';
 import { Code } from '~/components/Code';
 import { Container } from '~/components/Container';
 import { Diff } from '~/components/Diff';
+import { FileInput } from '~/components/FileInput';
 import { Hero } from '~/components/Hero';
 import { Modal, ModalActions } from '~/components/Modal';
 import { Radio } from '~/components/Radio';
@@ -28,13 +31,115 @@ import { TextInput } from '~/components/TextInput';
 import { Toggle } from '~/components/Toggle';
 import { Tooltip } from '~/components/Tooltip';
 
-export default function DesignRoute() {
+export async function action({ request }: Route.ActionArgs) {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file || file.size === 0) {
+        return { error: 'Please select a file' };
+    }
+
+    try {
+        const response = await fetch('http://localhost:5173/api/cloudinary', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return { error: data.error || 'Upload failed' };
+        }
+
+        return { success: true, upload: data };
+    } catch (error) {
+        return {
+            error: error instanceof Error ? error.message : 'Upload failed',
+        };
+    }
+}
+
+export default function DesignRoute({ actionData }: Route.ComponentProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
 
     return (
         <Container className="flex flex-col gap-12 py-8">
             <h1 className="text-4xl font-bold">Design System Showcase</h1>
+
+            {/* File Input Section */}
+            <section className="space-y-4">
+                <h2 className="text-2xl font-bold">File Upload</h2>
+
+                <Form
+                    method="POST"
+                    encType="multipart/form-data"
+                    className="space-y-4"
+                >
+                    <FileInput
+                        name="file"
+                        label="Upload to Cloudinary"
+                        helperText="Supported formats: .png, .jpg, .jpeg"
+                        accept=".png,.jpg,.jpeg"
+                        color="primary"
+                        size="lg"
+                        error={actionData?.error}
+                    />
+                    <Button type="submit" status="primary">
+                        Upload File
+                    </Button>
+                </Form>
+
+                {actionData?.success && actionData.upload && (
+                    <Alert status="success">
+                        <div className="flex flex-col gap-2">
+                            <span className="font-semibold">
+                                Upload successful!
+                            </span>
+                            <a
+                                href={actionData.upload.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link link-primary"
+                            >
+                                View uploaded file
+                            </a>
+                            <div className="text-sm opacity-70">
+                                <div>Format: {actionData.upload.format}</div>
+                                <div>
+                                    Size: {actionData.upload.width}x
+                                    {actionData.upload.height}
+                                </div>
+                                <div>
+                                    File size:{' '}
+                                    {(actionData.upload.bytes / 1024).toFixed(
+                                        2,
+                                    )}{' '}
+                                    KB
+                                </div>
+                            </div>
+                        </div>
+                    </Alert>
+                )}
+
+                <Code
+                    lines={[
+                        {
+                            content:
+                                '<Form method="post" encType="multipart/form-data">',
+                        },
+                        { content: '  <FileInput' },
+                        { content: '    name="file"' },
+                        { content: '    label="Upload to Cloudinary"' },
+                        { content: '    accept=".png,.jpg,.jpeg"' },
+                        { content: '    color="primary"' },
+                        { content: '    error={actionData?.error}' },
+                        { content: '  />' },
+                        { content: '  <Button type="submit">Upload</Button>' },
+                        { content: '</Form>' },
+                    ]}
+                />
+            </section>
 
             {/* Buttons Section */}
             <section className="space-y-4">
