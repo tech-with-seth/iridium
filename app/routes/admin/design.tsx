@@ -40,7 +40,10 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     try {
-        const response = await fetch('http://localhost:5173/api/cloudinary', {
+        const baseUrl = new URL(request.url).origin;
+        const cloudinaryEndpoint = new URL('/api/cloudinary', baseUrl);
+
+        const response = await fetch(cloudinaryEndpoint, {
             method: 'POST',
             body: formData,
         });
