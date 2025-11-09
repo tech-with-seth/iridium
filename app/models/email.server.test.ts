@@ -1,46 +1,34 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { ResendMock } from '~/lib/email-test-helpers';
 import {
+    ensureResendMock,
+    resetResendMock,
     createMockResendSuccess,
     createMockResendError,
     createTestEmailData,
 } from '~/lib/email-test-helpers';
 
-// Assertion helpers
-function assertEmailSentTo(mockFn: any, recipient: string) {
-    expect(mockFn).toHaveBeenCalledWith(
-        expect.objectContaining({ to: recipient }),
-    );
-}
-
-function assertEmailSubject(mockFn: any, subject: string) {
-    expect(mockFn).toHaveBeenCalledWith(expect.objectContaining({ subject }));
-}
-
-/**
- * Email Model Layer Tests
- *
- * ALL TESTS USE MOCKS - No real Resend API calls to avoid using credits!
- *
- * Mocking strategy:
- * - Resend SDK is mocked to return success/error responses
- * - React Email render is mocked to return HTML strings
- * - PostHog is mocked to prevent tracking during tests
- */
-
-// Mock Resend SDK - NEVER call real API
-vi.mock('~/lib/resend.server', () => ({
-    resend: {
-        emails: {
-            send: vi.fn(),
-        },
+// Create the hoisted stub inline so the hoisted callback does not reference
+// imported helper functions (which may not be initialized yet due to
+// Vitest's hoisting). This avoids the "Cannot access '__vi_import_0__'"
+// reference error.
+const resendStub = vi.hoisted(() => ({
+    emails: {
+        send: vi.fn(),
     },
-    DEFAULT_FROM_EMAIL: 'test@example.com',
-}));
+})) as ResendMock;
 
-// Mock React Email render and components - Return mocked HTML and React components
+vi.mock('~/lib/resend.server', () => {
+    return {
+        resend: resendStub,
+        DEFAULT_FROM_EMAIL: 'test@example.com',
+    };
+});
+
 vi.mock('@react-email/components', async (importOriginal) => {
     const actual =
         await importOriginal<typeof import('@react-email/components')>();
+
     return {
         ...actual,
         render: vi.fn().mockResolvedValue('<html>Mocked Email</html>'),
@@ -57,8 +45,7 @@ vi.mock('@react-email/components', async (importOriginal) => {
     };
 });
 
-// Import mocked modules
-import { resend } from '~/lib/resend.server';
+import { resend as resendClient } from '~/lib/resend.server';
 import { render } from '@react-email/components';
 import {
     sendEmail,
@@ -69,145 +56,136 @@ import {
     sendBatchEmails,
 } from './email.server';
 
-describe('Email Model', () => {
+const renderMock = vi.mocked(render);
+
+function getResendMock(): ResendMock {
+    return ensureResendMock(resendClient);
+}
+
+function expectEmailSentTo(mock: ResendMock, recipient: string) {
+    expect(mock.emails.send).toHaveBeenCalledWith(
+        expect.objectContaining({ to: recipient }),
+    );
+}
+
+function expectEmailSubject(mock: ResendMock, subject: string) {
+    expect(mock.emails.send).toHaveBeenCalledWith(
+        expect.objectContaining({ subject }),
+    );
+}
+
+let resend: ResendMock;
+
+describe('email model', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Suppress console.error during tests to avoid cluttering output
+        resend = getResendMock();
+        resetResendMock(resend);
         vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('sendEmail', () => {
         it('sends email with valid data', async () => {
             const emailData = createTestEmailData();
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             const result = await sendEmail(emailData);
 
             expect(resend.emails.send).toHaveBeenCalledTimes(1);
-            assertEmailSentTo(resend.emails.send, emailData.to);
-            assertEmailSubject(resend.emails.send, emailData.subject);
+            expectEmailSentTo(resend, emailData.to as string);
+            expectEmailSubject(resend, emailData.subject);
             expect(result.success).toBe(true);
         });
 
-        it('sends email with html content', async () => {
-            const emailData = createTestEmailData({ html: '<h1>Test</h1>' });
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+        it('includes html content when provided', async () => {
+            const emailData = createTestEmailData({ html: '<h1>HTML</h1>' });
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             await sendEmail(emailData);
 
             expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    html: '<h1>Test</h1>',
-                }),
+                expect.objectContaining({ html: '<h1>HTML</h1>' }),
             );
         });
 
-        it('sends email with text content', async () => {
+        it('includes text content when provided', async () => {
             const emailData = createTestEmailData({
                 html: undefined,
                 text: 'Plain text email',
             });
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             await sendEmail(emailData);
 
             expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    text: 'Plain text email',
-                }),
+                expect.objectContaining({ text: 'Plain text email' }),
             );
         });
 
-        it('uses custom from address when provided', async () => {
+        it('uses custom from address', async () => {
             const emailData = createTestEmailData({
                 from: 'custom@example.com',
             });
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             await sendEmail(emailData);
 
             expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    from: 'custom@example.com',
-                }),
+                expect.objectContaining({ from: 'custom@example.com' }),
             );
         });
 
-        it('handles Resend API errors', async () => {
-            const emailData = createTestEmailData();
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendError('API Error') as any,
-            );
-
-            await expect(sendEmail(emailData)).rejects.toThrow(
-                'Failed to send email',
-            );
-        });
-
-        it('handles network errors', async () => {
-            const emailData = createTestEmailData();
-            vi.mocked(resend.emails.send).mockRejectedValue(
-                new Error('Network error'),
-            );
-
-            await expect(sendEmail(emailData)).rejects.toThrow('Network error');
-        });
-
-        it('sends email with CC recipients', async () => {
-            const emailData = createTestEmailData({ cc: 'cc@example.com' });
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+        it('includes cc and bcc fields', async () => {
+            const emailData = createTestEmailData({
+                cc: 'cc@example.com',
+                bcc: 'bcc@example.com',
+            });
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             await sendEmail(emailData);
 
             expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    cc: 'cc@example.com',
-                }),
+                expect.objectContaining({ cc: 'cc@example.com' }),
+            );
+            expect(resend.emails.send).toHaveBeenCalledWith(
+                expect.objectContaining({ bcc: 'bcc@example.com' }),
             );
         });
 
-        it('sends email with BCC recipients', async () => {
-            const emailData = createTestEmailData({ bcc: 'bcc@example.com' });
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
+        it('throws when Resend returns an error response', async () => {
+            resend.emails.send.mockResolvedValue(
+                createMockResendError('API Error'),
             );
 
-            await sendEmail(emailData);
+            await expect(sendEmail(createTestEmailData())).rejects.toThrow(
+                'Failed to send email: API Error',
+            );
+        });
 
-            expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    bcc: 'bcc@example.com',
-                }),
+        it('rethrows network errors', async () => {
+            resend.emails.send.mockRejectedValue(new Error('Network error'));
+
+            await expect(sendEmail(createTestEmailData())).rejects.toThrow(
+                'Network error',
             );
         });
     });
 
     describe('sendVerificationEmail', () => {
-        it('sends verification email with correct template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue('<html>Verification</html>');
+        it('renders template and sends email', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Verification</html>');
 
             await sendVerificationEmail({
                 to: 'user@example.com',
                 verificationUrl: 'https://example.com/verify?token=abc123',
             });
 
-            // Verify React Email render was called
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify email was sent
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'user@example.com',
@@ -217,27 +195,18 @@ describe('Email Model', () => {
             );
         });
 
-        it('passes verification URL to template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue(
-                '<html>Verification Email</html>',
-            );
+        it('passes verification data to template', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Verification Email</html>');
 
             await sendVerificationEmail({
                 to: 'user@example.com',
                 verificationUrl: 'https://example.com/verify?token=xyz',
             });
 
-            // Verify render was called (component receives props internally)
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify the correct email was sent with rendered HTML
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    to: 'user@example.com',
-                    subject: 'Verify your email address',
                     html: '<html>Verification Email</html>',
                 }),
             );
@@ -245,18 +214,16 @@ describe('Email Model', () => {
     });
 
     describe('sendPasswordResetEmail', () => {
-        it('sends password reset email with correct template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue('<html>Password Reset</html>');
+        it('renders template and sends email', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Password Reset</html>');
 
             await sendPasswordResetEmail({
                 to: 'user@example.com',
                 resetUrl: 'https://example.com/reset?token=abc123',
             });
 
-            expect(render).toHaveBeenCalledTimes(1);
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'user@example.com',
@@ -267,10 +234,8 @@ describe('Email Model', () => {
         });
 
         it('passes reset URL to template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue(
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce(
                 '<html>Password Reset Email</html>',
             );
 
@@ -279,14 +244,9 @@ describe('Email Model', () => {
                 resetUrl: 'https://example.com/reset?token=xyz',
             });
 
-            // Verify render was called (component receives props internally)
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify the correct email was sent with rendered HTML
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    to: 'user@example.com',
-                    subject: 'Reset your password',
                     html: '<html>Password Reset Email</html>',
                 }),
             );
@@ -294,11 +254,9 @@ describe('Email Model', () => {
     });
 
     describe('sendWelcomeEmail', () => {
-        it('sends welcome email with correct template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue('<html>Welcome</html>');
+        it('renders template and sends email', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Welcome</html>');
 
             await sendWelcomeEmail({
                 to: 'newuser@example.com',
@@ -306,7 +264,7 @@ describe('Email Model', () => {
                 dashboardUrl: 'https://example.com/dashboard',
             });
 
-            expect(render).toHaveBeenCalledTimes(1);
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'newuser@example.com',
@@ -317,10 +275,8 @@ describe('Email Model', () => {
         });
 
         it('passes user data to template', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue('<html>Welcome Email</html>');
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Welcome Email</html>');
 
             await sendWelcomeEmail({
                 to: 'newuser@example.com',
@@ -328,40 +284,28 @@ describe('Email Model', () => {
                 dashboardUrl: 'https://example.com/dashboard',
             });
 
-            // Verify render was called (component receives props internally)
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify the correct email was sent with rendered HTML
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    to: 'newuser@example.com',
-                    subject: 'Welcome to Iridium!',
-                    html: '<html>Welcome Email</html>',
-                }),
+                expect.objectContaining({ html: '<html>Welcome Email</html>' }),
             );
         });
     });
 
     describe('sendTransactionalEmail', () => {
-        it('sends transactional email with all props', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue('<html>Transactional</html>');
+        it('renders template with button', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce('<html>Transactional</html>');
 
             await sendTransactionalEmail({
                 to: 'user@example.com',
                 heading: 'Account Updated',
-                previewText: 'Your account has been updated',
-                message: 'We updated your account settings.',
+                previewText: 'Preview',
+                message: 'Body text',
                 buttonText: 'View Changes',
                 buttonUrl: 'https://example.com/account',
             });
 
-            // Verify render was called (component receives props internally)
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify the correct email was sent with rendered HTML
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     to: 'user@example.com',
@@ -371,29 +315,22 @@ describe('Email Model', () => {
             );
         });
 
-        it('sends transactional email without button', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
-            vi.mocked(render).mockResolvedValue(
+        it('renders template without button', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
+            renderMock.mockResolvedValueOnce(
                 '<html>Transactional Email</html>',
             );
 
             await sendTransactionalEmail({
                 to: 'user@example.com',
                 heading: 'Notification',
-                previewText: 'You have a notification',
-                message: 'This is a simple notification.',
+                previewText: 'Preview',
+                message: 'Simple message',
             });
 
-            // Verify render was called (component receives props internally)
-            expect(render).toHaveBeenCalledTimes(1);
-
-            // Verify the correct email was sent with rendered HTML
+            expect(renderMock).toHaveBeenCalledTimes(1);
             expect(resend.emails.send).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    to: 'user@example.com',
-                    subject: 'Notification',
                     html: '<html>Transactional Email</html>',
                 }),
             );
@@ -401,10 +338,8 @@ describe('Email Model', () => {
     });
 
     describe('sendBatchEmails', () => {
-        it('sends multiple emails successfully', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+        it('sends each email in the batch', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             const emails = [
                 createTestEmailData({ to: 'user1@example.com' }),
@@ -421,11 +356,11 @@ describe('Email Model', () => {
             expect(result.failed).toBe(0);
         });
 
-        it('handles partial failures in batch', async () => {
-            vi.mocked(resend.emails.send)
-                .mockResolvedValueOnce(createMockResendSuccess() as any)
+        it('tracks partial failures', async () => {
+            resend.emails.send
+                .mockResolvedValueOnce(createMockResendSuccess())
                 .mockRejectedValueOnce(new Error('Failed'))
-                .mockResolvedValueOnce(createMockResendSuccess() as any);
+                .mockResolvedValueOnce(createMockResendSuccess());
 
             const emails = [
                 createTestEmailData({ to: 'user1@example.com' }),
@@ -440,10 +375,8 @@ describe('Email Model', () => {
             expect(result.failed).toBe(1);
         });
 
-        it('returns results array with status for each email', async () => {
-            vi.mocked(resend.emails.send).mockResolvedValue(
-                createMockResendSuccess() as any,
-            );
+        it('returns detailed results for each email', async () => {
+            resend.emails.send.mockResolvedValue(createMockResendSuccess());
 
             const emails = [
                 createTestEmailData({ to: 'user1@example.com' }),

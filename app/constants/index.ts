@@ -17,6 +17,7 @@ export enum Paths {
     PROFILE = '/profile',
     POSTHOG = '/posthog',
     RESET_PASSWORD = '/reset-password',
+    SHOP = '/shop',
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
     VERIFY_EMAIL = '/verify-email',

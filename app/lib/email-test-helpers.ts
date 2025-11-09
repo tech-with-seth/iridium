@@ -1,17 +1,39 @@
 import { vi } from 'vitest';
 
-/**
- * Email Testing Helpers
- *
- * Utilities for testing email functionality with mocked Resend SDK.
- * All tests use mocks - NO real API calls to avoid using credits!
- *
- * Location: app/lib/ (shared across test files)
- */
+export type ResendSendMock = ReturnType<typeof vi.fn>;
 
-/**
- * Creates a mock Resend success response
- */
+export interface ResendMock {
+    emails: {
+        send: ResendSendMock;
+    };
+}
+
+export function createResendMock(): ResendMock {
+    return {
+        emails: {
+            send: vi.fn(),
+        },
+    };
+}
+
+export function ensureResendMock(client: unknown): ResendMock {
+    if (!client || typeof client !== 'object') {
+        throw new Error('Resend mock is not available.');
+    }
+
+    const maybe = client as Partial<ResendMock>;
+
+    if (!maybe.emails || typeof maybe.emails.send !== 'function') {
+        throw new Error('Resend mock is missing the emails.send function.');
+    }
+
+    return maybe as ResendMock;
+}
+
+export function resetResendMock(mock: ResendMock) {
+    mock.emails.send.mockReset();
+}
+
 export function createMockResendSuccess(id = 'email-123') {
     return {
         data: { id },
@@ -19,9 +41,6 @@ export function createMockResendSuccess(id = 'email-123') {
     };
 }
 
-/**
- * Creates a mock Resend error response
- */
 export function createMockResendError(message = 'Failed to send email') {
     return {
         data: null,
@@ -29,26 +48,37 @@ export function createMockResendError(message = 'Failed to send email') {
     };
 }
 
-/**
- * Factory for creating valid email test data
- */
-export function createTestEmailData(overrides: Record<string, any> = {}) {
+export interface TestEmailData {
+    to: string | string[];
+    subject: string;
+    html?: string;
+    text?: string;
+    from?: string;
+    replyTo?: string;
+    cc?: string | string[];
+    bcc?: string | string[];
+}
+
+export function createTestEmailData(overrides: Partial<TestEmailData> = {}) {
     return {
         to: 'test@example.com',
         subject: 'Test Email',
         html: '<p>Test email content</p>',
         ...overrides,
-    };
+    } as TestEmailData;
 }
 
-/**
- * Factory for creating test email template props
- */
+export type TemplateName =
+    | 'verification'
+    | 'password-reset'
+    | 'welcome'
+    | 'transactional';
+
 export function createTestTemplateProps(
-    templateName: string,
-    props: Record<string, any> = {},
+    templateName: TemplateName,
+    props: Record<string, unknown> = {},
 ) {
-    const defaultProps = {
+    const defaults: Record<TemplateName, Record<string, unknown>> = {
         verification: {
             verificationUrl: 'https://example.com/verify?token=abc123',
         },
@@ -70,42 +100,35 @@ export function createTestTemplateProps(
         templateName,
         to: 'test@example.com',
         props: {
-            ...defaultProps[templateName as keyof typeof defaultProps],
+            ...defaults[templateName],
             ...props,
         },
     };
 }
 
-/**
- * Creates a mock FormData for testing email API endpoint
- */
-export function createEmailFormData(data: Record<string, any>) {
+export function createEmailFormData(data: Record<string, unknown>) {
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-            formData.append(
-                key,
-                typeof value === 'object'
-                    ? JSON.stringify(value)
-                    : String(value),
-            );
+        if (value === null || value === undefined) {
+            return;
         }
+
+        if (typeof value === 'object') {
+            formData.append(key, JSON.stringify(value));
+            return;
+        }
+
+        formData.append(key, String(value));
     });
 
     return formData;
 }
 
-/**
- * Mock implementation for React Email render function
- */
 export function mockReactEmailRender(html = '<html>Mocked Email</html>') {
     return vi.fn().mockResolvedValue(html);
 }
 
-/**
- * Mock implementation for PostHog tracking
- */
 export function mockPostHogCapture() {
     return {
         capture: vi.fn(),

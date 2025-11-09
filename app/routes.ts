@@ -12,6 +12,9 @@ const publicRoutes = [
     index('routes/home.tsx'),
     route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
     route(Paths.SIGN_OUT, 'routes/sign-out.tsx'),
+    route(Paths.SHOP, 'routes/shop/list.tsx'),
+    route(`${Paths.SHOP}/:productId`, 'routes/shop/detail.tsx'),
+    route(`${Paths.SHOP}/checkout`, 'routes/shop/checkout.tsx'),
 ];
 
 // AUTHENTICATED ROUTES ==========

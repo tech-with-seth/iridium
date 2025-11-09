@@ -1,6 +1,7 @@
 import { prisma } from '~/db.server';
 import { auth } from '../app/lib/auth.server.js';
 import { Role, OrganizationRole } from '../app/generated/prisma/client.js';
+
 import 'dotenv/config';
 
 async function createUserWithAuth(

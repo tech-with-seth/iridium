@@ -33,6 +33,11 @@ export default function AuthPage() {
         handleSubmit,
         formState: { errors },
     } = useValidatedForm<SignInData | SignUpData>({
+        defaultValues: {
+            email: 'admin@iridium.com',
+            password: 'Admin123!',
+            name: 'Important Person',
+        },
         resolver: zodResolver(schema),
     });
 
