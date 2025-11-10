@@ -1,11 +1,7 @@
 import { data } from 'react-router';
-import posthog from 'posthog-js';
 import type { Route } from './+types/feature-flags';
+import { logException } from '~/lib/posthog';
 
-// Resource route for feature flag operations
-// This is a server-only API endpoint - no client exports needed
-
-// GET - Fetch all feature flags
 export async function loader() {
     try {
         const featureFlagsResponse = await fetch(
@@ -23,16 +19,14 @@ export async function loader() {
 
         return data(featureFlags);
     } catch (error) {
-        posthog.captureException(error, {
+        logException(error as Error, {
             context: 'feature_flags_fetch',
-            timestamp: new Date().toISOString(),
         });
 
         return data({ error: String(error) }, { status: 500 });
     }
 }
 
-// PATCH - Update feature flag mutations
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
     const intent = formData.get('intent');
@@ -40,7 +34,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'PATCH') {
         if (intent === 'toggleFeatureFlag') {
             const flagId = String(formData.get('flagId'));
-            const active = formData.get('active') === 'true';
+            const active = String(formData.get('active') === 'true');
 
             try {
                 const response = await fetch(
@@ -74,12 +68,10 @@ export async function action({ request }: Route.ActionArgs) {
             } catch (error) {
                 console.error('Error toggling feature flag:', error);
 
-                // Track error with PostHog
-                posthog.captureException(error, {
+                logException(error as Error, {
+                    active,
                     context: 'feature_flag_toggle',
                     flagId,
-                    active,
-                    timestamp: new Date().toISOString(),
                 });
 
                 return data(

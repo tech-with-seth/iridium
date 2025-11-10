@@ -16,7 +16,7 @@ import {
     sendWelcomeEmail,
     sendTransactionalEmail,
 } from '~/models/email.server';
-import posthog from 'posthog-js';
+import { logEvent, logException } from '~/lib/posthog';
 
 /**
  * Email API Endpoint
@@ -142,11 +142,10 @@ export async function action({ request }: Route.ActionArgs) {
             }
 
             // Track successful email with PostHog
-            posthog.capture('email_sent', {
-                userId: user.id,
-                templateName,
+            logEvent('email_sent', {
                 recipient: to,
-                timestamp: new Date().toISOString(),
+                templateName,
+                userId: user.id,
             });
 
             return data({
@@ -171,13 +170,11 @@ export async function action({ request }: Route.ActionArgs) {
 
         const result = await sendEmail(validatedData!);
 
-        // Track successful email with PostHog
-        posthog.capture('email_sent', {
+        logEvent('email_sent', {
             userId: user.id,
             type: 'custom',
             recipient: validatedData!.to,
             subject: validatedData!.subject,
-            timestamp: new Date().toISOString(),
         });
 
         return data({
@@ -189,10 +186,9 @@ export async function action({ request }: Route.ActionArgs) {
         console.error('Email sending error:', error);
 
         // Track error with PostHog
-        posthog.captureException(error, {
+        logException(error as Error, {
             userId: user.id,
             context: 'email_api',
-            timestamp: new Date().toISOString(),
         });
 
         return data(

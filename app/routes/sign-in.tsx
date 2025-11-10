@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
-import posthog from 'posthog-js';
 
 import { Button } from '~/components/Button';
 import { Card } from '~/components/Card';
@@ -16,6 +15,7 @@ import {
 } from '~/lib/validations';
 import { authClient } from '~/lib/auth-client';
 import { Paths } from '~/constants';
+import { logEvent, logException } from '~/lib/posthog';
 
 type AuthMode = 'signIn' | 'signUp';
 
@@ -46,6 +46,11 @@ export default function AuthPage() {
         setServerError(null);
 
         try {
+            // Track attempt
+            logEvent(isSignIn ? 'sign_in_attempt' : 'sign_up_attempt', {
+                email: data.email,
+            });
+
             if (isSignIn) {
                 // Sign In
                 await authClient.signIn.email(
@@ -55,14 +60,21 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
+                            logEvent('sign_in_success', {
+                                email: data.email,
+                            });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
+                            setIsLoading(false);
+                            logEvent('sign_in_error', {
+                                email: data.email,
+                                error: ctx?.error?.message || 'unknown',
+                            });
                             setServerError(
                                 ctx.error.message ||
                                     'Invalid credentials. Please try again.',
                             );
-                            setIsLoading(false);
                         },
                     },
                 );
@@ -77,9 +89,17 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
+                            logEvent('sign_up_success', {
+                                email: signUpData.email,
+                                name: signUpData.name,
+                            });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
+                            logEvent('sign_up_error', {
+                                email: signUpData.email,
+                                error: ctx?.error?.message || 'unknown',
+                            });
                             setServerError(
                                 ctx.error.message ||
                                     'Account creation failed. Please try again.',
@@ -89,17 +109,27 @@ export default function AuthPage() {
                     },
                 );
             }
-        } catch (error) {
-            // Track unexpected error with PostHog
-            posthog.captureException(error, {
+        } catch (error: unknown) {
+            logException(error as Error, {
                 context: isSignIn ? 'sign_in' : 'sign_up',
                 email: data.email,
                 timestamp: new Date().toISOString(),
             });
-
             setServerError('An unexpected error occurred. Please try again.');
             setIsLoading(false);
         }
+    };
+
+    // Track mode toggles (sign in <-> sign up)
+    const handleToggleMode = () => {
+        const newMode: AuthMode = isSignIn ? 'signUp' : 'signIn';
+
+        logEvent('auth_mode_toggle', {
+            previousMode: mode,
+            newMode,
+        });
+
+        setMode(newMode);
     };
 
     return (
@@ -176,9 +206,7 @@ export default function AuthPage() {
                     <div className="mt-4 text-center">
                         <button
                             type="button"
-                            onClick={() =>
-                                setMode(isSignIn ? 'signUp' : 'signIn')
-                            }
+                            onClick={handleToggleMode}
                             className="link link-primary"
                         >
                             {isSignIn

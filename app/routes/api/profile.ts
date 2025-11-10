@@ -7,11 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
 import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
-import posthog from 'posthog-js';
 import {
     createCachedClientLoader,
     createCachedClientAction,
 } from '~/lib/cache';
+import { logException } from '~/lib/posthog';
 
 // Cache configuration
 const CACHE_KEY = 'current-user-profile';
@@ -65,13 +65,12 @@ export async function action({ request }: Route.ActionArgs) {
                 profile: updatedUser,
                 message: 'Profile updated successfully',
             });
-        } catch (error) {
+        } catch (error: unknown) {
             // Track error with PostHog
-            posthog.captureException(error, {
-                userId: user.id,
+            logException(error as Error, {
                 context: 'profile_update',
-                data: validatedData,
-                timestamp: new Date().toISOString(),
+                userId: user.id,
+                ...validatedData,
             });
 
             return data(
@@ -97,10 +96,9 @@ export async function action({ request }: Route.ActionArgs) {
             console.error('Account deletion error:', error);
 
             // Track error with PostHog
-            posthog.captureException(error, {
+            logException(error as Error, {
                 userId: user.id,
                 context: 'account_deletion',
-                timestamp: new Date().toISOString(),
             });
 
             return data(

@@ -1,6 +1,5 @@
 import { data, Form, redirect } from 'react-router';
 import invariant from 'tiny-invariant';
-import posthog from 'posthog-js';
 
 import { Container } from '~/components/Container';
 import { TextInput } from '~/components/TextInput';
@@ -9,6 +8,7 @@ import type { Route } from './+types/edit';
 import { Button } from '~/components/Button';
 import { updateUser } from '~/models/user.server';
 import React from 'react';
+import { logException } from '~/lib/posthog';
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
@@ -26,15 +26,15 @@ export async function action({ request }: Route.ActionArgs) {
         });
 
         return redirect('/profile');
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Profile update error:', error);
 
         // Track error with PostHog
-        posthog.captureException(error, {
-            userId,
+        logException(error as Error, {
             context: 'profile_edit',
             name,
             timestamp: new Date().toISOString(),
+            userId,
         });
 
         return data(

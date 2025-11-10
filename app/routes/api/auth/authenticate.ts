@@ -2,10 +2,9 @@ import { data, redirect } from 'react-router';
 import type { Route } from './+types/authenticate';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
-import posthog from 'posthog-js';
+import { logException } from '~/lib/posthog';
 
 export async function action({ request }: Route.ActionArgs) {
-    // Handle Sign Out
     if (request.method === 'DELETE') {
         try {
             await auth.api.signOut({
@@ -14,10 +13,8 @@ export async function action({ request }: Route.ActionArgs) {
 
             return redirect(Paths.HOME);
         } catch (error) {
-            // Track error with PostHog
-            posthog.captureException(error, {
+            logException(error as Error, {
                 context: 'sign_out',
-                timestamp: new Date().toISOString(),
             });
 
             return data(

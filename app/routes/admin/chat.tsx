@@ -3,6 +3,8 @@ import { useChat } from '@ai-sdk/react';
 import { TextInput } from '~/components/TextInput';
 import { ChatBubble, ChatBubbleMessage } from '~/components/ChatBubble';
 import { Container } from '~/components/Container';
+import { posthog } from 'posthog-js';
+import { logEvent } from '~/lib/posthog';
 
 export default function ChatRoute() {
     const [input, setInput] = useState('');
@@ -15,6 +17,10 @@ export default function ChatRoute() {
                     e.preventDefault();
                     sendMessage({ text: input });
                     setInput('');
+
+                    logEvent('chat_message_sent', {
+                        message: input,
+                    });
                 }}
             >
                 <TextInput

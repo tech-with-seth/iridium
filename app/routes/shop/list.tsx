@@ -1,5 +1,4 @@
 import { data, Link } from 'react-router';
-import posthog from 'posthog-js';
 
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
@@ -10,6 +9,7 @@ import { formatToCurrency } from '~/lib/formatters';
 import { polarClient } from '~/lib/polar.server';
 import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 import type { Route } from './+types/list';
+import { logException } from '~/lib/posthog';
 
 export async function loader() {
     try {
@@ -23,7 +23,7 @@ export async function loader() {
         console.error('Product list error:', error);
 
         // Track error with PostHog
-        posthog.captureException(error, {
+        logException(error as Error, {
             context: 'shop_loader',
         });
 
