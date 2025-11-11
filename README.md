@@ -20,6 +20,19 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Email** - Resend integration with React Email templates, BetterAuth email flows, and centralized API endpoint
 - **Documentation** - Comprehensive patterns documented in `.github/instructions/`
 
+## 🚀 Getting Started
+
+**New to Iridium?** Start here: **[Getting Started Guide](./GETTING_STARTED.md)**
+
+The Getting Started guide provides a concise, single-page reference for:
+
+- Initial setup steps (clone, install, environment variables, database)
+- Common commands you'll use daily
+- Post-feature development checklist
+- Critical gotchas and troubleshooting tips
+
+For detailed documentation on specific topics, see the sections below.
+
 ## 🏗️ Architecture
 
 ### Tech Stack
@@ -51,11 +64,14 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 
 ## 🛠️ Setup
 
+> **Quick Start:** See **[GETTING_STARTED.md](./GETTING_STARTED.md)** for a concise setup guide.
+
 ### Prerequisites
 
-- Node.js 20+
-- PostgreSQL database
-- OpenAI API key (optional, for AI features)
+- Node.js 20+ (`.nvmrc` included - use `nvm use` to switch automatically)
+- PostgreSQL database (see [GETTING_STARTED.md](./GETTING_STARTED.md) for installation options)
+- Resend API key (required for authentication emails - free tier available at [resend.com](https://resend.com))
+- OpenAI API key (optional, only needed for AI features)
 
 ### Installation
 
@@ -63,7 +79,7 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 
     ```bash
     git clone <your-repo>
-    cd iridium
+    cd <YOUR_PROJECT_NAME>
     npm install
     ```
 
@@ -71,30 +87,41 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 
     ```bash
     cp .env.example .env
+    # Edit .env with your values
     ```
 
-    Edit `.env` with your values:
+    **Required variables:**
     - `DATABASE_URL` - PostgreSQL connection string
-    - `BETTER_AUTH_SECRET` - Random secret (min 32 characters) for session encryption
+    - `BETTER_AUTH_SECRET` - Generate with `openssl rand -base64 32` (min 32 chars)
     - `BETTER_AUTH_URL` - Your app URL (`http://localhost:5173` for dev)
-    - `OPENAI_API_KEY` - Your OpenAI API key (optional)
-    - `POSTHOG_API_KEY` - PostHog API key for client-side analytics (optional)
-    - `POSTHOG_PROJECT_ID` - PostHog project ID (optional)
-    - `POSTHOG_PERSONAL_API_KEY` - PostHog personal API key for server-side operations (optional)
-    - `POLAR_ACCESS_TOKEN` - Polar.sh access token (optional, for billing)
-    - `POLAR_SERVER` - "sandbox" or "production" (optional)
-    - `POLAR_SUCCESS_URL` - Checkout success redirect URL (optional)
-    - `POLAR_WEBHOOK_SECRET` - Polar webhook secret (optional)
-    - `RESEND_API_KEY` - Resend API key for sending emails (required)
-    - `RESEND_FROM_EMAIL` - Default sender email address (optional, defaults to `onboarding@resend.dev`)
+    - `RESEND_API_KEY` - Resend API key for sending emails ([get free key](https://resend.com))
+    - `RESEND_FROM_EMAIL` - Sender email (use `onboarding@resend.dev` for testing)
+
+    **Optional variables:**
+    - `OPENAI_API_KEY` - Your OpenAI API key (only if using AI features)
+    - `VITE_POSTHOG_API_KEY`, `POSTHOG_PERSONAL_API_KEY`, `VITE_POSTHOG_PROJECT_ID` - PostHog analytics
+    - `POLAR_ACCESS_TOKEN`, `POLAR_SERVER`, `POLAR_WEBHOOK_SECRET` - Polar.sh billing integration
+
+    See [`.env.example`](./.env.example) for full documentation.
 
 3. **Set up the database**
+
+    Create the database first:
+
+    ```bash
+    createdb iridium
+    # Or use Docker: docker run --name iridium-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=iridium -p 5432:5432 -d postgres:16
+    ```
+
+    Then run migrations and seed data:
 
     ```bash
     npx prisma generate
     npx prisma migrate deploy
     npm run seed
     ```
+
+    Login credentials: `admin@iridium.com` / `Admin123!` (see [GETTING_STARTED.md](./GETTING_STARTED.md) for all test users)
 
 4. **Start development server**
 
