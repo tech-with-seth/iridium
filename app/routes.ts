@@ -25,10 +25,8 @@ export default [
         route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
         route(Paths.PORTAL, 'routes/shop/portal.tsx'),
         route(Paths.SUCCESS, 'routes/success.tsx'),
-        ...prefix(Paths.ADMIN, [
-            route(Paths.DESIGN, 'routes/admin/design.tsx'),
-            route(Paths.CHAT, 'routes/admin/chat.tsx'),
-        ]),
+        route(Paths.DESIGN, 'routes/design.tsx'),
+        route(Paths.CHAT, 'routes/chat.tsx'),
         ...prefix(Paths.PROFILE, [
             index('routes/profile/index.tsx'),
             route('edit', 'routes/profile/edit.tsx'),
@@ -44,6 +42,7 @@ export default [
         route(Paths.PROFILE, 'routes/api/profile.ts'),
         route('email', 'routes/api/email.ts'),
         route('chat', 'routes/api/chat.ts'),
+        route('polar/webhook', 'routes/api/polar/webhook.ts'),
         ...prefix(Paths.POSTHOG, [
             route('feature-flags', 'routes/api/posthog/feature-flags.ts'),
         ]),
