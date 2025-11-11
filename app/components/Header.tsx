@@ -33,6 +33,9 @@ export function Header() {
                                     <NavbarMenuItem>
                                         <Link to="/dashboard">Dashboard</Link>
                                     </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to="/portal">Portal</Link>
+                                    </NavbarMenuItem>
                                     {data?.role === 'ADMIN' && (
                                         <>
                                             <NavbarMenuItem>

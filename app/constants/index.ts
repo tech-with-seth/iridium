@@ -1,7 +1,7 @@
 export enum Paths {
+    ABOUT = '/about',
     ADMIN = '/admin',
     API = '/api',
-    ABOUT = '/about',
     AUTH = '/auth',
     AUTHENTICATE = '/authenticate',
     BILLING = '/billing',
@@ -14,11 +14,13 @@ export enum Paths {
     INVITATIONS = '/invitations',
     ORGANIZATIONS = '/organizations',
     PAYMENT_SUCCESS = '/payment/success',
-    PROFILE = '/profile',
+    PORTAL = '/portal',
     POSTHOG = '/posthog',
+    PROFILE = '/profile',
     RESET_PASSWORD = '/reset-password',
     SHOP = '/shop',
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
+    SUCCESS = '/success',
     VERIFY_EMAIL = '/verify-email',
 }
