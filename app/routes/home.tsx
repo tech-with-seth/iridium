@@ -5,11 +5,7 @@ import { useRootData } from '~/hooks/useRootData';
 
 export default function Home() {
     const data = useRootData();
-
     const homePageHeroActive = data?.flagsMap['home_page_hero_image'];
-    const heroImage = homePageHeroActive
-        ? `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273336/unsplash/uve-sanchez-9DRX_cW48RQ-unsplash.jpg)] bg-center`
-        : `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762273334/unsplash/possessed-photography-M7V9rglHaFE-unsplash.jpg)] bg-[50%_75%]`;
 
     return (
         <>
@@ -26,8 +22,11 @@ export default function Home() {
                 )}
                 <div
                     className={cx(
-                        `bg-cover rounded-xl h-[30rem] border border-black mb-8`,
-                        heroImage,
+                        `bg-bottom bg-cover rounded-xl h-120 border border-black mb-8`,
+                        homePageHeroActive &&
+                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-1.png)]`,
+                        !homePageHeroActive &&
+                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-2.png)]`,
                     )}
                 ></div>
                 <h1 className="text-5xl font-bold mb-8">Iridium</h1>

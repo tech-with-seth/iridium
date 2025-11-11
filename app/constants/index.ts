@@ -1,6 +1,5 @@
 export enum Paths {
     ABOUT = '/about',
-    ADMIN = '/admin',
     API = '/api',
     AUTH = '/auth',
     AUTHENTICATE = '/authenticate',

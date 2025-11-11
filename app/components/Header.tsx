@@ -36,20 +36,12 @@ export function Header() {
                                     <NavbarMenuItem>
                                         <Link to="/portal">Portal</Link>
                                     </NavbarMenuItem>
-                                    {data?.role === 'ADMIN' && (
-                                        <>
-                                            <NavbarMenuItem>
-                                                <Link to="/admin/design">
-                                                    Design
-                                                </Link>
-                                            </NavbarMenuItem>
-                                            <NavbarMenuItem>
-                                                <Link to="/admin/chat">
-                                                    Chat
-                                                </Link>
-                                            </NavbarMenuItem>
-                                        </>
-                                    )}
+                                    <NavbarMenuItem>
+                                        <Link to="/design">Design</Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to="/chat">Chat</Link>
+                                    </NavbarMenuItem>
                                 </>
                             )}
                         </NavbarMenu>
