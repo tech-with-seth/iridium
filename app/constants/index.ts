@@ -21,5 +21,6 @@ export enum Paths {
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
     SUCCESS = '/success',
+    WEBHOOKS = '/webhooks',
     VERIFY_EMAIL = '/verify-email',
 }
