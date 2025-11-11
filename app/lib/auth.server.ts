@@ -1,17 +1,11 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import {
-    polar,
-    usage,
-    // checkout,
-    // portal,
-    // webhooks,
-} from '@polar-sh/better-auth';
+import { polar, usage, portal } from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
 import { polarClient } from './polar.server';
 import {
-    sendVerificationEmail,
+    // sendVerificationEmail,
     sendPasswordResetEmail,
 } from '~/models/email.server';
 
@@ -69,7 +63,7 @@ export const auth = betterAuth({
                 //         process.env.POLAR_SUCCESS_URL || '/payment/success',
                 //     authenticatedUsersOnly: true,
                 // }),
-                // portal(),
+                portal(),
                 usage(),
                 // webhooks({
                 //     secret: process.env.POLAR_WEBHOOK_SECRET!,
