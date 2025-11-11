@@ -42,7 +42,9 @@ export default [
         route(Paths.PROFILE, 'routes/api/profile.ts'),
         route('email', 'routes/api/email.ts'),
         route('chat', 'routes/api/chat.ts'),
-        route('polar/webhook', 'routes/api/polar/webhook.ts'),
+        ...prefix(Paths.WEBHOOKS, [
+            route('polar', 'routes/api/webhooks/polar.ts'),
+        ]),
         ...prefix(Paths.POSTHOG, [
             route('feature-flags', 'routes/api/posthog/feature-flags.ts'),
         ]),
