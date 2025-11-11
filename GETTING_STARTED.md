@@ -185,6 +185,16 @@ Dev server auto-generates route types. If types are missing, run `npm run typech
 
 ## Where to Go Next
 
+### Build Your First Feature
+
+**Start here if you're ready to build:**
+
+- **[Build Your First Feature](./BUILD_YOUR_FIRST_FEATURE.md)** - Complete bookmarks CRUD tutorial (20 mins)
+- **[Form Building Guide](./FORM_BUILDING.md)** - All form patterns with React Hook Form + Zod
+- **[Image Handling Guide](./IMAGE_HANDLING.md)** - File uploads with Cloudinary
+
+### Reference Documentation
+
 - **Development patterns**: [`docs/development.md`](./docs/development.md)
 - **Routing & route types**: [`docs/routing.md`](./docs/routing.md)
 - **Database/Prisma**: [`docs/decisions/003-postgresql-prisma.md`](./docs/decisions/003-postgresql-prisma.md)
