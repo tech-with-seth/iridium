@@ -29,16 +29,22 @@ npm run dev
 
 ### Core Concepts
 
+- **[Getting Started](./GETTING_STARTED.md)** - Quick start guide with setup steps and common commands
 - [Authentication](./authentication.md) - Better Auth setup with Polar billing integration
 - [Email](./email.md) - Resend email service with React Email templates
 - [Routing](./routing.md) - React Router 7 patterns and conventions
 - [Forms](./forms.md) - Form validation with Zod and React Hook Form
+- [Form Building](./form-building.md) - Comprehensive form building patterns and best practices
 - [Components](./components.md) - DaisyUI and CVA component patterns
 - [Custom Theming](./custom-theming.md) - Creating and customizing DaisyUI themes
 - [AI Chat Integration](./ai.md) - Vercel AI SDK endpoint and streaming chat workflow
+- [Image Handling](./image-handling.md) - Cloudinary integration for image uploads and transformations
+- [Multi-tenancy](./multi-tenancy.md) - Organization and invitation system
 
 ### Development
 
+- **[Build Your First Feature](./build-your-first-feature.md)** - Step-by-step guide for building features
+- **[Common Commands](./common-commands.md)** - Frequently used development commands
 - [Development Workflow](./development.md) - Day-to-day development practices
 - [Testing](./testing.md) - Unit and end-to-end testing with Vitest and Playwright
 - [Contributing](./contributing.md) - Guidelines for contributing to the project
@@ -90,6 +96,7 @@ We document significant architectural decisions in the [decisions](./decisions/R
 - **Resend** - Transactional email service
 - **React Email** - Email template development
 - **OpenAI** - AI SDK integration
+- **Cloudinary** - Image upload and transformation service
 
 ### Testing
 
@@ -105,7 +112,7 @@ We document significant architectural decisions in the [decisions](./decisions/R
 
 ## Project Structure
 
-```
+```text
 iridium/
 ├── app/
 │   ├── routes/              # Route components and loaders
@@ -120,7 +127,6 @@ iridium/
 ├── prisma/                  # Database schema and migrations
 ├── public/                  # Static assets
 └── tests/                   # End-to-end tests
-
 ```
 
 ## Getting Help

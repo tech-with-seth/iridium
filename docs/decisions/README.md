@@ -45,6 +45,10 @@ Each ADR follows this structure:
 
 - [007: Flat-Cache](./007-flat-cache.md) - Server-side caching
 
+### Testing and CI/CD
+
+- [007: Simplified CI Testing](./007-simplified-ci-testing.md) - Testing strategy and CI/CD approach
+
 ### Analytics and Billing
 
 - [008: PostHog Analytics](./008-posthog.md) - Product analytics
