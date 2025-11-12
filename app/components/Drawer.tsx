@@ -50,7 +50,9 @@ export function Drawer({
                 checked={isOpen}
                 readOnly
             />
-            <div className="drawer-content">{children}</div>
+            <div className="drawer-content flex min-h-0 flex-1 flex-col">
+                {children}
+            </div>
             <div className="drawer-side">
                 <label
                     htmlFor={id}

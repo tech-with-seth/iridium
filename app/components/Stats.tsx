@@ -5,7 +5,7 @@ interface StatsContainerProps {}
 export function StatsContainer({
     children,
 }: PropsWithChildren<StatsContainerProps>) {
-    return <div className="stats shadow">{children}</div>;
+    return <div className="stats shadow w-full">{children}</div>;
 }
 
 interface StatsBoxProps {}

@@ -8,6 +8,7 @@ import { useRootData } from '~/hooks/useRootData';
 
 export function Header() {
     const data = useRootData();
+    const isSignedIn = Boolean(data?.user?.id);
 
     return (
         <header className="my-4">
@@ -25,16 +26,10 @@ export function Header() {
                             <NavbarMenuItem>
                                 <Link to="/">Home</Link>
                             </NavbarMenuItem>
-                            <NavbarMenuItem>
-                                <Link to="/shop">Shop</Link>
-                            </NavbarMenuItem>
-                            {data?.user?.id && (
+                            {isSignedIn && (
                                 <>
                                     <NavbarMenuItem>
                                         <Link to="/dashboard">Dashboard</Link>
-                                    </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to="/portal">Portal</Link>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem>
                                         <Link to="/design">Design</Link>
@@ -44,17 +39,23 @@ export function Header() {
                                     </NavbarMenuItem>
                                 </>
                             )}
+                            <NavbarMenuItem>
+                                <Link to="/shop">Shop</Link>
+                            </NavbarMenuItem>
                         </NavbarMenu>
                     }
                     end={
                         <NavbarMenu>
-                            {data?.user?.id ? (
+                            {isSignedIn ? (
                                 <>
                                     <NavbarMenuItem>
                                         <Link to="/profile">
                                             <UserCircleIcon className="inline-block mr-2" />
                                             {data?.user?.name}
                                         </Link>
+                                    </NavbarMenuItem>
+                                    <NavbarMenuItem>
+                                        <Link to="/portal">Portal</Link>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem>
                                         <Link to={Paths.SIGN_OUT}>

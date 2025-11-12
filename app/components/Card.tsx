@@ -3,11 +3,11 @@ import { cva, cx } from '~/cva.config';
 import type { ReactNode } from 'react';
 
 export const cardVariants = cva({
-    base: 'card',
+    base: 'card shadow-sm',
     variants: {
         variant: {
-            border: 'card-border border-2 border-base-300',
-            dash: 'card-dash border-2 border-base-300',
+            border: 'card-border',
+            dash: 'card-dash',
         },
         size: {
             xs: 'card-xs',
