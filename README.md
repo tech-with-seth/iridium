@@ -8,7 +8,9 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **React 19** - Latest React with native meta tag support
 - **Authentication** - BetterAuth with Prisma adapter and session management
 - **RBAC** - Role-based access control (USER/EDITOR/ADMIN) with hierarchical permissions
-- **AI Integration** - OpenAI with Vercel AI SDK for streaming responses
+- **Multi-tenancy** - Organization and invitation system with team management
+- **AI Integration** - OpenAI with Vercel AI SDK for streaming chat responses
+- **E-commerce** - Shop functionality with product listings, checkout, and customer portal
 - **Database** - PostgreSQL with Prisma ORM (custom output path)
 - **Model Layer Pattern** - All database operations abstracted through `app/models/` functions
 - **Styling** - DaisyUI 5 + TailwindCSS v4 with CVA for type-safe variants
@@ -16,13 +18,15 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Form Handling** - React Hook Form + Zod with server/client validation
 - **Caching** - Three-tier caching strategy: client-side route caching, model layer caching, manual caching
 - **Analytics** - PostHog integration for product analytics and feature flags
-- **Billing** - Polar.sh integration via BetterAuth plugin (optional)
+- **Billing** - Polar.sh integration via BetterAuth plugin with webhook support
 - **Email** - Resend integration with React Email templates, BetterAuth email flows, and centralized API endpoint
+- **Image Handling** - Cloudinary integration for image uploads and transformations
+- **Testing** - Comprehensive testing setup with Vitest (unit) and Playwright (e2e)
 - **Documentation** - Comprehensive patterns documented in `.github/instructions/`
 
 ## 🚀 Getting Started
 
-**New to Iridium?** Start here: **[Getting Started Guide](./GETTING_STARTED.md)**
+**New to Iridium?** Start here: **[Getting Started Guide](./docs/GETTING_STARTED.md)**
 
 The Getting Started guide provides a concise, single-page reference for:
 
@@ -44,8 +48,10 @@ For detailed documentation on specific topics, see the sections below.
 - **Styling**: CVA (Class Variance Authority) for type-safe component variants
 - **Forms**: React Hook Form + Zod validation
 - **Caching**: FlatCache with TTL support (three-tier strategy)
-- **Billing**: Polar.sh integration via BetterAuth plugin (optional)
+- **Billing**: Polar.sh integration via BetterAuth plugin with webhooks
 - **Email**: Resend with React Email templates
+- **Images**: Cloudinary for uploads and transformations
+- **Testing**: Vitest (unit/integration), Playwright (e2e)
 
 ### Key Patterns
 
@@ -64,14 +70,15 @@ For detailed documentation on specific topics, see the sections below.
 
 ## 🛠️ Setup
 
-> **Quick Start:** See **[GETTING_STARTED.md](./GETTING_STARTED.md)** for a concise setup guide.
+> **Quick Start:** See **[GETTING_STARTED.md](./docs/GETTING_STARTED.md)** for a concise setup guide.
 
 ### Prerequisites
 
 - Node.js 20+ (`.nvmrc` included - use `nvm use` to switch automatically)
-- PostgreSQL database (see [GETTING_STARTED.md](./GETTING_STARTED.md) for installation options)
+- PostgreSQL database (see [GETTING_STARTED.md](./docs/GETTING_STARTED.md) for installation options)
 - Resend API key (required for authentication emails - free tier available at [resend.com](https://resend.com))
 - OpenAI API key (optional, only needed for AI features)
+- Cloudinary account (optional, only needed for image upload features)
 
 ### Installation
 
@@ -94,13 +101,16 @@ For detailed documentation on specific topics, see the sections below.
     - `DATABASE_URL` - PostgreSQL connection string
     - `BETTER_AUTH_SECRET` - Generate with `openssl rand -base64 32` (min 32 chars)
     - `BETTER_AUTH_URL` - Your app URL (`http://localhost:5173` for dev)
+    - `VITE_BETTER_AUTH_BASE_URL` - Frontend base URL (`http://localhost:5173` for dev)
+    - `ADMIN_EMAIL` - Admin user email for seeding
     - `RESEND_API_KEY` - Resend API key for sending emails ([get free key](https://resend.com))
     - `RESEND_FROM_EMAIL` - Sender email (use `onboarding@resend.dev` for testing)
 
     **Optional variables:**
     - `OPENAI_API_KEY` - Your OpenAI API key (only if using AI features)
-    - `VITE_POSTHOG_API_KEY`, `POSTHOG_PERSONAL_API_KEY`, `VITE_POSTHOG_PROJECT_ID` - PostHog analytics
-    - `POLAR_ACCESS_TOKEN`, `POLAR_SERVER`, `POLAR_WEBHOOK_SECRET` - Polar.sh billing integration
+    - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` - Cloudinary image uploads
+    - `POLAR_ACCESS_TOKEN`, `POLAR_ORGANIZATION_ID`, `POLAR_SERVER`, `POLAR_WEBHOOK_SECRET`, `POLAR_RETURN_URL`, `POLAR_SUCCESS_URL` - Polar.sh billing
+    - `POSTHOG_PERSONAL_API_KEY`, `POSTHOG_PROJECT_ID`, `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_HOST` - PostHog analytics
 
     See [`.env.example`](./.env.example) for full documentation.
 
@@ -121,7 +131,7 @@ For detailed documentation on specific topics, see the sections below.
     npm run seed
     ```
 
-    Login credentials: `admin@iridium.com` / `Admin123!` (see [GETTING_STARTED.md](./GETTING_STARTED.md) for all test users)
+    Login credentials: `admin@iridium.com` / `Admin123!` (see [GETTING_STARTED.md](./docs/GETTING_STARTED.md) for all test users)
 
 4. **Start development server**
 
@@ -138,9 +148,12 @@ app/
 ├── components/           # UI components (CVA-based with DaisyUI)
 │   ├── Button.tsx       # Canonical CVA component example
 │   ├── TextInput.tsx    # Form input pattern
-│   ├── Card.tsx, Modal.tsx, etc.
+│   ├── Card.tsx, Modal.tsx, ChatBubble.tsx
+│   ├── Navbar.tsx, Footer.tsx, Header.tsx
+│   ├── Drawer.tsx, FileInput.tsx, Spinner.tsx
+│   └── ... (30+ components)
 ├── constants/
-│   └── index.ts         # Path constants enum
+│   └── index.ts         # Path constants enum (all routes)
 ├── emails/              # React Email templates
 │   ├── verification-email.tsx
 │   ├── password-reset-email.tsx
@@ -150,44 +163,63 @@ app/
 │   └── prisma/          # Prisma client (custom output path)
 ├── hooks/
 │   ├── useAuthenticatedContext.ts
-│   └── useUserRole.ts   # RBAC hooks (client-side only)
+│   ├── useUserRole.ts        # RBAC hooks (client-side only)
+│   ├── useDrawer.ts          # Drawer state management
+│   └── useRootData.ts        # Root loader data access
 ├── lib/
-│   ├── auth.server.ts        # BetterAuth configuration (with Polar plugin)
-│   ├── auth-client.ts        # Client-side auth
-│   ├── session.server.ts     # Session helpers (requireUser, requireRole, etc.)
-│   ├── ai.ts                 # OpenAI client singleton
-│   ├── cache.ts              # FlatCache with three-tier caching utilities
-│   ├── polar.server.ts       # Polar SDK client singleton
-│   ├── resend.server.ts      # Resend SDK client singleton
-│   ├── form-hooks.ts         # useValidatedForm hook
+│   ├── auth.server.ts             # BetterAuth configuration (with Polar plugin)
+│   ├── auth-client.ts             # Client-side auth
+│   ├── session.server.ts          # Session helpers (requireUser, requireRole, etc.)
+│   ├── ai.ts                      # OpenAI client singleton
+│   ├── cache.server.ts            # Server-side caching utilities
+│   ├── cache.ts                   # FlatCache with three-tier caching
+│   ├── polar.server.ts            # Polar SDK client singleton
+│   ├── posthog.server.ts          # PostHog server-side client
+│   ├── posthog.ts                 # PostHog client-side utilities
+│   ├── resend.server.ts           # Resend SDK client singleton
+│   ├── form-hooks.ts              # useValidatedForm hook
 │   ├── form-validation.server.ts  # Server-side form validation
-│   └── validations.ts        # Zod schemas
+│   ├── validations.ts             # Zod schemas
+│   └── formatters.ts              # Utility formatters
 ├── middleware/
 │   ├── auth.ts               # Authentication middleware
 │   ├── context.ts            # React Router contexts
 │   └── logging.ts            # Request logging
 ├── models/                   # Model layer (data access layer)
 │   ├── user.server.ts        # User CRUD operations
-│   ├── email.server.ts       # Email operations (Resend)
-│   └── feature-flags.server.ts  # PostHog feature flags with caching
+│   ├── organization.server.ts     # Organization operations
+│   ├── invitation.server.ts       # Invitation operations
+│   ├── email.server.ts            # Email operations (Resend)
+│   └── feature-flags.server.ts    # PostHog feature flags with caching
 ├── routes/
 │   ├── api/
 │   │   ├── auth/
-│   │   │   ├── authenticate.ts   # Central auth endpoint
-│   │   │   └── better-auth.ts    # BetterAuth handler
+│   │   │   ├── authenticate.ts      # Central auth endpoint
+│   │   │   └── better-auth.ts       # BetterAuth handler
 │   │   ├── posthog/
-│   │   │   └── feature-flags.server.ts  # Feature flags API
-│   │   ├── email.server.ts       # Email API (send from anywhere)
-│   │   └── profile.server.ts     # Profile API (canonical CRUD example)
-│   ├── admin/
-│   │   └── design.tsx            # Component showcase
-│   ├── authenticated.tsx         # Protected layout with middleware
-│   ├── dashboard.tsx             # User dashboard
-│   ├── profile.tsx               # User profile page
-│   ├── home.tsx                  # Landing page
-│   ├── about.tsx                 # About page
-│   ├── sign-in.tsx               # Sign in page
-│   └── sign-out.tsx              # Sign out handler
+│   │   │   └── feature-flags.ts     # Feature flags API
+│   │   ├── webhooks/
+│   │   │   └── polar.ts             # Polar webhook handler
+│   │   ├── chat.ts                  # AI chat endpoint
+│   │   ├── cloudinary.ts            # Cloudinary upload endpoint
+│   │   ├── email.ts                 # Email API (send from anywhere)
+│   │   └── profile.ts               # Profile API (canonical CRUD example)
+│   ├── profile/
+│   │   ├── index.tsx            # Profile view page
+│   │   └── edit.tsx             # Profile edit page
+│   ├── shop/
+│   │   ├── list.tsx             # Shop product listing
+│   │   ├── detail.tsx           # Product detail page
+│   │   ├── checkout.tsx         # Checkout page
+│   │   └── portal.tsx           # Customer portal (protected)
+│   ├── authenticated.tsx        # Protected layout with middleware
+│   ├── dashboard.tsx            # User dashboard
+│   ├── design.tsx               # Component showcase
+│   ├── chat.tsx                 # AI chat interface
+│   ├── success.tsx              # Success page (post-checkout)
+│   ├── home.tsx                 # Landing page
+│   ├── sign-in.tsx              # Sign in page
+│   └── sign-out.tsx             # Sign out handler
 ├── types/
 │   └── posthog.ts        # PostHog type definitions
 ├── cva.config.ts         # CVA utilities (cx, cva, compose)
@@ -209,18 +241,39 @@ Routes are configured in `app/routes.ts` using React Router 7's config-based app
 
 ```typescript
 export default [
+    // Public routes
     index('routes/home.tsx'),
-    route(Paths.ABOUT, 'routes/about.tsx'),
     route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
+    route(Paths.SIGN_OUT, 'routes/sign-out.tsx'),
+    route(Paths.SHOP, 'routes/shop/list.tsx'),
+    route(Paths.PRODUCT_DETAIL, 'routes/shop/detail.tsx'),
+    route(Paths.CHECKOUT, 'routes/shop/checkout.tsx'),
+    // Protected routes
     layout('routes/authenticated.tsx', [
         route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-        route(Paths.PROFILE, 'routes/profile.tsx'),
-        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')]),
+        route(Paths.PORTAL, 'routes/shop/portal.tsx'),
+        route(Paths.SUCCESS, 'routes/success.tsx'),
+        route(Paths.DESIGN, 'routes/design.tsx'),
+        route(Paths.CHAT, 'routes/chat.tsx'),
+        ...prefix(Paths.PROFILE, [
+            index('routes/profile/index.tsx'),
+            route(Paths.PROFILE_EDIT, 'routes/profile/edit.tsx'),
+        ]),
     ]),
-    ...prefix('api', [
-        route('authenticate', 'routes/api/auth/authenticate.ts'),
-        route('auth/*', 'routes/api/auth/better-auth.ts'),
-        route('profile', 'routes/api/profile.ts'),
+    // API routes
+    ...prefix(Paths.API, [
+        route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+        route(Paths.CLOUDINARY, 'routes/api/cloudinary.ts'),
+        route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
+        route(Paths.PROFILE, 'routes/api/profile.ts'),
+        route(Paths.EMAIL, 'routes/api/email.ts'),
+        route(Paths.CHAT, 'routes/api/chat.ts'),
+        ...prefix(Paths.WEBHOOKS, [
+            route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
+        ]),
+        ...prefix(Paths.POSTHOG, [
+            route(Paths.FEATURE_FLAGS, 'routes/api/posthog/feature-flags.ts'),
+        ]),
     ]),
 ] satisfies RouteConfig;
 ```
@@ -242,8 +295,11 @@ BetterAuth is configured with:
 
 The Prisma schema includes:
 
-- **User model** - Email, name, profile fields (bio, website, location, phoneNumber)
+- **User model** - Email, name, profile fields (bio, website, location, phoneNumber), organization relationships
+- **Organization model** - Multi-tenancy support with name, slug, and member management
+- **Invitation model** - Organization invitation system with email and status tracking
 - **BetterAuth models** - Account, Session, Verification
+- **Polar models** - PolarCustomer, PolarSubscription (for billing integration)
 - **Custom output path** - Client generated to `app/generated/prisma` (not default location)
 
 ## 🎯 Usage Examples
@@ -360,16 +416,28 @@ This project includes comprehensive pattern documentation in `.github/instructio
 
 ### Core Patterns
 
+- **`api-endpoints.instructions.md`** - RESTful API endpoint patterns
 - **`caching-pattern.instructions.md`** - Three-tier caching strategy (client-side, model layer, manual)
+- **`client-side-caching.instructions.md`** - Client-side caching with React Router
 - **`crud-pattern.instructions.md`** - API-first CRUD implementation patterns
+- **`error-boundaries.instructions.md`** - Error handling and boundaries
+- **`error-tracking.instructions.md`** - Error tracking with PostHog
+- **`feature-flags.instructions.md`** - Feature flag implementation patterns
 - **`form-validation.instructions.md`** - Universal form validation with React Hook Form + Zod
-- **`role-based-access.instructions.md`** - RBAC patterns with hierarchical roles
+- **`horizontal-slice.instructions.md`** - Horizontal code organization patterns
+- **`vertical-slice.instructions.md`** - Vertical slice architecture patterns
+- **`pure-functions.instructions.md`** - Pure function patterns and best practices
+- **`role-based-access-control.instructions.md`** - RBAC patterns with hierarchical roles
+- **`seo.instructions.md`** - SEO optimization with React 19 meta tags
 
 ### Framework-Specific
 
 - **`better-auth.instructions.md`** - Authentication flows and session management
 - **`react-router.instructions.md`** - Config-based routing patterns
+- **`routing.instructions.md`** - Additional routing patterns and conventions
 - **`prisma.instructions.md`** - Database patterns and custom Prisma configuration
+- **`react-hook-form.instructions.md`** - Form handling with React Hook Form
+- **`zod.instructions.md`** - Schema validation with Zod
 
 ### Component Development
 
@@ -377,11 +445,20 @@ This project includes comprehensive pattern documentation in `.github/instructio
 - **`cva.instructions.md`** - Class Variance Authority usage
 - **`daisyui.instructions.md`** - DaisyUI component library integration
 
+### Testing
+
+- **`unit-testing.instructions.md`** - Unit testing with Vitest
+- **`playwright.instructions.md`** - E2E testing with Playwright
+
 ### Integrations
 
 - **`polar.instructions.md`** - Polar billing integration via BetterAuth plugin
 - **`posthog.instructions.md`** - PostHog analytics, feature flags, and error tracking
 - **`resend.instructions.md`** - Resend email integration with React Email templates and BetterAuth
+
+### Configuration
+
+- **`env.instructions.md`** - Environment variable configuration and management
 
 All patterns include:
 
@@ -460,9 +537,12 @@ npx prisma migrate deploy
 - [Vercel AI SDK](https://sdk.vercel.ai) - AI integration and streaming
 - [React Hook Form](https://react-hook-form.com) - Form validation patterns
 - [Zod Docs](https://zod.dev) - Schema validation
-- [Polar.sh Docs](https://docs.polar.sh) - Billing integration (optional)
+- [Polar.sh Docs](https://docs.polar.sh) - Billing integration
 - [Resend Docs](https://resend.com/docs) - Email service integration
 - [React Email Docs](https://react.email/docs) - Email template development
+- [Cloudinary Docs](https://cloudinary.com/documentation) - Image upload and transformation
+- [Vitest Docs](https://vitest.dev) - Unit testing framework
+- [Playwright Docs](https://playwright.dev) - End-to-end testing
 
 ## 🤝 Contributing
 

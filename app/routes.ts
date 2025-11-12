@@ -16,8 +16,8 @@ export default [
     route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
     route(Paths.SIGN_OUT, 'routes/sign-out.tsx'),
     route(Paths.SHOP, 'routes/shop/list.tsx'),
-    route(`${Paths.SHOP}/:productId`, 'routes/shop/detail.tsx'),
-    route(`${Paths.SHOP}/checkout`, 'routes/shop/checkout.tsx'),
+    route(Paths.PRODUCT_DETAIL, 'routes/shop/detail.tsx'),
+    route(Paths.CHECKOUT, 'routes/shop/checkout.tsx'),
     // ========================
     // PROTECTED ROUTES
     // ========================
@@ -29,7 +29,7 @@ export default [
         route(Paths.CHAT, 'routes/chat.tsx'),
         ...prefix(Paths.PROFILE, [
             index('routes/profile/index.tsx'),
-            route('edit', 'routes/profile/edit.tsx'),
+            route(Paths.PROFILE_EDIT, 'routes/profile/edit.tsx'),
         ]),
     ]),
     // ========================
@@ -38,15 +38,15 @@ export default [
     ...prefix(Paths.API, [
         route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
         route(Paths.CLOUDINARY, 'routes/api/cloudinary.ts'),
-        route(`${Paths.AUTH}/*`, 'routes/api/auth/better-auth.ts'),
+        route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
         route(Paths.PROFILE, 'routes/api/profile.ts'),
-        route('email', 'routes/api/email.ts'),
-        route('chat', 'routes/api/chat.ts'),
+        route(Paths.EMAIL, 'routes/api/email.ts'),
+        route(Paths.CHAT, 'routes/api/chat.ts'),
         ...prefix(Paths.WEBHOOKS, [
-            route('polar', 'routes/api/webhooks/polar.ts'),
+            route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
         ]),
         ...prefix(Paths.POSTHOG, [
-            route('feature-flags', 'routes/api/posthog/feature-flags.ts'),
+            route(Paths.FEATURE_FLAGS, 'routes/api/posthog/feature-flags.ts'),
         ]),
     ]),
 ] satisfies RouteConfig;
