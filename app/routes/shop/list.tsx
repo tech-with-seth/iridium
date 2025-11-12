@@ -52,23 +52,37 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
             <Container>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
                     {loaderData.products.map((product) => (
-                        <Link to={`${product.id}`} key={product.id} className="block">
-                            <Card variant="border" className="overflow-hidden group hover:shadow-lg transition">
-                                <div className="w-full bg-base-200 aspect-[4/3] flex items-center justify-center overflow-hidden">
-                                    {product.medias && product.medias.length > 0 ? (
+                        <Link
+                            to={`${product.id}`}
+                            key={product.id}
+                            className="block"
+                        >
+                            <Card
+                                variant="border"
+                                className="overflow-hidden group hover:shadow-lg transition"
+                            >
+                                <div className="w-full bg-base-200 aspect-4/3 flex items-center justify-center overflow-hidden">
+                                    {product.medias &&
+                                    product.medias.length > 0 ? (
                                         <img
                                             src={product.medias[0].publicUrl}
                                             alt={product.name}
                                             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform"
                                         />
                                     ) : (
-                                        <div className="text-center text-base-content/50 select-none p-6">No image</div>
+                                        <div className="text-center text-base-content/50 select-none p-6">
+                                            No image
+                                        </div>
                                     )}
                                 </div>
 
                                 <div className="p-4">
-                                    <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
-                                    <p className="text-sm text-base-content/70 mb-3 line-clamp-2">{product.description}</p>
+                                    <h3 className="text-lg font-semibold mb-1">
+                                        {product.name}
+                                    </h3>
+                                    <p className="text-sm text-base-content/70 mb-3 line-clamp-2">
+                                        {product.description}
+                                    </p>
 
                                     <div className="flex items-center gap-4">
                                         <Badge color="primary" size="lg">
@@ -76,13 +90,17 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
                                                 'en-US',
                                                 'usd',
                                                 2,
-                                                (product.prices[0] as ProductPriceFixed)
-                                                    .priceAmount,
+                                                (
+                                                    product
+                                                        .prices[0] as ProductPriceFixed
+                                                ).priceAmount,
                                             )}
                                         </Badge>
 
                                         <div className="ml-auto">
-                                            <Button status="primary" size="sm">View Details</Button>
+                                            <Button status="primary" size="sm">
+                                                View Details
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
