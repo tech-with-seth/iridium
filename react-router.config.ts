@@ -1,7 +1,13 @@
 import type { Config } from '@react-router/dev/config';
+import { Polar } from '@polar-sh/sdk';
 
-import { polarClient } from './app/lib/polar.server';
 import { Paths } from './app/constants';
+
+// TODO: Figure out why I can't use polarClient from polar.server.ts here
+const polarClient = new Polar({
+    accessToken: process.env.POLAR_ACCESS_TOKEN,
+    server: 'sandbox',
+});
 
 export default {
     future: {
