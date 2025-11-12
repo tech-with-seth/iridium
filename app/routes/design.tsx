@@ -67,7 +67,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
     const [activeTab, setActiveTab] = useState(0);
 
     return (
-        <Container className="flex flex-col gap-12 py-8">
+        <Container className="flex flex-col gap-12 py-8 px-4">
             <h1 className="text-4xl font-bold">Design System Showcase</h1>
 
             {/* File Input Section */}

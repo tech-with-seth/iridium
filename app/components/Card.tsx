@@ -6,8 +6,8 @@ export const cardVariants = cva({
     base: 'card',
     variants: {
         variant: {
-            border: 'card-border',
-            dash: 'card-dash',
+            border: 'card-border border-2 border-base-300',
+            dash: 'card-dash border-2 border-base-300',
         },
         size: {
             xs: 'card-xs',
