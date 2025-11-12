@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     isRouteErrorResponse,
     Links,
@@ -23,6 +24,7 @@ import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { FeatureFlag } from './types/posthog';
 import type { Route } from './+types/root';
+import { Select } from './components/Select';
 
 import './app.css';
 
@@ -60,6 +62,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const postHogFetcher = useFetcher();
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
+
+    const [selectedTheme, setSelectedTheme] = useState<
+        'light' | 'dark' | 'emerald'
+    >('light');
 
     const DrawerContents = () => {
         const flags = data?.allFlags ?? [];
@@ -128,6 +134,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
                             </li>
                         );
                     })}
+                    <Select
+                        options={[
+                            { label: 'Light', value: 'light' },
+                            { label: 'Dark', value: 'dark' },
+                            { label: 'Abyss', value: 'abyss' },
+                            { label: 'Acid', value: 'acid' },
+                            { label: 'Aqua', value: 'aqua' },
+                            { label: 'Autumn', value: 'autumn' },
+                            { label: 'Black', value: 'black' },
+                            { label: 'Bumblebee', value: 'bumblebee' },
+                            { label: 'Business', value: 'business' },
+                            { label: 'Caramellatte', value: 'caramellatte' },
+                            { label: 'CMYK', value: 'cmyk' },
+                            { label: 'Coffee', value: 'coffee' },
+                            { label: 'Corporate', value: 'corporate' },
+                            { label: 'Cupcake', value: 'cupcake' },
+                            { label: 'Cyberpunk', value: 'cyberpunk' },
+                            { label: 'Dark', value: 'dark' },
+                            { label: 'Dim', value: 'dim' },
+                            { label: 'Dracula', value: 'dracula' },
+                            { label: 'Emerald', value: 'emerald' },
+                            { label: 'Emerald', value: 'emerald' },
+                            { label: 'Fantasy', value: 'fantasy' },
+                            { label: 'Forest', value: 'forest' },
+                            { label: 'Garden', value: 'garden' },
+                            { label: 'Halloween', value: 'halloween' },
+                            { label: 'Lemonade', value: 'lemonade' },
+                            { label: 'Lofi', value: 'lofi' },
+                            { label: 'Luxury', value: 'luxury' },
+                            { label: 'Night', value: 'night' },
+                            { label: 'Nord', value: 'nord' },
+                            { label: 'Pastel', value: 'pastel' },
+                            { label: 'Retro', value: 'retro' },
+                            { label: 'Silk', value: 'silk' },
+                            { label: 'Sunset', value: 'sunset' },
+                            { label: 'Synthwave', value: 'synthwave' },
+                            { label: 'Valentine', value: 'valentine' },
+                            { label: 'Winter', value: 'winter' },
+                            { label: 'Wireframe', value: 'wireframe' },
+                        ]}
+                        onChange={(event) =>
+                            setSelectedTheme(event.target.value as any)
+                        }
+                    />
                 </ul>
             </div>
         );
@@ -159,7 +209,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 
     return (
-        <html lang="en" className="min-h-screen">
+        <html lang="en" className="min-h-screen" data-theme={selectedTheme}>
             <head>
                 <meta charSet="utf-8" />
                 <meta

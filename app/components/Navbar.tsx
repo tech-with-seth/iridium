@@ -32,7 +32,7 @@ export function Navbar({
 }: NavbarProps) {
     return (
         <div
-            className="navbar rounded-lg lg:rounded-full shadow-lg bg-neutral text-white"
+            className="navbar rounded-lg shadow-lg bg-base-300 text-accent-content"
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}
