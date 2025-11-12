@@ -141,8 +141,12 @@ export function TabRadio({
 interface TabContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function TabContent({ children, className, ...props }: TabContentProps) {
+    // Ensure tab panels are visible by default when tabs are controlled
+    // programmatically (DaisyUI's `tab-content` can hide panels when used
+    // with native radio inputs). Adding `block` prevents it from being
+    // collapsed in our controlled usage.
     return (
-        <div className={cx('tab-content', className)} {...props}>
+        <div className={cx('tab-content block', className)} {...props}>
             {children}
         </div>
     );
