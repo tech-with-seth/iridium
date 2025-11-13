@@ -65,10 +65,10 @@ export default function ProfileEditRoute() {
 
     return (
         <Container className="space-y-8 px-4 py-8">
-            <title>Edit Profile - Iridium</title>
+            <title>Edit Profile | Iridium</title>
             <meta
                 name="description"
-                content="Update your Iridium profile details."
+                content="Update your Iridium profile details"
             />
 
             <div className="space-y-2">

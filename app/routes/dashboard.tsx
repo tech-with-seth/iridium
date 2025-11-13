@@ -388,7 +388,7 @@ export default function Dashboard() {
 
     return (
         <>
-            <title>Dashboard - Iridium</title>
+            <title>Dashboard | Iridium</title>
             <meta
                 name="description"
                 content="Overview of your Iridium account and activity."

@@ -134,7 +134,7 @@ export default function AuthPage() {
 
     return (
         <>
-            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} - Iridium`}</title>
+            <title>{`${isSignIn ? 'Sign In' : 'Sign Up'} | Iridium`}</title>
             <meta
                 name="description"
                 content={
