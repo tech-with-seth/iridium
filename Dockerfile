@@ -9,6 +9,10 @@ WORKDIR /app
 RUN npm ci --omit=dev
 
 FROM node:20-alpine AS build-env
+ARG POLAR_ACCESS_TOKEN
+ARG POLAR_ORGANIZATION_ID
+ENV POLAR_ACCESS_TOKEN=${POLAR_ACCESS_TOKEN}
+ENV POLAR_ORGANIZATION_ID=${POLAR_ORGANIZATION_ID}
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
