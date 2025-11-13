@@ -1,4 +1,5 @@
 import { posthog } from 'posthog-js';
+import { logException } from '~/lib/posthog';
 import type { FeatureFlagsResponse } from '~/types/posthog';
 
 export async function getFeatureFlags() {
@@ -19,8 +20,8 @@ export async function getFeatureFlags() {
                 `Error fetching feature flags: ${featureFlagsResponse.status} ${featureFlagsResponse.statusText}`,
             );
 
-            posthog.captureException(notOkError.message, {
-                timestamp: new Date().toISOString(),
+            logException(notOkError, {
+                context: 'feature_flags_fetch',
             });
         }
 
@@ -28,8 +29,8 @@ export async function getFeatureFlags() {
 
         return data;
     } catch (error) {
-        posthog.captureException(error, {
-            timestamp: new Date().toISOString(),
+        logException(error as Error, {
+            context: 'feature_flags_fetch',
         });
 
         return { results: [] };

@@ -69,7 +69,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         const flags = data?.allFlags ?? [];
 
         return (
-            <div>
+            <>
+                <h2 className="mb-4 text-lg font-semibold">Admin Panel</h2>
+                <p className='mb-8'>Toggle feature flags and customize application settings.</p>
                 <h2 className="mb-4 text-lg font-semibold">Feature Flags</h2>
                 <ul className="flex flex-col gap-4 mb-4">
                     {flags.map((flag: FeatureFlag) => {
@@ -182,7 +184,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }
                     value={selectedTheme}
                 />
-            </div>
+            </>
         );
     };
 
@@ -192,6 +194,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             isOpen={hasAccessPermissions && isOpen}
             handleClose={closeDrawer}
             contents={<DrawerContents />}
+            size="lg"
         >
             {children}
         </Drawer>
