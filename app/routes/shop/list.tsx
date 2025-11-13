@@ -39,17 +39,22 @@ export async function loader() {
 
 export default function ShopRoute({ loaderData }: Route.ComponentProps) {
     return (
-        <Container className="px-4">
-            <Hero className="bg-base-200 min-h-[200px]">
-                <div className="text-center">
-                    <h1 className="text-5xl font-bold">Shop</h1>
-                    <p className="py-6">
-                        Browse our collection of premium products
-                    </p>
-                </div>
-            </Hero>
+        <>
+            <title>Shop | Iridium</title>
+            <meta
+                name="description"
+                content="Browse and purchase products from the Iridium shop"
+            />
+            <Container className="px-4">
+                <Hero className="bg-base-200 min-h-[200px]">
+                    <div className="text-center">
+                        <h1 className="text-5xl font-bold">Shop</h1>
+                        <p className="py-6">
+                            Browse our collection of premium products
+                        </p>
+                    </div>
+                </Hero>
 
-            <Container>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
                     {loaderData.products.map((product) => (
                         <Link
@@ -109,6 +114,6 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
                     ))}
                 </div>
             </Container>
-        </Container>
+        </>
     );
 }

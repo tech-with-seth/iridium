@@ -183,72 +183,79 @@ export default function ChatRoute() {
     };
 
     return (
-        <Container className="flex h-full flex-col px-4 mb-8">
-            <div className="flex flex-1 flex-col gap-4 min-h-0 lg:grid lg:grid-cols-[minmax(0,280px)_1fr] lg:gap-6">
-                <aside className="flex flex-col gap-3 rounded-box border border-base-200 p-4 shadow-sm lg:h-full lg:min-h-0">
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-base-content/60">
-                        Threads
-                    </h2>
-                    <ul className="flex-1 space-y-2 overflow-y-auto pr-1">
-                        {MOCK_THREADS.map((thread) => {
-                            const isActive = thread.id === selectedThreadId;
+        <>
+            <title>Chat | Iridium</title>
+            <meta
+                name="description"
+                content="Chat with the AI assistant to get help and information"
+            />
+            <Container className="flex h-full flex-col px-4 mb-8">
+                <div className="flex flex-1 flex-col gap-4 min-h-0 lg:grid lg:grid-cols-[minmax(0,280px)_1fr] lg:gap-6">
+                    <aside className="flex flex-col gap-3 rounded-box border border-base-200 p-4 shadow-sm lg:h-full lg:min-h-0">
+                        <h2 className="text-sm font-semibold uppercase tracking-wide text-base-content/60">
+                            Threads
+                        </h2>
+                        <ul className="flex-1 space-y-2 overflow-y-auto pr-1">
+                            {MOCK_THREADS.map((thread) => {
+                                const isActive = thread.id === selectedThreadId;
 
-                            return (
-                                <li key={thread.id}>
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setSelectedThreadId(thread.id)
-                                        }
-                                        className={cx(
-                                            'w-full rounded-lg border border-transparent p-3 text-left transition-colors',
-                                            isActive
-                                                ? 'border-primary/40 bg-base-300'
-                                                : 'hover:bg-base-200',
-                                        )}
-                                    >
-                                        <div className="mb-1 flex items-start justify-between">
-                                            <h3 className="text-sm font-semibold">
-                                                {thread.title}
-                                            </h3>
-                                            {thread.unread > 0 && (
-                                                <span className="badge badge-primary badge-xs">
-                                                    {thread.unread}
-                                                </span>
+                                return (
+                                    <li key={thread.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setSelectedThreadId(thread.id)
+                                            }
+                                            className={cx(
+                                                'w-full rounded-lg border border-transparent p-3 text-left transition-colors',
+                                                isActive
+                                                    ? 'border-primary/40 bg-base-300'
+                                                    : 'hover:bg-base-200',
                                             )}
-                                        </div>
-                                        <p className="truncate text-xs text-base-content/60">
-                                            {thread.lastMessage}
-                                        </p>
-                                        <p className="mt-1 text-xs text-base-content/40">
-                                            {thread.timestamp}
-                                        </p>
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </aside>
-                <section className="flex min-h-0 flex-1 flex-col rounded-box border border-base-200 p-4 shadow-sm">
-                    <ChatMessages
-                        className="flex-1 overflow-y-auto pr-2"
-                        messages={displayedMessages}
-                    />
-                    <form
-                        onSubmit={handleSubmit}
-                        className="mt-4 flex items-end gap-3"
-                    >
-                        <TextInput
-                            value={input}
-                            placeholder="Say something..."
-                            onChange={(event) =>
-                                setInput(event.currentTarget.value)
-                            }
-                            className="w-full"
+                                        >
+                                            <div className="mb-1 flex items-start justify-between">
+                                                <h3 className="text-sm font-semibold">
+                                                    {thread.title}
+                                                </h3>
+                                                {thread.unread > 0 && (
+                                                    <span className="badge badge-primary badge-xs">
+                                                        {thread.unread}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="truncate text-xs text-base-content/60">
+                                                {thread.lastMessage}
+                                            </p>
+                                            <p className="mt-1 text-xs text-base-content/40">
+                                                {thread.timestamp}
+                                            </p>
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </aside>
+                    <section className="flex min-h-0 flex-1 flex-col rounded-box border border-base-200 p-4 shadow-sm">
+                        <ChatMessages
+                            className="flex-1 overflow-y-auto pr-2"
+                            messages={displayedMessages}
                         />
-                    </form>
-                </section>
-            </div>
-        </Container>
+                        <form
+                            onSubmit={handleSubmit}
+                            className="mt-4 flex items-end gap-3"
+                        >
+                            <TextInput
+                                value={input}
+                                placeholder="Say something..."
+                                onChange={(event) =>
+                                    setInput(event.currentTarget.value)
+                                }
+                                className="w-full"
+                            />
+                        </form>
+                    </section>
+                </div>
+            </Container>
+        </>
     );
 }
