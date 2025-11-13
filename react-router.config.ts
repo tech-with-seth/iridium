@@ -1,14 +1,16 @@
 import type { Config } from '@react-router/dev/config';
-import { Polar } from '@polar-sh/sdk';
 import 'dotenv/config';
 
-import { Paths } from './app/constants';
+import { polarClient } from 'app/lib/polar.server';
+import { Paths } from 'app/constants';
 
-// TODO: Figure out why I can't use polarClient from polar.server.ts here
-const polarClient = new Polar({
-    accessToken: process.env.POLAR_ACCESS_TOKEN,
-    server: 'sandbox',
-});
+console.log(
+    '\n\n',
+    '===== ENV LOG =====',
+    process.env.POLAR_ACCESS_TOKEN,
+    process.env.POLAR_ORGANIZATION_ID,
+    '\n\n',
+);
 
 export default {
     future: {
