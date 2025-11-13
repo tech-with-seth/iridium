@@ -41,25 +41,20 @@ const formatRole = (value?: string | null) => {
         .filter(Boolean)
         .map(
             (segment) =>
-                segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase(),
+                segment.charAt(0).toUpperCase() +
+                segment.slice(1).toLowerCase(),
         )
         .join(' ');
 };
 
 const getInitials = (value: string) => {
-    const parts = value
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2);
+    const parts = value.trim().split(/\s+/).filter(Boolean).slice(0, 2);
 
     if (parts.length === 0) {
         return value.slice(0, 2).toUpperCase();
     }
 
-    return parts
-        .map((segment) => segment.charAt(0).toUpperCase())
-        .join('');
+    return parts.map((segment) => segment.charAt(0).toUpperCase()).join('');
 };
 
 export default function ProfileRoute() {
@@ -113,7 +108,7 @@ export default function ProfileRoute() {
 
     return (
         <Container className="space-y-8 px-4 pb-8">
-            <title>Profile - Iridium</title>
+            <title>Profile | Iridium</title>
             <meta
                 name="description"
                 content="Review and manage your Iridium profile."
@@ -141,7 +136,9 @@ export default function ProfileRoute() {
                             <p className="text-2xl font-semibold tracking-tight text-base-content">
                                 {displayName}
                             </p>
-                            <p className="text-base-content/70">{user?.email}</p>
+                            <p className="text-base-content/70">
+                                {user?.email}
+                            </p>
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
@@ -225,7 +222,7 @@ export default function ProfileRoute() {
                                 Current role
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <Badge variant="soft" color="primary">
+                                <Badge variant="soft" color="primary">
                                     {resolvedRoleLabel}
                                 </Badge>
                                 <span className="text-base-content/70">

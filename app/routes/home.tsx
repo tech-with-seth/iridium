@@ -9,7 +9,7 @@ export default function Home() {
 
     return (
         <>
-            <title>Iridium</title>
+            <title>Home | Iridium</title>
             <meta
                 name="description"
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
