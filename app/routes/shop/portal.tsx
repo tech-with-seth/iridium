@@ -56,6 +56,6 @@ export const loader = CustomerPortal({
             });
         }
     },
-    returnUrl: process.env.POLAR_RETURN_URL || 'http://localhost:3000/shop',
-    server: 'sandbox',
+    returnUrl: process.env.POLAR_RETURN_URL,
+    server: process.env.POLAR_SERVER,
 });
