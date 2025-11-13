@@ -1,5 +1,6 @@
 import type { Config } from '@react-router/dev/config';
 import { Polar } from '@polar-sh/sdk';
+import 'dotenv/config';
 
 import { Paths } from './app/constants';
 
