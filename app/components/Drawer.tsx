@@ -23,6 +23,22 @@ export const drawerVariants = cva({
     compoundVariants: [],
 });
 
+export const drawerMenuVariants = cva({
+    base: 'menu bg-base-200 text-base-content min-h-full p-4',
+    variants: {
+        size: {
+            sm: 'w-80',
+            md: 'w-96',
+            lg: 'w-128',
+            xl: 'w-160',
+        },
+    },
+    defaultVariants: {
+        size: 'md',
+    },
+    compoundVariants: [],
+});
+
 interface DrawerProps {
     contents: React.ReactNode;
     handleClose: () => void;
@@ -42,7 +58,7 @@ export function Drawer({
     size,
 }: PropsWithChildren<DrawerProps>) {
     return (
-        <div className={cx(drawerVariants({ side, size }))}>
+        <div className={cx(drawerVariants({ side }))}>
             <input
                 id={id}
                 type="checkbox"
@@ -60,7 +76,7 @@ export function Drawer({
                     className="drawer-overlay"
                     onClick={handleClose}
                 ></label>
-                <div className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
+                <div className={cx(drawerMenuVariants({ size }))}>
                     <Button
                         circle
                         onClick={handleClose}
