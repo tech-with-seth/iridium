@@ -1,6 +1,70 @@
 # Iridium
 
-A modern full-stack SaaS boilerplate built with React Router 7, featuring authentication, AI integration, and everything you need to ship quickly.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React Router](https://img.shields.io/badge/React_Router-7.9-red?logo=reactrouter&logoColor=white)](https://reactrouter.com/)
+[![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+A modern full-stack SaaS boilerplate built with React Router 7, featuring authentication, AI integration, and everything you need to launch your MVP in days, not months.VP in days, not months.
+
+## 💡 Why Iridium?
+
+### The Problem
+
+Building a production-ready SaaS from scratch is a **3-6 week setup nightmare**:
+
+- Authentication flows take 2-3 days to implement correctly
+- Integrating billing systems adds another week of OAuth dances and webhook handling
+- Setting up email infrastructure, analytics, and feature flags is another 3-5 days
+- Database schema design, migrations, and ORM configuration takes days to get right
+- Form validation, error handling, and testing infrastructure adds more complexity
+- And you haven't even started building your unique product features yet
+
+**The real kicker?** While Next.js has hundreds of boilerplates to choose from, the React Router 7 ecosystem is nearly barren. If you want SSR, type-safe routing, and a modern React experience without Next.js vendor lock-in, your options are extremely limited.
+
+### The Solution
+
+Iridium is a **battle-tested, production-ready foundation** that eliminates weeks of boilerplate setup. It's not a toy example or minimal starter—it's a complete SaaS infrastructure with patterns proven across real applications.
+
+**What makes Iridium different:**
+
+- ⚡ **React Router 7 First** - One of the few comprehensive boilerplates built for React Router 7, offering true SSR and config-based routing without Next.js constraints
+- 🏗️ **Complete SaaS Stack** - Authentication (BetterAuth), billing (Polar.sh), email (Resend), analytics (PostHog), and AI (OpenAI) pre-integrated and working together
+- 🎯 **API-First Architecture** - Model layer pattern abstracts all database operations; RESTful APIs for every CRUD operation; client-side caching built-in
+- 📚 **Documentation-First** - Every pattern documented in `.github/instructions/` with examples, anti-patterns, and best practices
+- 🧪 **Testing Ready** - Vitest for unit tests, Playwright for e2e, with real test examples you can learn from
+- 🎨 **Modern UI Stack** - DaisyUI 5 + TailwindCSS v4 + CVA for type-safe component variants (not just basic Tailwind)
+- 🔐 **Production Security** - RBAC with hierarchical roles, middleware-based route protection, session management, CSRF protection
+- 📦 **Three-Tier Caching** - Client-side route caching, model layer caching, and manual caching with TTL support
+
+### Who Is This For?
+
+- **Indie hackers** who want to launch fast without compromising on architecture
+- **Startups** that need a solid foundation to scale from MVP to Series A
+- **Agencies** building multiple SaaS products and want a reusable blueprint
+- **Developers** tired of Next.js and seeking a true React Router 7 alternative with SSR
+- **Teams** who value comprehensive documentation and established patterns
+
+### Why React Router 7 Over Next.js?
+
+Next.js is great, but it comes with trade-offs:
+
+- **Vendor lock-in**: You're tied to Vercel's ecosystem and deployment model
+- **Complexity**: App Router introduced breaking changes and mental model shifts
+- **Over-engineered**: Many features you'll never use (ISR, middleware limitations, etc.)
+- **Abundance paradox**: Hundreds of Next.js templates exist, but which ones are actually production-ready?
+
+React Router 7 offers:
+
+- **Framework freedom**: Deploy anywhere—Railway, Fly.io, Docker, traditional VPS
+- **Simpler mental model**: Familiar routing concepts, no App vs Pages Router confusion
+- **True SSR**: First-class server-side rendering without the Next.js magic
+- **Type safety**: Config-based routing with auto-generated types
+- **Scarcity of quality options**: Iridium fills a critical gap in the ecosystem
+
+**The bottom line:** Stop spending weeks on infrastructure. Start building features your customers will pay for.
 
 ## 🚀 Features
 
@@ -23,6 +87,29 @@ A modern full-stack SaaS boilerplate built with React Router 7, featuring authen
 - **Image Handling** - Cloudinary integration for image uploads and transformations
 - **Testing** - Comprehensive testing setup with Vitest (unit) and Playwright (e2e)
 - **Documentation** - Comprehensive patterns documented in `.github/instructions/`
+
+## ⚡ Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/sethdavis512/iridium.git
+cd iridium
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your DATABASE_URL, BETTER_AUTH_SECRET, and RESEND_API_KEY
+
+# Initialize database
+npx prisma generate
+npx prisma migrate deploy
+npm run seed
+
+# Start development
+npm run dev
+# Visit http://localhost:5173
+# Sign in: admin@iridium.com / Admin123!
+```
 
 ## 🚀 Getting Started
 
