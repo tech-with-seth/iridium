@@ -71,7 +71,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         return (
             <>
                 <h2 className="mb-4 text-lg font-semibold">Admin Panel</h2>
-                <p className='mb-8'>Toggle feature flags and customize application settings.</p>
+                <p className="mb-8">
+                    Toggle feature flags and customize application settings.
+                </p>
                 <h2 className="mb-4 text-lg font-semibold">Feature Flags</h2>
                 <ul className="flex flex-col gap-4 mb-4">
                     {flags.map((flag: FeatureFlag) => {
@@ -157,7 +159,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         { label: 'Corporate', value: 'corporate' },
                         { label: 'Cupcake', value: 'cupcake' },
                         { label: 'Cyberpunk', value: 'cyberpunk' },
-                        { label: 'Dark', value: 'dark' },
                         { label: 'Dim', value: 'dim' },
                         { label: 'Dracula', value: 'dracula' },
                         { label: 'Emerald', value: 'emerald' },
@@ -201,7 +202,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 
     const DrawerTrigger = () => (
-        <div className="fixed bottom-4 right-4">
+        <div className="fixed bottom-4 right-12 md:bottom-4 md:right-4">
             <Button circle onClick={openDrawer} status="secondary">
                 <CogIcon />
             </Button>
