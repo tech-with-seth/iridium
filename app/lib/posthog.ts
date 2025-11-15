@@ -1,5 +1,4 @@
 import { PostHog } from 'posthog-node';
-import 'dotenv/config';
 
 console.log(
     '\n\n',
