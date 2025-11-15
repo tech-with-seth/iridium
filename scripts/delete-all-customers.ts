@@ -1,6 +1,6 @@
 'use strict';
 
-import { polarClient } from '~/lib/polar.server';
+import { polarClient } from '~/lib/polar';
 import { prisma } from '~/db.server';
 
 import 'dotenv/config';

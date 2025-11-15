@@ -15,11 +15,11 @@ import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 import type { Route } from './+types/edit';
 import { Button, buttonVariants } from '~/components/Button';
 import { updateUser } from '~/models/user.server';
-import { logException } from '~/lib/posthog';
 import { Card } from '~/components/Card';
 import { Paths } from '~/constants';
 import { cx } from '~/cva.config';
 import { Alert } from '~/components/Alert';
+import { postHogClient } from '~/lib/posthog';
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
@@ -41,10 +41,9 @@ export async function action({ request }: Route.ActionArgs) {
         console.error('Profile update error:', error);
 
         // Track error with PostHog
-        logException(error as Error, {
+        postHogClient.captureException(error as Error, 'system', {
             context: 'profile_edit',
             name,
-            timestamp: new Date().toISOString(),
             userId,
         });
 

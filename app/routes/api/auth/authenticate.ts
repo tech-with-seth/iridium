@@ -1,8 +1,10 @@
 import { data, redirect } from 'react-router';
-import type { Route } from './+types/authenticate';
+
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
-import { logException } from '~/lib/posthog';
+import { postHogClient } from '~/lib/posthog';
+
+import type { Route } from './+types/authenticate';
 
 export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'DELETE') {
@@ -13,7 +15,7 @@ export async function action({ request }: Route.ActionArgs) {
 
             return redirect(Paths.HOME);
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'sign_out',
             });
 

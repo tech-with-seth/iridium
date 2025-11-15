@@ -1,5 +1,4 @@
-import { posthog } from 'posthog-js';
-import { logException } from '~/lib/posthog';
+import { postHogClient } from '~/lib/posthog';
 import type { FeatureFlagsResponse } from '~/types/posthog';
 
 export async function getFeatureFlags() {
@@ -20,7 +19,7 @@ export async function getFeatureFlags() {
                 `Error fetching feature flags: ${featureFlagsResponse.status} ${featureFlagsResponse.statusText}`,
             );
 
-            logException(notOkError, {
+            postHogClient.captureException(notOkError, 'system', {
                 context: 'feature_flags_fetch',
             });
         }
@@ -29,7 +28,7 @@ export async function getFeatureFlags() {
 
         return data;
     } catch (error) {
-        logException(error as Error, {
+        postHogClient.captureException(error as Error, 'system', {
             context: 'feature_flags_fetch',
         });
 

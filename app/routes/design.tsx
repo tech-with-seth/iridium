@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { Form } from 'react-router';
 import type { Route } from './+types/design';
 import { Accordion, AccordionItem } from '~/components/Accordion';
@@ -32,6 +32,7 @@ import { TextInput } from '~/components/TextInput';
 import { Toggle } from '~/components/Toggle';
 import { Tooltip } from '~/components/Tooltip';
 import { cx } from '~/cva.config';
+import { postHogClient } from '~/lib/posthog';
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
@@ -53,11 +54,17 @@ export async function action({ request }: Route.ActionArgs) {
         const data = await response.json();
 
         if (!response.ok) {
+            postHogClient.captureException(
+                new Error(data.error || 'Upload failed'),
+            );
+
             return { error: data.error || 'Upload failed' };
         }
 
         return { success: true, upload: data };
     } catch (error) {
+        postHogClient.captureException(error);
+
         return {
             error: error instanceof Error ? error.message : 'Upload failed',
         };

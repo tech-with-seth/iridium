@@ -35,9 +35,7 @@ test.describe('Profile CRUD Operations', () => {
             await page.click('button[type="submit"]');
 
             // Should show success message or redirect
-            await expect(
-                page.locator('text=/success|updated/i'),
-            ).toBeVisible({
+            await expect(page.locator('text=/success|updated/i')).toBeVisible({
                 timeout: 5000,
             });
         });
@@ -56,9 +54,7 @@ test.describe('Profile CRUD Operations', () => {
             await expect(page.locator('text=/required/i')).toBeVisible();
         });
 
-        test('handles form submission with loading state', async ({
-            page,
-        }) => {
+        test('handles form submission with loading state', async ({ page }) => {
             await page.goto('/profile/edit');
 
             const nameInput = page.locator('input[name="name"]');
@@ -90,8 +86,8 @@ test.describe('Profile CRUD Operations', () => {
 
                 await page.click('button[type="submit"]');
 
-                const isInvalid = await emailInput.evaluate((el) =>
-                    el.checkValidity(),
+                const isInvalid = await emailInput.evaluate(
+                    (el: HTMLInputElement) => el.checkValidity(),
                 );
                 expect(isInvalid).toBe(false);
             }
@@ -160,7 +156,9 @@ test.describe('Form Submission Flows', () => {
                 });
 
                 // Submit form
-                await page.click('button[type="submit"]:near(input[type="file"])');
+                await page.click(
+                    'button[type="submit"]:near(input[type="file"])',
+                );
 
                 // Check for success
                 await expect(
@@ -195,9 +193,7 @@ test.describe('Error Handling', () => {
         await page.click('button[type="submit"]');
 
         // Should show error message
-        await expect(
-            page.locator('text=/error|failed|network/i'),
-        ).toBeVisible({
+        await expect(page.locator('text=/error|failed|network/i')).toBeVisible({
             timeout: 5000,
         });
 

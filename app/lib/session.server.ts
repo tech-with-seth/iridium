@@ -1,6 +1,6 @@
 import { auth } from './auth.server';
 import { Role } from '~/generated/prisma/client';
-import { logException } from './posthog';
+import { postHogClient } from '~/lib/posthog';
 
 type UserWithRole = {
     id: string;
@@ -24,7 +24,7 @@ export async function getUserFromSession(request: Request) {
         console.error('Session error:', error);
 
         // Track error with PostHog
-        logException(error as Error, {
+        postHogClient.captureException(error as Error, 'system', {
             context: 'session_retrieval',
             timestamp: new Date().toISOString(),
         });

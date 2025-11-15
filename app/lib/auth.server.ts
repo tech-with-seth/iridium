@@ -3,7 +3,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { polar, usage, portal } from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
-import { polarClient } from './polar.server';
+import { polarClient } from './polar';
 import {
     // sendVerificationEmail,
     sendPasswordResetEmail,

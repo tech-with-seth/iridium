@@ -1,6 +1,7 @@
 import { Webhooks } from '@polar-sh/remix';
+
+import { postHogClient } from '~/lib/posthog';
 import { sendEmail } from '~/models/email.server';
-import { logEvent, logException } from '~/lib/posthog';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL!;
 
@@ -11,8 +12,12 @@ export const action = Webhooks({
     },
     onCheckoutCreated: async (payload) => {
         console.log('Polar checkout created', payload);
-        logEvent('polar_checkout_created', {
-            checkoutId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_checkout_created',
+            properties: {
+                checkoutId: payload.data.id,
+            },
         });
 
         try {
@@ -22,7 +27,7 @@ export const action = Webhooks({
                 text: `A new checkout has been created.\n\nCheckout ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'checkout_created',
             });
@@ -30,8 +35,12 @@ export const action = Webhooks({
     },
     onCheckoutUpdated: async (payload) => {
         console.log('Polar checkout updated', payload);
-        logEvent('polar_checkout_updated', {
-            checkoutId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_checkout_updated',
+            properties: {
+                checkoutId: payload.data.id,
+            },
         });
 
         try {
@@ -41,7 +50,7 @@ export const action = Webhooks({
                 text: `A checkout has been updated.\n\nCheckout ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'checkout_updated',
             });
@@ -49,8 +58,12 @@ export const action = Webhooks({
     },
     onOrderCreated: async (payload) => {
         console.log('Polar order created', payload);
-        logEvent('polar_order_created', {
-            orderId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_order_created',
+            properties: {
+                orderId: payload.data.id,
+            },
         });
 
         try {
@@ -60,7 +73,7 @@ export const action = Webhooks({
                 text: `A new order has been created.\n\nOrder ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'order_created',
             });
@@ -68,8 +81,12 @@ export const action = Webhooks({
     },
     onOrderPaid: async (payload) => {
         console.log('Polar order paid', payload);
-        logEvent('polar_order_paid', {
-            orderId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_order_paid',
+            properties: {
+                orderId: payload.data.id,
+            },
         });
 
         try {
@@ -79,7 +96,7 @@ export const action = Webhooks({
                 text: `An order has been paid.\n\nOrder ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'order_paid',
             });
@@ -87,8 +104,12 @@ export const action = Webhooks({
     },
     onOrderRefunded: async (payload) => {
         console.log('Polar order refunded', payload);
-        logEvent('polar_order_refunded', {
-            orderId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_order_refunded',
+            properties: {
+                orderId: payload.data.id,
+            },
         });
 
         try {
@@ -98,7 +119,7 @@ export const action = Webhooks({
                 text: `An order has been refunded.\n\nOrder ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'order_refunded',
             });
@@ -106,8 +127,12 @@ export const action = Webhooks({
     },
     onRefundCreated: async (payload) => {
         console.log('Polar refund created', payload);
-        logEvent('polar_refund_created', {
-            refundId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_refund_created',
+            properties: {
+                refundId: payload.data.id,
+            },
         });
 
         try {
@@ -117,7 +142,7 @@ export const action = Webhooks({
                 text: `A new refund has been created.\n\nRefund ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'refund_created',
             });
@@ -125,8 +150,12 @@ export const action = Webhooks({
     },
     onRefundUpdated: async (payload) => {
         console.log('Polar refund updated', payload);
-        logEvent('polar_refund_updated', {
-            refundId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_refund_updated',
+            properties: {
+                refundId: payload.data.id,
+            },
         });
 
         try {
@@ -136,7 +165,7 @@ export const action = Webhooks({
                 text: `A refund has been updated.\n\nRefund ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'refund_updated',
             });
@@ -144,8 +173,12 @@ export const action = Webhooks({
     },
     onSubscriptionCreated: async (payload) => {
         console.log('Polar subscription created', payload);
-        logEvent('polar_subscription_created', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_created',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -155,7 +188,7 @@ export const action = Webhooks({
                 text: `A new subscription has been created.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_created',
             });
@@ -163,8 +196,12 @@ export const action = Webhooks({
     },
     onSubscriptionUpdated: async (payload) => {
         console.log('Polar subscription updated', payload);
-        logEvent('polar_subscription_updated', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_updated',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -174,7 +211,7 @@ export const action = Webhooks({
                 text: `A subscription has been updated.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_updated',
             });
@@ -182,8 +219,12 @@ export const action = Webhooks({
     },
     onSubscriptionActive: async (payload) => {
         console.log('Polar subscription active', payload);
-        logEvent('polar_subscription_active', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_active',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -193,7 +234,7 @@ export const action = Webhooks({
                 text: `A subscription is now active.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_active',
             });
@@ -201,8 +242,12 @@ export const action = Webhooks({
     },
     onSubscriptionCanceled: async (payload) => {
         console.log('Polar subscription canceled', payload);
-        logEvent('polar_subscription_canceled', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_canceled',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -212,7 +257,7 @@ export const action = Webhooks({
                 text: `A subscription has been canceled.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_canceled',
             });
@@ -220,8 +265,12 @@ export const action = Webhooks({
     },
     onSubscriptionRevoked: async (payload) => {
         console.log('Polar subscription revoked', payload);
-        logEvent('polar_subscription_revoked', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_revoked',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -231,7 +280,7 @@ export const action = Webhooks({
                 text: `A subscription has been revoked.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_revoked',
             });
@@ -239,8 +288,12 @@ export const action = Webhooks({
     },
     onSubscriptionUncanceled: async (payload) => {
         console.log('Polar subscription uncanceled', payload);
-        logEvent('polar_subscription_uncanceled', {
-            subscriptionId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_subscription_uncanceled',
+            properties: {
+                subscriptionId: payload.data.id,
+            },
         });
 
         try {
@@ -250,7 +303,7 @@ export const action = Webhooks({
                 text: `A subscription has been uncanceled.\n\nSubscription ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'subscription_uncanceled',
             });
@@ -258,8 +311,12 @@ export const action = Webhooks({
     },
     onProductCreated: async (payload) => {
         console.log('Polar product created', payload);
-        logEvent('polar_product_created', {
-            productId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_product_created',
+            properties: {
+                productId: payload.data.id,
+            },
         });
 
         try {
@@ -269,7 +326,7 @@ export const action = Webhooks({
                 text: `A new product has been created.\n\nProduct ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'product_created',
             });
@@ -277,8 +334,12 @@ export const action = Webhooks({
     },
     onProductUpdated: async (payload) => {
         console.log('Polar product updated', payload);
-        logEvent('polar_product_updated', {
-            productId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_product_updated',
+            properties: {
+                productId: payload.data.id,
+            },
         });
 
         try {
@@ -288,7 +349,7 @@ export const action = Webhooks({
                 text: `A product has been updated.\n\nProduct ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'product_updated',
             });
@@ -296,8 +357,12 @@ export const action = Webhooks({
     },
     onOrganizationUpdated: async (payload) => {
         console.log('Polar organization updated', payload);
-        logEvent('polar_organization_updated', {
-            organizationId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_organization_updated',
+            properties: {
+                organizationId: payload.data.id,
+            },
         });
 
         try {
@@ -307,7 +372,7 @@ export const action = Webhooks({
                 text: `An organization has been updated.\n\nOrganization ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'organization_updated',
             });
@@ -315,8 +380,12 @@ export const action = Webhooks({
     },
     onBenefitCreated: async (payload) => {
         console.log('Polar benefit created', payload);
-        logEvent('polar_benefit_created', {
-            benefitId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_benefit_created',
+            properties: {
+                benefitId: payload.data.id,
+            },
         });
 
         try {
@@ -326,7 +395,7 @@ export const action = Webhooks({
                 text: `A new benefit has been created.\n\nBenefit ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'benefit_created',
             });
@@ -334,8 +403,12 @@ export const action = Webhooks({
     },
     onBenefitUpdated: async (payload) => {
         console.log('Polar benefit updated', payload);
-        logEvent('polar_benefit_updated', {
-            benefitId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_benefit_updated',
+            properties: {
+                benefitId: payload.data.id,
+            },
         });
 
         try {
@@ -345,7 +418,7 @@ export const action = Webhooks({
                 text: `A benefit has been updated.\n\nBenefit ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'benefit_updated',
             });
@@ -353,8 +426,12 @@ export const action = Webhooks({
     },
     onBenefitGrantCreated: async (payload) => {
         console.log('Polar benefit grant created', payload);
-        logEvent('polar_benefit_grant_created', {
-            benefitGrantId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_benefit_grant_created',
+            properties: {
+                benefitGrantId: payload.data.id,
+            },
         });
 
         try {
@@ -364,7 +441,7 @@ export const action = Webhooks({
                 text: `A new benefit grant has been created.\n\nBenefit Grant ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'benefit_grant_created',
             });
@@ -372,8 +449,12 @@ export const action = Webhooks({
     },
     onBenefitGrantUpdated: async (payload) => {
         console.log('Polar benefit grant updated', payload);
-        logEvent('polar_benefit_grant_updated', {
-            benefitGrantId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_benefit_grant_updated',
+            properties: {
+                benefitGrantId: payload.data.id,
+            },
         });
 
         try {
@@ -383,7 +464,7 @@ export const action = Webhooks({
                 text: `A benefit grant has been updated.\n\nBenefit Grant ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'benefit_grant_updated',
             });
@@ -391,8 +472,12 @@ export const action = Webhooks({
     },
     onBenefitGrantRevoked: async (payload) => {
         console.log('Polar benefit grant revoked', payload);
-        logEvent('polar_benefit_grant_revoked', {
-            benefitGrantId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_benefit_grant_revoked',
+            properties: {
+                benefitGrantId: payload.data.id,
+            },
         });
 
         try {
@@ -402,7 +487,7 @@ export const action = Webhooks({
                 text: `A benefit grant has been revoked.\n\nBenefit Grant ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'benefit_grant_revoked',
             });
@@ -410,8 +495,12 @@ export const action = Webhooks({
     },
     onCustomerCreated: async (payload) => {
         console.log('Polar customer created', payload);
-        logEvent('polar_customer_created', {
-            customerId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_customer_created',
+            properties: {
+                customerId: payload.data.id,
+            },
         });
 
         try {
@@ -421,7 +510,7 @@ export const action = Webhooks({
                 text: `A new customer has been created.\n\nCustomer ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'customer_created',
             });
@@ -429,8 +518,12 @@ export const action = Webhooks({
     },
     onCustomerUpdated: async (payload) => {
         console.log('Polar customer updated', payload);
-        logEvent('polar_customer_updated', {
-            customerId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_customer_updated',
+            properties: {
+                customerId: payload.data.id,
+            },
         });
 
         try {
@@ -440,7 +533,7 @@ export const action = Webhooks({
                 text: `A customer has been updated.\n\nCustomer ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'customer_updated',
             });
@@ -448,8 +541,12 @@ export const action = Webhooks({
     },
     onCustomerDeleted: async (payload) => {
         console.log('Polar customer deleted', payload);
-        logEvent('polar_customer_deleted', {
-            customerId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_customer_deleted',
+            properties: {
+                customerId: payload.data.id,
+            },
         });
 
         try {
@@ -459,7 +556,7 @@ export const action = Webhooks({
                 text: `A customer has been deleted.\n\nCustomer ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'customer_deleted',
             });
@@ -467,8 +564,12 @@ export const action = Webhooks({
     },
     onCustomerStateChanged: async (payload) => {
         console.log('Polar customer state changed', payload);
-        logEvent('polar_customer_state_changed', {
-            customerId: payload.data.id,
+        postHogClient.capture({
+            distinctId: 'system',
+            event: 'polar_customer_state_changed',
+            properties: {
+                customerId: payload.data.id,
+            },
         });
 
         try {
@@ -478,7 +579,7 @@ export const action = Webhooks({
                 text: `A customer state has changed.\n\nCustomer ID: ${payload.data.id}\n\nPayload: ${JSON.stringify(payload.data, null, 2)}`,
             });
         } catch (error) {
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'polar_webhook_email',
                 webhookType: 'customer_state_changed',
             });

@@ -1,9 +1,10 @@
 import { render } from '@react-email/components';
-import { resend, DEFAULT_FROM_EMAIL } from '~/lib/resend.server';
+import { resend } from '~/lib/resend';
 import VerificationEmail from '~/emails/verification-email';
 import PasswordResetEmail from '~/emails/password-reset-email';
 import WelcomeEmail from '~/emails/welcome-email';
 import TransactionalEmail from '~/emails/transactional-email';
+import { postHogClient } from '~/lib/posthog';
 
 /**
  * Email Model Layer
@@ -50,7 +51,7 @@ export async function sendEmail(options: SendEmailOptions) {
             cc?: string | string[];
             bcc?: string | string[];
         } = {
-            from: options.from || DEFAULT_FROM_EMAIL,
+            from: options.from || process.env.DEFAULT_FROM_EMAIL!,
             to: options.to,
             subject: options.subject,
             replyTo: options.replyTo,
@@ -69,12 +70,13 @@ export async function sendEmail(options: SendEmailOptions) {
         const { data, error } = await resend.emails.send(emailPayload as any);
 
         if (error) {
+            postHogClient.captureException(error);
             throw new Error(`Failed to send email: ${error.message}`);
         }
 
         return { success: true, data };
     } catch (error) {
-        console.error('Email sending error:', error);
+        postHogClient.captureException(error);
         throw error;
     }
 }
@@ -101,7 +103,7 @@ export async function sendVerificationEmail({
 
     return sendEmail({
         to,
-        from: from || DEFAULT_FROM_EMAIL,
+        from: from || process.env.DEFAULT_FROM_EMAIL!,
         subject: 'Verify your email address',
         html,
     });
@@ -129,7 +131,7 @@ export async function sendPasswordResetEmail({
 
     return sendEmail({
         to,
-        from: from || DEFAULT_FROM_EMAIL,
+        from: from || process.env.DEFAULT_FROM_EMAIL!,
         subject: 'Reset your password',
         html,
     });
@@ -159,7 +161,7 @@ export async function sendWelcomeEmail({
 
     return sendEmail({
         to,
-        from: from || DEFAULT_FROM_EMAIL,
+        from: from || process.env.DEFAULT_FROM_EMAIL!,
         subject: 'Welcome to Iridium!',
         html,
     });
@@ -201,7 +203,7 @@ export async function sendTransactionalEmail({
 
     return sendEmail({
         to,
-        from: from || DEFAULT_FROM_EMAIL,
+        from: from || process.env.DEFAULT_FROM_EMAIL!,
         subject: heading,
         html,
     });

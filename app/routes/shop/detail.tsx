@@ -1,14 +1,14 @@
 import { data, Link } from 'react-router';
+import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { formatToCurrency } from '~/lib/formatters';
-import { polarClient } from '~/lib/polar.server';
-import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
+import { polarClient } from '~/lib/polar';
+import { postHogClient } from '~/lib/posthog';
 import type { Route } from './+types/detail';
-import { logException } from '~/lib/posthog';
 
 export async function loader({ params }: Route.LoaderArgs) {
     try {
@@ -23,7 +23,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         console.error('Product list error:', error);
 
         // Track error with PostHog
-        logException(error as Error, {
+        postHogClient.captureException(error as Error, 'system', {
             context: 'shop_details_loader',
         });
 
@@ -73,7 +73,7 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Image / Media */}
                     <div className="lg:col-span-5">
-                        <div className="w-full rounded-xl overflow-hidden bg-base-200 aspect-[4/3] flex items-center justify-center">
+                        <div className="w-full rounded-xl overflow-hidden bg-base-200 aspect-4/3 flex items-center justify-center">
                             {loaderData.details.medias &&
                             loaderData.details.medias.length > 0 ? (
                                 // show first media's publicUrl if available

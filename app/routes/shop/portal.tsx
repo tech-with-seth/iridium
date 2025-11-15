@@ -1,7 +1,7 @@
 import { CustomerPortal } from '@polar-sh/remix';
-import { polarClient } from '~/lib/polar.server';
+import { polarClient } from '~/lib/polar';
 import { getUserFromSession } from '~/lib/session.server';
-import { logEvent, logException } from '~/lib/posthog';
+import { postHogClient } from '~/lib/posthog';
 
 export const loader = CustomerPortal({
     accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -10,9 +10,14 @@ export const loader = CustomerPortal({
             const user = await getUserFromSession(request);
 
             if (!user) {
-                logEvent('portal_access_unauthorized', {
-                    reason: 'no_user_session',
+                postHogClient.capture({
+                    distinctId: 'anonymous',
+                    event: 'portal_access_unauthorized',
+                    properties: {
+                        reason: 'no_user_session',
+                    },
                 });
+
                 throw new Response('Unauthorized', { status: 401 });
             }
 
@@ -23,18 +28,24 @@ export const loader = CustomerPortal({
             });
 
             if (!customers.result || customers.result.items.length === 0) {
-                logEvent('portal_customer_not_found', {
-                    userId: user.id,
-                    userEmail: user.email,
+                postHogClient.capture({
+                    distinctId: user.id,
+                    event: 'portal_customer_not_found',
+                    properties: {
+                        userEmail: user.email,
+                    },
                 });
                 throw new Response('Customer not found', { status: 404 });
             }
 
             const polarCustomerId = customers.result.items[0].id;
 
-            logEvent('portal_access_success', {
-                userId: user.id,
-                polarCustomerId,
+            postHogClient.capture({
+                distinctId: user.id,
+                event: 'portal_access_success',
+                properties: {
+                    polarCustomerId,
+                },
             });
 
             // Return the Polar customer ID (not the user ID)
@@ -46,7 +57,7 @@ export const loader = CustomerPortal({
             }
 
             // Log unexpected errors to PostHog
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'customer_portal_access',
             });
 

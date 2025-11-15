@@ -7,9 +7,9 @@ import {
     ChatBubbleMessage,
 } from '~/components/ChatBubble';
 import { Container } from '~/components/Container';
-import { logEvent } from '~/lib/posthog';
 import type { UIDataTypes, UITools } from 'ai';
 import { cx } from '~/cva.config';
+import { usePostHog } from 'posthog-js/react';
 
 // Mock thread data
 const MOCK_THREADS = [
@@ -163,6 +163,7 @@ export default function ChatRoute() {
     const [selectedThreadId, setSelectedThreadId] = useState<string>(
         MOCK_THREADS[0]?.id ?? '1',
     );
+    const posthog = usePostHog();
     const { messages, sendMessage } = useChat();
     const displayedMessages = [...MOCK_MESSAGES, ...messages];
 
@@ -175,7 +176,8 @@ export default function ChatRoute() {
         }
 
         sendMessage({ text: trimmed });
-        logEvent('chat_message_sent', {
+
+        posthog.capture('chat_message_sent', {
             message: trimmed,
         });
 

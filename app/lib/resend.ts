@@ -9,13 +9,4 @@ import { Resend } from 'resend';
  * @requires RESEND_API_KEY - Environment variable with Resend API key
  * @see https://resend.com/docs
  */
-export const resend = process.env.RESEND_API_KEY
-    ? new Resend(process.env.RESEND_API_KEY)
-    : null;
-
-/**
- * Default sender email address
- * Should be a verified domain in Resend
- */
-export const DEFAULT_FROM_EMAIL =
-    process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+export const resend = new Resend(process.env.RESEND_API_KEY);
