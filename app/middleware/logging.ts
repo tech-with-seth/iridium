@@ -1,4 +1,4 @@
-import { serverSideLog } from '~/lib/posthog.server';
+import { postHogClient } from '~/lib/posthog';
 import { requestIdContext } from './context';
 import { getUserFromSession } from '~/lib/session.server';
 
@@ -15,7 +15,7 @@ export const loggingMiddleware = async (
     const response = await next();
     const duration = performance.now() - start;
 
-    serverSideLog({
+    postHogClient.capture({
         distinctId: user?.id || 'unknown',
         event: 'request_id',
         properties: {

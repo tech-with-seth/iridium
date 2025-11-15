@@ -13,7 +13,7 @@ import { CogIcon, FileQuestionIcon } from 'lucide-react';
 import { Button } from './components/Button';
 import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
-import { getAllFeatureFlags } from './lib/posthog.server';
+import { getAllFeatureFlags } from './models/posthog.server';
 import { getFeatureFlags } from './models/feature-flags.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';

@@ -6,10 +6,10 @@ import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { Hero } from '~/components/Hero';
 import { formatToCurrency } from '~/lib/formatters';
-import { polarClient } from '~/lib/polar.server';
+import { polarClient } from '~/lib/polar';
 import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 import type { Route } from './+types/list';
-import { logException } from '~/lib/posthog';
+import { postHogClient } from '~/lib/posthog';
 
 export async function loader() {
     try {
@@ -23,7 +23,7 @@ export async function loader() {
         console.error('Product list error:', error);
 
         // Track error with PostHog
-        logException(error as Error, {
+        postHogClient.captureException(error as Error, 'system', {
             context: 'shop_loader',
         });
 

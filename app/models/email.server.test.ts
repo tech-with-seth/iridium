@@ -45,7 +45,7 @@ vi.mock('@react-email/components', async (importOriginal) => {
     };
 });
 
-import { resend as resendClient } from '~/lib/resend.server';
+import { resend as resendClient } from '~/lib/resend';
 import { render } from '@react-email/components';
 import {
     sendEmail,

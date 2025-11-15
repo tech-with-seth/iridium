@@ -15,7 +15,7 @@ import {
 } from '~/lib/validations';
 import { authClient } from '~/lib/auth-client';
 import { Paths } from '~/constants';
-import { logEvent, logException } from '~/lib/posthog';
+import { usePostHog } from 'posthog-js/react';
 
 type AuthMode = 'signIn' | 'signUp';
 
@@ -24,6 +24,7 @@ export default function AuthPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const posthog = usePostHog();
 
     const isSignIn = mode === 'signIn';
     const schema = isSignIn ? signInSchema : signUpSchema;
@@ -47,7 +48,7 @@ export default function AuthPage() {
 
         try {
             // Track attempt
-            logEvent(isSignIn ? 'sign_in_attempt' : 'sign_up_attempt', {
+            posthog.capture(isSignIn ? 'sign_in_attempt' : 'sign_up_attempt', {
                 email: data.email,
             });
 
@@ -60,14 +61,14 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
-                            logEvent('sign_in_success', {
+                            posthog.capture('sign_in_success', {
                                 email: data.email,
                             });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
                             setIsLoading(false);
-                            logEvent('sign_in_error', {
+                            posthog.captureException(ctx.error, {
                                 email: data.email,
                                 error: ctx?.error?.message || 'unknown',
                             });
@@ -89,14 +90,14 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
-                            logEvent('sign_up_success', {
+                            posthog.capture('sign_up_success', {
                                 email: signUpData.email,
                                 name: signUpData.name,
                             });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
-                            logEvent('sign_up_error', {
+                            posthog.captureException(ctx.error, {
                                 email: signUpData.email,
                                 error: ctx?.error?.message || 'unknown',
                             });
@@ -110,7 +111,7 @@ export default function AuthPage() {
                 );
             }
         } catch (error: unknown) {
-            logException(error as Error, {
+            posthog.captureException(error as Error, {
                 context: isSignIn ? 'sign_in' : 'sign_up',
                 email: data.email,
                 timestamp: new Date().toISOString(),
@@ -124,7 +125,7 @@ export default function AuthPage() {
     const handleToggleMode = () => {
         const newMode: AuthMode = isSignIn ? 'signUp' : 'signIn';
 
-        logEvent('auth_mode_toggle', {
+        posthog.capture('auth_mode_toggle', {
             previousMode: mode,
             newMode,
         });

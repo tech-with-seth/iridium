@@ -8,5 +8,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: request.headers,
     });
 
-    return redirect(Paths.HOME);
+    return redirect(Paths.SIGN_IN);
 }

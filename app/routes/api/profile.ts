@@ -11,7 +11,7 @@ import {
     createCachedClientLoader,
     createCachedClientAction,
 } from '~/lib/cache';
-import { logException } from '~/lib/posthog';
+import { postHogClient } from '~/lib/posthog';
 
 // Cache configuration
 const CACHE_KEY = 'current-user-profile';
@@ -67,7 +67,7 @@ export async function action({ request }: Route.ActionArgs) {
             });
         } catch (error: unknown) {
             // Track error with PostHog
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 context: 'profile_update',
                 userId: user.id,
                 ...validatedData,
@@ -96,7 +96,7 @@ export async function action({ request }: Route.ActionArgs) {
             console.error('Account deletion error:', error);
 
             // Track error with PostHog
-            logException(error as Error, {
+            postHogClient.captureException(error as Error, 'system', {
                 userId: user.id,
                 context: 'account_deletion',
             });

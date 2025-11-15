@@ -43,8 +43,8 @@ test.describe('Authentication Flows', () => {
 
             // Should show validation error
             const emailInput = page.locator('input[name="email"]');
-            const isInvalid = await emailInput.evaluate((el) =>
-                el.checkValidity(),
+            const isInvalid = await emailInput.evaluate(
+                (el: HTMLInputElement) => el.checkValidity(),
             );
             expect(isInvalid).toBe(false);
         });
@@ -82,9 +82,7 @@ test.describe('Authentication Flows', () => {
     });
 
     test.describe('Protected Routes', () => {
-        test('redirects unauthenticated users to sign-in', async ({
-            page,
-        }) => {
+        test('redirects unauthenticated users to sign-in', async ({ page }) => {
             const protectedRoutes = [
                 '/dashboard',
                 '/profile',
