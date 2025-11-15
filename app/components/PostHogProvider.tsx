@@ -6,13 +6,6 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
     const [hydrated, setHydrated] = useState(false);
 
     useEffect(() => {
-        console.log(
-            '\n\n',
-            '===== LOG =====',
-            JSON.stringify(import.meta.env, null, 4),
-            '\n\n',
-        );
-
         // Only initialize PostHog if environment variables are set and not in dev/test mode
         const apiKey = import.meta.env.VITE_POSTHOG_API_KEY;
         const host = import.meta.env.VITE_POSTHOG_HOST;
