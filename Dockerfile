@@ -1,19 +1,24 @@
+# Stage 1: install full dependency tree (including dev deps) for the build step
 FROM node:20-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app
 RUN npm ci
 
+# Stage 2: install only production dependencies for the final runtime image
 FROM node:20-alpine AS production-dependencies-env
 COPY ./package.json package-lock.json /app/
 WORKDIR /app
 RUN npm ci --omit=dev
 
+# Stage 3: compile the app with the full dependency tree
 FROM node:20-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
 ARG POSTHOG_API_KEY
 ARG POSTHOG_HOST
+ARG RESEND_API_KEY
+ENV RESEND_API_KEY=$RESEND_API_KEY
 ENV POSTHOG_API_KEY=$POSTHOG_API_KEY \
     POSTHOG_HOST=$POSTHOG_HOST \
     VITE_POSTHOG_API_KEY=$POSTHOG_API_KEY \
@@ -22,11 +27,14 @@ RUN rm -f prisma.config.ts
 RUN npx prisma generate --schema=./prisma/schema.prisma
 RUN npm run build
 
+# Stage 4: slim runtime image with compiled artifacts and production deps
 FROM node:20-alpine
 ARG POSTHOG_API_KEY
 ARG POSTHOG_HOST
+ARG RESEND_API_KEY
 ENV POSTHOG_API_KEY=$POSTHOG_API_KEY \
-    POSTHOG_HOST=$POSTHOG_HOST
+    POSTHOG_HOST=$POSTHOG_HOST \
+    RESEND_API_KEY=$RESEND_API_KEY
 COPY ./package.json package-lock.json /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
