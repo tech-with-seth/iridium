@@ -86,10 +86,7 @@ export function Header() {
                             ) : (
                                 <>
                                     <NavbarMenuItem>
-                                        <NavLink
-                                            className={navLinkClassName}
-                                            to={Paths.SIGN_IN}
-                                        >
+                                        <NavLink to={Paths.SIGN_IN}>
                                             Sign In
                                         </NavLink>
                                     </NavbarMenuItem>
