@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, NavLink, useLocation } from 'react-router';
 
 import { Container } from './Container';
 import { Navbar, NavbarMenu, NavbarMenuItem } from './Navbar';
@@ -9,6 +9,8 @@ import { useRootData } from '~/hooks/useRootData';
 export function Header() {
     const data = useRootData();
     const isSignedIn = Boolean(data?.user?.id);
+
+    const location = useLocation();
 
     return (
         <header className="my-4">
@@ -23,24 +25,36 @@ export function Header() {
                     shadow
                     center={
                         <NavbarMenu>
-                            <NavbarMenuItem>
-                                <Link to="/">Home</Link>
+                            <NavbarMenuItem active={location.pathname === '/'}>
+                                <NavLink to="/">Home</NavLink>
                             </NavbarMenuItem>
                             {isSignedIn && (
                                 <>
-                                    <NavbarMenuItem>
-                                        <Link to="/dashboard">Dashboard</Link>
+                                    <NavbarMenuItem
+                                        active={
+                                            location.pathname === '/dashboard'
+                                        }
+                                    >
+                                        <NavLink to="/dashboard">
+                                            Dashboard
+                                        </NavLink>
                                     </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to="/design">Design</Link>
+                                    <NavbarMenuItem
+                                        active={location.pathname === '/design'}
+                                    >
+                                        <NavLink to="/design">Design</NavLink>
                                     </NavbarMenuItem>
-                                    <NavbarMenuItem>
-                                        <Link to="/chat">Chat</Link>
+                                    <NavbarMenuItem
+                                        active={location.pathname === '/chat'}
+                                    >
+                                        <NavLink to="/chat">Chat</NavLink>
                                     </NavbarMenuItem>
                                 </>
                             )}
-                            <NavbarMenuItem>
-                                <Link to="/shop">Shop</Link>
+                            <NavbarMenuItem
+                                active={location.pathname === '/shop'}
+                            >
+                                <NavLink to="/shop">Shop</NavLink>
                             </NavbarMenuItem>
                         </NavbarMenu>
                     }
@@ -48,13 +62,19 @@ export function Header() {
                         <NavbarMenu>
                             {isSignedIn ? (
                                 <>
-                                    <NavbarMenuItem>
-                                        <Link to="/profile">
-                                            <UserCircleIcon className="inline-block mr-2" />
+                                    <NavbarMenuItem
+                                        active={
+                                            location.pathname === '/profile'
+                                        }
+                                    >
+                                        <NavLink to="/profile">
+                                            <UserCircleIcon className="inline-block mr-2 h-4 w-4" />
                                             {data?.user?.name}
-                                        </Link>
+                                        </NavLink>
                                     </NavbarMenuItem>
-                                    <NavbarMenuItem>
+                                    <NavbarMenuItem
+                                        active={location.pathname === '/portal'}
+                                    >
                                         <Link to="/portal">Portal</Link>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem>
@@ -66,7 +86,12 @@ export function Header() {
                             ) : (
                                 <>
                                     <NavbarMenuItem>
-                                        <Link to={Paths.SIGN_IN}>Sign In</Link>
+                                        <NavLink
+                                            className={navLinkClassName}
+                                            to={Paths.SIGN_IN}
+                                        >
+                                            Sign In
+                                        </NavLink>
                                     </NavbarMenuItem>
                                 </>
                             )}

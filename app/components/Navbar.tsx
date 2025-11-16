@@ -1,5 +1,6 @@
 import { cx } from '~/cva.config';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router';
 
 interface NavbarProps {
     brand?: ReactNode;
@@ -68,7 +69,7 @@ export function NavbarBrand({
     );
 
     if (href) {
-        return <a href={href}>{content}</a>;
+        return <Link to={href}>{content}</Link>;
     }
 
     return content;
@@ -87,7 +88,7 @@ export function NavbarMenu({
     return (
         <ul
             className={cx(
-                'menu',
+                'menu gap-2',
                 horizontal ? 'menu-horizontal' : 'menu-vertical',
                 'px-1',
                 className,
@@ -104,7 +105,6 @@ export function NavbarMenuItem({
     active = false,
     disabled = false,
     className,
-    ...rest
 }: {
     children: ReactNode;
     active?: boolean;
@@ -113,11 +113,13 @@ export function NavbarMenuItem({
 }) {
     return (
         <li
-            className={cx(active && 'menu-active', disabled && 'menu-disabled')}
+            className={cx(
+                active && 'menu-active rounded-sm',
+                disabled && 'menu-disabled',
+                className,
+            )}
         >
-            <span className={cx(className)} {...rest}>
-                {children}
-            </span>
+            {children}
         </li>
     );
 }
