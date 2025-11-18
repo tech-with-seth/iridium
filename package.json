@@ -2,6 +2,17 @@
     "name": "iridium",
     "private": true,
     "type": "module",
+    "author": "Seth Davis",
+    "contributors": [],
+    "homepage": "https://sethdavis.tech/iridium",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sethdavis512/iridium"
+    },
+    "bugs": {
+        "url": "https://github.com/sethdavis512/iridium/issues",
+        "email": "techwithseth512@gmail.com"
+    },
     "scripts": {
         "build": "react-router build",
         "dev": "react-router dev",
