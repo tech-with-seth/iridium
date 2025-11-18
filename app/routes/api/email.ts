@@ -16,7 +16,7 @@ import {
     sendWelcomeEmail,
     sendTransactionalEmail,
 } from '~/models/email.server';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 /**
  * Email API Endpoint
@@ -35,6 +35,7 @@ import { postHogClient } from '~/lib/posthog';
 export async function action({ request }: Route.ActionArgs) {
     // Require authentication for all email sending
     const user = await requireUser(request);
+    const postHogClient = getPostHogClient();
 
     if (request.method !== 'POST') {
         return data({ error: 'Method not allowed' }, { status: 405 });
@@ -142,7 +143,7 @@ export async function action({ request }: Route.ActionArgs) {
             }
 
             // Track successful email with PostHog
-            postHogClient.capture({
+            postHogClient?.capture({
                 distinctId: user.id,
                 event: 'email_sent',
                 properties: {
@@ -174,7 +175,7 @@ export async function action({ request }: Route.ActionArgs) {
 
         const result = await sendEmail(validatedData!);
 
-        postHogClient.capture({
+        postHogClient?.capture({
             distinctId: user.id,
             event: 'email_sent',
             properties: {
@@ -193,7 +194,7 @@ export async function action({ request }: Route.ActionArgs) {
         console.error('Email sending error:', error);
 
         // Track error with PostHog
-        postHogClient.captureException(error as Error, 'system', {
+        postHogClient?.captureException(error as Error, 'system', {
             context: 'email_api',
         });
 

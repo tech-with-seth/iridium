@@ -6,7 +6,7 @@ import type { UIMessage } from 'ai';
 import z from 'zod';
 
 import { getUserFromSession } from '~/lib/session.server';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient, isPostHogEnabled } from '~/lib/posthog';
 
 const openAIClient = createOpenAI({
     apiKey: process.env.OPENAI_API_KEY!,
@@ -21,14 +21,23 @@ export async function action({ request }: Route.ActionArgs) {
         if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
-
-        const model = withTracing(openAIClient('gpt-5-mini'), postHogClient, {
-            posthogDistinctId: user.id, // optional
-            // posthogTraceId: 'trace_123', // optional
-            // posthogProperties: { conversationId: 'abc123', paid: true }, // optional
-            // posthogPrivacyMode: false, // optional
-            // posthogGroups: { company: 'companyIdInYourDb' }, // optional
-        });
+        const postHogClient = getPostHogClient();
+        const baseModel = openAIClient('gpt-5-mini');
+        console.log(
+            '\n\n',
+            '===== postHogClient LOG =====',
+            isPostHogEnabled(),
+            '\n\n',
+        );
+        const model = postHogClient
+            ? withTracing(baseModel, postHogClient, {
+                  posthogDistinctId: user.id, // optional
+                  // posthogTraceId: 'trace_123', // optional
+                  // posthogProperties: { conversationId: 'abc123', paid: true }, // optional
+                  // posthogPrivacyMode: false, // optional
+                  // posthogGroups: { company: 'companyIdInYourDb' }, // optional
+              })
+            : baseModel;
 
         const result = streamText({
             model,

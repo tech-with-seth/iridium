@@ -2,7 +2,7 @@ import { data, redirect } from 'react-router';
 
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 import type { Route } from './+types/authenticate';
 
@@ -15,7 +15,8 @@ export async function action({ request }: Route.ActionArgs) {
 
             return redirect(Paths.HOME);
         } catch (error) {
-            postHogClient.captureException(error as Error, 'system', {
+            const postHogClient = getPostHogClient();
+            postHogClient?.captureException(error as Error, 'system', {
                 context: 'sign_out',
             });
 

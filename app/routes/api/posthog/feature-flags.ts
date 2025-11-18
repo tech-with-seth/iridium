@@ -1,6 +1,6 @@
 import { data } from 'react-router';
 import type { Route } from './+types/feature-flags';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 export async function loader() {
     try {
@@ -19,7 +19,8 @@ export async function loader() {
 
         return data(featureFlags);
     } catch (error) {
-        postHogClient.captureException(error as Error, 'system', {
+        const postHogClient = getPostHogClient();
+        postHogClient?.captureException(error as Error, 'system', {
             context: 'feature_flags_fetch',
         });
 
@@ -68,7 +69,8 @@ export async function action({ request }: Route.ActionArgs) {
             } catch (error) {
                 console.error('Error toggling feature flag:', error);
 
-                postHogClient.captureException(error as Error, 'system', {
+                const postHogClient = getPostHogClient();
+                postHogClient?.captureException(error as Error, 'system', {
                     active,
                     context: 'feature_flag_toggle',
                     flagId,

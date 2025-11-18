@@ -4,7 +4,7 @@ import VerificationEmail from '~/emails/verification-email';
 import PasswordResetEmail from '~/emails/password-reset-email';
 import WelcomeEmail from '~/emails/welcome-email';
 import TransactionalEmail from '~/emails/transactional-email';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 /**
  * Email Model Layer
@@ -70,13 +70,15 @@ export async function sendEmail(options: SendEmailOptions) {
         const { data, error } = await resend.emails.send(emailPayload as any);
 
         if (error) {
-            postHogClient.captureException(error);
+            const postHogClient = getPostHogClient();
+            postHogClient?.captureException(error);
             throw new Error(`Failed to send email: ${error.message}`);
         }
 
         return { success: true, data };
     } catch (error) {
-        postHogClient.captureException(error);
+        const postHogClient = getPostHogClient();
+        postHogClient?.captureException(error);
         throw error;
     }
 }
