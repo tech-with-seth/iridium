@@ -180,12 +180,14 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
                                     </p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-3xl font-extrabold">
-                                            {formatToCurrency(
-                                                'en-US',
-                                                'usd',
-                                                2,
-                                                price.priceAmount,
-                                            )}
+                                            {price.priceAmount
+                                                ? formatToCurrency(
+                                                      'en-US',
+                                                      'usd',
+                                                      2,
+                                                      price.priceAmount,
+                                                  )
+                                                : 'Pay what you want'}
                                         </span>
                                         {loaderData.details.isRecurring && (
                                             <span className="text-sm text-base-content/60">
