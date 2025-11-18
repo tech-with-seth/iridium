@@ -9,6 +9,7 @@ import { formatToCurrency } from '~/lib/formatters';
 import { polarClient } from '~/lib/polar';
 import { postHogClient } from '~/lib/posthog';
 import type { Route } from './+types/detail';
+import { PolarLogo } from '~/components/PolarLogo';
 
 export async function loader({ params }: Route.LoaderArgs) {
     try {
@@ -72,7 +73,7 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Image / Media */}
-                    <div className="lg:col-span-5">
+                    <div className="lg:col-span-4">
                         <div className="w-full rounded-xl overflow-hidden bg-base-200 aspect-4/3 flex items-center justify-center">
                             {loaderData.details.medias &&
                             loaderData.details.medias.length > 0 ? (
@@ -169,7 +170,7 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
                     </div>
 
                     {/* Purchase / CTA */}
-                    <aside className="lg:col-span-2">
+                    <aside className="lg:col-span-3">
                         <div className="sticky top-6">
                             <div className="bg-base-100 border border-base-200 rounded-2xl p-6 shadow-lg">
                                 <div className="mb-3">
@@ -196,17 +197,22 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
                                         )}
                                     </div>
                                 </div>
-
+                                <hr className="border-base-300 my-4" />
+                                <div className="flex items-center gap-1 mb-4">
+                                    <a className="text-primary inline-block">
+                                        Checkout powered by{' '}
+                                        <span className="text-base-content">
+                                            Polar
+                                        </span>
+                                    </a>
+                                    <PolarLogo className="inline-block w-5 h-5" />
+                                </div>
                                 <Link
                                     to={`/shop/checkout?products=${encodeURIComponent(loaderData.details!.id)}`}
                                     className="inline-block w-full text-center bg-primary text-white py-3 rounded-lg font-semibold shadow-sm hover:shadow-md transition"
                                 >
                                     Purchase Now
                                 </Link>
-
-                                <div className="mt-4 text-xs text-base-content/50 text-center">
-                                    <div>Free returns · 30-day warranty</div>
-                                </div>
                             </div>
                         </div>
                     </aside>

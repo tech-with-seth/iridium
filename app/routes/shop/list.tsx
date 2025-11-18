@@ -46,7 +46,7 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
                 content="Browse and purchase products from the Iridium shop"
             />
             <Container className="px-4">
-                <Hero className="bg-base-200 min-h-[200px]">
+                <Hero className="bg-accent text-accent-content rounded-lg min-h-[200px]">
                     <div className="text-center">
                         <h1 className="text-5xl font-bold">Shop</h1>
                         <p className="py-6">
