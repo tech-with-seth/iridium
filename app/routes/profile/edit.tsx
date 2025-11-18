@@ -19,7 +19,7 @@ import { Card } from '~/components/Card';
 import { Paths } from '~/constants';
 import { cx } from '~/cva.config';
 import { Alert } from '~/components/Alert';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
@@ -41,7 +41,8 @@ export async function action({ request }: Route.ActionArgs) {
         console.error('Profile update error:', error);
 
         // Track error with PostHog
-        postHogClient.captureException(error as Error, 'system', {
+        const postHogClient = getPostHogClient();
+        postHogClient?.captureException(error as Error, 'system', {
             context: 'profile_edit',
             name,
             userId,

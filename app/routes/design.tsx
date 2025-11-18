@@ -18,6 +18,7 @@ import { Modal, ModalActions } from '~/components/Modal';
 import { Radio } from '~/components/Radio';
 import { Range } from '~/components/Range';
 import { Select } from '~/components/Select';
+import { Timeline, TimelineItem } from '~/components/Timeline';
 import {
     Table,
     TableHead,
@@ -32,9 +33,44 @@ import { TextInput } from '~/components/TextInput';
 import { Toggle } from '~/components/Toggle';
 import { Tooltip } from '~/components/Tooltip';
 import { cx } from '~/cva.config';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
+
+const DESIGN_TIMELINE_INDICATOR_CLASSES: Record<
+    'positive' | 'warning' | 'info' | 'error',
+    string
+> = {
+    positive: 'bg-success',
+    warning: 'bg-warning',
+    info: 'bg-info',
+    error: 'bg-error',
+};
+
+const DESIGN_TIMELINE_STEPS = [
+    {
+        id: 'research',
+        title: 'Research & Direction',
+        timestamp: 'Jan 2024',
+        description: 'Validated brand voice with stakeholder interviews.',
+        tone: 'positive' as const,
+    },
+    {
+        id: 'system',
+        title: 'Component System',
+        timestamp: 'Apr 2024',
+        description: 'Documented spacing, elevation, and interaction tokens.',
+        tone: 'info' as const,
+    },
+    {
+        id: 'polish',
+        title: 'Polish & Launch',
+        timestamp: 'Aug 2024',
+        description: 'QA, accessibility checks, and production rollout.',
+        tone: 'warning' as const,
+    },
+];
 
 export async function action({ request }: Route.ActionArgs) {
+    const postHogClient = getPostHogClient();
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -54,7 +90,7 @@ export async function action({ request }: Route.ActionArgs) {
         const data = await response.json();
 
         if (!response.ok) {
-            postHogClient.captureException(
+            postHogClient?.captureException(
                 new Error(data.error || 'Upload failed'),
             );
 
@@ -63,7 +99,7 @@ export async function action({ request }: Route.ActionArgs) {
 
         return { success: true, upload: data };
     } catch (error) {
-        postHogClient.captureException(error);
+        postHogClient?.captureException(error as Error);
 
         return {
             error: error instanceof Error ? error.message : 'Upload failed',
@@ -473,6 +509,67 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                                 { content: '  label="Range Slider"' },
                                 { content: '  min={0} max={100}' },
                                 { content: '/>' },
+                            ]}
+                        />
+                    </section>
+
+                    <section className="flex h-full flex-col gap-6">
+                        <h2 className="text-2xl font-bold">Timeline</h2>
+                        <DisplayBox>
+                            <Timeline
+                                direction="vertical"
+                                snapIcon
+                                className="w-full max-w-lg"
+                            >
+                                {DESIGN_TIMELINE_STEPS.map((step, index) => (
+                                    <TimelineItem
+                                        key={step.id}
+                                        start={
+                                            <span className="text-sm font-semibold text-base-content/70">
+                                                {step.timestamp}
+                                            </span>
+                                        }
+                                        middle={
+                                            <span
+                                                className={`inline-flex h-3 w-3 rounded-full ${DESIGN_TIMELINE_INDICATOR_CLASSES[step.tone]}`}
+                                            />
+                                        }
+                                        end={
+                                            <div className="space-y-1">
+                                                <p className="font-semibold">
+                                                    {step.title}
+                                                </p>
+                                                <p className="text-sm text-base-content/70">
+                                                    {step.description}
+                                                </p>
+                                            </div>
+                                        }
+                                        boxEnd
+                                        lineBefore={index !== 0}
+                                        lineAfter={
+                                            index !==
+                                            DESIGN_TIMELINE_STEPS.length - 1
+                                        }
+                                    />
+                                ))}
+                            </Timeline>
+                        </DisplayBox>
+                        <Code
+                            className="mt-auto"
+                            lines={[
+                                {
+                                    content:
+                                        '<Timeline direction="vertical" snapIcon>',
+                                },
+                                {
+                                    content:
+                                        '<TimelineItem start="Jan 2024" end="Research" />',
+                                },
+                                {
+                                    content:
+                                        '<TimelineItem start="Aug 2024" end="Launch" />',
+                                },
+                                { content: '</Timeline>' },
                             ]}
                         />
                     </section>

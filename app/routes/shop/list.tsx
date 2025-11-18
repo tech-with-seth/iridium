@@ -9,7 +9,7 @@ import { formatToCurrency } from '~/lib/formatters';
 import { polarClient } from '~/lib/polar';
 import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 import type { Route } from './+types/list';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 
 export async function loader() {
     try {
@@ -23,7 +23,8 @@ export async function loader() {
         console.error('Product list error:', error);
 
         // Track error with PostHog
-        postHogClient.captureException(error as Error, 'system', {
+        const postHogClient = getPostHogClient();
+        postHogClient?.captureException(error as Error, 'system', {
             context: 'shop_loader',
         });
 

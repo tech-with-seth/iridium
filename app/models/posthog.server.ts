@@ -1,5 +1,7 @@
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 import { getUserFromSession } from '../lib/session.server';
+
+const postHogClient = getPostHogClient();
 
 export type ServerSideEventType =
     | 'request_id'
@@ -23,6 +25,10 @@ export async function isFeatureEnabled(flagName: string, request: Request) {
     }
 
     try {
+        if (!postHogClient) {
+            return false;
+        }
+
         const isEnabled = await postHogClient.isFeatureEnabled(
             flagName,
             user?.id,
@@ -30,7 +36,7 @@ export async function isFeatureEnabled(flagName: string, request: Request) {
 
         return isEnabled;
     } catch (error) {
-        postHogClient.captureException(error);
+        postHogClient?.captureException(error);
 
         return false;
     }
@@ -44,10 +50,14 @@ export async function getAllFeatureFlags(request: Request) {
     }
 
     try {
+        if (!postHogClient) {
+            return {};
+        }
+
         const featureFlags = await postHogClient.getAllFlags(user?.id);
         return featureFlags;
     } catch (error) {
-        postHogClient.captureException(error);
+        postHogClient?.captureException(error);
         console.error('Error fetching feature flags:', error);
         return {};
     }
@@ -61,10 +71,14 @@ export async function getFeatureFlagsForUser(request: Request) {
     }
 
     try {
+        if (!postHogClient) {
+            return {};
+        }
+
         const featureFlags = await postHogClient.getAllFlags(user?.id);
         return featureFlags;
     } catch (error) {
-        postHogClient.captureException(error);
+        postHogClient?.captureException(error);
         console.error('Error fetching feature flags:', error);
         return {};
     }
@@ -81,6 +95,10 @@ export async function isExperimentEnabled(
     }
 
     try {
+        if (!postHogClient) {
+            return false;
+        }
+
         const isEnabled = await postHogClient.getFeatureFlag(
             experimentName,
             user?.id,
@@ -88,7 +106,7 @@ export async function isExperimentEnabled(
 
         return isEnabled;
     } catch (error) {
-        postHogClient.captureException(error);
+        postHogClient?.captureException(error);
 
         return false;
     }

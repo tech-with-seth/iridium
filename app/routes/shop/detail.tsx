@@ -7,7 +7,7 @@ import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { formatToCurrency } from '~/lib/formatters';
 import { polarClient } from '~/lib/polar';
-import { postHogClient } from '~/lib/posthog';
+import { getPostHogClient } from '~/lib/posthog';
 import type { Route } from './+types/detail';
 import { PolarLogo } from '~/components/PolarLogo';
 
@@ -24,7 +24,8 @@ export async function loader({ params }: Route.LoaderArgs) {
         console.error('Product list error:', error);
 
         // Track error with PostHog
-        postHogClient.captureException(error as Error, 'system', {
+        const postHogClient = getPostHogClient();
+        postHogClient?.captureException(error as Error, 'system', {
             context: 'shop_details_loader',
         });
 
