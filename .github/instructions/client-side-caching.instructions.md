@@ -1,427 +1,251 @@
-# Client-Side Data Loading & Caching
+# Client-Side Caching with remix-client-cache
+
+This project uses `remix-client-cache` for managing client-side caching in React Router 7.
 
 ## Overview
 
-React Router 7 provides `clientLoader` and `clientAction` functions for fetching and mutating data directly in the browser. This enables advanced patterns like:
+remix-client-cache is a lightweight caching library that manages server loader data on the client side. It implements a **"stale while revalidate"** (SWR) strategy by default:
 
-- **Client-side caching** - Reduce server requests with memory/localStorage caching
-- **Hybrid data loading** - Combine server and client data sources
-- **BFF bypass** - Communicate directly with backend APIs from the browser
-- **SPA mode** - Full client-side data handling without SSR
+- Returns cached (stale) data immediately for fast page loads
+- Refreshes data in the background
+- Hot-swaps updated data when available
 
-**This guide focuses on SSR use cases. For complete SPA patterns, see React Router documentation.**
+## Installation
 
-## Skip the Server Hop (BFF Pattern)
+```bash
+npm install remix-client-cache
+```
 
-When using a Backend-For-Frontend (BFF) architecture, you can bypass the React Router server and communicate directly with your backend API from the browser.
+## Global Configuration
 
-**Requirements:**
-
-- Proper authentication handling (cookies, tokens)
-- No CORS restrictions
-- Backend API is accessible from client
-
-### Implementation
-
-**Initial page load:** Server `loader` fetches data
-**Client navigation:** `clientLoader` fetches directly from API
-
-React Router will **not** call `clientLoader` on hydration—only on subsequent client-side navigations.
+Configure the global cache storage adapter in `app/entry.client.tsx`:
 
 ```tsx
-// app/routes/products.tsx
-import type { Route } from './+types/products';
+import { configureGlobalCache } from "remix-client-cache";
 
-// (1) Server-side: Initial page load
-export async function loader({ request }: Route.LoaderArgs) {
-    const data = await fetchApiFromServer({ request });
-    return data;
+// Use localStorage as the default storage
+configureGlobalCache(() => localStorage);
+
+// Or use sessionStorage
+configureGlobalCache(() => sessionStorage);
+
+// Or use in-memory storage (default if not configured)
+configureGlobalCache(() => null);
+```
+
+## Core Usage Patterns
+
+### 1. Creating a Cached Client Loader
+
+Use `createClientLoaderCache` to generate a clientLoader with built-in caching:
+
+```tsx
+import { createClientLoaderCache } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  // Your server loader logic
+  const data = await fetchData();
+  return { data };
+};
+
+// Generate cached client loader
+export const clientLoader = createClientLoaderCache({
+  loader,
+  // Optional: customize cache key
+  key: (args) => `custom-key-${args.params.id}`,
+  // Optional: use custom storage adapter
+  adapter: () => localStorage,
+});
+```
+
+### 2. Manual Cache Wrapper
+
+Use `cacheClientLoader` to manually wrap loader function arguments:
+
+```tsx
+import { cacheClientLoader } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
+
+export async function clientLoader(args: Route.ClientLoaderArgs) {
+  return cacheClientLoader(args, {
+    key: `my-custom-key-${args.params.id}`,
+    adapter: () => sessionStorage,
+  });
 }
+```
 
-// (2) Client-side: Subsequent navigations
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-    const data = await fetchApiFromClient({ request });
-    return data;
-}
+### 3. Using Cached Data in Components
 
-export default function Products({ loaderData }: Route.ComponentProps) {
-    return (
+**Option A: CacheRoute Component Wrapper**
+
+```tsx
+import { CacheRoute } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
+
+export default function MyRoute({ loaderData }: Route.ComponentProps) {
+  return (
+    <CacheRoute>
+      {(data) => (
         <div>
-            {loaderData.products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
+          {/* Data automatically hot-swaps when refreshed */}
+          <h1>{data.title}</h1>
         </div>
-    );
+      )}
+    </CacheRoute>
+  );
 }
 ```
 
-**Note:** This pattern is uncommon in this project since we typically use server loaders with Prisma for database access.
-
-## Hybrid Data Loading (Server + Client)
-
-Combine data from both server and browser sources (like IndexedDB, browser SDKs, or localStorage) before rendering.
-
-### Pattern Steps
-
-1. **Server loader** - Load partial data from database on initial request
-2. **HydrateFallback** - Export fallback component for SSR (before full data available)
-3. **clientLoader.hydrate** - Set to `true` to run clientLoader during hydration
-4. **Merge data** - Combine server and client data in `clientLoader`
-
-### Implementation
+**Option B: useCachedLoaderData Hook**
 
 ```tsx
-// app/routes/dashboard.tsx
-import type { Route } from './+types/dashboard';
-import { prisma } from '~/db.server';
+import { useCachedLoaderData } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
 
-// (1) Server: Load partial data from database
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await requireUser(request);
-    const serverData = await prisma.dashboard.findUnique({
-        where: { userId: user.id },
-    });
-    return { serverData };
+export default function MyRoute({ loaderData }: Route.ComponentProps) {
+  const data = useCachedLoaderData<typeof loader>();
+
+  return (
+    <div>
+      <h1>{data.title}</h1>
+    </div>
+  );
 }
+```
 
-// (4) Client: Merge server + client data
-export async function clientLoader({
-    request,
-    serverLoader,
-}: Route.ClientLoaderArgs) {
-    const [serverData, clientData] = await Promise.all([
-        serverLoader(),
-        getClientData(request), // IndexedDB, localStorage, etc.
-    ]);
+**Option C: useSwrData Hook (Render Props)**
 
-    return {
-        ...serverData,
-        ...clientData,
-    };
-}
+```tsx
+import { useSwrData } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
 
-// (3) Enable clientLoader during hydration
-clientLoader.hydrate = true as const;
+export default function MyRoute({ loaderData }: Route.ComponentProps) {
+  const SwrData = useSwrData<typeof loader>();
 
-// (2) Fallback during SSR (before client data available)
-export function HydrateFallback() {
-    return (
-        <div className="skeleton">
-            <p>Loading dashboard...</p>
-        </div>
-    );
-}
-
-// Component receives combined data
-export default function Dashboard({ loaderData }: Route.ComponentProps) {
-    // loaderData contains both server + client data
-    return (
+  return (
+    <SwrData>
+      {(data) => (
         <div>
-            <h1>Dashboard</h1>
-            <ServerSection data={loaderData.serverData} />
-            <ClientSection data={loaderData.clientData} />
+          <h1>{data.title}</h1>
         </div>
-    );
+      )}
+    </SwrData>
+  );
 }
 ```
 
-### Use Cases
+## Cache Invalidation
 
-✅ **Good for:**
+### Manual Invalidation
 
-- Combining database data with IndexedDB
-- Merging API data with localStorage preferences
-- Browser SDK data + server data
-
-❌ **Not needed for:**
-
-- Pure server data (just use `loader`)
-- Pure client data (just use `clientLoader` without `loader`)
-
-## Choosing Data Loading Strategy
-
-Mix data loading strategies across your application on a per-route basis.
-
-### Server-Only Data Loading (Standard)
-
-**This is the default pattern for most routes in this project.**
+Use `invalidateCache` to clear cached entries (client-side only):
 
 ```tsx
-// app/routes/products.tsx
-import type { Route } from './+types/products';
-import { prisma } from '~/db.server';
+import { invalidateCache } from "remix-client-cache";
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const products = await prisma.product.findMany();
-    return { products };
-}
+// Invalidate a single key
+await invalidateCache("my-cache-key");
 
-export default function Products({ loaderData }: Route.ComponentProps) {
-    return (
-        <div>
-            {loaderData.products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-    );
+// Invalidate multiple keys
+await invalidateCache(["key1", "key2", "key3"]);
+```
+
+### Hook-based Invalidation
+
+Use `useCacheInvalidator` in components:
+
+```tsx
+import { useCacheInvalidator } from "remix-client-cache";
+
+function MyComponent() {
+  const invalidate = useCacheInvalidator();
+
+  function handleRefresh() {
+    invalidate("my-cache-key");
+  }
+
+  return <button onClick={handleRefresh}>Refresh</button>;
 }
 ```
 
-**Use when:**
+### Invalidation After Actions
 
-- Fetching from database (Prisma)
-- Requiring authentication checks
-- SEO matters (pre-rendered content)
-- Standard CRUD operations
-
-### Client-Only Data Loading
-
-**Rare in this project—only use when necessary.**
+Use `decacheClientLoader` in clientAction to clear cache after mutations:
 
 ```tsx
-// app/routes/browser-data.tsx
-import type { Route } from './+types/browser-data';
+import { decacheClientLoader } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-    // Fetch from browser APIs, IndexedDB, localStorage, etc.
-    const clientData = await getFromIndexedDB();
-    return { clientData };
-}
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  // Perform the mutation
+  const result = await submitForm(request);
 
-// Implied if no server loader exists
-clientLoader.hydrate = true;
+  // Clear the cache for this route
+  await decacheClientLoader();
 
-// Required for SSR support
-export function HydrateFallback() {
-    return <div className="skeleton">Loading...</div>;
-}
-
-export default function BrowserData({ loaderData }: Route.ComponentProps) {
-    return <div>{loaderData.clientData}</div>;
+  return result;
 }
 ```
 
-**Use when:**
+## Custom Storage Adapters
 
-- Data only available in browser (IndexedDB, localStorage)
-- No server-side rendering needed for that data
-- Working with browser-specific APIs
-
-### Comparison
-
-| Pattern         | When to Use                      | SSR | SEO | Auth |
-| --------------- | -------------------------------- | --- | --- | ---- |
-| **Server-only** | Database, API calls, auth checks | ✅  | ✅  | ✅   |
-| **Client-only** | Browser APIs, IndexedDB          | ❌  | ❌  | ⚠️   |
-| **Hybrid**      | Combine server + client data     | ⚠️  | ⚠️  | ✅   |
-
-## Client-Side Caching Pattern
-
-Implement client-side caching to optimize server requests using memory, localStorage, or this project's built-in cache utility.
-
-### Pattern Steps
-
-1. **Server loader** - Load data from database on initial page load
-2. **clientLoader.hydrate** - Prime the cache during hydration
-3. **Cache lookups** - Serve subsequent navigations from cache
-4. **Cache invalidation** - Clear cache on mutations via `clientAction`
-
-**Important:** Without `HydrateFallback`, the route component is SSR'd and `clientLoader` runs on hydration. Your `loader` and `clientLoader` must return the same data on initial load to avoid hydration errors.
-
-### Implementation
+Create custom storage adapters by implementing the `CacheAdapter` interface:
 
 ```tsx
-// app/routes/products.tsx
-import type { Route } from './+types/products';
-import { prisma } from '~/db.server';
-import { cache, getUserScopedKey } from '~/lib/cache';
+import { configureGlobalCache, createCacheAdapter } from "remix-client-cache";
 
-// (1) Server: Initial page load
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await requireUser(request);
-    const products = await prisma.product.findMany({
-        where: { userId: user.id },
-    });
-    return { products };
-}
+// Custom adapter implementation
+const customAdapter = {
+  async getItem(key: string): Promise<string | null> {
+    // Custom get logic
+    return await myStorage.get(key);
+  },
 
-// Server action for mutations
-export async function action({ request }: Route.ActionArgs) {
-    const user = await requireUser(request);
-    const formData = await request.formData();
+  async setItem(key: string, value: string): Promise<void> {
+    // Custom set logic
+    await myStorage.set(key, value);
+  },
 
-    await prisma.product.create({
-        data: {
-            name: formData.get('name') as string,
-            userId: user.id,
-        },
-    });
+  async removeItem(key: string): Promise<void> {
+    // Custom remove logic
+    await myStorage.remove(key);
+  },
+};
 
-    return { ok: true };
-}
+// Use globally
+configureGlobalCache(() => customAdapter);
 
-let isInitialRequest = true;
-
-// (2) Client: Cache management
-export async function clientLoader({
-    request,
-    serverLoader,
-}: Route.ClientLoaderArgs) {
-    const cacheKey = generateKey(request);
-
-    // (2) Prime cache on first load
-    if (isInitialRequest) {
-        isInitialRequest = false;
-        const serverData = await serverLoader();
-        cache.set(cacheKey, serverData);
-        return serverData;
-    }
-
-    // (3) Serve from cache if available
-    const cachedData = await cache.get(cacheKey);
-    if (cachedData) {
-        return cachedData;
-    }
-
-    // Fallback to server and update cache
-    const serverData = await serverLoader();
-    cache.set(cacheKey, serverData);
-    return serverData;
-}
-
-clientLoader.hydrate = true;
-
-// (4) Invalidate cache on mutations
-export async function clientAction({
-    request,
-    serverAction,
-}: Route.ClientActionArgs) {
-    const cacheKey = generateKey(request);
-
-    // Clear cache before mutation
-    cache.delete(cacheKey);
-
-    // Execute server action
-    const result = await serverAction();
-    return result;
-}
-
-export default function Products({ loaderData }: Route.ComponentProps) {
-    return (
-        <div>
-            {loaderData.products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-    );
-}
-
-// Helper: Generate cache key from request
-function generateKey(request: Request): string {
-    const url = new URL(request.url);
-    return url.pathname + url.search;
-}
-```
-
-### Using Project Cache Utility
-
-This project includes a built-in caching utility in `app/lib/cache.ts`:
-
-```tsx
-import { cache, getUserScopedKey, isCacheExpired } from '~/lib/cache';
-
-// User-scoped cache key
-const cacheKey = getUserScopedKey(user.id, 'products');
-
-// Set with TTL
-cache.set(cacheKey, data, 3600); // 1 hour TTL
-
-// Get from cache
-const cachedData = cache.get(cacheKey);
-
-// Check if expired
-if (isCacheExpired(cacheKey)) {
-    cache.delete(cacheKey);
-}
-```
-
-### Cache Invalidation Strategies
-
-**On mutation:**
-
-```tsx
-export async function clientAction({
-    request,
-    serverAction,
-}: Route.ClientActionArgs) {
-    const cacheKey = generateKey(request);
-    cache.delete(cacheKey); // Clear before mutation
-    return serverAction();
-}
-```
-
-**On navigation away:**
-
-```tsx
-import { useEffect } from 'react';
-import { useLocation } from 'react-router';
-
-useEffect(() => {
-    return () => {
-        // Clear cache when leaving route
-        cache.delete(cacheKey);
-    };
-}, []);
-```
-
-**Time-based (TTL):**
-
-```tsx
-// Set with TTL (seconds)
-cache.set(cacheKey, data, 3600); // Expires in 1 hour
-
-// Check expiration
-if (isCacheExpired(cacheKey)) {
-    const freshData = await fetchData();
-    cache.set(cacheKey, freshData, 3600);
-}
+// Or use for specific routes
+export const clientLoader = createClientLoaderCache({
+  loader,
+  adapter: () => customAdapter,
+});
 ```
 
 ## Best Practices
 
-### ✅ Do
+1. **Configure Global Storage Early**: Set up `configureGlobalCache` in `entry.client.tsx` before hydration
+2. **Use Appropriate Storage**:
+   - localStorage: Persistent across sessions
+   - sessionStorage: Cleared when tab closes
+   - In-memory: Cleared on page reload (default)
+3. **Invalidate After Mutations**: Always clear cache in `clientAction` after successful data mutations
+4. **Custom Cache Keys**: Use meaningful cache keys that include dynamic parameters (e.g., `user-${userId}`)
+5. **Client-Side Only**: Remember that cache invalidation only works on the client side
 
-- Use server loaders by default (standard for this project)
-- Implement client caching for expensive/frequent requests
-- Invalidate cache on mutations
-- Use user-scoped cache keys for privacy
-- Set appropriate TTL values
-- Handle cache misses gracefully
+## Migration from flat-cache
 
-### ❌ Don't
+If migrating from `flat-cache`:
 
-- Use `clientLoader` when server `loader` is sufficient
-- Cache sensitive data without encryption
-- Forget to invalidate cache on updates
-- Cache data that changes frequently
-- Use client-only loading when SEO matters
-- Overcomplicate with caching when not needed
-
-## When to Use Client Data Loading
-
-| Scenario                    | Use Client Loading? | Why                               |
-| --------------------------- | ------------------- | --------------------------------- |
-| Database queries            | ❌ No               | Use server loader with Prisma     |
-| Authentication required     | ❌ No               | Use server loader with middleware |
-| SEO important               | ❌ No               | Need SSR for search engines       |
-| Browser APIs                | ✅ Yes              | Only available client-side        |
-| Expensive repeated requests | ✅ Yes              | Cache to reduce server load       |
-| User preferences            | ✅ Maybe            | Can use localStorage + cache      |
-| Real-time data              | ❌ No               | Use WebSockets or polling         |
+1. Remove `flat-cache` dependency
+2. Install `remix-client-cache`
+3. Replace cache initialization with `configureGlobalCache`
+4. Convert loader caching to use `createClientLoaderCache` or `cacheClientLoader`
+5. Update cache invalidation calls to use `invalidateCache` or `decacheClientLoader`
+6. Replace data access patterns with `useCachedLoaderData` or `CacheRoute`
 
 ## Additional Resources
 
-- **React Router 7 Patterns**: `.github/instructions/react-router.instructions.md`
-- **Form Validation**: `.github/instructions/form-validation.instructions.md`
-- **Authentication**: `.github/instructions/better-auth.instructions.md`
-- **Cache Utility**: `app/lib/cache.ts` (project implementation)
+- [remix-client-cache GitHub](https://github.com/forge-42/remix-client-cache)
+- [React Router 7 Documentation](https://reactrouter.com/en/main)

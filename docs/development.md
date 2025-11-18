@@ -476,21 +476,25 @@ model User {
 
 ### Caching
 
-Use flat-cache for server-side caching:
+Use remix-client-cache for client-side caching with stale-while-revalidate strategy:
 
 ```typescript
-import { cache } from '~/lib/cache';
+import { createClientLoaderCache } from "remix-client-cache";
+import type { Route } from "./+types/my-route";
 
-export async function getExpensiveData() {
-    const cached = cache.getKey('expensive-data');
-    if (cached) return cached;
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const data = await fetchExpensiveData();
+  return { data };
+};
 
-    const data = await fetchExpensiveData();
-    cache.setKey('expensive-data', data);
-
-    return data;
-}
+// Generate cached client loader
+export const clientLoader = createClientLoaderCache({
+  loader,
+  key: (args) => `expensive-data-${args.params.id}`,
+});
 ```
+
+See [.github/instructions/client-side-caching.instructions.md](.github/instructions/client-side-caching.instructions.md) for complete documentation.
 
 ## Common Workflows
 

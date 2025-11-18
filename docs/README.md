@@ -68,7 +68,7 @@ We document significant architectural decisions in the [decisions](./decisions/R
 - [004: DaisyUI](./decisions/004-daisyui.md)
 - [005: CVA (Class Variance Authority)](./decisions/005-cva.md)
 - [006: Zod Validation](./decisions/006-zod-validation.md)
-- [007: Flat-Cache](./decisions/007-flat-cache.md)
+- [007: Client-Side Caching](./decisions/007-client-side-caching.md)
 - [008: PostHog Analytics](./decisions/008-posthog.md)
 - [009: Polar Billing](./decisions/009-polar-billing.md)
 - [010: Resend Email](./decisions/010-resend-email.md)

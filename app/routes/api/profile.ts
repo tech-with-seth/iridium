@@ -7,17 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
 import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
-import {
-    createCachedClientLoader,
-    createCachedClientAction,
-} from '~/lib/cache';
 import { getPostHogClient } from '~/lib/posthog';
 
-// Cache configuration
-const CACHE_KEY = 'current-user-profile';
-const CACHE_TTL = 900; // 15 minutes (profile data changes infrequently)
-
-// GET - Read profile
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
 
@@ -30,13 +21,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     return data({ profile });
 }
 
-// Client loader - Manages cache for user profile
-export const clientLoader = createCachedClientLoader({
-    cacheKey: CACHE_KEY,
-    ttl: CACHE_TTL,
-});
-
-// PUT/DELETE - Update or Delete profile
 export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
     const postHogClient = getPostHogClient();
@@ -111,11 +95,6 @@ export async function action({ request }: Route.ActionArgs) {
 
     return data({ error: 'Method not allowed' }, { status: 405 });
 }
-
-// Client action - Invalidates cache on mutations
-export const clientAction = createCachedClientAction({
-    cacheKey: CACHE_KEY,
-});
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     // Custom error response for API route
