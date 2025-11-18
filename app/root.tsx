@@ -27,6 +27,7 @@ import type { Route } from './+types/root';
 import { Select } from './components/Select';
 
 import './app.css';
+import { CacheRoute, createClientLoaderCache } from 'remix-client-cache';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -55,6 +56,8 @@ export async function loader({ request }: Route.LoaderArgs) {
         user,
     };
 }
+
+export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
@@ -242,9 +245,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-export default function App() {
+export default CacheRoute(function App() {
     return <Outlet />;
-}
+});
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     let message = 'Oops!';

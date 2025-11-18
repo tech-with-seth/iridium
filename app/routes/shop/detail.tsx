@@ -10,6 +10,7 @@ import { polarClient } from '~/lib/polar';
 import { getPostHogClient } from '~/lib/posthog';
 import type { Route } from './+types/detail';
 import { PolarLogo } from '~/components/PolarLogo';
+import { CacheRoute, createClientLoaderCache } from 'remix-client-cache';
 
 export async function loader({ params }: Route.LoaderArgs) {
     try {
@@ -39,7 +40,11 @@ export async function loader({ params }: Route.LoaderArgs) {
     }
 }
 
-export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
+export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
+
+export default CacheRoute(function ShopDetailsRoute({
+    loaderData,
+}: Route.ComponentProps) {
     if (!loaderData.details) {
         return (
             <Container>
@@ -223,4 +228,4 @@ export default function ShopDetailsRoute({ loaderData }: Route.ComponentProps) {
             </div>
         </Container>
     );
-}
+});

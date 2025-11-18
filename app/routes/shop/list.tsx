@@ -1,4 +1,5 @@
 import { data, Link } from 'react-router';
+import { createClientLoaderCache, CacheRoute } from 'remix-client-cache';
 
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
@@ -38,7 +39,11 @@ export async function loader() {
     }
 }
 
-export default function ShopRoute({ loaderData }: Route.ComponentProps) {
+export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
+
+export default CacheRoute(function ShopRoute({
+    loaderData,
+}: Route.ComponentProps) {
     return (
         <>
             <title>Shop | Iridium</title>
@@ -125,4 +130,4 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
             </Container>
         </>
     );
-}
+});
