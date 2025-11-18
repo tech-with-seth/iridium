@@ -16,6 +16,8 @@ import {
 import { authClient } from '~/lib/auth-client';
 import { Paths } from '~/constants';
 import { usePostHog } from 'posthog-js/react';
+import { Tab, TabRadio, Tabs } from '~/components/Tabs';
+import { Container } from '~/components/Container';
 
 type AuthMode = 'signIn' | 'signUp';
 
@@ -121,6 +123,60 @@ export default function AuthPage() {
         }
     };
 
+    const onGoogleSignIn = async (data: SignInData | SignUpData) => {
+        setIsLoading(true);
+        setServerError(null);
+
+        try {
+            await authClient.signIn.social({
+                provider: 'google',
+            });
+
+            posthog.capture('google_sign_in_success', {
+                email: data.email,
+            });
+
+            navigate(Paths.DASHBOARD);
+        } catch (error: unknown) {
+            posthog.captureException(error as Error, {
+                context: 'google_sign_in',
+                timestamp: new Date().toISOString(),
+            });
+            setServerError(
+                'An unexpected error occurred during Google sign-in. Please try again.',
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const onGitHubSignIn = async (data: SignInData | SignUpData) => {
+        setIsLoading(true);
+        setServerError(null);
+
+        try {
+            await authClient.signIn.social({
+                provider: 'github',
+            });
+
+            posthog.capture('github_sign_in_success', {
+                email: data.email,
+            });
+
+            navigate(Paths.DASHBOARD);
+        } catch (error: unknown) {
+            posthog.captureException(error as Error, {
+                context: 'github_sign_in',
+                timestamp: new Date().toISOString(),
+            });
+            setServerError(
+                'An unexpected error occurred during GitHub sign-in. Please try again.',
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // Track mode toggles (sign in <-> sign up)
     const handleToggleMode = () => {
         const newMode: AuthMode = isSignIn ? 'signUp' : 'signIn';
@@ -144,79 +200,117 @@ export default function AuthPage() {
                         : 'Create your Iridium account to explore the SaaS starter kit.'
                 }
             />
-            <div className="flex items-center justify-center p-24">
-                <Card className="min-w-lg">
-                    <h2 className="text-2xl font-bold mb-4">
-                        {isSignIn ? 'Sign In' : 'Sign Up'}
-                    </h2>
-
+            <Container className="flex flex-col items-center justify-center pt-24 px-4">
+                <Tabs variant="box" className="mb-4 shrink">
+                    <TabRadio
+                        active={isSignIn}
+                        label="Sign In"
+                        name="loginMethod"
+                        onClick={() => setMode('signIn')}
+                        value="signIn"
+                    />
+                    <TabRadio
+                        active={!isSignIn}
+                        label="Sign Up"
+                        name="loginMethod"
+                        onClick={() => setMode('signUp')}
+                        value="signUp"
+                    />
+                </Tabs>
+                <Card className="w-full max-w-4xl">
                     {serverError && (
                         <Alert status="error" className="mb-4">
                             {serverError}
                         </Alert>
                     )}
 
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4"
-                    >
-                        {!isSignIn && (
-                            <TextInput
-                                {...register('name')}
-                                label="Name"
-                                type="text"
-                                error={
-                                    'name' in errors
-                                        ? errors.name?.message
-                                        : undefined
-                                }
-                                required
-                            />
-                        )}
+                    <div className="grid grid-cols-12">
+                        <div className="col-span-6">
+                            <h2 className="text-2xl font-bold mb-8">
+                                {`Email`}
+                            </h2>
+                        </div>
+                        <div className="col-span-6">
+                            <h2 className="text-2xl font-bold mb-8">
+                                {`Social`}
+                            </h2>
+                        </div>
+                        <div className="col-span-6">
+                            <form
+                                onSubmit={handleSubmit(onSubmit)}
+                                className="space-y-4"
+                            >
+                                {!isSignIn && (
+                                    <TextInput
+                                        {...register('name')}
+                                        label="Name"
+                                        type="text"
+                                        error={
+                                            'name' in errors
+                                                ? errors.name?.message
+                                                : undefined
+                                        }
+                                        required
+                                    />
+                                )}
 
-                        <TextInput
-                            {...register('email')}
-                            label="Email"
-                            type="email"
-                            error={errors.email?.message}
-                            required
-                        />
+                                <TextInput
+                                    {...register('email')}
+                                    label="Email"
+                                    type="email"
+                                    error={errors.email?.message}
+                                    required
+                                />
 
-                        <TextInput
-                            {...register('password')}
-                            label="Password"
-                            type="password"
-                            error={errors.password?.message}
-                            helperText={
-                                isSignIn
-                                    ? undefined
-                                    : 'Must be at least 8 characters with letters and numbers'
-                            }
-                            required
-                        />
+                                <TextInput
+                                    {...register('password')}
+                                    label="Password"
+                                    type="password"
+                                    error={errors.password?.message}
+                                    helperText={
+                                        isSignIn
+                                            ? undefined
+                                            : 'Must be at least 8 characters with letters and numbers'
+                                    }
+                                    required
+                                />
 
-                        <Button
-                            type="submit"
-                            loading={isLoading}
-                            status="primary"
-                        >
-                            {isSignIn ? 'Sign In' : 'Sign Up'}
-                        </Button>
-                    </form>
-
-                    <div className="mt-4 text-center">
-                        <button
-                            type="button"
-                            onClick={handleToggleMode}
-                            className="link link-primary"
-                        >
-                            {isSignIn
-                                ? "Don't have an account? Sign up"
-                                : 'Already have an account? Sign in'}
-                        </button>
+                                <Button
+                                    type="submit"
+                                    loading={isLoading}
+                                    status="primary"
+                                >
+                                    {isSignIn ? 'Sign In' : 'Sign Up'}
+                                </Button>
+                            </form>
+                        </div>
+                        <div className="col-span-6">
+                            <div className="flex flex-col gap-4">
+                                <Button
+                                    type="button"
+                                    onClick={handleSubmit(onGoogleSignIn)}
+                                    loading={isLoading}
+                                    className="w-full"
+                                >
+                                    {isSignIn
+                                        ? 'Sign in with Google'
+                                        : 'Sign up with Google'}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={handleSubmit(onGitHubSignIn)}
+                                    loading={isLoading}
+                                    className="w-full"
+                                >
+                                    {isSignIn
+                                        ? 'Sign in with GitHub'
+                                        : 'Sign up with GitHub'}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </Card>
-            </div>
+            </Container>
         </>
     );
 }
