@@ -91,17 +91,25 @@ export default function ShopRoute({ loaderData }: Route.ComponentProps) {
                                     </p>
 
                                     <div className="flex items-center gap-4">
-                                        <Badge color="primary" size="lg">
-                                            {formatToCurrency(
-                                                'en-US',
-                                                'usd',
-                                                2,
-                                                (
-                                                    product
-                                                        .prices[0] as ProductPriceFixed
-                                                ).priceAmount,
-                                            )}
-                                        </Badge>
+                                        {product.prices[0] &&
+                                        (product.prices[0] as ProductPriceFixed)
+                                            .priceAmount ? (
+                                            <Badge color="primary" size="lg">
+                                                {formatToCurrency(
+                                                    'en-US',
+                                                    'usd',
+                                                    2,
+                                                    (
+                                                        product
+                                                            .prices[0] as ProductPriceFixed
+                                                    ).priceAmount,
+                                                )}
+                                            </Badge>
+                                        ) : (
+                                            <Badge color="primary" size="lg">
+                                                PWYW
+                                            </Badge>
+                                        )}
 
                                         <div className="ml-auto">
                                             <Button status="primary" size="sm">
