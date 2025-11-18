@@ -226,14 +226,10 @@ export default function AuthPage() {
 
                     <div className="grid grid-cols-12">
                         <div className="col-span-6">
-                            <h2 className="text-2xl font-bold mb-8">
-                                {`Email`}
-                            </h2>
+                            <h2 className="text-2xl font-bold mb-8">Email</h2>
                         </div>
                         <div className="col-span-6">
-                            <h2 className="text-2xl font-bold mb-8">
-                                {`Social`}
-                            </h2>
+                            <h2 className="text-2xl font-bold mb-8">Social</h2>
                         </div>
                         <div className="col-span-6">
                             <form
