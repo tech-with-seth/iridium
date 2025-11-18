@@ -38,6 +38,7 @@ npm run dev
 - [Components](./components.md) - DaisyUI and CVA component patterns
 - [Custom Theming](./custom-theming.md) - Creating and customizing DaisyUI themes
 - [AI Chat Integration](./ai.md) - Vercel AI SDK endpoint and streaming chat workflow
+- [LLM Analytics](./llm-analytics.md) - PostHog LLM analytics with Vercel AI SDK integration
 - [Image Handling](./image-handling.md) - Cloudinary integration for image uploads and transformations
 - [Multi-tenancy](./multi-tenancy.md) - Organization and invitation system
 
