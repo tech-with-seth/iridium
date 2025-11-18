@@ -62,9 +62,13 @@ BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
 BETTER_AUTH_URL="http://localhost:5173"
 OPENAI_API_KEY="sk-..."
 
-# Optional - PostHog analytics
+# Optional - PostHog analytics (client-side)
 VITE_POSTHOG_API_KEY="phc_your-posthog-api-key"
 VITE_POSTHOG_HOST="https://us.i.posthog.com"
+
+# Optional - PostHog analytics (server-side for LLM analytics)
+POSTHOG_API_KEY="phc_your-posthog-project-api-key"
+POSTHOG_HOST="https://us.i.posthog.com"
 
 # Optional - Polar.sh billing
 POLAR_ACCESS_TOKEN="polar_at_..."
@@ -518,8 +522,13 @@ Use these tasks from the VS Code command palette (`Run Task…`) when you need a
 
 Iridium ships with a streaming chat endpoint powered by the Vercel AI SDK and OpenAI. The server action accepts `UIMessage[]` payloads, converts them into model friendly messages, and returns a streaming UI response that the client hook can consume.
 
+#### LLM Analytics with PostHog
+
+All AI calls are automatically tracked with PostHog's LLM analytics via `@posthog/ai`. The chat endpoint wraps the OpenAI client with tracing:
+
 ```typescript
 import type { Route } from './+types/chat';
+import { createOpenAI } from '@ai-sdk/openai';
 import {
     convertToModelMessages,
     stepCountIs,
@@ -527,7 +536,8 @@ import {
     tool,
     type UIMessage,
 } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { withTracing } from '@posthog/ai';
+import { postHogClient } from '~/lib/posthog';
 import z from 'zod';
 
 export async function action({ request }: Route.ActionArgs) {
@@ -535,10 +545,24 @@ export async function action({ request }: Route.ActionArgs) {
         return null;
     }
 
+    const user = await getUserFromSession(request);
     const { messages }: { messages: UIMessage[] } = await request.json();
 
+    const openAIClient = createOpenAI({
+        apiKey: process.env.OPENAI_API_KEY!,
+    });
+
+    // Wrap with PostHog tracing
+    const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+        posthogDistinctId: user?.id,
+        posthogProperties: {
+            feature: 'chat',
+            userPlan: user?.plan,
+        },
+    });
+
     const result = streamText({
-        model: openai('gpt-4o'),
+        model,
         messages: convertToModelMessages(messages),
         stopWhen: stepCountIs(5),
         tools: {
@@ -561,12 +585,36 @@ export async function action({ request }: Route.ActionArgs) {
 }
 ```
 
-Key points:
+**LLM Analytics Captured**:
 
-- Use `convertToModelMessages()` whenever the client sends `UIMessage[]` payloads.
-- Apply `stepCountIs()` (currently capped at five reasoning steps) to constrain tool loops.
-- Register tools with `tool({ description, inputSchema, execute })`; update the `execute` implementation with real data sources when productionizing.
-- Return `result.toUIMessageStreamResponse()` so the client receives incremental updates that match the Vercel AI SDK expectations.
+- `$ai_model` - Model used (e.g., "gpt-4o")
+- `$ai_latency` - Response time in seconds
+- `$ai_input_tokens` - Prompt tokens
+- `$ai_output_tokens` - Completion tokens
+- `$ai_total_cost_usd` - Estimated cost
+- `$ai_tools` - Tools available to model
+- Custom properties (feature, userPlan, etc.)
+
+**Key Points**:
+
+- Use `convertToModelMessages()` whenever the client sends `UIMessage[]` payloads
+- Apply `stepCountIs()` (currently capped at five reasoning steps) to constrain tool loops
+- Register tools with `tool({ description, inputSchema, execute })`; update the `execute` implementation with real data sources when productionizing
+- Return `result.toUIMessageStreamResponse()` so the client receives incremental updates that match the Vercel AI SDK expectations
+- Wrap the model with `withTracing()` to automatically capture LLM analytics in PostHog
+- Add custom properties via `posthogProperties` for better filtering and insights
+- Enable `posthogPrivacyMode: true` to exclude sensitive prompt/response data
+
+**Environment Variables for LLM Analytics**:
+
+```bash
+# Server-side PostHog (required for LLM analytics)
+POSTHOG_API_KEY="phc_your-posthog-project-api-key"
+POSTHOG_HOST="https://us.i.posthog.com"
+
+# OpenAI (required for AI features)
+OPENAI_API_KEY="sk-proj-your-openai-api-key"
+```
 
 **Client-side**:
 
@@ -579,6 +627,12 @@ const { messages, input, handleInputChange, handleSubmit } = useChat({
 ```
 
 The `useChat` hook defaults to `/api/chat`, streams the `UIMessage` payloads, and emits each assistant update as it arrives. Supply custom `api` paths or callbacks to tune the behaviour for other endpoints.
+
+**See Also**:
+
+- `docs/ai.md` - Comprehensive AI integration guide
+- `docs/llm-analytics.md` - Detailed LLM analytics documentation
+- `.github/instructions/posthog.instructions.md` - PostHog LLM analytics patterns
 
 ## Security Considerations
 

@@ -164,7 +164,7 @@ export default function ChatRoute() {
         MOCK_THREADS[0]?.id ?? '1',
     );
     const posthog = usePostHog();
-    const { messages, sendMessage } = useChat();
+    const { messages, sendMessage, status } = useChat();
     const displayedMessages = [...MOCK_MESSAGES, ...messages];
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -183,6 +183,8 @@ export default function ChatRoute() {
 
         setInput('');
     };
+
+    const isLoading = status !== 'ready';
 
     return (
         <>
@@ -253,6 +255,7 @@ export default function ChatRoute() {
                                     setInput(event.currentTarget.value)
                                 }
                                 className="w-full"
+                                disabled={isLoading}
                             />
                         </form>
                     </section>

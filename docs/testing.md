@@ -98,13 +98,6 @@ describe("Button", () => {
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  test("applies variant classes", () => {
-    const { container } = render(<Button variant="primary">Click me</Button>);
-    const button = container.querySelector("button");
-
-    expect(button).toHaveClass("btn-primary");
-  });
-
   test("disables button when disabled prop is true", () => {
     render(<Button disabled>Click me</Button>);
     expect(screen.getByRole("button")).toBeDisabled();
@@ -457,14 +450,14 @@ tests/
 
 ## Best Practices
 
-1. **Test behavior, not implementation** - Focus on what the user sees and does
-2. **Use Testing Library queries** - Prefer `getByRole` over `getByTestId`
-3. **Avoid testing implementation details** - Test the public API
-4. **Mock external dependencies** - Database, APIs, authentication
-5. **Keep tests focused** - One assertion per test when possible
-6. **Use descriptive test names** - Clearly describe what is being tested
-7. **Set up and tear down properly** - Clean state between tests
-8. **Run tests in CI** - Automate testing in your deployment pipeline
+Iridium follows a behavior-first testing philosophy:
+
+1. **Exercise public contracts** – Interact with components via props, hooks via their return values, and services via exported functions. Avoid reaching into module internals or private helpers.
+2. **Assert observable outcomes** – Prefer checking rendered text, accessibility state (`toBeDisabled`, `toHaveAccessibleName`), API payloads, and side effects. Only assert on raw class names when those classes surface meaningful state (e.g., loading spinners).
+3. **Prioritize meaningful scenarios** – Cover business rules, error handling, and user flows before cosmetic permutations. A single representative variant test is enough unless variants change behavior.
+4. **Isolate external systems** – Mock network calls, Prisma access, and analytics to keep tests hermetic and fast. Reset mocks in `beforeEach`.
+5. **Keep tests tight** – Use Arrange–Act–Assert, descriptive names, and minimize duplication. If a test feels hard to write, consider refactoring the code under test.
+6. **Fail fast in CI** – Run unit tests on every PR and push. Add coverage only where it drives quality (critical paths, regression-prone code).
 
 ## Coverage
 

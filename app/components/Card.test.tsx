@@ -3,95 +3,79 @@ import { render, screen } from '@testing-library/react';
 import { Card } from './Card';
 
 describe('Card', () => {
-    test('renders children', () => {
+    test('renders body content', () => {
         render(<Card>Test Content</Card>);
         expect(screen.getByText('Test Content')).toBeInTheDocument();
     });
 
-    test('renders with title', () => {
+    test('renders title heading when provided', () => {
         render(<Card title="Test Title">Content</Card>);
-        expect(screen.getByText('Test Title')).toBeInTheDocument();
-        expect(screen.getByText('Test Title').tagName).toBe('H2');
+        const heading = screen.getByRole('heading', { name: 'Test Title' });
+        expect(heading.tagName).toBe('H2');
     });
 
-    test('renders with actions', () => {
-        render(
-            <Card actions={<button>Action Button</button>}>Content</Card>,
+    test('renders actions region only when provided', () => {
+        const { rerender } = render(<Card>Content</Card>);
+        expect(
+            screen.queryByRole('button', { name: 'Action Button' }),
+        ).toBeNull();
+
+        rerender(
+            <Card actions={<button type="button">Action Button</button>}>
+                Content
+            </Card>,
         );
-        expect(screen.getByText('Action Button')).toBeInTheDocument();
+
+        expect(
+            screen.getByRole('button', { name: 'Action Button' }),
+        ).toBeInTheDocument();
     });
 
-    test('renders with image at top', () => {
-        render(
+    test('places image before content when position is top', () => {
+        const { container } = render(
             <Card
                 image={{
-                    src: '/test-image.jpg',
-                    alt: 'Test Image',
+                    src: '/top-image.jpg',
+                    alt: 'Top Image',
                     position: 'top',
                 }}
             >
-                Content
+                Body content
             </Card>,
         );
-        const image = screen.getByAltText('Test Image');
-        expect(image).toBeInTheDocument();
-        expect(image).toHaveAttribute('src', '/test-image.jpg');
+
+        const wrapper = container.firstElementChild;
+        const [figure, body] = Array.from(wrapper?.children ?? []);
+        expect(screen.getByAltText('Top Image')).toBeInTheDocument();
+        expect(figure?.tagName).toBe('FIGURE');
+        expect(body?.className).toContain('card-body');
     });
 
-    test('renders with image at bottom', () => {
-        render(
+    test('places image after content when position is bottom', () => {
+        const { container } = render(
             <Card
                 image={{
-                    src: '/test-image.jpg',
-                    alt: 'Test Image',
+                    src: '/bottom-image.jpg',
+                    alt: 'Bottom Image',
                     position: 'bottom',
                 }}
             >
-                Content
+                Body content
             </Card>,
         );
-        const image = screen.getByAltText('Test Image');
-        expect(image).toBeInTheDocument();
+
+        const wrapper = container.firstElementChild;
+        const children = Array.from(wrapper?.children ?? []);
+        const lastChild = children.at(-1);
+
+        expect(screen.getByAltText('Bottom Image')).toBeInTheDocument();
+        expect(lastChild?.tagName).toBe('FIGURE');
     });
 
-    test('applies size variant classes', () => {
-        const { container } = render(<Card size="lg">Content</Card>);
-        expect(container.firstChild).toHaveClass('card-lg');
-    });
-
-    test('applies border variant', () => {
-        const { container } = render(<Card variant="border">Content</Card>);
-        expect(container.firstChild).toHaveClass('card-border');
-    });
-
-    test('applies side layout', () => {
-        const { container } = render(<Card side>Content</Card>);
-        expect(container.firstChild).toHaveClass('card-side');
-    });
-
-    test('applies custom className', () => {
+    test('supports custom class names for outer container', () => {
         const { container } = render(
-            <Card className="custom-class">Content</Card>,
+            <Card className="custom-card">Content</Card>,
         );
-        expect(container.firstChild).toHaveClass('custom-class');
-    });
-
-    test('renders complete card with all props', () => {
-        render(
-            <Card
-                title="Complete Card"
-                actions={<button>Action</button>}
-                image={{ src: '/img.jpg', alt: 'Image' }}
-                size="md"
-                variant="border"
-            >
-                Card body content
-            </Card>,
-        );
-
-        expect(screen.getByText('Complete Card')).toBeInTheDocument();
-        expect(screen.getByText('Card body content')).toBeInTheDocument();
-        expect(screen.getByText('Action')).toBeInTheDocument();
-        expect(screen.getByAltText('Image')).toBeInTheDocument();
+        expect(container.firstChild).toHaveClass('custom-card');
     });
 });

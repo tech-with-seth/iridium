@@ -40,10 +40,11 @@ describe('TextInput', () => {
 
     test('applies error color when error present', () => {
         const { container } = render(
-            <TextInput label="Email" error="Invalid email" />,
+            <TextInput label="Email" color="success" error="Invalid email" />,
         );
         const input = container.querySelector('input');
         expect(input).toHaveClass('input-error');
+        expect(input).not.toHaveClass('input-success');
     });
 
     test('prioritizes error over helper text', () => {
@@ -56,30 +57,6 @@ describe('TextInput', () => {
         );
         expect(screen.getByText('Invalid email')).toBeInTheDocument();
         expect(screen.queryByText('Enter your email')).not.toBeInTheDocument();
-    });
-
-    test('applies size variant classes', () => {
-        const { container } = render(<TextInput size="lg" />);
-        const input = container.querySelector('input');
-        expect(input).toHaveClass('input-lg');
-    });
-
-    test('applies color variant classes', () => {
-        const { container } = render(<TextInput color="primary" />);
-        const input = container.querySelector('input');
-        expect(input).toHaveClass('input-primary');
-    });
-
-    test('applies ghost variant', () => {
-        const { container } = render(<TextInput variant="ghost" />);
-        const input = container.querySelector('input');
-        expect(input).toHaveClass('input-ghost');
-    });
-
-    test('applies custom className to input', () => {
-        const { container } = render(<TextInput className="custom-input" />);
-        const input = container.querySelector('input');
-        expect(input).toHaveClass('custom-input');
     });
 
     test('handles disabled state', () => {

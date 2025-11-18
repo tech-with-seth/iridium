@@ -599,97 +599,40 @@ Coverage reports are generated in:
 - 100% coverage on utility functions
 - Focus on meaningful tests over coverage metrics
 
-## Best Practices
+## Core Principles
 
-### DO:
+1. **Test behavior-first** – Favor observable outcomes (rendered text, stateful side-effects, API responses) over implementation details such as internal state, private helpers, or CSS classes. Only assert on classes when they reflect a contractually visible state (e.g., loading spinners, success/error banners).
+2. **Exercise public APIs** – Only interact with the code the way production code does (component props, exported functions). Avoid reaching into module internals with `jest.requireActual`, accessing private helpers, or mutating module state.
+3. **Prioritize critical logic** – Cover business rules, data mutations, security boundaries, error paths, and user flows before cosmetic permutations. Snapshot coverage should focus on structured output (JSON, HTML fragments), not entire component trees.
+4. **Isolate external effects** – Mock network calls, databases, timers, and global singletons. Keep tests deterministic and fast by avoiding live network I/O, file system writes, or environment-dependent behavior.
+5. **Keep tests focused** – Each test should validate one idea. Prefer Arrange–Act–Assert formatting and descriptive names that communicate behavior. Complex flows can be split across multiple spec blocks.
 
-✅ **Test behavior, not implementation**
+## What to Test
 
-```tsx
-// Good: Test what the user sees/does
-expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+- **Business rules**: validation logic, permission checks, feature flag behavior, caching decisions.
+- **Data flow**: transformations applied to inputs, serialization/deserialization, Prisma query payloads (via mocks).
+- **User interactions**: click/keyboard flows, form submissions, modal open/close, optimistic updates.
+- **Side effects**: dispatched analytics events, API calls, navigation, session updates (assert via mocks/spies).
+- **Error handling**: thrown/rejected paths, fallback UI, retry logic.
+- **Critical rendering states**: loading, empty, success, error. Assert text or semantic indicators rendered to the user.
+- **Public contracts**: exported hooks, utilities, API responses. Assert return shapes and type guards.
 
-// Bad: Test implementation details
-expect(component.state.isSubmitting).toBe(false);
-```
+## What *Not* to Test
 
-✅ **Use descriptive test names**
+- **Third-party libraries**: Do not re-test React Router, DaisyUI, Prisma, etc. Trust verified libraries unless you wrap them with custom logic.
+- **Pure styling**: Avoid assertions on raw class names unless those classes are the only observable contract (e.g., DaisyUI states that drive accessibility). Prefer semantic assertions (`toBeDisabled`, `toHaveAccessibleName`).
+- **Implementation details**: Internal helper functions, private state, or values derived solely for rendering. If you must test them, promote them into exported, reusable utilities.
+- **Multiple variations of the same behavior**: Once a representative variant is covered, additional permutations with identical behavior add little value. Use table-driven tests for concise coverage when necessary.
+- **Transitory console output or logging**: Do not assert on `console.log`/`console.error` unless verifying that logging is the behavior.
 
-```ts
-// Good
-it('displays error message when email is invalid');
+## Style Guide
 
-// Bad
-it('test 1');
-```
-
-✅ **Arrange-Act-Assert pattern**
-
-```ts
-// Arrange: Set up test data
-const user = createMockUser();
-
-// Act: Perform action
-const result = await getUserProfile(user.id);
-
-// Assert: Verify result
-expect(result.name).toBe('Test User');
-```
-
-✅ **Test edge cases and error states**
-
-```ts
-it('handles null user gracefully', async () => {
-    vi.mocked(getUserProfile).mockResolvedValue(null);
-    const result = await loader({ request, params: {}, context: {} });
-    expect(result.status).toBe(404);
-});
-```
-
-✅ **Clear mocks between tests**
-
-```ts
-beforeEach(() => {
-    vi.clearAllMocks();
-});
-```
-
-### DON'T:
-
-❌ **Don't test third-party libraries**
-
-```ts
-// Bad: Testing React Router's redirect
-it('redirects to home', () => {
-    expect(redirect).toHaveBeenCalledWith('/');
-});
-
-// Good: Test your business logic
-it('redirects to home after successful logout', async () => {
-    await action({ request, params: {}, context: {} });
-    expect(deleteSession).toHaveBeenCalled();
-});
-```
-
-❌ **Don't use implementation details for queries**
-
-```tsx
-// Bad
-const element = container.querySelector('.btn-primary');
-
-// Good
-const element = screen.getByRole('button', { name: /submit/i });
-```
-
-❌ **Don't write overly complex tests**
-
-If a test is hard to write, the code may need refactoring.
-
-❌ **Don't ignore flaky tests**
-
-Fix or delete flaky tests immediately. They erode trust in the test suite.
-
----
+- **Arrange–Act–Assert**: Make each section explicit. Setup shared fixtures in `beforeEach` only when they are reused.
+- **Descriptive names**: `it('redirects to dashboard after successful sign-in')` reads better than `it('works')`.
+- **Happy DOM utilities**: Use Testing Library queries (`getByRole`, `findByText`) rather than `querySelector`.
+- **Minimal mocking surface**: Mock only what you need, and reset mocks using `vi.clearAllMocks()`/`vi.resetAllMocks()` in `beforeEach`.
+- **Avoid inline snapshots**: Prefer explicit assertions to snapshots to keep tests intentional.
+- **Suppress noisy logs**: Spy on `console.error`/`console.warn` when testing error paths to keep output clean, but restore after each test.
 
 ## Quick Reference
 
@@ -701,18 +644,14 @@ Fix or delete flaky tests immediately. They erode trust in the test suite.
 | `npm run test:coverage`        | Generate coverage report    |
 | `vi.mock('module')`            | Mock a module               |
 | `vi.fn()`                      | Create a mock function      |
-| `vi.clearAllMocks()`           | Clear all mock call history |
-| `expect().toBeInTheDocument()` | Assert element is rendered  |
-| `screen.getByRole()`           | Query element by ARIA role  |
+| `vi.clearAllMocks()`           | Clear mock call history     |
+| `expect(...).toBeInTheDocument()` | Assert element is rendered |
+| `screen.getByRole()`           | Query by accessible role    |
 
 ## Example Test Files
-
-Reference these files for complete examples:
 
 - **Component:** `app/components/Button.test.tsx`
 - **Utility:** `app/lib/form-validation.server.test.ts`
 - **Model:** `app/models/user.server.test.ts`
 
----
-
-For more information, see the [Vitest documentation](https://vitest.dev/).
+Refer to the [Vitest documentation](https://vitest.dev/) and [Testing Library documentation](https://testing-library.com/) for advanced patterns.

@@ -678,6 +678,455 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
 5. Assign issues to team members
 6. Create alerts for critical errors
 
+## LLM Analytics
+
+PostHog provides comprehensive analytics for AI/LLM features through the `@posthog/ai` package. This integration automatically captures detailed metrics about every AI generation.
+
+### Setup
+
+The LLM analytics integration is already configured in Iridium:
+
+1. **Dependencies installed**: `@posthog/ai` and `posthog-node` packages
+2. **Server-side client**: `~/lib/posthog.ts` provides `postHogClient` singleton
+3. **Chat endpoint**: `~/routes/api/chat.ts` wraps OpenAI client with tracing
+
+### Environment Variables
+
+Add server-side PostHog credentials (different from client-side analytics):
+
+```bash
+# Server-side PostHog (for LLM analytics)
+POSTHOG_API_KEY="phc_your-posthog-project-api-key"
+POSTHOG_HOST="https://us.i.posthog.com"  # or "https://eu.i.posthog.com"
+
+# OpenAI (required for AI features)
+OPENAI_API_KEY="sk-proj-your-openai-api-key"
+```
+
+Note: `POSTHOG_API_KEY` (server-side) is different from `VITE_POSTHOG_API_KEY` (client-side).
+
+### Basic Usage
+
+Wrap your Vercel AI SDK model with PostHog tracing:
+
+```typescript
+import { createOpenAI } from '@ai-sdk/openai';
+import { withTracing } from '@posthog/ai';
+import { postHogClient } from '~/lib/posthog';
+
+const openAIClient = createOpenAI({
+    apiKey: process.env.OPENAI_API_KEY!,
+});
+
+const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+});
+
+// Use model with streamText or generateText
+const result = streamText({
+    model,
+    messages: convertToModelMessages(messages),
+});
+```
+
+### Captured Events
+
+Each LLM call automatically generates an `$ai_generation` event with:
+
+```typescript
+{
+    $ai_model: 'gpt-4o',           // Model used
+    $ai_latency: 1.234,            // Response time in seconds
+    $ai_input_tokens: 150,          // Prompt tokens
+    $ai_output_tokens: 450,         // Completion tokens
+    $ai_total_cost_usd: 0.0234,    // Estimated cost
+    $ai_tools: [...],              // Available tools/functions
+    $ai_input: [...],              // Prompt messages
+    $ai_output_choices: [...],     // Response choices
+    // Plus any custom properties
+}
+```
+
+### Enriching Events
+
+Add custom properties for better analytics:
+
+```typescript
+const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+    posthogTraceId: `conversation-${conversationId}`, // Group related calls
+    posthogProperties: {
+        conversationId,
+        feature: 'customer-support',
+        userPlan: user.plan,
+        intent: 'troubleshooting',
+        sessionId: request.headers.get('x-request-id'),
+    },
+    posthogGroups: {
+        company: user.organizationId, // Organization-level analytics
+    },
+});
+```
+
+### Privacy Mode
+
+Exclude sensitive prompt/response data while keeping metrics:
+
+```typescript
+const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+    posthogPrivacyMode: true, // Excludes $ai_input and $ai_output_choices
+});
+```
+
+Privacy mode still captures:
+
+- Token counts
+- Latency
+- Cost
+- Model name
+- Tools used
+- Custom properties
+
+### Trace-Level Analytics
+
+Group multiple LLM calls into conversation traces:
+
+```typescript
+// Generate trace ID for the conversation
+const traceId = `chat-${conversationId}`;
+
+// First message
+const model1 = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+    posthogTraceId: traceId,
+    posthogProperties: { messageIndex: 1 },
+});
+
+// Follow-up message (same trace)
+const model2 = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+    posthogTraceId: traceId,
+    posthogProperties: { messageIndex: 2 },
+});
+```
+
+View conversation-level analytics in PostHog's **Traces** tab:
+
+- Total conversation cost
+- Average latency per message
+- Total tokens used
+- Tool usage patterns
+
+### Cost Monitoring
+
+Track AI spending across dimensions:
+
+```typescript
+// Add cost-tracking properties
+const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    posthogDistinctId: user.id,
+    posthogProperties: {
+        feature: 'content-generation',
+        userPlan: user.plan, // Track cost by plan tier
+        department: user.department, // Track cost by department
+    },
+});
+```
+
+Create PostHog insights to monitor:
+
+- Total cost by user, feature, or organization
+- Cost trends over time
+- Most expensive models or features
+- Token usage patterns
+
+### Anonymous LLM Tracking
+
+Track LLM calls without identifying users:
+
+```typescript
+const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+    // Omit posthogDistinctId for anonymous tracking
+    posthogProperties: {
+        feature: 'public-demo',
+        source: 'landing-page',
+    },
+});
+```
+
+### Integration with Feature Flags
+
+Use PostHog feature flags to control AI models:
+
+```typescript
+import { requireUser } from '~/lib/session.server';
+import { postHogClient } from '~/lib/posthog';
+
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+
+    // Check feature flag for model selection
+    const advancedModel = await postHogClient.isFeatureEnabled(
+        'advanced-ai-model',
+        user.id,
+    );
+
+    const modelName = advancedModel ? 'gpt-4o' : 'gpt-4o-mini';
+
+    const model = withTracing(openAIClient(modelName), postHogClient, {
+        posthogDistinctId: user.id,
+        posthogProperties: {
+            model: modelName,
+            featureFlag: 'advanced-ai-model',
+            flagEnabled: advancedModel,
+        },
+    });
+
+    // Use model...
+}
+```
+
+### Real-World Examples
+
+#### Customer Support Chat
+
+```typescript
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+    const { messages, ticketId } = await request.json();
+
+    const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+        posthogDistinctId: user.id,
+        posthogTraceId: `support-ticket-${ticketId}`,
+        posthogProperties: {
+            feature: 'customer-support',
+            ticketId,
+            ticketPriority: ticket.priority,
+            ticketCategory: ticket.category,
+            agentAssigned: ticket.agentId || 'ai-only',
+        },
+        posthogGroups: {
+            company: user.organizationId,
+        },
+    });
+
+    const result = streamText({
+        model,
+        messages: convertToModelMessages(messages),
+        system: 'You are a helpful customer support assistant.',
+    });
+
+    return result.toUIMessageStreamResponse();
+}
+```
+
+#### Code Generation with Model Selection
+
+```typescript
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+    const { prompt, complexity } = await request.json();
+
+    // Use advanced model for complex tasks
+    const modelName = complexity === 'advanced' ? 'gpt-4o' : 'gpt-4o-mini';
+
+    const model = withTracing(openAIClient(modelName), postHogClient, {
+        posthogDistinctId: user.id,
+        posthogTraceId: `codegen-${Date.now()}`,
+        posthogProperties: {
+            feature: 'code-generation',
+            language: 'typescript',
+            framework: 'react',
+            complexity,
+            modelUsed: modelName,
+        },
+    });
+
+    const result = await generateText({
+        model,
+        prompt,
+        system: 'You are an expert TypeScript and React developer.',
+    });
+
+    return data({ code: result.text });
+}
+```
+
+#### Content Generation with Privacy Mode
+
+```typescript
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+    const { topic, tone } = await request.json();
+
+    // Enable privacy mode for user-generated content
+    const model = withTracing(openAIClient('gpt-4o-mini'), postHogClient, {
+        posthogDistinctId: user.id,
+        posthogPrivacyMode: true, // Don't log sensitive content
+        posthogProperties: {
+            feature: 'content-generation',
+            contentType: 'blog-post',
+            tone,
+            targetLength: 1000,
+        },
+    });
+
+    const result = await generateText({
+        model,
+        prompt: `Write a blog post about ${topic} in a ${tone} tone.`,
+    });
+
+    return data({ content: result.text });
+}
+```
+
+### Viewing Analytics
+
+1. Navigate to **LLM Analytics** in PostHog dashboard
+2. **Generations tab**: Individual LLM calls with full details
+3. **Traces tab**: Conversation-level analytics
+4. Filter by:
+    - User (distinct ID)
+    - Model (gpt-4o, gpt-4o-mini, etc.)
+    - Cost range
+    - Latency
+    - Custom properties (feature, plan, etc.)
+5. Create insights and dashboards:
+    - Total AI spend by feature
+    - Average tokens per user
+    - Latency trends over time
+    - Most expensive conversations
+
+### Setting Up Alerts
+
+Create PostHog alerts for:
+
+1. **High costs**: Alert when daily AI spend exceeds threshold
+2. **Slow responses**: Alert when latency > 5 seconds
+3. **Errors**: Alert on failed LLM calls
+4. **Unusual patterns**: Alert on sudden spikes in usage
+
+### Best Practices
+
+1. **Always pass distinct ID**: Enables user-level tracking and cohort analysis
+2. **Use trace IDs**: Group related LLM calls into conversations or sessions
+3. **Add meaningful properties**: Include feature, intent, plan, organization for filtering
+4. **Enable privacy mode**: For sensitive data (medical, legal, financial, PII)
+5. **Monitor costs regularly**: Set up weekly cost review dashboards
+6. **Track tool usage**: Identify which tools provide value
+7. **Measure user impact**: Correlate LLM usage with user engagement/retention
+8. **A/B test models**: Compare GPT-4o vs GPT-4o-mini performance and cost
+9. **Set cost budgets**: Use feature flags to limit expensive models to certain users
+10. **Document trace IDs**: Use consistent naming conventions for easier filtering
+
+### Performance Optimization
+
+#### Model Selection Strategy
+
+```typescript
+// Use cheaper model for simple tasks
+const getModelForComplexity = (complexity: string) => {
+    switch (complexity) {
+        case 'simple':
+            return 'gpt-4o-mini'; // ~$0.15 per 1M tokens
+        case 'moderate':
+            return 'gpt-4o-mini'; // Still cost-effective
+        case 'complex':
+            return 'gpt-4o'; // ~$2.50 per 1M tokens
+        default:
+            return 'gpt-4o-mini';
+    }
+};
+
+const model = withTracing(
+    openAIClient(getModelForComplexity(taskComplexity)),
+    postHogClient,
+    {
+        posthogDistinctId: user.id,
+        posthogProperties: {
+            taskComplexity,
+            modelSelected: getModelForComplexity(taskComplexity),
+        },
+    },
+);
+```
+
+#### Caching Responses
+
+```typescript
+import { cache } from '~/lib/cache.server';
+import { getUserScopedKey } from '~/lib/cache';
+
+export async function action({ request }: Route.ActionArgs) {
+    const user = await requireUser(request);
+    const { prompt } = await request.json();
+
+    // Check cache first
+    const cacheKey = getUserScopedKey(user.id, `ai-response-${hash(prompt)}`);
+    const cached = cache.getKey(cacheKey);
+
+    if (cached) {
+        // Track cache hit
+        postHogClient.capture({
+            distinctId: user.id,
+            event: 'ai_cache_hit',
+            properties: { feature: 'chat', prompt: prompt.substring(0, 50) },
+        });
+        return data({ text: cached });
+    }
+
+    // Cache miss - call LLM
+    const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
+        posthogDistinctId: user.id,
+        posthogProperties: { feature: 'chat', cacheHit: false },
+    });
+
+    const result = await generateText({ model, prompt });
+
+    // Cache for 1 hour
+    cache.setKey(cacheKey, result.text, 3600);
+
+    return data({ text: result.text });
+}
+```
+
+### Troubleshooting
+
+#### Events not appearing
+
+1. Check `POSTHOG_API_KEY` is set (server-side, no `VITE_` prefix)
+2. Verify `POSTHOG_HOST` matches your region (us.i.posthog.com or eu.i.posthog.com)
+3. Ensure `postHogClient` is imported from `~/lib/posthog`
+4. Check PostHog dashboard after 1-2 minutes (events aren't instant)
+5. Look for errors in server logs
+
+#### Missing cost data
+
+- Cost estimation requires token counts from OpenAI API
+- Costs are approximate based on published pricing
+- Custom fine-tuned models may not have cost data
+
+#### Privacy mode not excluding data
+
+- Verify `posthogPrivacyMode: true` is set in `withTracing()` options
+- Privacy mode only affects `$ai_input` and `$ai_output_choices`
+- Other properties (tokens, cost, latency) are still captured
+
+#### Trace grouping not working
+
+- Ensure same `posthogTraceId` is used for all calls in a conversation
+- Trace IDs must be strings
+- Check for typos in trace ID generation
+
+### Additional Resources
+
+- [PostHog LLM Analytics Docs](https://posthog.com/docs/llm-analytics)
+- [Vercel AI SDK Integration](https://posthog.com/docs/llm-analytics/installation/vercel-ai)
+- [PostHog Node SDK Reference](https://posthog.com/docs/libraries/node)
+- [Manual Event Capture Schema](https://posthog.com/docs/llm-analytics/manual-capture)
+- [LLM Analytics Best Practices](https://posthog.com/docs/llm-analytics/best-practices)
+
 ## Server-Side Events
 
 For server-side event tracking (e.g., API routes):
