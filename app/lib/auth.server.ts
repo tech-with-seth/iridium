@@ -1,6 +1,12 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { polar, usage, portal } from '@polar-sh/better-auth';
+import {
+    checkout,
+    polar,
+    usage,
+    portal,
+    webhooks,
+} from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
 import { polarClient } from './polar';
@@ -10,6 +16,17 @@ import {
 } from '~/models/email.server';
 
 export const auth = betterAuth({
+    socialProviders: {
+        github: {
+            clientId: process.env.GITHUB_CLIENT_ID as string,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+        },
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            prompt: 'select_account',
+        },
+    },
     database: prismaAdapter(prisma, {
         provider: 'postgresql',
     }),
@@ -56,27 +73,25 @@ export const auth = betterAuth({
             client: polarClient,
             createCustomerOnSignUp: true,
             use: [
-                // checkout({
-                //     // Add your product configurations here
-                //     products: [{ productId: "your-product-id", slug: "pro" }],
-                //     successUrl:
-                //         process.env.POLAR_SUCCESS_URL || '/payment/success',
-                //     authenticatedUsersOnly: true,
-                // }),
+                checkout({
+                    successUrl:
+                        process.env.POLAR_SUCCESS_URL || '/payment/success',
+                    authenticatedUsersOnly: true,
+                }),
                 portal(),
                 usage(),
-                // webhooks({
-                //     secret: process.env.POLAR_WEBHOOK_SECRET!,
-                //     onCustomerStateChanged: async (payload) => {
-                //         console.log('Customer state changed:', payload);
-                //     },
-                //     onOrderPaid: async (payload) => {
-                //         console.log('Order paid:', payload);
-                //     },
-                //     onPayload: async (payload) => {
-                //         console.log('Polar webhook received:', payload);
-                //     },
-                // }),
+                webhooks({
+                    secret: process.env.POLAR_WEBHOOK_SECRET!,
+                    onCustomerStateChanged: async (payload) => {
+                        console.log('Customer state changed:', payload);
+                    },
+                    onOrderPaid: async (payload) => {
+                        console.log('Order paid:', payload);
+                    },
+                    onPayload: async (payload) => {
+                        console.log('Polar webhook received:', payload);
+                    },
+                }),
             ],
         }),
     ],
