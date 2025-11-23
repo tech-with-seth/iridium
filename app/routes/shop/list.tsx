@@ -52,10 +52,12 @@ export default CacheRoute(function ShopRoute({
                 content="Browse and purchase products from the Iridium shop"
             />
             <Container className="px-4">
-                <Hero className="bg-accent text-accent-content rounded-lg min-h-[200px]">
+                <Hero className="bg-linear-to-r to-accent from-primary text-accent-content rounded-box min-h-[200px]">
                     <div className="text-center">
-                        <h1 className="text-5xl font-bold">Shop</h1>
-                        <p className="py-6">
+                        <h1 className="text-5xl font-bold text-primary-content">
+                            Shop
+                        </h1>
+                        <p className="py-6 text-primary-content">
                             Browse our collection of premium products
                         </p>
                     </div>
@@ -94,7 +96,6 @@ export default CacheRoute(function ShopRoute({
                                     <p className="text-sm text-base-content/70 mb-3 line-clamp-2">
                                         {product.description}
                                     </p>
-
                                     <div className="flex items-center gap-4">
                                         {product.prices[0] &&
                                         (product.prices[0] as ProductPriceFixed)

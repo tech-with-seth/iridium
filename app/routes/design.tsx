@@ -118,7 +118,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
         children: React.ReactNode;
         className?: string;
     }) => (
-        <div className={cx(`bg-base-200 p-4 rounded-xl`, className)}>
+        <div className={cx(`bg-base-200 p-4 rounded-box`, className)}>
             {children}
         </div>
     );
@@ -835,7 +835,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             <Hero
                                 overlay
                                 image="https://picsum.photos/1200/400"
-                                className="rounded-lg min-h-[300px]"
+                                className="rounded-box min-h-[300px]"
                             >
                                 <div className="text-center text-neutral-content">
                                     <h1 className="text-5xl font-bold">

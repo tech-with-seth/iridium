@@ -114,7 +114,7 @@ export default function ChatThreadRoute({
                 </div>
             )}
             {/* TODO: Fix heights to feel more "fit" to the viewport */}
-            <div className="flex-1 flex flex-col gap-2 bg-base-100 rounded-md p-8 min-h-[500px] max-h-[700px] overflow-y-scroll">
+            <div className="flex-1 flex flex-col gap-2 bg-base-100 rounded-box p-8 min-h-[500px] max-h-[700px] overflow-y-scroll">
                 {/* Chat messages go here */}
                 {messages.length === 0 && (
                     <div className="flex flex-col gap-8 justify-center items-center h-full">
@@ -172,7 +172,7 @@ export default function ChatThreadRoute({
                     </div>
                 )}
             </div>
-            <div className="bg-base-100 p-2 rounded-md">
+            <div className="bg-base-100 p-2 rounded-box">
                 <form
                     className="flex items-center gap-2"
                     onSubmit={(e) => {

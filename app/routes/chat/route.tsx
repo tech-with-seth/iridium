@@ -173,7 +173,7 @@ export default function ChatRouteLayout({ loaderData }: Route.ComponentProps) {
                     </threadFetcher.Form>
                     <ul className="space-y-2">
                         {loaderData.threads.length === 0 ? (
-                            <div className="bg-base-100 p-4 rounded-md flex flex-col items-center justify-center">
+                            <div className="bg-base-100 p-4 rounded-box flex flex-col items-center justify-center">
                                 <div className="w-12 h-12 rounded-full bg-base-300 p-2 flex items-center justify-center mb-4">
                                     <SpoolIcon className="w-6 h-6 stroke-base-content" />
                                 </div>

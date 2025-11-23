@@ -568,7 +568,7 @@ export default function Dashboard() {
                                 </p>
                             </div>
                             {/* Mock chart area so the card has visible content in demos */}
-                            <div className="mt-4 rounded-lg bg-base-200 p-4">
+                            <div className="mt-4 rounded-box bg-base-200 p-4">
                                 <p className="mb-2 text-sm text-base-content/70">
                                     Trend (mock)
                                 </p>

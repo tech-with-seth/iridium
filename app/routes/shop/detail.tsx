@@ -217,7 +217,7 @@ export default CacheRoute(function ShopDetailsRoute({
                                 </div>
                                 <Link
                                     to={`/shop/checkout?products=${encodeURIComponent(loaderData.details!.id)}`}
-                                    className="inline-block w-full text-center bg-primary text-white py-3 rounded-lg font-semibold shadow-sm hover:shadow-md transition"
+                                    className="inline-block w-full text-center bg-primary text-white py-3 rounded-selector font-semibold shadow-sm hover:shadow-md transition"
                                 >
                                     Purchase Now
                                 </Link>
