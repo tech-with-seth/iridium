@@ -12,7 +12,7 @@ import z from 'zod';
 
 import { getPostHogClient } from '~/lib/posthog';
 import { getUserFromSession } from '~/lib/session.server';
-import { saveChat, updateThreadTitle } from '~/models/thread.server';
+import { saveChat } from '~/models/thread.server';
 import type { Route } from './+types/chat';
 
 const openAIClient = createOpenAI({
