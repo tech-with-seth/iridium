@@ -15,16 +15,12 @@ FROM node:20-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-ARG RESEND_API_KEY
-ENV RESEND_API_KEY=$RESEND_API_KEY
 RUN rm -f prisma.config.ts
 RUN npx prisma generate --schema=./prisma/schema.prisma
 RUN npm run build
 
 # Stage 4: slim runtime image with compiled artifacts and production deps
 FROM node:20-alpine
-ARG RESEND_API_KEY
-ENV RESEND_API_KEY=$RESEND_API_KEY
 COPY ./package.json package-lock.json /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
