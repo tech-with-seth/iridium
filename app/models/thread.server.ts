@@ -1,6 +1,6 @@
 import { type UIMessage } from 'ai';
 
-import prisma from '~/db.server';
+import { prisma } from '~/db.server';
 
 export function createThread(createdById: string) {
     return prisma.thread.create({
