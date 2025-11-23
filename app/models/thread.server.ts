@@ -1,4 +1,4 @@
-import { generateText, type UIMessage } from 'ai';
+import { type UIMessage } from 'ai';
 
 import prisma from '~/db.server';
 
