@@ -16,6 +16,8 @@ export function ThemeSwitcher({ selectedTheme }: ThemeSwitcherProps) {
         [themeFetcher],
     );
 
+    const isLoading = themeFetcher.state !== 'idle';
+
     return (
         <Select
             options={[
@@ -57,6 +59,7 @@ export function ThemeSwitcher({ selectedTheme }: ThemeSwitcherProps) {
             ]}
             onChange={(event) => handleChange(event.target.value as string)}
             value={selectedTheme}
+            disabled={isLoading}
         />
     );
 }
