@@ -1,34 +1,42 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai';
+import {
+    streamText,
+    convertToModelMessages,
+    tool,
+    stepCountIs,
+    generateText,
+} from 'ai';
 import { withTracing } from '@posthog/ai';
-import type { Route } from './+types/chat';
 import type { UIMessage } from 'ai';
 import z from 'zod';
 
+import { getPostHogClient } from '~/lib/posthog';
 import { getUserFromSession } from '~/lib/session.server';
-import { getPostHogClient, isPostHogEnabled } from '~/lib/posthog';
+import { saveChat, updateThreadTitle } from '~/models/thread.server';
+import type { Route } from './+types/chat';
 
 const openAIClient = createOpenAI({
     apiKey: process.env.OPENAI_API_KEY!,
 });
 
+interface UIMessagesRequestJson {
+    messages: UIMessage[];
+    id: string;
+}
+
 export async function action({ request }: Route.ActionArgs) {
     if (request.method === 'POST') {
-        const { messages }: { messages: UIMessage[] } = await request.json();
-
+        const { messages, id: threadId }: UIMessagesRequestJson =
+            await request.json();
         const user = await getUserFromSession(request);
 
         if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
         const postHogClient = getPostHogClient();
         const baseModel = openAIClient('gpt-5-mini');
-        console.log(
-            '\n\n',
-            '===== postHogClient LOG =====',
-            isPostHogEnabled(),
-            '\n\n',
-        );
+
         const model = postHogClient
             ? withTracing(baseModel, postHogClient, {
                   posthogDistinctId: user.id, // optional
@@ -55,36 +63,30 @@ export async function action({ request }: Route.ActionArgs) {
                         const temperature = Math.round(
                             Math.random() * (90 - 32) + 32,
                         );
-
                         return {
                             location,
                             temperature,
                         };
                     },
                 }),
-                convertFahrenheitToCelsius: tool({
-                    description:
-                        'Convert a temperature in fahrenheit to celsius',
-                    inputSchema: z.object({
-                        temperature: z
-                            .number()
-                            .describe(
-                                'The temperature in fahrenheit to convert',
-                            ),
-                    }),
-                    execute: async ({ temperature }) => {
-                        const celsius = Math.round(
-                            (temperature - 32) * (5 / 9),
-                        );
-
-                        return {
-                            celsius,
-                        };
-                    },
-                }),
             },
         });
 
-        return result.toUIMessageStreamResponse();
+        return result.toUIMessageStreamResponse({
+            originalMessages: messages,
+            onFinish: async ({ messages }) => {
+                try {
+                    await saveChat({
+                        messages,
+                        threadId,
+                        userId: user.id,
+                    });
+                } catch (error) {
+                    postHogClient?.captureException(error, user.id, {
+                        context: { threadId },
+                    });
+                }
+            },
+        });
     }
 }

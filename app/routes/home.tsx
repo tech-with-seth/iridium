@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Alert } from '~/components/Alert';
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
@@ -5,7 +6,23 @@ import { useRootData } from '~/hooks/useRootData';
 
 export default function Home() {
     const data = useRootData();
-    const homePageHeroActive = data?.flagsMap['home_page_hero_image'];
+
+    const homePageHeroActive = useMemo(() => {
+        return data?.allFlags.find(
+            (flag) => flag.key === 'home_page_hero_image',
+        )?.active;
+    }, [data?.allFlags]);
+
+    const alertExperimentActive = useMemo(() => {
+        return data?.allFlags.find((flag) => flag.key === 'alert-experiment')
+            ?.active;
+    }, [data?.allFlags]);
+
+    const homePageIntroCopyExperimentActive = useMemo(() => {
+        return data?.allFlags.find(
+            (flag) => flag.key === 'home_page_intro_copy',
+        )?.active;
+    }, [data?.allFlags]);
 
     return (
         <>
@@ -15,7 +32,7 @@ export default function Home() {
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
             />
             <Container className="px-4">
-                {data?.flagsMap['alert-experiment'] && (
+                {alertExperimentActive && (
                     <Alert status="warning" className="mb-4">
                         You are in the experiment
                     </Alert>
@@ -29,9 +46,9 @@ export default function Home() {
                             `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-2.png)]`,
                     )}
                 ></div>
-                <h1 className="text-5xl font-bold mb-8">Iridium</h1>
+                <h1 className="text-5xl font-bold mb-8">Welcome</h1>
                 <div className="mb-12">
-                    {data?.flagsMap['home_page_intro_copy'] ? (
+                    {homePageIntroCopyExperimentActive ? (
                         <p className="leading-relaxed">
                             Hi-ho! Kermit the Frog here, and let me tell you
                             about Iridium. It's not easy being green, and it's

@@ -33,9 +33,6 @@ export const chatBubbleMessageVariants = cva({
             error: 'chat-bubble-error',
         },
     },
-    defaultVariants: {
-        color: 'primary',
-    },
 });
 
 interface ChatBubbleProps
@@ -60,7 +57,7 @@ interface ChatBubbleMessageProps
         VariantProps<typeof chatBubbleMessageVariants> {}
 
 export function ChatBubbleMessage({
-    color = 'neutral',
+    color,
     className,
     children,
     ...props
@@ -83,7 +80,7 @@ export function ChatBubbleAvatar({
     ...props
 }: PropsWithChildren<ChatBubbleAvatarProps>) {
     return (
-        <div className={cx('chat-image avatar', className)} {...props}>
+        <div className={cx('chat-image', className)} {...props}>
             {children}
         </div>
     );

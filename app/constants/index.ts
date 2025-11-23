@@ -15,6 +15,8 @@ export enum Paths {
     FORGOT_PASSWORD = '/forgot-password',
     HOME = '/',
     INVITATIONS = '/invitations',
+    MESSAGES = '/threads/:threadId/messages',
+    MESSAGE_DETAIL = '/threads/:threadId/messages/:messageId',
     ORGANIZATIONS = '/organizations',
     PAYMENT_SUCCESS = '/payment/success',
     POLAR = '/polar',
@@ -28,6 +30,9 @@ export enum Paths {
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
     SUCCESS = '/success',
+    THREAD = '/:threadId',
+    THREADS = '/threads',
+    THREAD_DETAIL = '/threads/:threadId',
     VERIFY_EMAIL = '/verify-email',
     WEBHOOKS = '/webhooks',
 }
