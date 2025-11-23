@@ -26,7 +26,10 @@ export default [
         route(Paths.PORTAL, 'routes/shop/portal.tsx'),
         route(Paths.SUCCESS, 'routes/success.tsx'),
         route(Paths.DESIGN, 'routes/design.tsx'),
-        route(Paths.CHAT, 'routes/chat.tsx'),
+        route(Paths.CHAT, 'routes/chat/route.tsx', [
+            index('routes/chat/index.tsx'),
+            route(':threadId', 'routes/chat/thread.tsx'),
+        ]),
         ...prefix(Paths.PROFILE, [
             index('routes/profile/index.tsx'),
             route(Paths.PROFILE_EDIT, 'routes/profile/edit.tsx'),

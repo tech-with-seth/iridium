@@ -730,7 +730,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             <div className="flex flex-wrap items-center gap-4">
                                 <Avatar
                                     src="https://picsum.photos/100/100"
-                                    size={16}
+                                    size="lg"
                                 />
                                 <Avatar status="online" placeholder>
                                     <span className="text-xl">AB</span>
@@ -738,7 +738,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                                 <Avatar
                                     src="https://picsum.photos/101/101"
                                     shape="squircle"
-                                    size={16}
+                                    size="lg"
                                 />
                                 <AvatarGroup>
                                     <Avatar src="https://picsum.photos/102/102" />
@@ -752,7 +752,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             lines={[
                                 {
                                     content:
-                                        '<Avatar src="/img.jpg" size={16} />',
+                                        '<Avatar src="/img.jpg" size="lg" />',
                                 },
                                 {
                                     content:

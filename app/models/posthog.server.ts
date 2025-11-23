@@ -42,7 +42,7 @@ export async function isFeatureEnabled(flagName: string, request: Request) {
     }
 }
 
-export async function getAllFeatureFlags(request: Request) {
+export async function flagsEnabledForUser(request: Request) {
     const user = await getUserFromSession(request);
 
     if (!user) {
@@ -55,6 +55,7 @@ export async function getAllFeatureFlags(request: Request) {
         }
 
         const featureFlags = await postHogClient.getAllFlags(user?.id);
+
         return featureFlags;
     } catch (error) {
         postHogClient?.captureException(error);

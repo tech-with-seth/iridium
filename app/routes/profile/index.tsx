@@ -120,7 +120,7 @@ export default function ProfileRoute() {
                         <Avatar
                             src={user?.image ?? undefined}
                             alt={displayName}
-                            size="w-20 h-20"
+                            size="xl"
                             shape="circle"
                             placeholder={!user?.image}
                             className="ring ring-primary/20 ring-offset-2 ring-offset-base-100"

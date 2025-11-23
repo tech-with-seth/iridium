@@ -26,7 +26,7 @@ export default function AuthPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const posthog = usePostHog();
+    const postHog = usePostHog();
 
     const isSignIn = mode === 'signIn';
     const schema = isSignIn ? signInSchema : signUpSchema;
@@ -50,7 +50,7 @@ export default function AuthPage() {
 
         try {
             // Track attempt
-            posthog.capture(isSignIn ? 'sign_in_attempt' : 'sign_up_attempt', {
+            postHog.capture(isSignIn ? 'sign_in_attempt' : 'sign_up_attempt', {
                 email: data.email,
             });
 
@@ -63,14 +63,14 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
-                            posthog.capture('sign_in_success', {
+                            postHog.capture('sign_in_success', {
                                 email: data.email,
                             });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
                             setIsLoading(false);
-                            posthog.captureException(ctx.error, {
+                            postHog.captureException(ctx.error, {
                                 email: data.email,
                                 error: ctx?.error?.message || 'unknown',
                             });
@@ -92,14 +92,14 @@ export default function AuthPage() {
                     },
                     {
                         onSuccess: () => {
-                            posthog.capture('sign_up_success', {
+                            postHog.capture('sign_up_success', {
                                 email: signUpData.email,
                                 name: signUpData.name,
                             });
                             navigate(Paths.DASHBOARD);
                         },
                         onError: (ctx) => {
-                            posthog.captureException(ctx.error, {
+                            postHog.captureException(ctx.error, {
                                 email: signUpData.email,
                                 error: ctx?.error?.message || 'unknown',
                             });
@@ -113,7 +113,7 @@ export default function AuthPage() {
                 );
             }
         } catch (error: unknown) {
-            posthog.captureException(error as Error, {
+            postHog.captureException(error as Error, {
                 context: isSignIn ? 'sign_in' : 'sign_up',
                 email: data.email,
                 timestamp: new Date().toISOString(),
@@ -132,13 +132,13 @@ export default function AuthPage() {
                 provider: 'google',
             });
 
-            posthog.capture('google_sign_in_success', {
+            postHog.capture('google_sign_in_success', {
                 email: data.email,
             });
 
             navigate(Paths.DASHBOARD);
         } catch (error: unknown) {
-            posthog.captureException(error as Error, {
+            postHog.captureException(error as Error, {
                 context: 'google_sign_in',
                 timestamp: new Date().toISOString(),
             });
@@ -159,13 +159,13 @@ export default function AuthPage() {
                 provider: 'github',
             });
 
-            posthog.capture('github_sign_in_success', {
+            postHog.capture('github_sign_in_success', {
                 email: data.email,
             });
 
             navigate(Paths.DASHBOARD);
         } catch (error: unknown) {
-            posthog.captureException(error as Error, {
+            postHog.captureException(error as Error, {
                 context: 'github_sign_in',
                 timestamp: new Date().toISOString(),
             });
@@ -181,7 +181,7 @@ export default function AuthPage() {
     const handleToggleMode = () => {
         const newMode: AuthMode = isSignIn ? 'signUp' : 'signIn';
 
-        posthog.capture('auth_mode_toggle', {
+        postHog.capture('auth_mode_toggle', {
             previousMode: mode,
             newMode,
         });

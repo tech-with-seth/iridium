@@ -45,7 +45,9 @@ export function Header() {
                                         <NavLink to="/design">Design</NavLink>
                                     </NavbarMenuItem>
                                     <NavbarMenuItem
-                                        active={location.pathname === '/chat'}
+                                        active={location.pathname.includes(
+                                            '/chat',
+                                        )}
                                     >
                                         <NavLink to="/chat">Chat</NavLink>
                                     </NavbarMenuItem>
