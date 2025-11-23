@@ -39,7 +39,7 @@ export default function Home() {
                 )}
                 <div
                     className={cx(
-                        `bg-bottom bg-cover rounded-xl h-120 border border-black mb-8`,
+                        `bg-bottom bg-cover rounded-box h-120 border border-black mb-8`,
                         homePageHeroActive &&
                             `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-1.png)]`,
                         !homePageHeroActive &&

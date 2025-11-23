@@ -33,7 +33,7 @@ export function Navbar({
 }: NavbarProps) {
     return (
         <div
-            className="navbar rounded-lg shadow-lg bg-base-300 text-base-content"
+            className="navbar rounded-box shadow-lg bg-base-300 text-base-content"
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}
@@ -114,7 +114,7 @@ export function NavbarMenuItem({
     return (
         <li
             className={cx(
-                active && 'menu-active rounded-sm',
+                active && 'menu-active rounded-field',
                 disabled && 'menu-disabled',
                 className,
             )}

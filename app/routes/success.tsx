@@ -55,14 +55,14 @@ export default function PaymentSuccess() {
                             </Alert>
 
                             {/* What's Next */}
-                            <div className="text-left bg-base-200 p-6 rounded-lg">
+                            <div className="text-left bg-base-200 p-6 rounded-box">
                                 <h2 className="font-semibold text-lg mb-3">
                                     What&apos;s Next?
                                 </h2>
                                 <ul className="space-y-2 text-sm">
                                     <li className="flex items-start">
                                         <svg
-                                            className="w-5 h-5 text-success mt-0.5 mr-2 flex-shrink-0"
+                                            className="w-5 h-5 text-success mt-0.5 mr-2 shrink-0"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
