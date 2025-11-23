@@ -1,5 +1,5 @@
 import { render } from '@react-email/components';
-import { resend } from '~/lib/resend';
+import { getResendClient } from '~/lib/resend';
 import VerificationEmail from '~/emails/verification-email';
 import PasswordResetEmail from '~/emails/password-reset-email';
 import WelcomeEmail from '~/emails/welcome-email';
@@ -31,6 +31,8 @@ interface SendEmailOptions {
  * Use this for one-off emails or when you don't have a template
  */
 export async function sendEmail(options: SendEmailOptions) {
+    const resend = getResendClient();
+
     // If Resend is not configured, log and skip (useful for seeding/dev)
     if (!resend) {
         console.warn(

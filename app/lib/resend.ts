@@ -1,12 +1,15 @@
 import { Resend } from 'resend';
 
-/**
- * Resend SDK Client (Singleton)
- *
- * Email service for sending transactional emails.
- * Never call this directly in routes - use functions from `app/models/email.server.ts`
- *
- * @requires RESEND_API_KEY - Environment variable with Resend API key
- * @see https://resend.com/docs
- */
-export const resend = new Resend(process.env.RESEND_API_KEY);
+let resendInstance: Resend | null = null;
+
+if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not defined in environment variables');
+}
+
+export function getResendClient() {
+    if (!resendInstance) {
+        resendInstance = new Resend(process.env.RESEND_API_KEY);
+    }
+
+    return resendInstance;
+}
