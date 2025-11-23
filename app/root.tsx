@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
+    data,
     isRouteErrorResponse,
     Links,
     Meta,
@@ -27,6 +28,7 @@ import type { Route } from './+types/root';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 import './app.css';
+import { themeCookie } from './lib/cookies.server';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -48,12 +50,30 @@ export async function loader({ request }: Route.LoaderArgs) {
     const allFlags = await getFeatureFlags();
     const userFlags = await flagsEnabledForUser(request);
 
+    const cookieHeader = request.headers.get('Cookie');
+    const cookie = (await themeCookie.parse(cookieHeader)) || {};
+
     return {
         allFlags: allFlags.results,
         userFlags,
         role: roleObj?.role,
         user,
+        theme: cookie.theme || 'light',
     };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+    const cookieHeader = request.headers.get('Cookie');
+    const cookie = (await themeCookie.parse(cookieHeader)) || {};
+
+    return data(null, {
+        headers: {
+            'Set-Cookie': await themeCookie.serialize({
+                ...cookie,
+                theme: (await request.formData()).get('theme') as string,
+            }),
+        },
+    });
 }
 
 function FlagsList({ flags }: { flags: FeatureFlag[] }) {
@@ -114,10 +134,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
-    const [selectedTheme, setSelectedTheme] = useState<string>('light');
-
     return (
-        <html lang="en" className="min-h-screen" data-theme={selectedTheme}>
+        <html
+            lang="en"
+            className="min-h-screen"
+            data-theme={data?.theme || 'light'}
+        >
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -157,8 +179,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                             apply to the application interface.
                                         </p>
                                         <ThemeSwitcher
-                                            handleChange={setSelectedTheme}
-                                            selectedTheme={selectedTheme}
+                                            selectedTheme={data?.theme || 'light'}
                                         />
                                     </>
                                 }

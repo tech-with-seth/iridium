@@ -1,14 +1,21 @@
+import { useCallback } from 'react';
 import { Select } from './Select';
+import { useFetcher } from 'react-router';
 
 interface ThemeSwitcherProps {
-    handleChange: (theme: string) => void;
     selectedTheme: string;
 }
 
-export function ThemeSwitcher({
-    handleChange,
-    selectedTheme,
-}: ThemeSwitcherProps) {
+export function ThemeSwitcher({ selectedTheme }: ThemeSwitcherProps) {
+    const themeFetcher = useFetcher();
+
+    const handleChange = useCallback(
+        (theme: string) => {
+            themeFetcher.submit({ theme }, { method: 'POST', action: '/' });
+        },
+        [themeFetcher],
+    );
+
     return (
         <Select
             options={[
