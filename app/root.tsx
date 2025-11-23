@@ -199,7 +199,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                 onClick={() => {
                                     openDrawer();
                                 }}
-                                status="secondary"
+                                status="primary"
                             >
                                 <CogIcon />
                             </Button>
