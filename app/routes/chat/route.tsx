@@ -194,7 +194,7 @@ export default function ChatRouteLayout({ loaderData }: Route.ComponentProps) {
                                                     isNavigating &&
                                                         `pointer-events-none`,
                                                     isActive &&
-                                                        'bg-primary text-primary-content',
+                                                        'bg-secondary text-secondary-content',
                                                 )
                                             }
                                         >
