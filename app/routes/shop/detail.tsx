@@ -102,7 +102,7 @@ export default CacheRoute(function ShopDetailsRoute({
                         <h1 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3">
                             {loaderData.details.name}
                         </h1>
-                        <p className="text-base text-base-content/70 mb-6">
+                        <p className="text-base text-base-content mb-6">
                             {loaderData.details.description}
                         </p>
 
@@ -110,7 +110,7 @@ export default CacheRoute(function ShopDetailsRoute({
                             <Card variant="border" className="p-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <h4 className="text-sm font-medium text-base-content/70">
+                                        <h4 className="text-sm font-bold text-base-content">
                                             Type
                                         </h4>
                                         <p className="mt-1 text-sm">
@@ -122,7 +122,7 @@ export default CacheRoute(function ShopDetailsRoute({
 
                                     {loaderData.details.isRecurring ? (
                                         <div>
-                                            <h4 className="text-sm font-medium text-base-content/70">
+                                            <h4 className="text-sm font-bold text-base-content">
                                                 Billing
                                             </h4>
                                             <p className="mt-1 text-sm capitalize">
@@ -135,7 +135,7 @@ export default CacheRoute(function ShopDetailsRoute({
                                         </div>
                                     ) : (
                                         <div>
-                                            <h4 className="text-sm font-medium text-base-content/70">
+                                            <h4 className="text-sm font-bold text-base-content">
                                                 Status
                                             </h4>
                                             <p className="mt-1 text-sm">
@@ -156,13 +156,10 @@ export default CacheRoute(function ShopDetailsRoute({
                                         </div>
                                     )}
                                 </div>
-                            </Card>
-
-                            <Card variant="border" className="p-6">
-                                <h3 className="text-sm font-medium text-base-content/70">
+                                <h3 className="text-sm font-bold text-base-content">
                                     Details
                                 </h3>
-                                <div className="mt-3 prose text-sm text-base-content/70">
+                                <div className="mt-3 prose text-sm text-base-content">
                                     {/* Keep simple: description already shown above; other metadata could go here */}
                                     <p className="mb-0">
                                         SKU:{' '}
@@ -180,7 +177,7 @@ export default CacheRoute(function ShopDetailsRoute({
                         <div className="sticky top-6">
                             <div className="bg-base-100 border border-base-200 rounded-2xl p-6 shadow-lg">
                                 <div className="mb-3">
-                                    <p className="text-sm text-base-content/60">
+                                    <p className="text-sm text-base-content">
                                         Price
                                     </p>
                                     <div className="flex items-baseline gap-2">
@@ -195,7 +192,7 @@ export default CacheRoute(function ShopDetailsRoute({
                                                 : 'Pay what you want'}
                                         </span>
                                         {loaderData.details.isRecurring && (
-                                            <span className="text-sm text-base-content/60">
+                                            <span className="text-sm text-base-content">
                                                 /{' '}
                                                 {
                                                     loaderData.details
