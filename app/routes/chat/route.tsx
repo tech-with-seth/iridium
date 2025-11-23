@@ -30,7 +30,7 @@ import { cx } from '~/cva.config';
 import { Alert } from '~/components/Alert';
 import { Card } from '~/components/Card';
 import { Spinner } from '~/components/Spinner';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 import { TextInput } from '~/components/TextInput';
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -190,10 +190,11 @@ export default function ChatRouteLayout({ loaderData }: Route.ComponentProps) {
                                             to={`/chat/${id}`}
                                             className={({ isActive }) =>
                                                 cx(
-                                                    `flex-1 bg-base-100 rounded-box cursor-pointer hover:bg-accent transition-colors px-3 py-2`,
+                                                    `bg-base-100 flex-1 rounded-box cursor-pointer px-3 py-2`,
                                                     isNavigating &&
-                                                        `opacity-50 pointer-events-none`,
-                                                    isActive && 'bg-accent/50',
+                                                        `pointer-events-none`,
+                                                    isActive &&
+                                                        'bg-primary text-primary-content',
                                                 )
                                             }
                                         >

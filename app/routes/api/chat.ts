@@ -1,11 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import {
-    streamText,
-    convertToModelMessages,
-    tool,
-    stepCountIs,
-    generateText,
-} from 'ai';
+import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai';
 import { withTracing } from '@posthog/ai';
 import type { UIMessage } from 'ai';
 import z from 'zod';
