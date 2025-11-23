@@ -8,7 +8,7 @@ import {
     webhooks,
 } from '@polar-sh/better-auth';
 
-import prisma from '~/db.server';
+import { prisma } from '~/db.server';
 import { polarClient } from './polar';
 import {
     // sendVerificationEmail,

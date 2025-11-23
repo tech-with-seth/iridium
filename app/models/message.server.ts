@@ -1,4 +1,4 @@
-import prisma from '~/db.server';
+import { prisma } from '~/db.server';
 import type { Message } from '~/generated/prisma/client';
 
 export function addMessageToThread(

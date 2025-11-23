@@ -24,7 +24,7 @@ vi.mock('~/db.server', () => ({
 }));
 
 // Import the mocked prisma after mocking
-import prisma from '~/db.server';
+import { prisma } from '~/db.server';
 
 describe('User Model', () => {
     beforeEach(() => {

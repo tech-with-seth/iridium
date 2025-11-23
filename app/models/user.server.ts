@@ -1,4 +1,4 @@
-import prisma from '~/db.server';
+import { prisma } from '~/db.server';
 import type { User } from '~/generated/prisma/client';
 import { Role } from '~/generated/prisma/client';
 
