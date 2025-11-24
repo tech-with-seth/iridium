@@ -429,7 +429,6 @@ export default function Dashboard() {
                         ))}
                     </StatsContainer>
                 </section>
-
                 <section className="grid gap-6 xl:grid-cols-3">
                     <Card
                         title="Top Customers"
@@ -499,7 +498,6 @@ export default function Dashboard() {
                             </Table>
                         </div>
                     </Card>
-
                     <Card
                         title="Product Pulse"
                         variant="border"
@@ -606,7 +604,6 @@ export default function Dashboard() {
                         </TabContent>
                     </Card>
                 </section>
-
                 <section className="grid gap-6 lg:grid-cols-2">
                     <Card
                         title="Recent Activity"
@@ -648,7 +645,6 @@ export default function Dashboard() {
                             </Timeline>
                         </div>
                     </Card>
-
                     <Card
                         title="Upcoming Milestones"
                         variant="border"
