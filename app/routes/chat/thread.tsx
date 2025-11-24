@@ -22,6 +22,7 @@ import { Alert } from '~/components/Alert';
 import { Card } from '~/components/Card';
 import { Spinner } from '~/components/Spinner';
 import { usePostHog } from 'posthog-js/react';
+import { cx } from '~/cva.config';
 
 export async function loader({ params }: Route.LoaderArgs) {
     const threadId = params.threadId;
@@ -142,6 +143,7 @@ export default function ChatThreadRoute({
                                             ? 'User'
                                             : 'Assistant'
                                     }
+                                    className={cx(message.role === 'assistant' && 'scale-x-[-1]')}
                                 />
                             </div>
                         </ChatBubbleAvatar>

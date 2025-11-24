@@ -155,7 +155,7 @@ export default function ChatRouteLayout({ loaderData }: Route.ComponentProps) {
         threadFetcher.formData?.get('intent') === 'rename-thread';
 
     return (
-        <Container className="p-4">
+        <Container className="px-4">
             {/* TODO: Fix heights to feel more "fit" to the viewport */}
             <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 min-h-[500px] max-h-[800px]">
                 <div className="bg-base-300 p-4 rounded-xl">

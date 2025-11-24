@@ -1,10 +1,10 @@
-import { Link } from 'react-router';
 import { Avatar } from '~/components/Avatar';
 import { Badge } from '~/components/Badge';
 import { buttonVariants } from '~/components/Button';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
+import { Link } from 'react-router';
 import { Paths } from '~/constants';
 import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
 

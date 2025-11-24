@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Alert } from '~/components/Alert';
+
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
@@ -11,11 +11,6 @@ export default function Home() {
         return data?.allFlags.find(
             (flag) => flag.key === 'home_page_hero_image',
         )?.active;
-    }, [data?.allFlags]);
-
-    const alertExperimentActive = useMemo(() => {
-        return data?.allFlags.find((flag) => flag.key === 'alert-experiment')
-            ?.active;
     }, [data?.allFlags]);
 
     const homePageIntroCopyExperimentActive = useMemo(() => {
@@ -32,11 +27,6 @@ export default function Home() {
                 content="Modern full-stack boilerplate with authentication, billing, and AI"
             />
             <Container className="px-4">
-                {alertExperimentActive && (
-                    <Alert status="warning" className="mb-4">
-                        You are in the experiment
-                    </Alert>
-                )}
                 <div
                     className={cx(
                         `bg-bottom bg-cover rounded-box h-120 border border-black mb-8`,

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
     data,
     isRouteErrorResponse,
@@ -26,9 +26,11 @@ import { useRootData } from './hooks/useRootData';
 import type { FeatureFlag } from './types/posthog';
 import type { Route } from './+types/root';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { themeCookie } from './lib/cookies.server';
+import { Alert } from './components/Alert';
 
 import './app.css';
-import { themeCookie } from './lib/cookies.server';
+import { Container } from './components/Container';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -134,6 +136,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
+    const alertExperimentActive = useMemo(() => {
+        return data?.allFlags.find((flag) => flag.key === 'alert-experiment')
+            ?.active;
+    }, [data?.allFlags]);
+
     return (
         <html
             lang="en"
@@ -152,6 +159,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <body className="min-h-screen flex flex-col">
                 <PHProvider>
                     <Header />
+                    {alertExperimentActive && (
+                        <div>
+                            <Container className='px-4'>
+                                <Alert
+                                    status="warning"
+                                    className="mb-4"
+                                >
+                                    <p>You are in the experiment</p>
+                                </Alert>
+                            </Container>
+                        </div>
+                    )}
                     <main className="flex grow flex-col min-h-0">
                         {hasAccessPermissions ? (
                             <Drawer
@@ -179,7 +198,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                             apply to the application interface.
                                         </p>
                                         <ThemeSwitcher
-                                            selectedTheme={data?.theme || 'light'}
+                                            selectedTheme={
+                                                data?.theme || 'light'
+                                            }
                                         />
                                     </>
                                 }
