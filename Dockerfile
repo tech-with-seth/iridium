@@ -12,6 +12,8 @@ RUN npm ci --omit=dev
 
 # Stage 3: compile the app with the full dependency tree
 FROM node:20-alpine AS build-env
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
