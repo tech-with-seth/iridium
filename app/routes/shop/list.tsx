@@ -100,7 +100,7 @@ export default CacheRoute(function ShopRoute({
                                         {product.prices[0] &&
                                         (product.prices[0] as ProductPriceFixed)
                                             .priceAmount ? (
-                                            <Badge color="primary" size="lg">
+                                            <Badge color="secondary" size="lg">
                                                 {formatToCurrency(
                                                     'en-US',
                                                     'usd',
@@ -112,7 +112,7 @@ export default CacheRoute(function ShopRoute({
                                                 )}
                                             </Badge>
                                         ) : (
-                                            <Badge color="primary" size="lg">
+                                            <Badge color="secondary" size="lg">
                                                 PWYW
                                             </Badge>
                                         )}

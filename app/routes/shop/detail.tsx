@@ -1,25 +1,32 @@
 import { data, Link } from 'react-router';
 import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
+import { CacheRoute, createClientLoaderCache } from 'remix-client-cache';
+import invariant from 'tiny-invariant';
 
 import { Badge } from '~/components/Badge';
 import { Button } from '~/components/Button';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { formatToCurrency } from '~/lib/formatters';
-import { polarClient } from '~/lib/polar';
 import { getPostHogClient } from '~/lib/posthog';
-import type { Route } from './+types/detail';
+import { getUserFromSession } from '~/lib/session.server';
+import { polarClient } from '~/lib/polar';
 import { PolarLogo } from '~/components/PolarLogo';
-import { CacheRoute, createClientLoaderCache } from 'remix-client-cache';
+import type { Route } from './+types/detail';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
     try {
         const details = await polarClient.products.get({
             id: params.productId!,
         });
+        invariant(details, 'Product details not found');
+
+        const user = await getUserFromSession(request);
+        invariant(user, 'User not found in session');
 
         return data({
             details,
+            user,
         });
     } catch (error: unknown) {
         console.error('Product list error:', error);
@@ -31,7 +38,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         });
 
         return data(
-            { details: null },
+            { details: null, user: null },
             {
                 status: 500,
                 statusText: 'Failed to load product details',
@@ -213,7 +220,7 @@ export default CacheRoute(function ShopDetailsRoute({
                                     <PolarLogo className="inline-block w-5 h-5" />
                                 </div>
                                 <Link
-                                    to={`/shop/checkout?products=${encodeURIComponent(loaderData.details!.id)}`}
+                                    to={`/shop/checkout?products=${encodeURIComponent(loaderData.details.id)}${loaderData.user ? `&customerEmail=${encodeURIComponent(loaderData.user.email)}&customerName=${encodeURIComponent(loaderData.user.name)}` : ''}`}
                                     className="inline-block w-full text-center bg-primary text-white py-3 rounded-selector font-semibold shadow-sm hover:shadow-md transition"
                                 >
                                     Purchase Now
