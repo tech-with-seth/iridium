@@ -31,6 +31,7 @@ import { Alert } from './components/Alert';
 
 import './app.css';
 import { Container } from './components/Container';
+import { TabContent, TabRadio, Tabs } from './components/Tabs';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -111,6 +112,11 @@ function FlagsList({ flags }: { flags: FeatureFlag[] }) {
                         className="flex flex-col items-start py-4 rounded-box"
                         key={flag.id}
                     >
+                        {flag.name && (
+                            <p className="text-sm text-base-content mb-2">
+                                {flag.name}
+                            </p>
+                        )}
                         <Toggle
                             checked={flag.active}
                             disabled={isTarget && flagFetcher.state !== 'idle'}
@@ -118,11 +124,6 @@ function FlagsList({ flags }: { flags: FeatureFlag[] }) {
                             loading={isTarget && isLoading}
                             onChange={handleOnChange}
                         />
-                        {flag.name && (
-                            <p className="text-sm text-gray-500 mt-2">
-                                {flag.name}
-                            </p>
-                        )}
                     </div>
                 );
             })}
@@ -183,22 +184,35 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                             Toggle feature flags and customize
                                             application settings.
                                         </p>
-                                        <h2 className="text-lg font-semibold">
-                                            Feature Flags
-                                        </h2>
-                                        <FlagsList flags={data.allFlags} />
-                                        <h2 className="mb-4 text-lg font-semibold">
-                                            Theme Switcher
-                                        </h2>
-                                        <p className="mb-4">
-                                            Select the theme to temporarily
-                                            apply to the application interface.
-                                        </p>
-                                        <ThemeSwitcher
-                                            selectedTheme={
-                                                data?.theme || 'light'
-                                            }
-                                        />
+                                        <Tabs variant="lift">
+                                            <TabRadio
+                                                name="my_tabs"
+                                                label="Feature flags"
+                                                defaultChecked
+                                            />
+                                            <TabContent className="bg-base-100 border-base-300 p-6">
+                                                <FlagsList
+                                                    flags={data.allFlags}
+                                                />
+                                            </TabContent>
+
+                                            <TabRadio
+                                                name="my_tabs"
+                                                label="Theme"
+                                            />
+                                            <TabContent className="bg-base-100 border-base-300 p-6">
+                                                <p className="mb-4">
+                                                    Select the theme to
+                                                    temporarily apply to the
+                                                    application interface.
+                                                </p>
+                                                <ThemeSwitcher
+                                                    selectedTheme={
+                                                        data?.theme || 'light'
+                                                    }
+                                                />
+                                            </TabContent>
+                                        </Tabs>
                                     </>
                                 }
                                 size="lg"

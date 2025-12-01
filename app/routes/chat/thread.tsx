@@ -46,6 +46,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
     return {
         messages: uiMessages,
+        thread,
     };
 }
 
@@ -130,6 +131,11 @@ export default function ChatThreadRoute({
 
     return (
         <>
+            <title>{loaderData.thread.title} | Iridium</title>
+            <meta
+                name="description"
+                content={`A conversation about "${loaderData.thread.title}"`}
+            />
             {error && (
                 <div className="alert alert-error">
                     <span>Error: {error.message}</span>

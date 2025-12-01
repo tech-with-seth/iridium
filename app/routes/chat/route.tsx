@@ -155,153 +155,163 @@ export default function ChatRouteLayout({ loaderData }: Route.ComponentProps) {
         threadFetcher.formData?.get('intent') === 'rename-thread';
 
     return (
-        <Container className="px-4 mb-8">
-            {/* TODO: Fix heights to feel more "fit" to the viewport */}
-            <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 min-h-[500px] max-h-[800px]">
-                <div className="bg-base-300 p-4 rounded-xl">
-                    <threadFetcher.Form method="POST">
-                        <Button
-                            type="submit"
-                            name="intent"
-                            value="create-thread"
-                            disabled={isNavigating}
-                            className="mb-4"
-                            status="primary"
-                        >
-                            <PlusIcon /> New Thread
-                        </Button>
-                    </threadFetcher.Form>
-                    <ul className="space-y-2">
-                        {loaderData.threads.length === 0 ? (
-                            <div className="bg-base-100 p-4 rounded-box flex flex-col items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-base-300 p-2 flex items-center justify-center mb-4">
-                                    <SpoolIcon className="w-6 h-6 stroke-base-content" />
-                                </div>
-                                <p className="text-base-content text-center">
-                                    No threads yet. Create a new thread to get
-                                    started!
-                                </p>
-                            </div>
-                        ) : (
-                            loaderData.threads.map(({ id, title }) => (
-                                <li key={id}>
-                                    <div className="flex gap-2">
-                                        <NavLink
-                                            to={`/chat/${id}`}
-                                            className={({ isActive }) =>
-                                                cx(
-                                                    `bg-base-100 flex-1 rounded-box cursor-pointer px-3 py-2`,
-                                                    isNavigating &&
-                                                        `pointer-events-none`,
-                                                    isActive &&
-                                                        'bg-secondary text-secondary-content',
-                                                )
-                                            }
-                                        >
-                                            {({ isPending }) => (
-                                                <div className="flex justify-between items-center">
-                                                    <div className="flex gap-2 items-center">
-                                                        <MessageCircle className="w-5 h-5" />
-                                                        <span className="inline-block">
-                                                            {title}
-                                                        </span>
-                                                    </div>
-                                                    {isPending && <Spinner />}
-                                                </div>
-                                            )}
-                                        </NavLink>
-                                        <Button
-                                            onClick={() => {
-                                                if (openThreadPanel === id) {
-                                                    setOpenThreadPanel(null);
-                                                } else {
-                                                    setOpenThreadPanel(id);
-                                                }
-                                            }}
-                                        >
-                                            <EllipsisIcon className="w-4 h-4" />
-                                        </Button>
+        <>
+            <title>Chat | Iridium</title>
+            <meta name="description" content="Chat page" />
+            <Container className="px-4 mb-8">
+                {/* TODO: Fix heights to feel more "fit" to the viewport */}
+                <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 min-h-[500px] max-h-[800px]">
+                    <div className="bg-base-300 p-4 rounded-xl">
+                        <threadFetcher.Form method="POST">
+                            <Button
+                                type="submit"
+                                name="intent"
+                                value="create-thread"
+                                disabled={isNavigating}
+                                className="mb-4"
+                                status="primary"
+                            >
+                                <PlusIcon /> New Thread
+                            </Button>
+                        </threadFetcher.Form>
+                        <ul className="space-y-2">
+                            {loaderData.threads.length === 0 ? (
+                                <div className="bg-base-100 p-4 rounded-box flex flex-col items-center justify-center">
+                                    <div className="w-12 h-12 rounded-full bg-base-300 p-2 flex items-center justify-center mb-4">
+                                        <SpoolIcon className="w-6 h-6 stroke-base-content" />
                                     </div>
-                                    {openThreadPanel === id && (
-                                        <div className="flex flex-col gap-2 mt-2 bg-base-100 rounded-box p-4">
-                                            <threadFetcher.Form
-                                                method="POST"
-                                                className="flex gap-2"
+                                    <p className="text-base-content text-center">
+                                        No threads yet. Create a new thread to
+                                        get started!
+                                    </p>
+                                </div>
+                            ) : (
+                                loaderData.threads.map(({ id, title }) => (
+                                    <li key={id}>
+                                        <div className="flex gap-2">
+                                            <NavLink
+                                                to={`/chat/${id}`}
+                                                className={({ isActive }) =>
+                                                    cx(
+                                                        `bg-base-100 flex-1 rounded-box cursor-pointer px-3 py-2`,
+                                                        isNavigating &&
+                                                            `pointer-events-none`,
+                                                        isActive &&
+                                                            'bg-secondary text-secondary-content',
+                                                    )
+                                                }
                                             >
-                                                <input
-                                                    type="hidden"
-                                                    name="threadId"
-                                                    value={id}
-                                                />
-                                                <fieldset className="flex-1 flex flex-col gap-1">
-                                                    <label
-                                                        className="block font-bold"
-                                                        htmlFor={`rename-title-${id}`}
-                                                    >
-                                                        New title
-                                                    </label>
-                                                    <TextInput
-                                                        id={`rename-title-${id}`}
-                                                        name="title"
-                                                        type="text"
-                                                        defaultValue={
-                                                            title as string
-                                                        }
-                                                    />
-                                                </fieldset>
-                                                <Button
-                                                    className="px-3 self-end"
-                                                    type="submit"
-                                                    name="intent"
-                                                    value="rename-thread"
-                                                    status="warning"
-                                                    disabled={
-                                                        isNavigating ||
-                                                        isRenaming
+                                                {({ isPending }) => (
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex gap-2 items-center">
+                                                            <MessageCircle className="w-5 h-5" />
+                                                            <span className="inline-block">
+                                                                {title}
+                                                            </span>
+                                                        </div>
+                                                        {isPending && (
+                                                            <Spinner />
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </NavLink>
+                                            <Button
+                                                onClick={() => {
+                                                    if (
+                                                        openThreadPanel === id
+                                                    ) {
+                                                        setOpenThreadPanel(
+                                                            null,
+                                                        );
+                                                    } else {
+                                                        setOpenThreadPanel(id);
                                                     }
-                                                >
-                                                    {isRenaming ? (
-                                                        <Spinner />
-                                                    ) : (
-                                                        <PencilIcon className="w-4 h-4" />
-                                                    )}
-                                                </Button>
-                                            </threadFetcher.Form>
-                                            <threadFetcher.Form
-                                                method="POST"
-                                                className="flex gap-2 justify-between items-center"
+                                                }}
                                             >
-                                                <input
-                                                    type="hidden"
-                                                    name="threadId"
-                                                    value={id}
-                                                />
-                                                <div className="flex-1 py-2 px-4 bg-error/10 rounded-box">
-                                                    Delete?
-                                                </div>
-                                                <Button
-                                                    className="px-3"
-                                                    type="submit"
-                                                    name="intent"
-                                                    value="delete-thread"
-                                                    status="error"
-                                                    disabled={isNavigating}
-                                                >
-                                                    <XIcon className="w-4 h-4" />
-                                                </Button>
-                                            </threadFetcher.Form>
+                                                <EllipsisIcon className="w-4 h-4" />
+                                            </Button>
                                         </div>
-                                    )}
-                                </li>
-                            ))
-                        )}
-                    </ul>
+                                        {openThreadPanel === id && (
+                                            <div className="flex flex-col gap-2 mt-2 bg-base-100 rounded-box p-4">
+                                                <threadFetcher.Form
+                                                    method="POST"
+                                                    className="flex gap-2"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="threadId"
+                                                        value={id}
+                                                    />
+                                                    <fieldset className="flex-1 flex flex-col gap-1">
+                                                        <label
+                                                            className="block font-bold"
+                                                            htmlFor={`rename-title-${id}`}
+                                                        >
+                                                            New title
+                                                        </label>
+                                                        <TextInput
+                                                            id={`rename-title-${id}`}
+                                                            name="title"
+                                                            type="text"
+                                                            defaultValue={
+                                                                title as string
+                                                            }
+                                                        />
+                                                    </fieldset>
+                                                    <Button
+                                                        className="px-3 self-end"
+                                                        type="submit"
+                                                        name="intent"
+                                                        value="rename-thread"
+                                                        status="warning"
+                                                        disabled={
+                                                            isNavigating ||
+                                                            isRenaming
+                                                        }
+                                                    >
+                                                        {isRenaming ? (
+                                                            <Spinner />
+                                                        ) : (
+                                                            <PencilIcon className="w-4 h-4" />
+                                                        )}
+                                                    </Button>
+                                                </threadFetcher.Form>
+                                                <threadFetcher.Form
+                                                    method="POST"
+                                                    className="flex gap-2 justify-between items-center"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="threadId"
+                                                        value={id}
+                                                    />
+                                                    <div className="flex-1 py-2 px-4 bg-error/10 rounded-box">
+                                                        Delete?
+                                                    </div>
+                                                    <Button
+                                                        className="px-3"
+                                                        type="submit"
+                                                        name="intent"
+                                                        value="delete-thread"
+                                                        status="error"
+                                                        disabled={isNavigating}
+                                                    >
+                                                        <XIcon className="w-4 h-4" />
+                                                    </Button>
+                                                </threadFetcher.Form>
+                                            </div>
+                                        )}
+                                    </li>
+                                ))
+                            )}
+                        </ul>
+                    </div>
+                    <div className="bg-base-300 p-4 rounded-xl grid grid-rows-[1fr_auto] gap-2">
+                        <Outlet />
+                    </div>
                 </div>
-                <div className="bg-base-300 p-4 rounded-xl grid grid-rows-[1fr_auto] gap-2">
-                    <Outlet />
-                </div>
-            </div>
-        </Container>
+            </Container>
+        </>
     );
 }
 
