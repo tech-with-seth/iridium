@@ -25,7 +25,6 @@ export const checkboxVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface CheckboxProps

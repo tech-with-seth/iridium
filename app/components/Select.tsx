@@ -28,7 +28,6 @@ export const selectVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface SelectOption {

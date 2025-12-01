@@ -13,8 +13,6 @@ export const accordionItemVariants = cva({
             close: 'collapse-close',
         },
     },
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {

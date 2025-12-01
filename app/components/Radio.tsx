@@ -25,7 +25,6 @@ export const radioVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface RadioProps

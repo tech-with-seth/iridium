@@ -28,7 +28,6 @@ export const textInputVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface TextInputProps

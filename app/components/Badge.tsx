@@ -31,7 +31,6 @@ export const badgeVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface BadgeProps

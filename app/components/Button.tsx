@@ -45,7 +45,6 @@ export const buttonVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface ButtonProps

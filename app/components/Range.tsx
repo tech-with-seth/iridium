@@ -25,7 +25,6 @@ export const rangeVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface RangeProps

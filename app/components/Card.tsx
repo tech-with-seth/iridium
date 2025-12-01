@@ -26,7 +26,6 @@ export const cardVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface CardProps
