@@ -123,7 +123,7 @@ export default function PaymentSuccess() {
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-                                <Link to={Paths.BILLING}>
+                                <Link to={Paths.PORTAL}>
                                     <Button status="primary" wide>
                                         View Billing Dashboard
                                     </Button>
