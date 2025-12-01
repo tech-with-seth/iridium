@@ -3,21 +3,28 @@ import { useMemo } from 'react';
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
+import type { FeatureFlag } from '~/types/posthog';
+
+function isActive(flags: FeatureFlag[] | undefined, flagName: string) {
+    if (!flags) {
+        return false;
+    }
+
+    return flags.find((flag) => flag.key === flagName)?.active;
+}
 
 export default function Home() {
     const data = useRootData();
 
-    const homePageHeroActive = useMemo(() => {
-        return data?.allFlags.find(
-            (flag) => flag.key === 'home_page_hero_image',
-        )?.active;
-    }, [data?.allFlags]);
+    const homePageHeroActive = useMemo(
+        () => isActive(data?.allFlags, 'home_page_hero_image'),
+        [data?.allFlags],
+    );
 
-    const homePageIntroCopyExperimentActive = useMemo(() => {
-        return data?.allFlags.find(
-            (flag) => flag.key === 'home_page_intro_copy',
-        )?.active;
-    }, [data?.allFlags]);
+    const homePageIntroCopyExperimentActive = useMemo(
+        () => isActive(data?.allFlags, 'home_page_intro_copy'),
+        [data?.allFlags],
+    );
 
     return (
         <>
@@ -29,7 +36,7 @@ export default function Home() {
             <Container className="px-4">
                 <div
                     className={cx(
-                        `bg-cover rounded-box h-120 border border-black mb-8`,
+                        `bg-cover rounded-box h-120 border border-base-300 mb-8`,
                         homePageHeroActive &&
                             `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-2.png)]`,
                         !homePageHeroActive &&
