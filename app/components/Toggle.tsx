@@ -26,7 +26,6 @@ export const toggleVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface ToggleProps

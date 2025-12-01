@@ -17,7 +17,6 @@ export const modalVariants = cva({
     defaultVariants: {
         placement: 'middle',
     },
-    compoundVariants: [],
 });
 
 interface ModalProps

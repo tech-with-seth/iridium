@@ -20,7 +20,6 @@ export const drawerVariants = cva({
     defaultVariants: {
         side: 'right',
     },
-    compoundVariants: [],
 });
 
 export const drawerMenuVariants = cva({
@@ -36,7 +35,6 @@ export const drawerMenuVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface DrawerProps {

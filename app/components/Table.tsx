@@ -24,7 +24,6 @@ export const tableVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface TableProps

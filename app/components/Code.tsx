@@ -3,9 +3,6 @@ import { cva, cx } from '~/cva.config';
 
 export const codeVariants = cva({
     base: 'mockup-code',
-    variants: {},
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface CodeLine {

@@ -12,15 +12,10 @@ export const avatarVariants = cva({
             true: 'avatar-placeholder',
         },
     },
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 export const avatarGroupVariants = cva({
     base: 'avatar-group',
-    variants: {},
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface AvatarProps

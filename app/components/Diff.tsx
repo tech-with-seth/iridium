@@ -3,9 +3,6 @@ import { cva, cx } from '~/cva.config';
 
 export const diffVariants = cva({
     base: 'diff',
-    variants: {},
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface DiffProps

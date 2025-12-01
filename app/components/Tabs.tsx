@@ -25,7 +25,6 @@ export const tabsVariants = cva({
         size: 'md',
         placement: 'top',
     },
-    compoundVariants: [],
 });
 
 export const tabVariants = cva({
@@ -38,8 +37,6 @@ export const tabVariants = cva({
             true: 'tab-disabled',
         },
     },
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface TabsProps

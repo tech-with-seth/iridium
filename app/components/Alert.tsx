@@ -23,7 +23,6 @@ export const alertVariants = cva({
     defaultVariants: {
         direction: 'horizontal',
     },
-    compoundVariants: [],
 });
 
 interface AlertProps

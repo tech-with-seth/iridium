@@ -3,9 +3,6 @@ import { cva, cx } from '~/cva.config';
 
 export const heroVariants = cva({
     base: 'hero',
-    variants: {},
-    defaultVariants: {},
-    compoundVariants: [],
 });
 
 interface HeroProps

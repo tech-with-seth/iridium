@@ -28,7 +28,6 @@ export const fileInputVariants = cva({
     defaultVariants: {
         size: 'md',
     },
-    compoundVariants: [],
 });
 
 interface FileInputProps
