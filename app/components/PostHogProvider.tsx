@@ -8,14 +8,14 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Only initialize PostHog if environment variables are set and not in dev/test mode
         const apiKey = import.meta.env.VITE_POSTHOG_API_KEY;
-        const host = import.meta.env.VITE_POSTHOG_HOST;
-        // const isDev = import.meta.env.DEV;
-        // const isTestKey = apiKey?.includes('test');
+        const api_host = import.meta.env.VITE_POSTHOG_API_HOST;
+        const ui_host = import.meta.env.VITE_POSTHOG_UI_HOST;
 
         // Skip initialization in development or with test keys to avoid rate limiting
-        if (apiKey && host) {
+        if (apiKey && api_host && ui_host) {
             posthog.init(apiKey, {
-                api_host: host,
+                api_host,
+                ui_host,
                 capture_exceptions: true,
                 capture_pageleave: true, // Automatically capture page leaves
                 capture_pageview: true, // Automatically capture pageviews
