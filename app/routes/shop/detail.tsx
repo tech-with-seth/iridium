@@ -22,11 +22,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         invariant(details, 'Product details not found');
 
         const user = await getUserFromSession(request);
-        invariant(user, 'User not found in session');
+        // Allow anonymous users to browse products - user is optional
+        // Only pre-fill checkout data if user is logged in
 
         return data({
             details,
-            user,
+            user, // Can be null for anonymous users
         });
     } catch (error: unknown) {
         console.error('Product list error:', error);
