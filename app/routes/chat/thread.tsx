@@ -7,6 +7,7 @@ import {
     SendHorizontalIcon,
     StopCircleIcon,
 } from 'lucide-react';
+import { usePostHog } from 'posthog-js/react';
 
 import { addMessageToThread } from '~/models/message.server';
 import { Button } from '~/components/Button';
@@ -25,7 +26,6 @@ import { Container } from '~/components/Container';
 import { Alert } from '~/components/Alert';
 import { Card } from '~/components/Card';
 import { Spinner } from '~/components/Spinner';
-import { usePostHog } from 'posthog-js/react';
 import { cx } from '~/cva.config';
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -52,6 +52,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 export async function action({ request, params }: Route.ActionArgs) {
     const user = await getUserFromSession(request);
     invariant(user, 'User is required');
+
     const threadId = params.threadId;
     invariant(threadId, 'threadId is required');
 
