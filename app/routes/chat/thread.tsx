@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { isRouteErrorResponse, redirect } from 'react-router';
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import invariant from 'tiny-invariant';
-import { MessageCircleDashedIcon, SendHorizontalIcon } from 'lucide-react';
+import {
+    MessageCircleDashedIcon,
+    SendHorizontalIcon,
+    StopCircleIcon,
+} from 'lucide-react';
 
 import { addMessageToThread } from '~/models/message.server';
 import { Button } from '~/components/Button';
@@ -89,23 +93,39 @@ export default function ChatThreadRoute({
     const messageRef = useRef<HTMLDivElement>(null);
     const postHog = usePostHog();
 
-    const { messages, sendMessage, error, status } = useChat({
+    const { messages, sendMessage, error, status, stop } = useChat({
         id: params.threadId,
         messages: loaderData.messages,
+        onData: (payload) => {
+            postHog.capture('message_stream_data', {
+                threadId: params.threadId,
+                data: payload.data,
+            });
+        },
         onError: (error) => {
             postHog.captureException(error, {
-                context: 'chat_thread',
+                context: 'message_stream_error',
                 threadId: params.threadId,
             });
         },
-        // onFinish: (message) => {}
+        onFinish: (payload) => {
+            postHog.capture('message_stream_finished', {
+                threadId: params.threadId,
+                messageId: payload.message?.id,
+                messageText: payload.message?.parts.find(
+                    (part) => part.type === 'text',
+                )?.text,
+            });
+        },
     });
 
     useEffect(() => {
         if (messageRef.current) {
-            messageRef.current.scrollIntoView({ behavior: 'smooth' });
+            messageRef.current.scrollTop = messageRef.current.scrollHeight;
         }
     }, [messages]);
+
+    const isStreaming = status === 'streaming';
 
     return (
         <>
@@ -115,7 +135,10 @@ export default function ChatThreadRoute({
                 </div>
             )}
             {/* TODO: Fix heights to feel more "fit" to the viewport */}
-            <div className="flex-1 flex flex-col gap-2 bg-base-100 rounded-box p-8 min-h-[500px] max-h-[700px] overflow-y-scroll">
+            <div
+                ref={messageRef}
+                className="flex-1 flex flex-col gap-2 bg-base-100 rounded-box p-8 min-h-[500px] max-h-[700px] overflow-y-scroll"
+            >
                 {/* Chat messages go here */}
                 {messages.length === 0 && (
                     <div className="flex flex-col gap-8 justify-center items-center h-full">
@@ -125,51 +148,47 @@ export default function ChatThreadRoute({
                         </p>
                     </div>
                 )}
-                {messages.map((message) => (
-                    <ChatBubble
-                        key={message.id}
-                        placement={message.role === 'user' ? 'end' : 'start'}
-                    >
-                        <ChatBubbleAvatar className="avatar">
-                            <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                                <img
-                                    src={
-                                        message.role === 'user'
-                                            ? 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/sonic.png'
-                                            : 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/knuckles.png'
-                                    }
-                                    alt={
-                                        message.role === 'user'
-                                            ? 'User'
-                                            : 'Assistant'
-                                    }
-                                    className={cx(message.role === 'assistant' && 'scale-x-[-1]')}
-                                />
-                            </div>
-                        </ChatBubbleAvatar>
-                        <ChatBubbleMessage
-                            color={
-                                message.role === 'user' ? 'primary' : undefined
-                            }
-                        >
-                            {message.parts.filter(
-                                (part) => part.type === 'text',
-                            ).length === 0 ? (
-                                <Spinner />
-                            ) : (
-                                message.parts
-                                    .filter((part) => part.type === 'text')
-                                    .map((part, idx) => (
+                {messages.map((message) => {
+                    const isUser = message.role === 'user';
+                    const placement = isUser ? 'end' : 'start';
+                    const color = isUser ? 'primary' : undefined;
+                    const filteredParts = message.parts.filter(
+                        (part) => part.type === 'text',
+                    );
+
+                    return (
+                        <ChatBubble key={message.id} placement={placement}>
+                            <ChatBubbleAvatar className="avatar">
+                                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                    <img
+                                        src={
+                                            isUser
+                                                ? 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/sonic.png'
+                                                : 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/knuckles.png'
+                                        }
+                                        alt={isUser ? 'User' : 'Assistant'}
+                                        className={cx(
+                                            !isUser && 'scale-x-[-1]',
+                                        )}
+                                    />
+                                </div>
+                            </ChatBubbleAvatar>
+                            <ChatBubbleMessage color={color}>
+                                {filteredParts.length === 0 ? (
+                                    <Spinner />
+                                ) : (
+                                    filteredParts.map((part, idx) => (
                                         <div key={idx}>
                                             {'text' in part ? part.text : ''}
                                         </div>
                                     ))
-                            )}
-                        </ChatBubbleMessage>
-                    </ChatBubble>
-                ))}
-                {status === 'streaming' && (
-                    <div className="text-gray-500 italic">
+                                )}
+                            </ChatBubbleMessage>
+                        </ChatBubble>
+                    );
+                })}
+                {isStreaming && (
+                    <div className="text-base-content italic">
                         Assistant is typing...
                     </div>
                 )}
@@ -187,21 +206,25 @@ export default function ChatThreadRoute({
                         className="w-full"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        disabled={status === 'streaming'}
+                        disabled={isStreaming}
                     />
-                    <Button
-                        type="submit"
-                        disabled={status === 'streaming' || !input.trim()}
-                        status="primary"
-                    >
-                        {status === 'streaming' ? (
-                            <span>Sending...</span>
-                        ) : (
+                    {isStreaming ? (
+                        <Button type="button" status="primary" onClick={stop}>
+                            <span className="flex items-center gap-2">
+                                <StopCircleIcon />
+                            </span>
+                        </Button>
+                    ) : (
+                        <Button
+                            type="submit"
+                            disabled={!input.trim()}
+                            status="primary"
+                        >
                             <span className="flex items-center gap-2">
                                 Send <SendHorizontalIcon />
                             </span>
-                        )}
-                    </Button>
+                        </Button>
+                    )}
                 </form>
             </div>
         </>
