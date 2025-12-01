@@ -42,28 +42,6 @@ export async function isFeatureEnabled(flagName: string, request: Request) {
     }
 }
 
-export async function flagsEnabledForUser(request: Request) {
-    const user = await getUserFromSession(request);
-
-    if (!user) {
-        return {};
-    }
-
-    try {
-        if (!postHogClient) {
-            return {};
-        }
-
-        const featureFlags = await postHogClient.getAllFlags(user?.id);
-
-        return featureFlags;
-    } catch (error) {
-        postHogClient?.captureException(error);
-        console.error('Error fetching feature flags:', error);
-        return {};
-    }
-}
-
 export async function getFeatureFlagsForUser(request: Request) {
     const user = await getUserFromSession(request);
 

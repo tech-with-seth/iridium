@@ -45,7 +45,7 @@ vi.mock('@react-email/components', async (importOriginal) => {
     };
 });
 
-import { resend as resendClient } from '~/lib/resend';
+import { getResendClient } from '~/lib/resend';
 import { render } from '@react-email/components';
 import {
     sendEmail,
@@ -59,7 +59,7 @@ import {
 const renderMock = vi.mocked(render);
 
 function getResendMock(): ResendMock {
-    return ensureResendMock(resendClient);
+    return ensureResendMock(getResendClient());
 }
 
 function expectEmailSentTo(mock: ResendMock, recipient: string) {

@@ -14,7 +14,7 @@ import { CogIcon, FileQuestionIcon } from 'lucide-react';
 import { Button } from './components/Button';
 import { Drawer } from './components/Drawer';
 import { Footer } from './components/Footer';
-import { flagsEnabledForUser } from './models/posthog.server';
+import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getFeatureFlags } from './models/feature-flags.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
@@ -50,7 +50,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const roleObj = user ? await getUserRole(user?.id) : null;
 
     const allFlags = await getFeatureFlags();
-    const userFlags = await flagsEnabledForUser(request);
+    const userFlags = await getFeatureFlagsForUser(request);
 
     const cookieHeader = request.headers.get('Cookie');
     const cookie = (await themeCookie.parse(cookieHeader)) || {};
@@ -161,11 +161,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <Header />
                     {alertExperimentActive && (
                         <div>
-                            <Container className='px-4'>
-                                <Alert
-                                    status="warning"
-                                    className="mb-4"
-                                >
+                            <Container className="px-4">
+                                <Alert status="warning" className="mb-4">
                                     <p>You are in the experiment</p>
                                 </Alert>
                             </Container>
