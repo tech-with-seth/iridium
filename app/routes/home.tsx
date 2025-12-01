@@ -29,11 +29,11 @@ export default function Home() {
             <Container className="px-4">
                 <div
                     className={cx(
-                        `bg-bottom bg-cover rounded-box h-120 border border-black mb-8`,
+                        `bg-cover rounded-box h-120 border border-black mb-8`,
                         homePageHeroActive &&
-                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-1.png)]`,
+                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-2.png)]`,
                         !homePageHeroActive &&
-                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-hero-2.png)]`,
+                            `bg-[url(https://res.cloudinary.com/setholito/image/upload/v1762886753/iridium/iridium-1.png)]`,
                     )}
                 ></div>
                 <h1 className="text-5xl font-bold mb-8">Welcome</h1>
