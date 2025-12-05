@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Iridium is a production-ready SaaS boilerplate built with React Router 7, BetterAuth, Polar.sh billing, OpenAI integration, PostHog analytics, and Resend email. It uses config-based routing, middleware patterns, model layer architecture, and hybrid form validation.
+Iridium is now a **small, opinionated starter** for React Router 7 apps. It ships with BetterAuth email/password auth, a simple dashboard and profile editor, and an AI chat demo (Vercel AI SDK + OpenAI). PostHog analytics and Resend email are optional; billing, multi-tenancy, and shop flows have been scoped out to keep the starter lean. It still uses config-based routing, middleware patterns, a model-layer architecture, and hybrid form validation.
 
 ## Essential Commands
 
@@ -88,13 +88,13 @@ import { getUserProfile } from '~/models/user.server';
 const user = await getUserProfile(userId);
 ```
 
-**Model Layer Files:**
+**Model Layer Files (core):**
 - `app/models/user.server.ts` - User CRUD
-- `app/models/organization.server.ts` - Organization operations
-- `app/models/email.server.ts` - Email operations (Resend)
-- `app/models/feature-flags.server.ts` - PostHog feature flags with caching
-- `app/models/message.server.ts` - Chat messages
-- `app/models/thread.ts` - Chat threads
+- `app/models/email.server.ts` - Email operations (Resend optional)
+- `app/models/feature-flags.server.ts` - PostHog feature flags with caching (optional)
+- `app/models/message.server.ts` / `app/models/thread.ts` - Chat messages/threads
+
+Legacy multi-tenant or billing helpers (e.g., organizations, Polar) are out of scope for the lean starter—avoid reintroducing them unless explicitly required.
 
 ### 4. Custom Prisma Output Path
 
@@ -405,7 +405,7 @@ See `.github/instructions/crud-pattern.instructions.md` for complete CRUD patter
 
 ## Key Integrations
 
-### OpenAI + Vercel AI SDK
+### OpenAI + Vercel AI SDK (chat demo)
 
 **Streaming chat endpoint** (`app/routes/api/chat.ts`):
 
@@ -433,7 +433,7 @@ import { useChat } from '@ai-sdk/react';
 const { messages, input, handleInputChange, handleSubmit } = useChat();
 ```
 
-### PostHog Analytics
+### PostHog (optional analytics/feature flags)
 
 ```typescript
 import { getPostHogClient } from '~/lib/posthog.ts';
@@ -446,16 +446,10 @@ posthog.capture('event_name', { property: 'value' });
 await captureException(error, { context: 'additional-info' });
 ```
 
-### Polar.sh Billing
-
-- BetterAuth plugin integration
-- Webhook handler at `/api/webhooks/polar`
-- Creates `PolarCustomer` & `PolarSubscription` records
-
-### Resend Email
+### Resend Email (optional)
 
 ```typescript
-import { sendEmail, sendVerificationEmail } from '~/models/email.server';
+import { sendEmail } from '~/models/email.server';
 
 await sendEmail({
     to: 'user@example.com',
@@ -464,7 +458,7 @@ await sendEmail({
 });
 ```
 
-Email templates in `app/emails/` using React Email.
+Email templates live in `app/emails/` using React Email. Polar/billing flows are not part of the lean starter.
 
 ## Critical Import Patterns
 
@@ -503,14 +497,13 @@ import { Paths } from '~/constants';
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Min 32 chars (`openssl rand -base64 32`)
 - `BETTER_AUTH_URL` - App URL (`http://localhost:5173` for dev)
-- `RESEND_API_KEY` - Email service
-- `RESEND_FROM_EMAIL` - Sender email
 
 **Optional:**
-- `OPENAI_API_KEY` - AI features
-- `CLOUDINARY_*` - Image uploads
-- `POLAR_*` - Billing
+- `OPENAI_API_KEY` - AI chat demo
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL` - Transactional emails
 - `POSTHOG_*` - Analytics & feature flags
+
+Billing (Polar) and other legacy variables are out of scope for the lean starter.
 
 ## Development Conventions
 
@@ -523,6 +516,7 @@ import { Paths } from '~/constants';
 - Access loader data via `loaderData` prop (not hooks)
 - Use `<form>` with manual `fetcher.submit()` for React Hook Form
 - Import route types as `./+types/[routeName]`
+- Keep scope lean (auth/profile/dashboard/chat + optional analytics/email); do not add billing or multi-tenancy unless explicitly requested
 
 ### NEVER:
 - Call Prisma directly in routes (use model layer)
