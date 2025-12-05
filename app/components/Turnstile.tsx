@@ -44,7 +44,7 @@ export function Turnstile({
         defaultValues: {
             email: 'admin@iridium.com',
             password: 'Admin123!',
-            name: 'Important Person',
+            name: 'Important User',
         },
         resolver: zodResolver(schema),
     });

@@ -8,6 +8,10 @@ import { auth } from '~/lib/auth.server';
 import { Paths } from '~/constants';
 import { getUserProfile, updateUser, deleteUser } from '~/models/user.server';
 import { getPostHogClient } from '~/lib/posthog';
+import {
+    sendAccountDeletionEmail,
+    sendTransactionalEmail,
+} from '~/models/email.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
@@ -45,6 +49,20 @@ export async function action({ request }: Route.ActionArgs) {
                 data: validatedData!,
             });
 
+            void sendTransactionalEmail({
+                to: updatedUser.email,
+                heading: 'Profile updated',
+                previewText: 'Your profile information has changed.',
+                message:
+                    'Your profile information was recently updated. If you did not make this change, please contact support immediately.',
+                buttonText: 'View profile',
+                buttonUrl: Paths.PROFILE,
+                footerText:
+                    'We send notifications for important account changes to help keep your account secure.',
+            }).catch((error) =>
+                console.error('Failed to send profile update email', error),
+            );
+
             return data({
                 success: true,
                 profile: updatedUser,
@@ -68,8 +86,18 @@ export async function action({ request }: Route.ActionArgs) {
     // DELETE - Delete account
     if (request.method === 'DELETE') {
         try {
+            const userEmail = user.email;
+            const userName = user.name || 'there';
+
             // Delete user account (cascade will handle sessions and accounts)
             await deleteUser(user.id);
+
+            void sendAccountDeletionEmail({
+                to: userEmail,
+                name: userName,
+            }).catch((error) =>
+                console.error('Failed to send account deletion email', error),
+            );
 
             // Sign out the user
             await auth.api.signOut({

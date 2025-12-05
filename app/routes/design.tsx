@@ -33,7 +33,6 @@ import { TextInput } from '~/components/TextInput';
 import { Toggle } from '~/components/Toggle';
 import { Tooltip } from '~/components/Tooltip';
 import { cx } from '~/cva.config';
-import { getPostHogClient } from '~/lib/posthog';
 
 const DESIGN_TIMELINE_INDICATOR_CLASSES: Record<
     'positive' | 'warning' | 'info' | 'error',
@@ -69,42 +68,10 @@ const DESIGN_TIMELINE_STEPS = [
     },
 ];
 
-export async function action({ request }: Route.ActionArgs) {
-    const postHogClient = getPostHogClient();
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-
-    if (!file || file.size === 0) {
-        return { error: 'Please select a file' };
-    }
-
-    try {
-        const baseUrl = new URL(request.url).origin;
-        const cloudinaryEndpoint = new URL('/api/cloudinary', baseUrl);
-
-        const response = await fetch(cloudinaryEndpoint, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            postHogClient?.captureException(
-                new Error(data.error || 'Upload failed'),
-            );
-
-            return { error: data.error || 'Upload failed' };
-        }
-
-        return { success: true, upload: data };
-    } catch (error) {
-        postHogClient?.captureException(error as Error);
-
-        return {
-            error: error instanceof Error ? error.message : 'Upload failed',
-        };
-    }
+export async function action() {
+    return {
+        error: 'File uploads are disabled in this demo build.',
+    };
 }
 
 export default function DesignRoute({ actionData }: Route.ComponentProps) {
@@ -210,14 +177,14 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                         >
                             <FileInput
                                 name="file"
-                                label="Upload to Cloudinary"
-                                helperText="Supported formats: .png, .jpg, .jpeg"
+                                label="Upload (disabled in demo)"
+                                helperText="Uploads are disabled in this build"
                                 accept=".png,.jpg,.jpeg"
                                 color="primary"
                                 size="lg"
                                 error={actionData?.error}
                             />
-                            <Button type="submit" status="primary">
+                            <Button type="submit" status="primary" disabled>
                                 Upload File
                             </Button>
                         </Form>
@@ -264,14 +231,20 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                                 },
                                 { content: '  <FileInput' },
                                 { content: '    name="file"' },
-                                { content: '    label="Upload to Cloudinary"' },
-                                { content: '    accept=".png,.jpg,.jpeg"' },
+                                {
+                                    content:
+                                        '    label="Upload (disabled in demo)"',
+                                },
+                                {
+                                    content:
+                                        '    helperText="Uploads are disabled"',
+                                },
                                 { content: '    color="primary"' },
                                 { content: '    error={actionData?.error}' },
                                 { content: '  />' },
                                 {
                                     content:
-                                        '  <Button type="submit">Upload</Button>',
+                                        '  <Button type="submit" disabled>Upload</Button>',
                                 },
                                 { content: '</Form>' },
                             ]}
