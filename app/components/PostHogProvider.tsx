@@ -11,13 +11,6 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
         const api_host = import.meta.env.VITE_POSTHOG_API_HOST;
         const ui_host = import.meta.env.VITE_POSTHOG_UI_HOST;
 
-        console.log(
-            '\n\n',
-            '===== posthog LOG =====',
-            import.meta.env,
-            '\n\n',
-        )
-
         // Skip initialization in development or with test keys to avoid rate limiting
         if (apiKey && api_host && ui_host) {
             posthog.init(apiKey, {
@@ -31,6 +24,9 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
                     capture_copied_text: true,
                 },
                 defaults: '2025-05-24',
+                surveys: {
+                    autoSubmitDelay: 1000, // Auto-submit survey after 5 seconds
+                },
             });
         }
 

@@ -31,16 +31,36 @@ export function Navbar({
     className,
     ...rest
 }: NavbarProps) {
+    const backgroundClass =
+        {
+            'base-100': 'bg-base-100',
+            'base-200': 'bg-base-200',
+            'base-300': 'bg-base-300',
+            primary: 'bg-primary',
+            secondary: 'bg-secondary',
+            accent: 'bg-accent',
+            neutral: 'bg-neutral',
+        }[backgroundColor] ?? 'bg-base-300';
+
     return (
-        <div
-            className="navbar rounded-box shadow-lg bg-base-300 text-base-content"
+        <nav
+            className={cx(
+                'navbar w-full rounded-box px-4 py-2 gap-3 text-base-content',
+                'border border-base-200/80 backdrop-blur supports-backdrop-filter:bg-opacity-90',
+                sticky && 'sticky top-0 z-40',
+                shadow ? 'shadow-lg' : 'shadow-sm',
+                backgroundClass,
+                className,
+            )}
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}
-            {brand && <div className="navbar-start">{brand}</div>}
+            {brand && <div className="navbar-start gap-2">{brand}</div>}
 
             {/* Start section - left side content when no brand */}
-            {!brand && start && <div className="navbar-start">{start}</div>}
+            {!brand && start && (
+                <div className="navbar-start gap-2">{start}</div>
+            )}
 
             {/* Center section */}
             {center && (
@@ -49,7 +69,7 @@ export function Navbar({
 
             {/* End section - right side content */}
             {end && <div className="navbar-end hidden lg:flex">{end}</div>}
-        </div>
+        </nav>
     );
 }
 
@@ -166,7 +186,12 @@ export function NavbarHamburger({
 }) {
     return (
         <div className={cx('dropdown', className)}>
-            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+            <div
+                tabIndex={0}
+                role="button"
+                aria-label="Open navigation menu"
+                className="btn btn-ghost lg:hidden"
+            >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -184,7 +209,7 @@ export function NavbarHamburger({
             </div>
             <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-20 mt-3 w-60 p-3 shadow-lg border border-base-200/80"
             >
                 {children}
             </ul>
