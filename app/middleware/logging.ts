@@ -1,6 +1,7 @@
 import { getPostHogClient } from '~/lib/posthog';
 import { requestIdContext } from './context';
 import { getUserFromSession } from '~/lib/session.server';
+import { PostHogEventNames } from '~/constants';
 
 export const loggingMiddleware = async (
     { request, context }: { request: Request; context: any },
@@ -18,7 +19,7 @@ export const loggingMiddleware = async (
     const postHogClient = getPostHogClient();
     postHogClient?.capture({
         distinctId: user?.id || 'unknown',
-        event: 'request_id',
+        event: PostHogEventNames.REQUEST_ID,
         properties: {
             method: request.method,
             url: request.url,

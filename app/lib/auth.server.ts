@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { organization } from 'better-auth/plugins';
+import { admin, organization } from 'better-auth/plugins';
 import {
     checkout,
     polar,
@@ -14,6 +14,7 @@ import { polarClient } from './polar';
 import {
     // sendVerificationEmail,
     sendPasswordResetEmail,
+    sendVerificationEmail,
 } from '~/models/email.server';
 
 export const auth = betterAuth({
@@ -35,7 +36,6 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: false, // Set to true to require email verification
         sendResetPassword: async ({ user, url }) => {
-            // Send password reset email via Resend
             await sendPasswordResetEmail({
                 to: user.email,
                 resetUrl: url,
@@ -43,15 +43,11 @@ export const auth = betterAuth({
         },
     },
     emailVerification: {
-        // sendVerificationEmail: async ({ user, url }) => {
-        //     // Send verification email via Resend
-        //     await sendVerificationEmail({
-        //         to: user.email,
-        //         verificationUrl: url,
-        //     });
-        // },
-        sendVerificationEmail: async () => {
-            console.log('Verification email sending is currently disabled.');
+        sendVerificationEmail: async ({ user, url }) => {
+            await sendVerificationEmail({
+                to: user.email,
+                verificationUrl: url,
+            });
         },
         sendOnSignUp: true, // Automatically send verification email on signup
     },
@@ -70,6 +66,7 @@ export const auth = betterAuth({
         },
     },
     plugins: [
+        admin(),
         organization(),
         polar({
             client: polarClient,

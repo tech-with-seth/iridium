@@ -21,10 +21,6 @@ export const tabsVariants = cva({
             bottom: 'tabs-bottom',
         },
     },
-    defaultVariants: {
-        size: 'md',
-        placement: 'top',
-    },
 });
 
 export const tabVariants = cva({
@@ -102,26 +98,28 @@ export function Tab({
 
 interface TabRadioProps
     extends Omit<
-            React.InputHTMLAttributes<HTMLInputElement>,
-            'type' | 'className'
-        > {
+        React.InputHTMLAttributes<HTMLInputElement>,
+        'type' | 'className'
+    > {
+    defaultChecked?: boolean;
     label: string;
-    inputClassName?: string;
+    className?: string;
 }
 
 export function TabRadio({
     label,
     disabled,
-    inputClassName,
+    className,
+    name,
     ...props
 }: TabRadioProps) {
     return (
         <input
             type="radio"
-            role="tab"
-            className={cx('tab', inputClassName)}
+            className={cx('tab', className)}
             aria-label={label}
             disabled={disabled}
+            name={name}
             {...props}
         />
     );
@@ -131,7 +129,11 @@ interface TabContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function TabContent({ children, className, ...props }: TabContentProps) {
     return (
-        <div role="tabpanel" className={cx('tab-content', className)} {...props}>
+        <div
+            role="tabpanel"
+            className={cx('tab-content', className)}
+            {...props}
+        >
             {children}
         </div>
     );

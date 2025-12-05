@@ -1,19 +1,20 @@
 import { CustomerPortal } from '@polar-sh/remix';
-import { polarClient } from '~/lib/polar';
 import { getUserFromSession } from '~/lib/session.server';
 import { getPostHogClient } from '~/lib/posthog';
+import { getCustomerByExternalId } from '~/models/polar.server';
 
 export const loader = CustomerPortal({
     accessToken: process.env.POLAR_ACCESS_TOKEN,
     getCustomerId: async (request) => {
         const postHogClient = getPostHogClient();
+
         try {
             const user = await getUserFromSession(request);
 
             if (!user) {
                 postHogClient?.capture({
                     distinctId: 'anonymous',
-                    event: 'portal_access_unauthorized',
+                    event: 'polar_portal_access_unauthorized',
                     properties: {
                         reason: 'no_user_session',
                     },
@@ -22,16 +23,12 @@ export const loader = CustomerPortal({
                 throw new Response('Unauthorized', { status: 401 });
             }
 
-            // Search for the Polar customer by external_id (user.id)
-            const customers = await polarClient.customers.list({
-                query: user.id, // The query parameter searches by external_id
-                limit: 1,
-            });
+            const customers = await getCustomerByExternalId(user.id);
 
             if (!customers.result || customers.result.items.length === 0) {
                 postHogClient?.capture({
                     distinctId: user.id,
-                    event: 'portal_customer_not_found',
+                    event: 'polar_portal_customer_not_found',
                     properties: {
                         userEmail: user.email,
                     },
@@ -43,7 +40,7 @@ export const loader = CustomerPortal({
 
             postHogClient?.capture({
                 distinctId: user.id,
-                event: 'portal_access_success',
+                event: 'polar_portal_access_success',
                 properties: {
                     polarCustomerId,
                 },

@@ -1,8 +1,8 @@
-import { PrismaClient, Prisma } from '../app/generated/prisma/client.js';
+import { PrismaClient } from '../app/generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import { auth } from '../app/lib/auth.server.js';
-import { Role, OrganizationRole } from '../app/generated/prisma/client.js';
+import { Role } from '../app/generated/prisma/client.js';
 
 import 'dotenv/config';
 
@@ -141,7 +141,6 @@ export async function main() {
         create: {
             name: 'Acme Corporation',
             slug: 'acme-corp',
-            ownerId: adminUser.id,
         },
     });
     console.log('   ✓ Created organization: Acme Corporation');
@@ -152,7 +151,6 @@ export async function main() {
         create: {
             name: 'Tech Innovations',
             slug: 'tech-innovations',
-            ownerId: user1.id,
         },
     });
     console.log('   ✓ Created organization: Tech Innovations');
@@ -163,7 +161,6 @@ export async function main() {
         create: {
             name: 'Creative Studio',
             slug: 'creative-studio',
-            ownerId: user2.id,
         },
     });
     console.log('   ✓ Created organization: Creative Studio');
@@ -172,7 +169,7 @@ export async function main() {
     console.log('\n👥 Creating organization members...');
 
     // Acme Corp members
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org1.id,
@@ -183,11 +180,11 @@ export async function main() {
         create: {
             organizationId: org1.id,
             userId: adminUser.id,
-            role: OrganizationRole.OWNER,
+            role: 'owner',
         },
     });
 
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org1.id,
@@ -198,11 +195,11 @@ export async function main() {
         create: {
             organizationId: org1.id,
             userId: editorUser.id,
-            role: OrganizationRole.ADMIN,
+            role: 'admin',
         },
     });
 
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org1.id,
@@ -213,14 +210,14 @@ export async function main() {
         create: {
             organizationId: org1.id,
             userId: user1.id,
-            role: OrganizationRole.MEMBER,
+            role: 'member',
         },
     });
 
     console.log('   ✓ Added members to Acme Corporation');
 
     // Tech Innovations members
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org2.id,
@@ -231,11 +228,11 @@ export async function main() {
         create: {
             organizationId: org2.id,
             userId: user1.id,
-            role: OrganizationRole.OWNER,
+            role: 'owner',
         },
     });
 
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org2.id,
@@ -246,14 +243,14 @@ export async function main() {
         create: {
             organizationId: org2.id,
             userId: user3.id,
-            role: OrganizationRole.ADMIN,
+            role: 'admin',
         },
     });
 
     console.log('   ✓ Added members to Tech Innovations');
 
     // Creative Studio members
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org3.id,
@@ -264,11 +261,11 @@ export async function main() {
         create: {
             organizationId: org3.id,
             userId: user2.id,
-            role: OrganizationRole.OWNER,
+            role: 'owner',
         },
     });
 
-    await prisma.organizationMember.upsert({
+    await prisma.member.upsert({
         where: {
             organizationId_userId: {
                 organizationId: org3.id,
@@ -279,7 +276,7 @@ export async function main() {
         create: {
             organizationId: org3.id,
             userId: editorUser.id,
-            role: OrganizationRole.MEMBER,
+            role: 'member',
         },
     });
 
@@ -291,38 +288,41 @@ export async function main() {
     const inviteExpiry = new Date();
     inviteExpiry.setDate(inviteExpiry.getDate() + 7); // Expires in 7 days
 
-    await prisma.organizationInvitation.upsert({
+    await prisma.invitation.upsert({
         where: { token: 'invite-token-1' },
         update: {},
         create: {
             organizationId: org1.id,
             email: 'pending1@iridium.com',
-            role: OrganizationRole.MEMBER,
+            role: 'member',
             token: 'invite-token-1',
+            inviterId: adminUser.id,
             expiresAt: inviteExpiry,
         },
     });
 
-    await prisma.organizationInvitation.upsert({
+    await prisma.invitation.upsert({
         where: { token: 'invite-token-2' },
         update: {},
         create: {
             organizationId: org2.id,
             email: 'pending2@iridium.com',
-            role: OrganizationRole.ADMIN,
+            role: 'admin',
             token: 'invite-token-2',
+            inviterId: user1.id,
             expiresAt: inviteExpiry,
         },
     });
 
-    await prisma.organizationInvitation.upsert({
+    await prisma.invitation.upsert({
         where: { token: 'invite-token-3' },
         update: {},
         create: {
             organizationId: org3.id,
             email: 'pending3@iridium.com',
-            role: OrganizationRole.MEMBER,
+            role: 'member',
             token: 'invite-token-3',
+            inviterId: user2.id,
             expiresAt: inviteExpiry,
         },
     });

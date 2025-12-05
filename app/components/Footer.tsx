@@ -1,14 +1,13 @@
-import { Link } from 'react-router';
 import { Container } from './Container';
 
 export function Footer() {
     return (
         <footer className="py-12 bg-base-300">
             <Container className="px-4">
-                <div className="grid grid-cols-4">
+                <div className="grid grid-cols-1 gap-8 md:gap-4 md:grid-cols-4">
                     <div>
                         <h3 className="font-semibold text-lg mb-2">About</h3>
-                        <ul className="flex flex-col">
+                        <ul className="flex flex-col gap-2">
                             <li>
                                 <a href="https://sethdavis.tech/iridium">
                                     More info on Iridium
@@ -17,8 +16,10 @@ export function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">Stack</h3>
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <h3 className="font-semibold text-lg mb-2">
+                            Core Stack
+                        </h3>
+                        <ul className="flex flex-col gap-2">
                             <li>
                                 <a
                                     href="https://typescriptlang.org/"
@@ -46,6 +47,13 @@ export function Footer() {
                                     React Router
                                 </a>
                             </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-lg mb-2">
+                            Authentication & UI
+                        </h3>
+                        <ul className="flex flex-col gap-2">
                             <li>
                                 <a
                                     href="https://www.better-auth.com/"
@@ -66,6 +74,20 @@ export function Footer() {
                             </li>
                             <li>
                                 <a
+                                    href="https://daisyui.com/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    DaisyUI
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-lg mb-2">Services</h3>
+                        <ul className="flex flex-col gap-2">
+                            <li>
+                                <a
                                     href="https://posthog.com/"
                                     target="_blank"
                                     rel="noreferrer"
@@ -75,20 +97,11 @@ export function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="https://cloudinary.com/"
+                                    href="https://railway.com/"
                                     target="_blank"
                                     rel="noreferrer"
                                 >
-                                    Cloudinary
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://daisyui.com/"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                >
-                                    DaisyUI
+                                    Railway
                                 </a>
                             </li>
                         </ul>
