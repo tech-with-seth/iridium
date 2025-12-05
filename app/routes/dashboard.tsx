@@ -608,16 +608,16 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             <div className="bg-base-100 p-2 rounded-box">
                                 <div className="mb-2 overflow-x-scroll flex gap-2">
                                     <PresetButton
-                                        text={`What's my total revenue and average order value?`}
+                                        text={`How are active subscriptions and MRR trending the last 90 days?`}
                                     />
                                     <PresetButton
-                                        text={`How many digital products have I sold?`}
+                                        text={`Break down subscription churn by reason this month.`}
                                     />
                                     <PresetButton
-                                        text={`What's my checkout conversion rate?`}
+                                        text={`Compare one-time sales revenue vs subscription revenue this quarter.`}
                                     />
                                     <PresetButton
-                                        text={`Show me my revenue for the last 6 months`}
+                                        text={`Are gross margin % and cashflow improving this quarter?`}
                                     />
                                 </div>
                                 <form
