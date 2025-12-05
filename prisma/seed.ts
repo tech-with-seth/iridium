@@ -10,16 +10,6 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 /**
- * Optional user profile data that can be attached during user creation.
- */
-interface UserProfile {
-    bio?: string;
-    website?: string;
-    location?: string;
-    phoneNumber?: string;
-}
-
-/**
  * Test user configuration with credentials and role.
  */
 interface TestUser {
@@ -27,7 +17,6 @@ interface TestUser {
     password: string;
     name: string;
     role: Role;
-    profile?: UserProfile;
 }
 
 /**
@@ -41,68 +30,42 @@ const SEED_DATA = {
             password: 'Admin123!',
             name: 'Admin User',
             role: Role.ADMIN,
-            profile: {
-                bio: 'Platform administrator',
-                location: 'San Francisco, CA',
-                website: 'https://iridium.com',
-            },
         },
         {
             email: 'editor@iridium.com',
             password: 'Editor123!',
             name: 'Editor User',
             role: Role.EDITOR,
-            profile: {
-                bio: 'Content editor and moderator',
-                location: 'New York, NY',
-            },
         },
         {
             email: 'alice@iridium.com',
             password: 'Alice123!',
             name: 'Alice Johnson',
             role: Role.USER,
-            profile: {
-                bio: 'Software engineer passionate about web development',
-                location: 'Austin, TX',
-                website: 'https://alice.dev',
-                phoneNumber: '+1-555-0101',
-            },
         },
         {
             email: 'bob@iridium.com',
             password: 'BobBob123!',
             name: 'Bob Smith',
             role: Role.USER,
-            profile: {
-                bio: 'Product designer and UX enthusiast',
-                location: 'Seattle, WA',
-                phoneNumber: '+1-555-0102',
-            },
         },
         {
             email: 'charlie@iridium.com',
             password: 'Charlie123!',
             name: 'Charlie Davis',
             role: Role.USER,
-            profile: {
-                bio: 'Data scientist and ML researcher',
-                location: 'Boston, MA',
-                website: 'https://charlied.ai',
-            },
         },
     ] satisfies TestUser[],
 } as const;
 
 /**
- * Creates a user with BetterAuth authentication and optional profile data.
+ * Creates a user with BetterAuth authentication.
  * Uses BetterAuth's signUpEmail API which handles password hashing and account creation.
  *
  * @param email - User email address (must be unique)
  * @param password - Plain text password (will be hashed by BetterAuth)
  * @param name - User display name
  * @param role - User role (USER, EDITOR, or ADMIN)
- * @param profile - Optional profile data (bio, website, location, phone)
  * @returns Created user record from database
  * @throws Error if user creation fails
  */
@@ -111,7 +74,6 @@ async function createUserWithAuth(
     password: string,
     name: string,
     role: Role,
-    profile?: UserProfile,
 ) {
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
@@ -129,13 +91,12 @@ async function createUserWithAuth(
         throw new Error(`Failed to create user ${email}`);
     }
 
-    // Update with role and profile data (BetterAuth defaults to USER role)
+    // Update role (BetterAuth defaults to USER role)
     const updatedUser = await prisma.user.update({
         where: { id: result.user.id },
         data: {
             role,
             emailVerified: true, // Skip verification for seed data
-            ...profile,
         },
     });
 
@@ -155,14 +116,13 @@ async function seedUsers() {
             userData.password,
             userData.name,
             userData.role,
-            userData.profile,
         );
     }
 }
 
 /**
  * Main seed function that orchestrates all database seeding operations.
- * Seeds test users with various roles and profile data.
+ * Seeds test users with various roles.
  */
 export async function main() {
     console.log('🌱 Start seeding...');
@@ -171,7 +131,9 @@ export async function main() {
 
     console.log('\n✅ Seeding completed successfully!');
     console.log('\n📊 Summary:');
-    console.log(`   • Users: ${SEED_DATA.users.length} (1 admin, 1 editor, 3 regular users)`);
+    console.log(
+        `   • Users: ${SEED_DATA.users.length} (1 admin, 1 editor, 3 regular users)`,
+    );
     console.log('\n🔑 Login Credentials:');
 
     for (const user of SEED_DATA.users) {

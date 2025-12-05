@@ -1,4 +1,5 @@
 import { auth } from '~/lib/auth.server';
+import { sendUserBanEmail } from '~/models/email.server';
 
 // User Management
 
@@ -143,14 +144,36 @@ export function banUser({
     banReason,
     banExpiresIn,
 }: BanUserParams) {
-    return auth.api.banUser({
-        body: {
-            userId,
-            banReason,
-            banExpiresIn,
-        },
-        headers,
-    });
+    return auth.api
+        .banUser({
+            body: {
+                userId,
+                banReason,
+                banExpiresIn,
+            },
+            headers,
+        })
+        .then((response) => {
+            const bannedUser =
+                (response as any)?.data?.user ||
+                (response as any)?.data ||
+                (response as any);
+
+            const email = bannedUser?.email as string | undefined;
+            const name = bannedUser?.name as string | undefined;
+
+            if (email) {
+                void sendUserBanEmail({
+                    to: email,
+                    name: name || 'there',
+                    reason: banReason,
+                }).catch((error) =>
+                    console.error('Failed to send ban email', error),
+                );
+            }
+
+            return response;
+        });
 }
 
 interface UnbanUserParams {

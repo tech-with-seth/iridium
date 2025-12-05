@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { admin, organization } from 'better-auth/plugins';
+import { admin } from 'better-auth/plugins';
 import {
     checkout,
     polar,
@@ -10,11 +10,12 @@ import {
 } from '@polar-sh/better-auth';
 
 import { prisma } from '~/db.server';
+import { Paths } from '~/constants';
 import { polarClient } from './polar';
 import {
-    // sendVerificationEmail,
     sendPasswordResetEmail,
     sendVerificationEmail,
+    sendWelcomeEmail,
 } from '~/models/email.server';
 
 export const auth = betterAuth({
@@ -36,20 +37,37 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: false, // Set to true to require email verification
         sendResetPassword: async ({ user, url }) => {
-            await sendPasswordResetEmail({
+            void sendPasswordResetEmail({
                 to: user.email,
                 resetUrl: url,
-            });
+            }).catch((error) =>
+                console.error('Failed to send reset email', error),
+            );
         },
     },
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
-            await sendVerificationEmail({
+            void sendVerificationEmail({
                 to: user.email,
                 verificationUrl: url,
-            });
+            }).catch((error) =>
+                console.error('Failed to send verification email', error),
+            );
         },
-        sendOnSignUp: false, // Don't send verification emails since requireEmailVerification is false
+        sendOnSignUp: true, // Low-friction: send verification but do not require yet
+        sendOnSignIn: false,
+        autoSignInAfterVerification: true,
+        afterEmailVerification: async (user) => {
+            void sendWelcomeEmail({
+                to: user.email,
+                userName: user.name || 'there',
+                dashboardUrl: process.env.BETTER_AUTH_URL
+                    ? `${process.env.BETTER_AUTH_URL}${Paths.DASHBOARD}`
+                    : Paths.DASHBOARD,
+            }).catch((error) =>
+                console.error('Failed to send welcome email', error),
+            );
+        },
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -69,7 +87,6 @@ export const auth = betterAuth({
         admin({
             defaultRole: 'USER',
         }),
-        organization(),
         polar({
             client: polarClient,
             createCustomerOnSignUp: true,

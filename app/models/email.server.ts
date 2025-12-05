@@ -4,6 +4,8 @@ import VerificationEmail from '~/emails/verification-email';
 import PasswordResetEmail from '~/emails/password-reset-email';
 import WelcomeEmail from '~/emails/welcome-email';
 import TransactionalEmail from '~/emails/transactional-email';
+import AccountDeletionEmail from '~/emails/account-deletion-email';
+import UserBanEmail from '~/emails/user-ban-email';
 import { getPostHogClient } from '~/lib/posthog';
 
 /**
@@ -167,6 +169,66 @@ export async function sendWelcomeEmail({
         to,
         from: from || process.env.RESEND_FROM_EMAIL!,
         subject: 'Welcome to Iridium!',
+        html,
+    });
+}
+
+interface SendAccountDeletionEmailOptions {
+    to: string;
+    name?: string;
+    from?: string;
+}
+
+export async function sendAccountDeletionEmail({
+    to,
+    name,
+    from,
+}: SendAccountDeletionEmailOptions) {
+    const html = await render(
+        AccountDeletionEmail({
+            name: name || 'there',
+            email: to,
+        }),
+    );
+
+    return sendEmail({
+        to,
+        from: from || process.env.RESEND_FROM_EMAIL!,
+        subject: 'Your Iridium account has been deleted',
+        html,
+    });
+}
+
+interface SendUserBanEmailOptions {
+    to: string;
+    name?: string;
+    reason?: string;
+    supportEmail?: string;
+    from?: string;
+}
+
+export async function sendUserBanEmail({
+    to,
+    name,
+    reason,
+    supportEmail,
+    from,
+}: SendUserBanEmailOptions) {
+    const html = await render(
+        UserBanEmail({
+            name: name || 'there',
+            reason,
+            supportEmail:
+                supportEmail ||
+                process.env.RESEND_FROM_EMAIL ||
+                'support@iridium.com',
+        }),
+    );
+
+    return sendEmail({
+        to,
+        from: from || process.env.RESEND_FROM_EMAIL!,
+        subject: 'Your Iridium account has been suspended',
         html,
     });
 }

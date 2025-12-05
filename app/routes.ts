@@ -30,6 +30,7 @@ export default [
         route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
         route(Paths.EMAIL, 'routes/api/email.ts'),
         route(Paths.CHAT, 'routes/api/chat.ts'),
+        route('profile', 'routes/api/profile.ts'),
         ...prefix(Paths.WEBHOOKS, [
             route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
         ]),
