@@ -22,7 +22,7 @@ import {
 } from '~/models/thread.server';
 import type { Route } from './+types/dashboard';
 import { Button } from '~/components/Button';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     EllipsisIcon,
     MessageCircle,
@@ -48,6 +48,7 @@ import invariant from 'tiny-invariant';
 import { RFCDate } from '@polar-sh/sdk/types/rfcdate.js';
 import { polarClient } from '~/lib/polar';
 import { DefaultChatTransport } from 'ai';
+import { pickRandom } from '~/lib/common';
 
 enum Intents {
     GET_THREAD = 'get-thread',
@@ -297,6 +298,16 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
     const threadChosenZeroMessages =
         currentThread && !isLoadingMessages && hasNoMessages;
 
+    const textInputPlaceholder = useMemo(() => {
+        return pickRandom([
+            'What would you like to know?',
+            'Ask me about your store metrics...',
+            'How can I assist you today?',
+            'Type your question here...',
+            'Feel free to ask anything...',
+        ]);
+    }, [chatFetcher.data?.threadId]);
+
     return (
         <>
             <title>Dashboard | Iridium</title>
@@ -370,7 +381,14 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             placeholder="Choose a thread"
                             onChange={(event) => {
                                 const threadId = event.target.value;
-                                navigate(`/chat/${threadId}`);
+                                setCurrentThread(threadId);
+                                chatFetcher.submit(
+                                    {
+                                        intent: Intents.GET_THREAD,
+                                        threadId,
+                                    },
+                                    { method: 'POST' },
+                                );
                             }}
                             options={[
                                 ...loaderData.threads.map(({ id, title }) => ({
@@ -635,6 +653,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                             setInput(e.target.value)
                                         }
                                         disabled={isStreaming}
+                                        placeholder={textInputPlaceholder}
                                     />
                                     {isStreaming ? (
                                         <Button
