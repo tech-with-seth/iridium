@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { XIcon } from 'lucide-react';
 
 export const drawerVariants = cva({
-    base: 'drawer',
+    base: 'drawer relative z-50',
     variants: {
         side: {
             left: 'drawer-start',
@@ -23,7 +23,7 @@ export const drawerVariants = cva({
 });
 
 export const drawerMenuVariants = cva({
-    base: 'menu bg-base-100 text-base-content min-h-full p-4',
+    base: 'menu bg-base-100 text-base-content min-h-full p-4 relative z-50',
     variants: {
         size: {
             sm: 'w-80',
@@ -67,11 +67,11 @@ export function Drawer({
             <div className="drawer-content flex min-h-0 flex-1 flex-col">
                 {children}
             </div>
-            <div className="drawer-side">
+            <div className="drawer-side z-50">
                 <label
                     htmlFor={id}
                     aria-label="close sidebar"
-                    className="drawer-overlay"
+                    className="drawer-overlay z-40"
                     onClick={handleClose}
                 ></label>
                 <div className={cx(drawerMenuVariants({ size }))}>

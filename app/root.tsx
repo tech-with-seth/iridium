@@ -120,18 +120,45 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
                 <Navbar
                     sticky
                     shadow
+                    backgroundColor="base-100"
+                    className="supports-backdrop-filter:bg-base-100/90"
                     start={
-                        <div className="flex items-center gap-2 w-full">
-                            <NavbarHamburger>
+                        <div className="flex items-center gap-3 w-full">
+                            <NavbarHamburger className="lg:hidden">
                                 <NavbarMenuItem active={isOnHomePage}>
                                     <NavLink to="/">Home</NavLink>
                                 </NavbarMenuItem>
-                                <li className="menu-title mt-2">Account</li>
+                                {isSignedIn && (
+                                    <NavbarMenuItem
+                                        active={
+                                            location.pathname ===
+                                            Paths.DASHBOARD
+                                        }
+                                    >
+                                        <NavLink to={Paths.DASHBOARD}>
+                                            Dashboard
+                                        </NavLink>
+                                    </NavbarMenuItem>
+                                )}
+                                <NavbarMenuItem className="mt-1 border-t border-base-200 pt-2">
+                                    <Button
+                                        status="secondary"
+                                        className="w-full justify-center"
+                                        onClick={
+                                            !isSignedIn
+                                                ? handleOpenDrawer
+                                                : handleSignOut
+                                        }
+                                    >{`Sign ${isSignedIn ? 'out' : 'in'}`}</Button>
+                                </NavbarMenuItem>
                             </NavbarHamburger>
-                            <Link to="/" className="px-4 text-xl font-bold">
+                            <Link
+                                to="/"
+                                className="px-3 text-lg font-black tracking-tight"
+                            >
                                 {`<TWS />`}
                             </Link>
-                            <NavbarMenu>
+                            <NavbarMenu className="hidden lg:flex items-center gap-1">
                                 <NavbarMenuItem active={isOnHomePage}>
                                     <NavLink to="/">Home</NavLink>
                                 </NavbarMenuItem>
@@ -139,7 +166,7 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
                         </div>
                     }
                     end={
-                        <NavbarMenu>
+                        <NavbarMenu className="items-center gap-1">
                             {isSignedIn && (
                                 <NavbarMenuItem
                                     active={
@@ -172,17 +199,11 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [isAdminDrawerOpen, adminDrawerActions] = useDrawer();
     const [isTurnstileDrawerOpen, turnstileDrawerActions] = useDrawer();
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
-
-    const homePageHeroActive = useMemo(
-        () => isActive(data?.allFlags, 'home_page_hero_image'),
-        [data?.allFlags],
-    );
 
     return (
         <html

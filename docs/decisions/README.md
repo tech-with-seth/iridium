@@ -23,6 +23,8 @@ Each ADR follows this structure:
 
 ## Current ADRs
 
+Note: Two ADRs share the number 007 because they capture distinct choices made concurrently. Both remain accepted and applicable.
+
 ### Infrastructure
 
 - [001: React Router 7](./001-react-router-7.md) - Full-stack React framework
@@ -43,11 +45,11 @@ Each ADR follows this structure:
 
 ### Performance
 
-- [007: Flat-Cache](./007-flat-cache.md) - Server-side caching
+- [007: Client-Side Caching](./007-client-side-caching.md) - remix-client-cache for loader data
 
 ### Testing and CI/CD
 
-- [007: Simplified CI Testing](./007-simplified-ci-testing.md) - Testing strategy and CI/CD approach
+- [007: Simplified CI/CD Testing](./007-simplified-ci-testing.md) - Testing strategy and CI/CD approach
 
 ### Analytics and Billing
 
