@@ -72,6 +72,7 @@ import type { Route } from "../../+types/product"; // WRONG!
 ```
 
 **If you see TypeScript errors about missing `./+types/[routeName]` modules:**
+
 1. IMMEDIATELY run `npm run typecheck` to generate types
 2. NEVER try to "fix" it by changing the import path
 
@@ -89,6 +90,7 @@ const user = await getUserProfile(userId);
 ```
 
 **Model Layer Files (core):**
+
 - `app/models/user.server.ts` - User CRUD
 - `app/models/email.server.ts` - Email operations (Resend optional)
 - `app/models/feature-flags.server.ts` - PostHog feature flags with caching (optional)
@@ -110,6 +112,7 @@ import { PrismaClient } from '@prisma/client';  // Wrong path!
 ```
 
 **After schema changes:**
+
 1. Run `npx prisma migrate dev --name description`
 2. Run `npx prisma generate`
 3. Restart dev server
@@ -142,6 +145,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 ```
 
 **Key Points:**
+
 - Access loader data via `loaderData` prop (NOT `useLoaderData()` hook)
 - Destructure params directly in function signature: `({ request, params }: Route.ActionArgs)`
 - DO NOT create intermediate variables: ❌ `const { request } = args`
@@ -244,6 +248,7 @@ export default function Dashboard() {
 ### 8. Authentication Patterns
 
 **BetterAuth** is configured at `app/lib/auth.server.ts` with:
+
 - Email/password authentication
 - Prisma adapter with PostgreSQL
 - 7-day sessions, 1-day update age
@@ -361,6 +366,7 @@ export default function MyRoute() {
 ### 11. API-First CRUD Pattern
 
 **File structure:**
+
 - `app/routes/api/[feature].ts` - Business logic (loader for GET, action for POST/PUT/DELETE)
 - `app/routes/[feature].tsx` - Presentation layer (calls API via fetcher)
 
@@ -494,11 +500,13 @@ import { Paths } from '~/constants';
 ## Environment Variables
 
 **Required:**
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Min 32 chars (`openssl rand -base64 32`)
 - `BETTER_AUTH_URL` - App URL (`http://localhost:5173` for dev)
 
 **Optional:**
+
 - `OPENAI_API_KEY` - AI chat demo
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` - Transactional emails
 - `POSTHOG_*` - Analytics & feature flags
@@ -507,7 +515,8 @@ Billing (Polar) and other legacy variables are out of scope for the lean starter
 
 ## Development Conventions
 
-### ALWAYS:
+### ALWAYS
+
 - Use model layer for ALL database operations
 - Run `npm run typecheck` after route changes
 - Use middleware for layout-level route protection
@@ -518,7 +527,8 @@ Billing (Polar) and other legacy variables are out of scope for the lean starter
 - Import route types as `./+types/[routeName]`
 - Keep scope lean (auth/profile/dashboard/chat + optional analytics/email); do not add billing or multi-tenancy unless explicitly requested
 
-### NEVER:
+### NEVER
+
 - Call Prisma directly in routes (use model layer)
 - Use file-based routing (use config-based `routes.ts`)
 - Use `useLoaderData` or `useActionData` hooks (use route props)
@@ -550,6 +560,7 @@ Use directories for organization, kebab-case for file names.
 See `.github/instructions/` for 50+ detailed pattern guides:
 
 **Core Patterns:**
+
 - `react-router.instructions.md` - React Router 7 patterns (CRITICAL)
 - `form-validation.instructions.md` - Hybrid validation pattern (READ FIRST)
 - `crud-pattern.instructions.md` - API-first CRUD operations
@@ -557,11 +568,13 @@ See `.github/instructions/` for 50+ detailed pattern guides:
 - `role-based-access-control.instructions.md` - RBAC implementation
 
 **Framework-Specific:**
+
 - `better-auth.instructions.md` - Authentication flows
 - `prisma.instructions.md` - Database patterns
 - `caching-pattern.instructions.md` - Three-tier caching strategy
 
 **Integrations:**
+
 - `polar.instructions.md` - Billing integration
 - `posthog.instructions.md` - Analytics & feature flags
 - `resend.instructions.md` - Email integration
