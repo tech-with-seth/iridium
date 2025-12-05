@@ -49,7 +49,7 @@ export const auth = betterAuth({
                 verificationUrl: url,
             });
         },
-        sendOnSignUp: true, // Automatically send verification email on signup
+        sendOnSignUp: false, // Don't send verification emails since requireEmailVerification is false
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -66,7 +66,9 @@ export const auth = betterAuth({
         },
     },
     plugins: [
-        admin(),
+        admin({
+            defaultRole: 'USER',
+        }),
         organization(),
         polar({
             client: polarClient,
