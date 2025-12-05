@@ -1,12 +1,28 @@
 import { ArrowRightIcon } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Alert } from '~/components/Alert';
 
 import { Container } from '~/components/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
 import { isActive } from '~/lib/flags';
-import type { FeatureFlag } from '~/types/posthog';
+
+function ContentBlock({
+    heading,
+    children,
+}: {
+    heading: string;
+    children: ReactNode;
+}) {
+    return (
+        <>
+            <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                {heading}
+            </h2>
+            <p>{children}</p>
+        </>
+    );
+}
 
 export default function LandingPage() {
     const data = useRootData();
@@ -66,34 +82,28 @@ export default function LandingPage() {
                                     you about Iridium. It's not easy being
                                     green, and it's not easy building a SaaS app
                                     from scratch either! But with this
-                                    production-ready boilerplate, you don't have
-                                    to. It's got everything you need - React
-                                    Router 7, TypeScript, BetterAuth for
-                                    authentication, Polar.sh for billing, and
-                                    PostgreSQL with Prisma. There's even OpenAI
-                                    integration, PostHog analytics, and DaisyUI
-                                    components that are almost as colorful as my
-                                    friends on Sesame Street! Whether you're a
-                                    solo founder or working with a team, Iridium
-                                    helps you hop from idea to launch faster
-                                    than a frog on a lily pad. Yaaaaay!
+                                    production-ready boilerplate, you can skip
+                                    all the boring setup and jump straight to
+                                    building features your users will love.
+                                    Authentication, billing, AI integration, and
+                                    a beautiful component library are all ready
+                                    to go. Whether you're a solo founder or
+                                    working with a team, Iridium helps you hop
+                                    from idea to launch faster than a frog on a
+                                    lily pad. Yaaaaay!
                                 </p>
                             ) : (
                                 <p>
-                                    Iridium is a production-ready SaaS
-                                    boilerplate that gets you from idea to
-                                    launch faster. Built on modern React Router
-                                    7 with TypeScript, it includes
-                                    authentication via BetterAuth, subscription
-                                    billing through Polar.sh, and PostgreSQL +
-                                    Prisma for your database. Features like AI
-                                    integration with OpenAI, analytics with
-                                    PostHog, and a beautiful DaisyUI component
-                                    library mean you can focus on building your
-                                    unique features instead of reinventing the
-                                    wheel. Whether you're a solo founder or a
-                                    development team, Iridium provides the solid
-                                    foundation you need to ship faster.
+                                    Stop building the same boilerplate for every
+                                    project. Iridium is a production-ready SaaS
+                                    starter that includes everything you need to
+                                    launch: authentication, subscription billing,
+                                    database management, AI integration,
+                                    analytics, and a beautiful UI component
+                                    library. Focus on building your unique value
+                                    proposition instead of reinventing user
+                                    login for the hundredth time. Ship faster,
+                                    iterate smarter, and get to revenue sooner.
                                 </p>
                             )}
                             <a href="/" className="btn btn-primary mt-8">
@@ -103,56 +113,52 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
-                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
-                            Built for Developers
-                        </h2>
-                        <p>
+                        <ContentBlock heading="Built for Developers">
                             Iridium is designed with developers in mind. The
                             codebase is clean, modular, and easy to understand,
                             making it simple to customize and extend. With
                             comprehensive documentation and a focus on best
                             practices, Iridium helps you build your SaaS product
                             with confidence.
-                        </p>
+                        </ContentBlock>
                     </div>
                     <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
-                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
-                            Built for Developers
-                        </h2>
-                        <p>
-                            Iridium is designed with developers in mind. The
-                            codebase is clean, modular, and easy to understand,
-                            making it simple to customize and extend. With
-                            comprehensive documentation and a focus on best
-                            practices, Iridium helps you build your SaaS product
-                            with confidence.
-                        </p>
+                        <ContentBlock heading="Modern Tech Stack">
+                            Built on React Router 7 with TypeScript for
+                            type-safe, full-stack development. Config-based
+                            routing, middleware patterns, and a model layer
+                            architecture provide a solid foundation. DaisyUI
+                            components with CVA give you a beautiful,
+                            customizable design system out of the box.
+                        </ContentBlock>
                     </div>
                     <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
-                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
-                            Built for Developers
-                        </h2>
-                        <p>
-                            Iridium is designed with developers in mind. The
-                            codebase is clean, modular, and easy to understand,
-                            making it simple to customize and extend. With
-                            comprehensive documentation and a focus on best
-                            practices, Iridium helps you build your SaaS product
-                            with confidence.
-                        </p>
+                        <ContentBlock heading="Authentication & Billing">
+                            User authentication powered by BetterAuth with
+                            email/password and social login support.
+                            Subscription billing integrated via Polar.sh with
+                            webhook handling and customer management. Role-based
+                            access control keeps your application secure from
+                            day one.
+                        </ContentBlock>
                     </div>
                     <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
-                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
-                            Built for Developers
-                        </h2>
-                        <p>
-                            Iridium is designed with developers in mind. The
-                            codebase is clean, modular, and easy to understand,
-                            making it simple to customize and extend. With
-                            comprehensive documentation and a focus on best
-                            practices, Iridium helps you build your SaaS product
-                            with confidence.
-                        </p>
+                        <ContentBlock heading="AI-Ready">
+                            OpenAI integration with Vercel AI SDK provides
+                            streaming chat capabilities and AI-powered features.
+                            Pre-built chat UI components and message persistence
+                            let you add intelligent features to your product
+                            without starting from scratch.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                        <ContentBlock heading="Production-Ready">
+                            PostgreSQL with Prisma for robust data management.
+                            PostHog analytics and feature flags for data-driven
+                            decisions. Resend for transactional emails. Vitest
+                            and Playwright testing suites ensure your code works
+                            as expected before deployment.
+                        </ContentBlock>
                     </div>
                 </div>
             </Container>

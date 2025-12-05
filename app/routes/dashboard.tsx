@@ -418,7 +418,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                                             : undefined
                                                     }
                                                 >
-                                                    {title}
+                                                    {`${title?.substring(0, 20)}...`}
                                                 </Button>
                                             </chatFetcher.Form>
                                             <Button

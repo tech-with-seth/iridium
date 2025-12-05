@@ -53,7 +53,7 @@ export async function sendEmail(options: SendEmailOptions) {
             cc?: string | string[];
             bcc?: string | string[];
         } = {
-            from: options.from || process.env.DEFAULT_FROM_EMAIL!,
+            from: options.from || process.env.RESEND_FROM_EMAIL!,
             to: options.to,
             subject: options.subject,
             replyTo: options.replyTo,
@@ -107,7 +107,7 @@ export async function sendVerificationEmail({
 
     return sendEmail({
         to,
-        from: from || process.env.DEFAULT_FROM_EMAIL!,
+        from: from || process.env.RESEND_FROM_EMAIL!,
         subject: 'Verify your email address',
         html,
     });
@@ -135,7 +135,7 @@ export async function sendPasswordResetEmail({
 
     return sendEmail({
         to,
-        from: from || process.env.DEFAULT_FROM_EMAIL!,
+        from: from || process.env.RESEND_FROM_EMAIL!,
         subject: 'Reset your password',
         html,
     });
@@ -165,7 +165,7 @@ export async function sendWelcomeEmail({
 
     return sendEmail({
         to,
-        from: from || process.env.DEFAULT_FROM_EMAIL!,
+        from: from || process.env.RESEND_FROM_EMAIL!,
         subject: 'Welcome to Iridium!',
         html,
     });
@@ -207,7 +207,7 @@ export async function sendTransactionalEmail({
 
     return sendEmail({
         to,
-        from: from || process.env.DEFAULT_FROM_EMAIL!,
+        from: from || process.env.RESEND_FROM_EMAIL!,
         subject: heading,
         html,
     });
