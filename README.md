@@ -64,7 +64,7 @@ Required
 
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET` (32+ chars)
-- `BETTER_AUTH_URL` (e.g., http://localhost:5173)
+- `BETTER_AUTH_URL` (e.g., <http://localhost:5173>)
 
 Optional
 
