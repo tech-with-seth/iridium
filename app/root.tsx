@@ -2,36 +2,49 @@ import { useCallback, useMemo } from 'react';
 import {
     data,
     isRouteErrorResponse,
+    Link,
     Links,
     Meta,
+    NavLink,
     Outlet,
     Scripts,
     ScrollRestoration,
-    useFetcher,
+    useLocation,
+    useNavigate,
 } from 'react-router';
-import { CogIcon, FileQuestionIcon } from 'lucide-react';
+import { CogIcon, FileQuestionIcon, GaugeIcon } from 'lucide-react';
+import type { User } from 'better-auth/client';
 
+import { authClient } from './lib/auth-client';
 import { Button } from './components/Button';
+import { Container } from './components/Container';
 import { Drawer } from './components/Drawer';
+import { FlagsList } from './components/FlagsList';
 import { Footer } from './components/Footer';
-import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getFeatureFlags } from './models/feature-flags.server';
+import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import { Header } from './components/Header';
+import { Paths } from './constants';
 import { PHProvider } from './components/PostHogProvider';
-import { Toggle } from './components/Toggle';
+import { TabContent, TabRadio, Tabs } from './components/Tabs';
+import { themeCookie } from './lib/cookies.server';
+import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { Turnstile } from './components/Turnstile';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
-import type { FeatureFlag } from './types/posthog';
 import type { Route } from './+types/root';
-import { ThemeSwitcher } from './components/ThemeSwitcher';
-import { themeCookie } from './lib/cookies.server';
-import { Alert } from './components/Alert';
+import {
+    Navbar,
+    NavbarHamburger,
+    NavbarMenu,
+    NavbarMenuItem,
+} from './components/Navbar';
+import { cx } from '~/cva.config';
+import { isActive } from './lib/flags';
 
 import './app.css';
-import { Container } from './components/Container';
-import { TabContent, TabRadio, Tabs } from './components/Tabs';
+import { ConditionalWrapper } from './components/ConditionalWrapper';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -79,68 +92,97 @@ export async function action({ request }: Route.ActionArgs) {
     });
 }
 
-function FlagsList({ flags }: { flags: FeatureFlag[] }) {
-    const flagFetcher = useFetcher();
+interface HeaderProps {
+    user: User | null;
+    handleOpenDrawer: () => void;
+}
+
+function Header({ user, handleOpenDrawer }: HeaderProps) {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const isSignedIn = Boolean(user?.id);
+    const isOnHomePage = location.pathname === '/';
+
+    const handleSignOut = useCallback(async () => {
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    navigate('/');
+                },
+            },
+        });
+    }, [navigate]);
 
     return (
-        <>
-            {flags.map((flag: FeatureFlag) => {
-                const isTarget =
-                    String(flagFetcher.formData?.get('flagId')) ===
-                    String(flag.id);
-
-                const isLoading = flagFetcher.state !== 'idle';
-
-                const handleOnChange = useCallback(
-                    () =>
-                        flagFetcher.submit(
-                            {
-                                active: !flag.active,
-                                flagId: flag.id,
-                                intent: 'toggleFeatureFlag',
-                            },
-                            {
-                                method: 'PATCH',
-                                action: '/api/posthog/feature-flags',
-                            },
-                        ),
-                    [flag.active],
-                );
-
-                return (
-                    <div
-                        className="flex flex-col items-start py-4 rounded-box"
-                        key={flag.id}
-                    >
-                        {flag.name && (
-                            <p className="text-sm text-base-content mb-2">
-                                {flag.name}
-                            </p>
-                        )}
-                        <Toggle
-                            checked={flag.active}
-                            disabled={isTarget && flagFetcher.state !== 'idle'}
-                            label={flag.key}
-                            loading={isTarget && isLoading}
-                            onChange={handleOnChange}
-                        />
-                    </div>
-                );
-            })}
-        </>
+        <header className="my-4">
+            <Container className="px-4">
+                <Navbar
+                    sticky
+                    shadow
+                    start={
+                        <div className="flex items-center gap-2 w-full">
+                            <NavbarHamburger>
+                                <NavbarMenuItem active={isOnHomePage}>
+                                    <NavLink to="/">Home</NavLink>
+                                </NavbarMenuItem>
+                                <li className="menu-title mt-2">Account</li>
+                            </NavbarHamburger>
+                            <Link to="/" className="px-4 text-xl font-bold">
+                                {`<TWS />`}
+                            </Link>
+                            <NavbarMenu>
+                                <NavbarMenuItem active={isOnHomePage}>
+                                    <NavLink to="/">Home</NavLink>
+                                </NavbarMenuItem>
+                            </NavbarMenu>
+                        </div>
+                    }
+                    end={
+                        <NavbarMenu>
+                            {isSignedIn && (
+                                <NavbarMenuItem
+                                    active={
+                                        location.pathname === Paths.DASHBOARD
+                                    }
+                                >
+                                    <NavLink to={Paths.DASHBOARD}>
+                                        <GaugeIcon className="inline h-6 w-6" />
+                                    </NavLink>
+                                </NavbarMenuItem>
+                            )}
+                            <NavbarMenuItem>
+                                <Button
+                                    status="secondary"
+                                    onClick={
+                                        !isSignedIn
+                                            ? handleOpenDrawer
+                                            : handleSignOut
+                                    }
+                                >{`Sign ${isSignedIn ? 'out' : 'in'}`}</Button>
+                            </NavbarMenuItem>
+                        </NavbarMenu>
+                    }
+                />
+            </Container>
+        </header>
     );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
-    const [isOpen, { openDrawer, closeDrawer }] = useDrawer();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const [isAdminDrawerOpen, adminDrawerActions] = useDrawer();
+    const [isTurnstileDrawerOpen, turnstileDrawerActions] = useDrawer();
     const hasAccessPermissions =
         data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
-    const alertExperimentActive = useMemo(() => {
-        return data?.allFlags.find((flag) => flag.key === 'alert-experiment')
-            ?.active;
-    }, [data?.allFlags]);
+    const homePageHeroActive = useMemo(
+        () => isActive(data?.allFlags, 'home_page_hero_image'),
+        [data?.allFlags],
+    );
 
     return (
         <html
@@ -159,22 +201,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body className="min-h-screen flex flex-col">
                 <PHProvider>
-                    <Header />
-                    {alertExperimentActive && (
-                        <div>
-                            <Container className="px-4">
-                                <Alert status="warning" className="mb-4">
-                                    <p>You are in the experiment</p>
-                                </Alert>
-                            </Container>
-                        </div>
-                    )}
-                    <main className="flex grow flex-col min-h-0">
-                        {hasAccessPermissions ? (
+                    <section className="bg-linear-to-br from-primary/30 to-secondary/30 h-98">
+                        <Header
+                            user={data?.user ?? null}
+                            handleOpenDrawer={turnstileDrawerActions.openDrawer}
+                        />
+                    </section>
+                    <main className="flex grow flex-col -mt-72">
+                        {children}
+                        <Drawer
+                            id="turnstileDrawer"
+                            isOpen={isTurnstileDrawerOpen}
+                            handleClose={turnstileDrawerActions.closeDrawer}
+                            contents={
+                                <Turnstile
+                                    onSuccessfulLogin={() => {
+                                        turnstileDrawerActions.closeDrawer();
+                                        navigate('/');
+                                    }}
+                                />
+                            }
+                        />
+                        {hasAccessPermissions && (
                             <Drawer
                                 id="appDrawer"
-                                isOpen={hasAccessPermissions && isOpen}
-                                handleClose={closeDrawer}
+                                isOpen={
+                                    hasAccessPermissions && isAdminDrawerOpen
+                                }
+                                handleClose={adminDrawerActions.closeDrawer}
                                 contents={
                                     <>
                                         <h2 className="text-lg font-semibold">
@@ -216,21 +270,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                     </>
                                 }
                                 size="lg"
-                            >
-                                {children}
-                            </Drawer>
-                        ) : (
-                            children
+                            />
                         )}
                     </main>
                     <Footer />
                     {hasAccessPermissions && (
-                        <div className="fixed bottom-4 right-12 md:bottom-4 md:right-4">
+                        <div className="fixed bottom-4 right-4">
                             <Button
                                 circle
-                                onClick={() => {
-                                    openDrawer();
-                                }}
+                                onClick={adminDrawerActions.openDrawer}
                                 status="primary"
                             >
                                 <CogIcon />

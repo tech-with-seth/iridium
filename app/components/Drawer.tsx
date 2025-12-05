@@ -23,13 +23,13 @@ export const drawerVariants = cva({
 });
 
 export const drawerMenuVariants = cva({
-    base: 'menu bg-base-200 text-base-content min-h-full p-4',
+    base: 'menu bg-base-100 text-base-content min-h-full p-4',
     variants: {
         size: {
             sm: 'w-80',
-            md: 'w-96',
-            lg: 'w-128',
-            xl: 'w-160',
+            md: 'w-80 md:w-96',
+            lg: 'w-80 md:w-128',
+            xl: 'w-80 md:w-160',
         },
     },
     defaultVariants: {

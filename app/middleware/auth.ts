@@ -14,7 +14,7 @@ export async function authMiddleware({
     const user = await getUserFromSession(request);
 
     if (!user?.id) {
-        throw redirect(Paths.SIGN_IN);
+        throw redirect(Paths.HOME);
     }
 
     context.set(userContext, user);

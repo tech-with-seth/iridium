@@ -1,4 +1,5 @@
 import { Webhooks } from '@polar-sh/remix';
+import { PostHogEventNames } from '~/constants';
 
 import { getPostHogClient } from '~/lib/posthog';
 import { sendEmail } from '~/models/email.server';
@@ -9,13 +10,18 @@ const postHogClient = getPostHogClient();
 export const action = Webhooks({
     webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
     onPayload: async (payload) => {
-        console.log('Polar general payload hook', payload);
-    },
-    onCheckoutCreated: async (payload) => {
-        console.log('Polar checkout created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_checkout_created',
+            event: PostHogEventNames.POLAR_PAYLOAD_RECEIVED,
+            properties: {
+                payload,
+            },
+        });
+    },
+    onCheckoutCreated: async (payload) => {
+        postHogClient?.capture({
+            distinctId: 'system',
+            event: PostHogEventNames.POLAR_CHECKOUT_CREATED,
             properties: {
                 checkoutId: payload.data.id,
             },
@@ -29,8 +35,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'checkout_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CHECKOUT_CREATED,
             });
         }
     },
@@ -38,7 +44,7 @@ export const action = Webhooks({
         console.log('Polar checkout updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_checkout_updated',
+            event: PostHogEventNames.POLAR_CHECKOUT_UPDATED,
             properties: {
                 checkoutId: payload.data.id,
             },
@@ -52,8 +58,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'checkout_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CHECKOUT_UPDATED,
             });
         }
     },
@@ -61,7 +67,7 @@ export const action = Webhooks({
         console.log('Polar order created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_order_created',
+            event: PostHogEventNames.POLAR_ORDER_CREATED,
             properties: {
                 orderId: payload.data.id,
             },
@@ -75,8 +81,7 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'order_created',
+                context: PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_ORDER_CREATED,
             });
         }
     },
@@ -84,7 +89,7 @@ export const action = Webhooks({
         console.log('Polar order paid', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_order_paid',
+            event: PostHogEventNames.POLAR_ORDER_PAID,
             properties: {
                 orderId: payload.data.id,
             },
@@ -98,8 +103,7 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'order_paid',
+                context: PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_ORDER_PAID,
             });
         }
     },
@@ -107,7 +111,7 @@ export const action = Webhooks({
         console.log('Polar order refunded', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_order_refunded',
+            event: PostHogEventNames.POLAR_ORDER_REFUNDED,
             properties: {
                 orderId: payload.data.id,
             },
@@ -121,8 +125,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'order_refunded',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_ORDER_REFUNDED,
             });
         }
     },
@@ -130,7 +134,7 @@ export const action = Webhooks({
         console.log('Polar refund created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_refund_created',
+            event: PostHogEventNames.POLAR_REFUND_CREATED,
             properties: {
                 refundId: payload.data.id,
             },
@@ -144,8 +148,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'refund_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_REFUND_CREATED,
             });
         }
     },
@@ -153,7 +157,7 @@ export const action = Webhooks({
         console.log('Polar refund updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_refund_updated',
+            event: PostHogEventNames.POLAR_REFUND_UPDATED,
             properties: {
                 refundId: payload.data.id,
             },
@@ -167,8 +171,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'refund_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_REFUND_UPDATED,
             });
         }
     },
@@ -176,7 +180,7 @@ export const action = Webhooks({
         console.log('Polar subscription created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_created',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_CREATED,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -190,8 +194,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_CREATED,
             });
         }
     },
@@ -199,7 +203,7 @@ export const action = Webhooks({
         console.log('Polar subscription updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_updated',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_UPDATED,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -213,8 +217,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_UPDATED,
             });
         }
     },
@@ -222,7 +226,7 @@ export const action = Webhooks({
         console.log('Polar subscription active', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_active',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_ACTIVE,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -236,8 +240,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_active',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_ACTIVE,
             });
         }
     },
@@ -245,7 +249,7 @@ export const action = Webhooks({
         console.log('Polar subscription canceled', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_canceled',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_CANCELED,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -259,8 +263,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_canceled',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_CANCELED,
             });
         }
     },
@@ -268,7 +272,7 @@ export const action = Webhooks({
         console.log('Polar subscription revoked', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_revoked',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_REVOKED,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -282,8 +286,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_revoked',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_REVOKED,
             });
         }
     },
@@ -291,7 +295,7 @@ export const action = Webhooks({
         console.log('Polar subscription uncanceled', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_subscription_uncanceled',
+            event: PostHogEventNames.POLAR_SUBSCRIPTION_UNCANCELED,
             properties: {
                 subscriptionId: payload.data.id,
             },
@@ -305,8 +309,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'subscription_uncanceled',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_SUBSCRIPTION_UNCANCELED,
             });
         }
     },
@@ -314,7 +318,7 @@ export const action = Webhooks({
         console.log('Polar product created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_product_created',
+            event: PostHogEventNames.POLAR_PRODUCT_CREATED,
             properties: {
                 productId: payload.data.id,
             },
@@ -328,8 +332,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'product_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_PRODUCT_CREATED,
             });
         }
     },
@@ -337,7 +341,7 @@ export const action = Webhooks({
         console.log('Polar product updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_product_updated',
+            event: PostHogEventNames.POLAR_PRODUCT_UPDATED,
             properties: {
                 productId: payload.data.id,
             },
@@ -351,8 +355,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'product_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_PRODUCT_UPDATED,
             });
         }
     },
@@ -360,7 +364,7 @@ export const action = Webhooks({
         console.log('Polar organization updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_organization_updated',
+            event: PostHogEventNames.POLAR_ORGANIZATION_UPDATED,
             properties: {
                 organizationId: payload.data.id,
             },
@@ -374,8 +378,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'organization_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_ORGANIZATION_UPDATED,
             });
         }
     },
@@ -383,7 +387,7 @@ export const action = Webhooks({
         console.log('Polar benefit created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_benefit_created',
+            event: PostHogEventNames.POLAR_BENEFIT_CREATED,
             properties: {
                 benefitId: payload.data.id,
             },
@@ -397,8 +401,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'benefit_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_BENEFIT_CREATED,
             });
         }
     },
@@ -406,7 +410,7 @@ export const action = Webhooks({
         console.log('Polar benefit updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_benefit_updated',
+            event: PostHogEventNames.POLAR_BENEFIT_UPDATED,
             properties: {
                 benefitId: payload.data.id,
             },
@@ -420,8 +424,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'benefit_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_BENEFIT_UPDATED,
             });
         }
     },
@@ -429,7 +433,7 @@ export const action = Webhooks({
         console.log('Polar benefit grant created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_benefit_grant_created',
+            event: PostHogEventNames.POLAR_BENEFIT_GRANT_CREATED,
             properties: {
                 benefitGrantId: payload.data.id,
             },
@@ -443,8 +447,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'benefit_grant_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_BENEFIT_GRANT_CREATED,
             });
         }
     },
@@ -452,7 +456,7 @@ export const action = Webhooks({
         console.log('Polar benefit grant updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_benefit_grant_updated',
+            event: PostHogEventNames.POLAR_BENEFIT_GRANT_UPDATED,
             properties: {
                 benefitGrantId: payload.data.id,
             },
@@ -466,8 +470,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'benefit_grant_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_BENEFIT_GRANT_UPDATED,
             });
         }
     },
@@ -475,7 +479,7 @@ export const action = Webhooks({
         console.log('Polar benefit grant revoked', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_benefit_grant_revoked',
+            event: PostHogEventNames.POLAR_BENEFIT_GRANT_REVOKED,
             properties: {
                 benefitGrantId: payload.data.id,
             },
@@ -489,8 +493,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'benefit_grant_revoked',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_BENEFIT_GRANT_REVOKED,
             });
         }
     },
@@ -498,7 +502,7 @@ export const action = Webhooks({
         console.log('Polar customer created', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_customer_created',
+            event: PostHogEventNames.POLAR_CUSTOMER_CREATED,
             properties: {
                 customerId: payload.data.id,
             },
@@ -512,8 +516,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'customer_created',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CUSTOMER_CREATED,
             });
         }
     },
@@ -521,7 +525,7 @@ export const action = Webhooks({
         console.log('Polar customer updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_customer_updated',
+            event: PostHogEventNames.POLAR_CUSTOMER_UPDATED,
             properties: {
                 customerId: payload.data.id,
             },
@@ -535,8 +539,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'customer_updated',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CUSTOMER_UPDATED,
             });
         }
     },
@@ -544,7 +548,7 @@ export const action = Webhooks({
         console.log('Polar customer deleted', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_customer_deleted',
+            event: PostHogEventNames.POLAR_CUSTOMER_DELETED,
             properties: {
                 customerId: payload.data.id,
             },
@@ -558,8 +562,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'customer_deleted',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CUSTOMER_DELETED,
             });
         }
     },
@@ -567,7 +571,7 @@ export const action = Webhooks({
         console.log('Polar customer state changed', payload);
         postHogClient?.capture({
             distinctId: 'system',
-            event: 'polar_customer_state_changed',
+            event: PostHogEventNames.POLAR_CUSTOMER_STATE_CHANGED,
             properties: {
                 customerId: payload.data.id,
             },
@@ -581,8 +585,8 @@ export const action = Webhooks({
             });
         } catch (error) {
             postHogClient?.captureException(error as Error, 'system', {
-                context: 'polar_webhook_email',
-                webhookType: 'customer_state_changed',
+                context:
+                    PostHogEventNames.POLAR_WEBHOOK_ERROR_ON_CUSTOMER_STATE_CHANGED,
             });
         }
     },

@@ -20,10 +20,12 @@ function generateInvitationToken(): string {
 export async function createInvitation({
     organizationId,
     email,
+    inviterId,
     role = 'MEMBER',
 }: {
     organizationId: string;
     email: string;
+    inviterId: string;
     role?: OrganizationRole;
 }): Promise<OrganizationInvitation> {
     const token = generateInvitationToken();
@@ -34,6 +36,7 @@ export async function createInvitation({
         data: {
             organizationId,
             email: email.toLowerCase(),
+            inviterId,
             role,
             token,
             expiresAt,
@@ -177,9 +180,7 @@ export async function cleanupExpiredInvitations(): Promise<number> {
 /**
  * Get all invitations for a user's email
  */
-export async function getUserInvitations(
-    email: string,
-): Promise<OrganizationInvitation[]> {
+export async function getUserInvitations(email: string) {
     return prisma.organizationInvitation.findMany({
         where: {
             email: email.toLowerCase(),

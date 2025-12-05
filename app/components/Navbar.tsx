@@ -43,10 +43,12 @@ export function Navbar({
             {!brand && start && <div className="navbar-start">{start}</div>}
 
             {/* Center section */}
-            {center && <div className="navbar-center">{center}</div>}
+            {center && (
+                <div className="navbar-center hidden lg:flex">{center}</div>
+            )}
 
             {/* End section - right side content */}
-            {end && <div className="navbar-end">{end}</div>}
+            {end && <div className="navbar-end hidden lg:flex">{end}</div>}
         </div>
     );
 }
@@ -148,6 +150,41 @@ export function NavbarDropdown({
                     className,
                 )}
                 {...rest}
+            >
+                {children}
+            </ul>
+        </div>
+    );
+}
+
+export function NavbarHamburger({
+    children,
+    className,
+}: {
+    children: ReactNode;
+    className?: string;
+}) {
+    return (
+        <div className={cx('dropdown', className)}>
+            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 6h16M4 12h8m-8 6h16"
+                    />
+                </svg>
+            </div>
+            <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
             >
                 {children}
             </ul>

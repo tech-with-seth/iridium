@@ -1,170 +1,179 @@
+
 generator client {
-    provider = "prisma-client"
-    output   = "../app/generated/prisma"
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 enum Role {
-    USER
-    EDITOR
-    ADMIN
+  USER
+  EDITOR
+  ADMIN
 }
 
 enum OrganizationRole {
-    OWNER
-    ADMIN
-    MEMBER
+  OWNER
+  ADMIN
+  MEMBER
 }
 
 model User {
-    id                  String               @id @default(cuid())
-    createdAt           DateTime             @default(now())
-    updatedAt           DateTime             @default(now()) @updatedAt
-    email               String               @unique
-    name                String?
-    emailVerified       Boolean              @default(false)
-    image               String?
-    bio                 String?
-    website             String?
-    location            String?
-    phoneNumber         String?
-    role                Role                 @default(USER)
-    sessions            Session[]
-    accounts            Account[]
-    organizationMembers OrganizationMember[]
-    ownedOrganizations  Organization[]       @relation("OrganizationOwner")
-    threads             Thread[]
-    messages            Message[]
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+  email         String       @unique
+  name          String?
+  emailVerified Boolean      @default(false)
+  image         String?
+  bio           String?
+  website       String?
+  location      String?
+  phoneNumber   String?
+  role          Role         @default(USER)
+  sessions      Session[]
+  accounts      Account[]
+  threads       Thread[]
+  messages      Message[]
+  members       Member[]
+  invitations   Invitation[]
+  banned        Boolean?     @default(false)
+  banReason     String?
+  banExpires    DateTime?
 
-    @@index([email])
-    @@map("user")
+  @@index([email])
+  @@map("user")
 }
 
 model Session {
-    id        String   @id
-    expiresAt DateTime
-    token     String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    ipAddress String?
-    userAgent String?
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
+  impersonatedBy       String?
 
-    @@unique([token])
-    @@map("session")
+  @@unique([token])
+  @@map("session")
+  @@index([userId])
 }
 
 model Account {
-    id                    String    @id
-    accountId             String
-    providerId            String
-    userId                String
-    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    accessToken           String?
-    refreshToken          String?
-    idToken               String?
-    accessTokenExpiresAt  DateTime?
-    refreshTokenExpiresAt DateTime?
-    scope                 String?
-    password              String?
-    createdAt             DateTime  @default(now())
-    updatedAt             DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-    @@map("account")
+  @@map("account")
+  @@index([userId])
 }
 
 model Verification {
-    id         String   @id
-    identifier String
-    value      String
-    expiresAt  DateTime
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @default(now()) @updatedAt
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
-    @@map("verification")
+  @@map("verification")
+  @@index([identifier])
 }
 
 model Thread {
-    id          String    @id @default(cuid())
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    createdById String
-    messages    Message[]
-    title       String?
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  messages    Message[]
+  title       String?
 
-    @@map("thread")
+  @@map("thread")
 }
 
 model Message {
-    id        String      @id @default(cuid())
-    role      MessageRole
-    content   String
-    createdAt DateTime    @default(now())
-    user      User?       @relation(fields: [userId], references: [id])
-    userId    String?
-    thread    Thread?     @relation(fields: [threadId], references: [id])
-    threadId  String?
+  id        String      @id @default(cuid())
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+  user      User?       @relation(fields: [userId], references: [id])
+  userId    String?
+  thread    Thread?     @relation(fields: [threadId], references: [id])
+  threadId  String?
 
-    @@map("message")
+  @@map("message")
 }
 
 enum MessageRole {
-    USER
-    ASSISTANT
-    SYSTEM
+  USER
+  ASSISTANT
+  SYSTEM
 }
 
 model Organization {
-    id        String    @id @default(cuid())
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    name      String
-    slug      String    @unique
-    ownerId   String
-    owner     User      @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-    deletedAt DateTime?
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  name        String
+  slug        String       @unique
+  logo        String?
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
 
-    members     OrganizationMember[]
-    invitations OrganizationInvitation[]
-
-    @@index([slug])
-    @@index([ownerId])
-    @@map("organization")
+  @@index([slug])
+  @@map("organization")
 }
 
-model OrganizationMember {
-    id             String           @id @default(cuid())
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @updatedAt
-    organizationId String
-    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    userId         String
-    user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    role           OrganizationRole @default(MEMBER)
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime     @default(now())
 
-    @@unique([organizationId, userId])
-    @@index([userId])
-    @@map("organization_member")
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("member")
 }
 
-model OrganizationInvitation {
-    id             String           @id @default(cuid())
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @updatedAt
-    organizationId String
-    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    email          String
-    role           OrganizationRole @default(MEMBER)
-    token          String           @unique
-    expiresAt      DateTime
-    acceptedAt     DateTime?
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  token          String       @unique
+  status         String       @default("pending")
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
 
-    @@index([token])
-    @@index([email])
-    @@map("organization_invitation")
+  @@index([organizationId])
+  @@index([email])
+  @@index([token])
+  @@map("invitation")
 }

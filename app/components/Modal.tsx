@@ -9,13 +9,14 @@ export const modalVariants = cva({
             top: 'modal-top',
             middle: 'modal-middle',
             bottom: 'modal-bottom',
+            responsive: 'modal-bottom sm:modal-middle',
         },
         open: {
             true: 'modal-open',
         },
     },
     defaultVariants: {
-        placement: 'middle',
+        placement: 'responsive',
     },
 });
 
@@ -85,7 +86,7 @@ export function Modal({
             onClose={handleClose}
             {...props}
         >
-            <div className="modal-box">
+            <div className="modal-box w-11/12 max-w-5xl sm:w-auto">
                 {title && (
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg">{title}</h3>

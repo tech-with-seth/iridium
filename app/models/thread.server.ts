@@ -29,6 +29,7 @@ export function getAllThreadsByUserId(userId: string) {
                 orderBy: { createdAt: 'asc' },
             },
         },
+        orderBy: { createdAt: 'desc' },
     });
 }
 
