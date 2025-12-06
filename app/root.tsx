@@ -222,7 +222,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body className="min-h-screen flex flex-col">
                 <PHProvider>
-                    <section className="bg-linear-to-br from-primary/30 to-secondary/30 h-98">
+                    <section className="bg-linear-to-br from-primary/50 to-secondary/50 h-98">
                         <Header
                             user={data?.user ?? null}
                             handleOpenDrawer={turnstileDrawerActions.openDrawer}
