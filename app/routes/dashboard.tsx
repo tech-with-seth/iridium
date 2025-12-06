@@ -1,6 +1,5 @@
 import {
     data,
-    NavLink,
     redirect,
     useFetcher,
     useNavigate,
@@ -317,13 +316,13 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
             />
             <Container className="px-4 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 mb-4 gap-4">
-                    <div className="bg-base-300 rounded-box p-4">
+                    <div className="bg-base-200 rounded-box p-4">
                         <h4 className="text-lg font-bold mb-2">Orders</h4>
                         <span className="text-xl">
                             {loaderData.metrics.totals.orders}
                         </span>
                     </div>
-                    <div className="bg-base-300 rounded-box p-4">
+                    <div className="bg-base-200 rounded-box p-4">
                         <h4 className="text-lg font-bold mb-2">Revenue</h4>
                         <span className="text-xl">
                             $
@@ -332,7 +331,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             )}
                         </span>
                     </div>
-                    <div className="bg-base-300 rounded-box p-4">
+                    <div className="bg-base-200 rounded-box p-4">
                         <h4 className="text-lg font-bold mb-2">
                             Avg Order Value
                         </h4>
@@ -344,7 +343,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             ).toFixed(2)}
                         </span>
                     </div>
-                    <div className="bg-base-300 rounded-box p-4">
+                    <div className="bg-base-200 rounded-box p-4">
                         <h4 className="text-lg font-bold mb-2">
                             Checkout Conversion
                         </h4>
@@ -358,7 +357,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 md:min-h-[500px] md:max-h-[800px]">
-                    <div className="bg-base-300 p-4 rounded-xl">
+                    <div className="bg-base-200 p-4 rounded-box">
                         <chatFetcher.Form method="POST">
                             <Button
                                 type="submit"
@@ -530,7 +529,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             )}
                         </ul>
                     </div>
-                    <div className="bg-base-300 p-4 rounded-xl grid grid-rows-[1fr_auto] gap-2">
+                    <div className="bg-base-300 p-4 rounded-box grid grid-rows-[1fr_auto] gap-2">
                         {error && (
                             <div className="alert alert-error">
                                 <span>Error: {error.message}</span>
@@ -567,7 +566,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                     const placement = isUser ? 'end' : 'start';
                                     const color = isUser
                                         ? 'primary'
-                                        : undefined;
+                                        : 'secondary';
                                     const filteredParts = message.parts.filter(
                                         (part) => part.type === 'text',
                                     );
