@@ -1,3 +1,4 @@
+import { PostHogEventNames } from '~/constants';
 import { auth } from './auth.server';
 import { Role } from '~/generated/prisma/client';
 import { getPostHogClient } from '~/lib/posthog';
@@ -26,7 +27,7 @@ export async function getUserFromSession(request: Request) {
         // Track error with PostHog
         const postHogClient = getPostHogClient();
         postHogClient?.captureException(error as Error, 'system', {
-            context: 'session_retrieval',
+            context: PostHogEventNames.SESSION_RETRIEVAL_ERROR,
             timestamp: new Date().toISOString(),
         });
 

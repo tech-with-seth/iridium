@@ -1,3 +1,4 @@
+import { PostHogEventNames } from '~/constants';
 import { getPostHogClient } from '~/lib/posthog';
 import type { FeatureFlagsResponse } from '~/types/posthog';
 
@@ -22,7 +23,7 @@ export async function getFeatureFlags() {
             );
 
             postHogClient?.captureException(notOkError, 'system', {
-                context: 'feature_flags_fetch',
+                context: PostHogEventNames.FEATURE_FLAGS_FETCH,
             });
         }
 
@@ -31,7 +32,7 @@ export async function getFeatureFlags() {
         return data;
     } catch (error) {
         postHogClient?.captureException(error as Error, 'system', {
-            context: 'feature_flags_fetch',
+            context: PostHogEventNames.FEATURE_FLAGS_FETCH_ERROR,
         });
 
         return { results: [] };

@@ -20,6 +20,7 @@ export async function loader() {
         return data(featureFlags);
     } catch (error) {
         const postHogClient = getPostHogClient();
+
         postHogClient?.captureException(error as Error, 'system', {
             context: 'feature_flags_fetch',
         });
