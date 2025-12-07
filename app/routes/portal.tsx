@@ -2,6 +2,7 @@ import { CustomerPortal } from '@polar-sh/remix';
 import { getUserFromSession } from '~/lib/session.server';
 import { getPostHogClient } from '~/lib/posthog';
 import { getCustomerByExternalId } from '~/models/polar.server';
+import { PostHogEventNames } from '~/constants';
 
 export const loader = CustomerPortal({
     accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -14,7 +15,7 @@ export const loader = CustomerPortal({
             if (!user) {
                 postHogClient?.capture({
                     distinctId: 'anonymous',
-                    event: 'polar_portal_access_unauthorized',
+                    event: PostHogEventNames.POLAR_PORTAL_ACCESS_UNAUTHORIZED,
                     properties: {
                         reason: 'no_user_session',
                     },
@@ -28,7 +29,7 @@ export const loader = CustomerPortal({
             if (!customers.result || customers.result.items.length === 0) {
                 postHogClient?.capture({
                     distinctId: user.id,
-                    event: 'polar_portal_customer_not_found',
+                    event: PostHogEventNames.POLAR_PORTAL_CUSTOMER_NOT_FOUND,
                     properties: {
                         userEmail: user.email,
                     },
@@ -40,7 +41,7 @@ export const loader = CustomerPortal({
 
             postHogClient?.capture({
                 distinctId: user.id,
-                event: 'polar_portal_access_success',
+                event: PostHogEventNames.POLAR_PORTAL_ACCESS_SUCCESS,
                 properties: {
                     polarCustomerId,
                 },
