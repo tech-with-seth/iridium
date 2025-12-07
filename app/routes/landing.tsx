@@ -59,7 +59,7 @@ export default function LandingPage() {
                 </div>
             )}
             <Container className="px-4">
-                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 border border-base-300">
+                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100">
                     <div className="col-span-12 md:col-span-6 p-8">
                         <div
                             className={cx(
@@ -97,16 +97,17 @@ export default function LandingPage() {
                                     Stop building the same boilerplate for every
                                     project. Iridium is a production-ready SaaS
                                     starter that includes everything you need to
-                                    launch: authentication, subscription billing,
-                                    database management, AI integration,
-                                    analytics, and a beautiful UI component
-                                    library. Focus on building your unique value
-                                    proposition instead of reinventing user
-                                    login for the hundredth time. Ship faster,
-                                    iterate smarter, and get to revenue sooner.
+                                    launch: authentication, subscription
+                                    billing, database management, AI
+                                    integration, analytics, and a beautiful UI
+                                    component library. Focus on building your
+                                    unique value proposition instead of
+                                    reinventing user login for the hundredth
+                                    time. Ship faster, iterate smarter, and get
+                                    to revenue sooner.
                                 </p>
                             )}
-                            <a href="/" className="btn btn-primary mt-8">
+                            <a href="/" className="btn btn-secondary mt-8">
                                 Buy my SaaS Boilerplate{' '}
                                 <ArrowRightIcon className="ml-2" />
                             </a>

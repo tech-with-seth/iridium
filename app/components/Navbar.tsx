@@ -1,38 +1,12 @@
-import { cx } from '~/cva.config';
+import type { VariantProps } from 'cva';
+import { cva, cx } from '~/cva.config';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 
-interface NavbarProps {
-    brand?: ReactNode;
-    start?: ReactNode;
-    center?: ReactNode;
-    end?: ReactNode;
-    sticky?: boolean;
-    shadow?: boolean;
-    backgroundColor?:
-        | 'base-100'
-        | 'base-200'
-        | 'base-300'
-        | 'primary'
-        | 'secondary'
-        | 'accent'
-        | 'neutral';
-    className?: string;
-}
-
-export function Navbar({
-    brand,
-    start,
-    center,
-    end,
-    sticky = false,
-    shadow = false,
-    backgroundColor = 'base-300',
-    className,
-    ...rest
-}: NavbarProps) {
-    const backgroundClass =
-        {
+export const navbarVariants = cva({
+    base: 'navbar w-full rounded-box px-4 py-2 gap-3 bg-neutral text-neutral-content',
+    variants: {
+        background: {
             'base-100': 'bg-base-100',
             'base-200': 'bg-base-200',
             'base-300': 'bg-base-300',
@@ -40,16 +14,44 @@ export function Navbar({
             secondary: 'bg-secondary',
             accent: 'bg-accent',
             neutral: 'bg-neutral',
-        }[backgroundColor] ?? 'bg-base-300';
+        },
+        shadow: {
+            sm: 'shadow-sm',
+            lg: 'shadow-lg',
+        },
+        sticky: {
+            true: 'sticky top-0 z-40',
+        },
+    },
+    defaultVariants: {
+        shadow: 'sm',
+    },
+});
 
+interface NavbarProps
+    extends React.HTMLAttributes<HTMLElement>,
+        VariantProps<typeof navbarVariants> {
+    brand?: ReactNode;
+    start?: ReactNode;
+    center?: ReactNode;
+    end?: ReactNode;
+}
+
+export function Navbar({
+    brand,
+    start,
+    center,
+    end,
+    background,
+    shadow,
+    sticky,
+    className,
+    ...rest
+}: NavbarProps) {
     return (
         <nav
             className={cx(
-                'navbar w-full rounded-box px-4 py-2 gap-3 text-base-content',
-                'border border-base-200/80 backdrop-blur supports-backdrop-filter:bg-opacity-90',
-                sticky && 'sticky top-0 z-40',
-                shadow ? 'shadow-lg' : 'shadow-sm',
-                backgroundClass,
+                navbarVariants({ background, shadow, sticky }),
                 className,
             )}
             {...rest}

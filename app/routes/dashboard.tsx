@@ -23,6 +23,7 @@ import type { Route } from './+types/dashboard';
 import { Button } from '~/components/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+    BotIcon,
     EllipsisIcon,
     MessageCircle,
     MessageCircleDashedIcon,
@@ -32,6 +33,7 @@ import {
     SendHorizontalIcon,
     SpoolIcon,
     StopCircleIcon,
+    UserIcon,
     XIcon,
 } from 'lucide-react';
 import { Select } from '~/components/Select';
@@ -307,6 +309,33 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
         ]);
     }, [chatFetcher.data?.threadId]);
 
+    const formatToDollar = (amount: number) => {
+        return `$${(amount / 100).toFixed(2)}`;
+    };
+
+    const formatToPercent = (amount: number) => {
+        return `${(amount * 100).toFixed(1)}%`;
+    };
+
+    const Box = ({
+        children,
+        className,
+    }: {
+        children: React.ReactNode;
+        className?: string;
+    }) => {
+        return (
+            <div
+                className={cx(
+                    `bg-base-200 rounded-box p-4 border border-base-300`,
+                    className,
+                )}
+            >
+                {children}
+            </div>
+        );
+    };
+
     return (
         <>
             <title>Dashboard | Iridium</title>
@@ -316,48 +345,41 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
             />
             <Container className="px-4 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 mb-4 gap-4">
-                    <div className="bg-base-200 rounded-box p-4">
+                    <Box>
                         <h4 className="text-lg font-bold mb-2">Orders</h4>
                         <span className="text-xl">
                             {loaderData.metrics.totals.orders}
                         </span>
-                    </div>
-                    <div className="bg-base-200 rounded-box p-4">
+                    </Box>
+                    <Box>
                         <h4 className="text-lg font-bold mb-2">Revenue</h4>
                         <span className="text-xl">
-                            $
-                            {(loaderData.metrics.totals.revenue / 100).toFixed(
-                                2,
-                            )}
+                            {formatToDollar(loaderData.metrics.totals.revenue)}
                         </span>
-                    </div>
-                    <div className="bg-base-200 rounded-box p-4">
+                    </Box>
+                    <Box>
                         <h4 className="text-lg font-bold mb-2">
                             Avg Order Value
                         </h4>
                         <span className="text-xl">
-                            $
-                            {(
-                                loaderData.metrics.totals.averageOrderValue /
-                                100
-                            ).toFixed(2)}
+                            {formatToDollar(
+                                loaderData.metrics.totals.averageOrderValue,
+                            )}
                         </span>
-                    </div>
-                    <div className="bg-base-200 rounded-box p-4">
+                    </Box>
+                    <Box>
                         <h4 className="text-lg font-bold mb-2">
                             Checkout Conversion
                         </h4>
                         <span className="text-xl">
-                            {(
-                                loaderData.metrics.totals.checkoutsConversion *
-                                100
-                            ).toFixed(1)}
-                            %
+                            {formatToPercent(
+                                loaderData.metrics.totals.checkoutsConversion,
+                            )}
                         </span>
-                    </div>
+                    </Box>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 md:min-h-[500px] md:max-h-[800px]">
-                    <div className="bg-base-200 p-4 rounded-box">
+                    <Box>
                         <chatFetcher.Form method="POST">
                             <Button
                                 type="submit"
@@ -424,7 +446,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                                     value={id}
                                                 />
                                                 <Button
-                                                    variant="ghost"
+                                                    variant="soft"
                                                     className="w-full text-left justify-start"
                                                     type="submit"
                                                     name="intent"
@@ -528,8 +550,8 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                 ))
                             )}
                         </ul>
-                    </div>
-                    <div className="bg-base-300 p-4 rounded-box grid grid-rows-[1fr_auto] gap-2">
+                    </Box>
+                    <Box className="grid grid-rows-[1fr_auto] gap-2">
                         {error && (
                             <div className="alert alert-error">
                                 <span>Error: {error.message}</span>
@@ -565,8 +587,8 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                     const isUser = message.role === 'user';
                                     const placement = isUser ? 'end' : 'start';
                                     const color = isUser
-                                        ? 'primary'
-                                        : 'secondary';
+                                        ? 'secondary'
+                                        : undefined;
                                     const filteredParts = message.parts.filter(
                                         (part) => part.type === 'text',
                                     );
@@ -577,23 +599,16 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                             placement={placement}
                                         >
                                             <ChatBubbleAvatar className="avatar">
-                                                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                                                    <img
-                                                        src={
-                                                            isUser
-                                                                ? 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/sonic.png'
-                                                                : 'https://res.cloudinary.com/setholito/image/upload/v1763851065/iridium/knuckles.png'
-                                                        }
-                                                        alt={
-                                                            isUser
-                                                                ? 'User'
-                                                                : 'Assistant'
-                                                        }
-                                                        className={cx(
-                                                            !isUser &&
-                                                                'scale-x-[-1]',
-                                                        )}
-                                                    />
+                                                <div
+                                                    className={cx(
+                                                        `w-10 rounded-full ring ring-base-content ring-offset-base-100 ring-offset-2 flex items-center justify-center bg-base-300`,
+                                                    )}
+                                                >
+                                                    {isUser ? (
+                                                        <UserIcon className="w-6 h-6 stroke-base-content" />
+                                                    ) : (
+                                                        <BotIcon className="w-6 h-6 stroke-base-content" />
+                                                    )}
                                                 </div>
                                             </ChatBubbleAvatar>
                                             <ChatBubbleMessage color={color}>
@@ -678,7 +693,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                 </form>
                             </div>
                         )}
-                    </div>
+                    </Box>
                 </div>
             </Container>
         </>

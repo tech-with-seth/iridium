@@ -93,16 +93,18 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 interface HeaderProps {
-    user: User | null;
     handleOpenDrawer: () => void;
 }
 
-function Header({ user, handleOpenDrawer }: HeaderProps) {
+function Header({ handleOpenDrawer }: HeaderProps) {
+    const data = useRootData();
     const location = useLocation();
     const navigate = useNavigate();
 
-    const isSignedIn = Boolean(user?.id);
+    const isSignedIn = Boolean(data?.user?.id);
     const isOnHomePage = location.pathname === '/';
+    const hasAccessPermissions =
+        data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
     const handleSignOut = useCallback(async () => {
         await authClient.signOut({
@@ -119,9 +121,6 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
             <Container className="px-4">
                 <Navbar
                     sticky
-                    shadow
-                    backgroundColor="base-100"
-                    className="supports-backdrop-filter:bg-base-100/90"
                     start={
                         <div className="flex items-center gap-3 w-full">
                             <NavbarHamburger className="lg:hidden">
@@ -142,14 +141,16 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
                                 )}
                                 <NavbarMenuItem className="mt-1 border-t border-base-200 pt-2">
                                     <Button
-                                        status="secondary"
+                                        status="primary"
                                         className="w-full justify-center"
                                         onClick={
                                             !isSignedIn
                                                 ? handleOpenDrawer
                                                 : handleSignOut
                                         }
-                                    >{`Sign ${isSignedIn ? 'out' : 'in'}`}</Button>
+                                    >
+                                        {`Sign ${isSignedIn ? 'out' : 'in'}`}
+                                    </Button>
                                 </NavbarMenuItem>
                             </NavbarHamburger>
                             <Link
@@ -166,27 +167,41 @@ function Header({ user, handleOpenDrawer }: HeaderProps) {
                         </div>
                     }
                     end={
-                        <NavbarMenu className="items-center gap-1">
+                        <NavbarMenu className="items-center gap-2">
                             {isSignedIn && (
-                                <NavbarMenuItem
-                                    active={
-                                        location.pathname === Paths.DASHBOARD
-                                    }
-                                >
-                                    <NavLink to={Paths.DASHBOARD}>
-                                        <GaugeIcon className="inline h-6 w-6" />
-                                    </NavLink>
-                                </NavbarMenuItem>
+                                <>
+                                    <NavbarMenuItem>
+                                        <NavLink to={Paths.PORTAL}>
+                                            Portal
+                                        </NavLink>
+                                    </NavbarMenuItem>
+                                    {hasAccessPermissions && (
+                                        <>
+                                            <NavbarMenuItem
+                                                active={
+                                                    location.pathname ===
+                                                    Paths.DASHBOARD
+                                                }
+                                            >
+                                                <NavLink to={Paths.DASHBOARD}>
+                                                    Dashboard
+                                                </NavLink>
+                                            </NavbarMenuItem>
+                                        </>
+                                    )}
+                                </>
                             )}
                             <NavbarMenuItem>
                                 <Button
-                                    status="secondary"
+                                    status="primary"
                                     onClick={
                                         !isSignedIn
                                             ? handleOpenDrawer
                                             : handleSignOut
                                     }
-                                >{`Sign ${isSignedIn ? 'out' : 'in'}`}</Button>
+                                >
+                                    {`Sign ${isSignedIn ? 'out' : 'in'}`}
+                                </Button>
                             </NavbarMenuItem>
                         </NavbarMenu>
                     }
@@ -208,7 +223,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return (
         <html
             lang="en"
-            className="min-h-screen"
+            className="min-h-screen bg-base-300"
             data-theme={data?.theme || 'light'}
         >
             <head>
@@ -224,7 +239,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <PHProvider>
                     <section className="bg-linear-to-br from-primary/50 to-secondary/50 h-98">
                         <Header
-                            user={data?.user ?? null}
                             handleOpenDrawer={turnstileDrawerActions.openDrawer}
                         />
                     </section>
