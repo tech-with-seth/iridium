@@ -16,9 +16,9 @@ function ContentBlock({
 }) {
     return (
         <>
-            <h2 className="text-3xl font-semibold mb-4 text-base-content">
+            <h3 className="text-xl font-semibold mb-4 text-base-content">
                 {heading}
-            </h2>
+            </h3>
             <p>{children}</p>
         </>
     );
@@ -116,7 +116,74 @@ export default function LandingPage() {
                             </a>
                         </div>
                     </div>
-                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            Who is this for?
+                        </h2>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
+                        <ContentBlock heading="Solo Creators & Indie Hackers">
+                            You have a great idea for a creator business but
+                            don't want to spend months building authentication,
+                            user dashboards, and database architecture. Iridium
+                            gives you a production-ready foundation so you can
+                            focus on your unique offering instead of reinventing
+                            the wheel.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
+                        <ContentBlock heading="Technical Founders">
+                            You know how to code but want to ship fast without
+                            cutting corners. Iridium provides battle-tested
+                            patterns for React Router 7, type-safe database
+                            operations, and secure authentication. Clean,
+                            well-documented code that you can confidently build
+                            on.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
+                        <ContentBlock heading="Digital Product Creators">
+                            You want to sell courses, templates, guides, or
+                            access to exclusive content. Iridium gives you user
+                            authentication, role-based access control, and a
+                            dashboard where your customers can manage their
+                            accounts. Add your payment integration and start
+                            selling.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
+                        <ContentBlock heading="Community Builders">
+                            You're building a membership site, private
+                            repository access, or exclusive community platform.
+                            Iridium handles user management, secure
+                            authentication, and provides the foundation for
+                            gating content based on membership levels or
+                            permissions.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
+                        <ContentBlock heading="AI-Powered Creators">
+                            You want to build intelligent tools or AI-enhanced
+                            experiences for your audience. Iridium includes
+                            OpenAI integration with streaming chat out of the
+                            box, plus user context and message persistence. Add
+                            AI features without starting from scratch.
+                        </ContentBlock>
+                    </div>
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            Tech stack
+                        </h2>
+                    </div>
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
                         <ContentBlock heading="Built for Developers">
                             Iridium is designed with developers in mind. The
                             codebase is clean, modular, and easy to understand,
@@ -126,7 +193,7 @@ export default function LandingPage() {
                             with confidence.
                         </ContentBlock>
                     </div>
-                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
                         <ContentBlock heading="Modern Tech Stack">
                             Built on React Router 7 with TypeScript for
                             type-safe, full-stack development. Config-based
@@ -136,7 +203,7 @@ export default function LandingPage() {
                             customizable design system out of the box.
                         </ContentBlock>
                     </div>
-                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
                         <ContentBlock heading="Authentication & Billing">
                             User authentication powered by BetterAuth with
                             email/password and social login support.
@@ -146,7 +213,7 @@ export default function LandingPage() {
                             day one.
                         </ContentBlock>
                     </div>
-                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
                         <ContentBlock heading="AI-Ready">
                             OpenAI integration with Vercel AI SDK provides
                             streaming chat capabilities and AI-powered features.
@@ -155,7 +222,7 @@ export default function LandingPage() {
                             without starting from scratch.
                         </ContentBlock>
                     </div>
-                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center p-8">
+                    <div className="col-span-12 md:col-span-6 flex flex-col justify-center">
                         <ContentBlock heading="Production-Ready">
                             PostgreSQL with Prisma for robust data management.
                             PostHog analytics and feature flags for data-driven
