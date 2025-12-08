@@ -53,7 +53,12 @@ export default function LandingPage() {
                 <div>
                     <Container className="px-4">
                         <Alert status="warning" className="mb-4">
-                            <p>You are in the experiment</p>
+                            <p>
+                                This is an experimental variant of this alert
+                                message. PostHog feature flags let us test
+                                different UI variations with real users to find
+                                what works best!
+                            </p>
                         </Alert>
                     </Container>
                 </div>
@@ -77,23 +82,21 @@ export default function LandingPage() {
                                 Welcome to Iridium
                             </h1>
                             {homePageIntroCopyExperimentActive ? (
-                                <p className="leading-relaxed">
-                                    Hi-ho! Kermit the Frog here, and let me tell
-                                    you about Iridium. It's not easy being
-                                    green, and it's not easy building a SaaS app
-                                    from scratch either! But with this
-                                    production-ready boilerplate, you can skip
-                                    all the boring setup and jump straight to
-                                    building features your users will love.
-                                    Authentication, billing, AI integration, and
-                                    a beautiful component library are all ready
-                                    to go. Whether you're a solo founder or
-                                    working with a team, Iridium helps you hop
-                                    from idea to launch faster than a frog on a
-                                    lily pad. Yaaaaay!
+                                <p className="leading-relaxed text-lg">
+                                    Ship features with confidence using
+                                    data-driven experimentation. Iridium
+                                    integrates PostHog feature flags so you can
+                                    test different messaging, UI variations, and
+                                    user flows in production. See what resonates
+                                    with your audience before committing to a
+                                    single approach. This paragraph itself is an
+                                    A/B test—50% of visitors see this version
+                                    while others see alternative copy below.
+                                    Make decisions based on real user behavior,
+                                    not hunches.
                                 </p>
                             ) : (
-                                <p>
+                                <p className="text-lg">
                                     Stop building the same boilerplate for every
                                     project. Iridium is a production-ready SaaS
                                     starter that includes everything you need to
