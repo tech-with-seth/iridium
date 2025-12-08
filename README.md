@@ -7,6 +7,10 @@
 
 Iridium is now a **small, opinionated starter** for building auth-protected React Router 7 apps with a clean UI kit and a minimal feature set. It ships with email/password auth, a profile editor, a simple dashboard, and an AI chat demo so you can start from a working app instead of an empty shell.
 
+## Instant deploy
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/8Vtjm7?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 ## What you get
 
 - **React Router 7 + React 19** with config-based routing and native meta tags
