@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Button } from '~/components/actions/Button';
-import { Card } from '~/components/data-display/Card';
 import { TextInput } from '~/components/data-input/TextInput';
 import { Alert } from '~/components/feedback/Alert';
 import { useValidatedForm } from '~/lib/form-hooks';
@@ -221,21 +220,39 @@ export function Turnstile({
                 )}
                 <h2 className="text-xl font-bold mb-8">Social</h2>
                 <div className="flex flex-col gap-4 mb-8">
+                    {/* https://daisyui.com/components/button/#login-buttons */}
                     <Button
                         type="button"
                         onClick={handleSubmit(onSocialSignIn('google'))}
                         loading={isLoading}
-                        className="w-full"
-                        status="primary"
+                        className="w-full bg-white text-black border-[#e5e5e5]"
                     >
                         <svg
-                            role="img"
-                            viewBox="0 0 24 24"
+                            aria-label="Google logo"
+                            width="16"
+                            height="16"
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-5 h-5 fill-primary-content mr-2"
+                            viewBox="0 0 512 512"
                         >
-                            <title>Google</title>
-                            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                            <g>
+                                <path d="m0 0H512V512H0" fill="#fff"></path>
+                                <path
+                                    fill="#34a853"
+                                    d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
+                                ></path>
+                                <path
+                                    fill="#4285f4"
+                                    d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
+                                ></path>
+                                <path
+                                    fill="#fbbc02"
+                                    d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
+                                ></path>
+                                <path
+                                    fill="#ea4335"
+                                    d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
+                                ></path>
+                            </g>
                         </svg>
                         {`Sign ${isSignIn ? 'in' : 'up'} with Google`}
                     </Button>
@@ -243,17 +260,19 @@ export function Turnstile({
                         type="button"
                         onClick={handleSubmit(onSocialSignIn('github'))}
                         loading={isLoading}
-                        className="w-full"
-                        status="primary"
+                        className="w-full bg-black text-white border-black"
                     >
                         <svg
-                            role="img"
-                            viewBox="0 0 24 24"
+                            aria-label="GitHub logo"
+                            width="16"
+                            height="16"
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-5 h-5 fill-primary-content mr-2"
+                            viewBox="0 0 24 24"
                         >
-                            <title>GitHub</title>
-                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                            <path
+                                fill="white"
+                                d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z"
+                            ></path>
                         </svg>
                         {`Sign ${isSignIn ? 'in' : 'up'} with GitHub`}
                     </Button>
