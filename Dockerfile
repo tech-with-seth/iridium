@@ -28,5 +28,7 @@ COPY --from=build-env /app/build /app/build
 COPY --from=build-env /app/prisma /app/prisma
 COPY --from=build-env /app/prisma.config.ts /app/prisma.config.ts
 COPY --from=build-env /app/app/generated /app/app/generated
+COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 WORKDIR /app
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["/app/docker-entrypoint.sh"]
