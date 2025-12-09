@@ -67,10 +67,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     return {
         allFlags: allFlags.results,
-        userFlags,
+        productId: process.env.POLAR_PRODUCT_ID || null,
         role: roleObj?.role,
-        user,
         theme: cookie.theme || process.env.DEFAULT_THEME || 'light',
+        user,
+        userFlags,
     };
 }
 

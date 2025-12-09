@@ -111,7 +111,10 @@ export default function LandingPage() {
                                     to revenue sooner.
                                 </p>
                             )}
-                            <Link to={`checkout?products=c820594d-925d-4c30-89e0-aba22334d463`} className="btn btn-secondary mt-8">
+                            <Link
+                                to={`/checkout?products=${data?.productId}`}
+                                className="btn btn-secondary mt-8"
+                            >
                                 Get access to the repo{' '}
                                 <ArrowRightIcon className="ml-2" />
                             </Link>
