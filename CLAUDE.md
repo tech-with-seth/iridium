@@ -64,8 +64,9 @@ npm run format           # Run Prettier
 - `form-validation.instructions.md` - Client+server validation pattern
 - `crud-pattern.instructions.md` - API-first CRUD operations
 - `better-auth.instructions.md` - Authentication flows
+- `git-workflow.instructions.md` - Git branching strategy (prevents branch divergence)
 
-**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 25+ guides organized by category.**
+**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 26+ guides organized by category.**
 
 ## Critical Architecture Patterns
 
@@ -603,6 +604,10 @@ The `.github/instructions/` folder contains 25+ detailed pattern guides. **Consu
 | `crud-pattern.instructions.md` | API-first CRUD | CRUD operations |
 | `component-patterns.instructions.md` | CVA + DaisyUI | New components |
 | `role-based-access-control.instructions.md` | RBAC implementation | Role-based features |
+
+### Development Workflow
+
+- `git-workflow.instructions.md` - Git branching, merging, and release strategy
 
 ### Framework-Specific
 
