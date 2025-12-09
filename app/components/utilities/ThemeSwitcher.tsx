@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Select } from './Select';
+import { Select } from '../data-input/Select';
 import { useFetcher } from 'react-router';
 
 interface ThemeSwitcherProps {

@@ -3,10 +3,10 @@ import { usePostHog } from 'posthog-js/react';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Button } from '~/components/Button';
-import { Card } from '~/components/Card';
-import { TextInput } from '~/components/TextInput';
-import { Alert } from '~/components/Alert';
+import { Button } from '~/components/actions/Button';
+import { Card } from '~/components/data-display/Card';
+import { TextInput } from '~/components/data-input/TextInput';
+import { Alert } from '~/components/feedback/Alert';
 import { useValidatedForm } from '~/lib/form-hooks';
 import {
     signInSchema,
@@ -16,8 +16,8 @@ import {
 } from '~/lib/validations';
 import { authClient } from '~/lib/auth-client';
 import { Paths, PostHogEventNames } from '~/constants';
-import { TabRadio, Tabs } from '~/components/Tabs';
-import { Container } from '~/components/Container';
+import { TabRadio, Tabs } from '~/components/navigation/Tabs';
+import { Container } from '~/components/layout/Container';
 
 type AuthMode = 'signIn' | 'signUp';
 

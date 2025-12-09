@@ -1,9 +1,9 @@
 import { ArrowRightIcon } from 'lucide-react';
 import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { Alert } from '~/components/Alert';
+import { Alert } from '~/components/feedback/Alert';
 
-import { Container } from '~/components/Container';
+import { Container } from '~/components/layout/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
 import { isActive } from '~/lib/flags';

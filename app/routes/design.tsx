@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { Form } from 'react-router';
 import type { Route } from './+types/design';
-import { Accordion, AccordionItem } from '~/components/Accordion';
-import { Alert } from '~/components/Alert';
-import { Avatar, AvatarGroup } from '~/components/Avatar';
-import { Badge } from '~/components/Badge';
-import { Button } from '~/components/Button';
-import { Card } from '~/components/Card';
-import { Checkbox } from '~/components/Checkbox';
-import { Code } from '~/components/Code';
-import { Container } from '~/components/Container';
-import { Diff } from '~/components/Diff';
-import { FileInput } from '~/components/FileInput';
-import { Hero } from '~/components/Hero';
-import { HoverCard } from '~/components/HoverCard';
-import { Modal, ModalActions } from '~/components/Modal';
-import { Radio } from '~/components/Radio';
-import { Range } from '~/components/Range';
-import { Select } from '~/components/Select';
-import { Timeline, TimelineItem } from '~/components/Timeline';
+import { Accordion, AccordionItem } from '~/components/data-display/Accordion';
+import { Alert } from '~/components/feedback/Alert';
+import { Avatar, AvatarGroup } from '~/components/data-display/Avatar';
+import { Badge } from '~/components/data-display/Badge';
+import { Button } from '~/components/actions/Button';
+import { Card } from '~/components/data-display/Card';
+import { Checkbox } from '~/components/data-input/Checkbox';
+import { Code } from '~/components/mockup/Code';
+import { Container } from '~/components/layout/Container';
+import { Diff } from '~/components/data-display/Diff';
+import { FileInput } from '~/components/data-input/FileInput';
+import { Hero } from '~/components/layout/Hero';
+import { HoverCard } from '~/components/data-display/HoverCard';
+import { Modal, ModalActions } from '~/components/actions/Modal';
+import { Radio } from '~/components/data-input/Radio';
+import { Range } from '~/components/data-input/Range';
+import { Select } from '~/components/data-input/Select';
+import { Timeline, TimelineItem } from '~/components/data-display/Timeline';
 import {
     Table,
     TableHead,
@@ -26,12 +26,12 @@ import {
     TableRow,
     TableHeaderCell,
     TableCell,
-} from '~/components/Table';
-import { Tab, Tabs } from '~/components/Tabs';
-import { Textarea } from '~/components/Textarea';
-import { TextInput } from '~/components/TextInput';
-import { Toggle } from '~/components/Toggle';
-import { Tooltip } from '~/components/Tooltip';
+} from '~/components/data-display/Table';
+import { Tab, Tabs } from '~/components/navigation/Tabs';
+import { Textarea } from '~/components/data-input/Textarea';
+import { TextInput } from '~/components/data-input/TextInput';
+import { Toggle } from '~/components/data-input/Toggle';
+import { Tooltip } from '~/components/feedback/Tooltip';
 import { cx } from '~/cva.config';
 
 const DESIGN_TIMELINE_INDICATOR_CLASSES: Record<
@@ -188,40 +188,6 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                                 Upload File
                             </Button>
                         </Form>
-
-                        {actionData?.success && actionData.upload && (
-                            <Alert status="success">
-                                <div className="flex flex-col gap-2">
-                                    <span className="font-semibold">
-                                        Upload successful!
-                                    </span>
-                                    <a
-                                        href={actionData.upload.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="link link-primary"
-                                    >
-                                        View uploaded file
-                                    </a>
-                                    <div className="text-sm opacity-70">
-                                        <div>
-                                            Format: {actionData.upload.format}
-                                        </div>
-                                        <div>
-                                            Size: {actionData.upload.width}x
-                                            {actionData.upload.height}
-                                        </div>
-                                        <div>
-                                            File size:{' '}
-                                            {(
-                                                actionData.upload.bytes / 1024
-                                            ).toFixed(2)}{' '}
-                                            KB
-                                        </div>
-                                    </div>
-                                </div>
-                            </Alert>
-                        )}
                         <Code
                             className="mt-auto"
                             lines={[

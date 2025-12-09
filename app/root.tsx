@@ -15,21 +15,21 @@ import {
 import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
 import { authClient } from './lib/auth-client';
-import { Button } from './components/Button';
-import { Container } from './components/Container';
-import { Drawer } from './components/Drawer';
-import { FlagsList } from './components/FlagsList';
-import { Footer } from './components/Footer';
+import { Button } from './components/actions/Button';
+import { Container } from './components/layout/Container';
+import { Drawer } from './components/layout/Drawer';
+import { FlagsList } from './components/utilities/FlagsList';
+import { Footer } from './components/layout/Footer';
 import { getFeatureFlags } from './models/feature-flags.server';
 import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
 import { Paths } from './constants';
-import { PHProvider } from './components/PostHogProvider';
-import { TabContent, TabRadio, Tabs } from './components/Tabs';
+import { PHProvider } from './components/providers/PostHogProvider';
+import { TabContent, TabRadio, Tabs } from './components/navigation/Tabs';
 import { themeCookie } from './lib/cookies.server';
-import { ThemeSwitcher } from './components/ThemeSwitcher';
-import { Turnstile } from './components/Turnstile';
+import { ThemeSwitcher } from './components/utilities/ThemeSwitcher';
+import { Turnstile } from './components/utilities/Turnstile';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
@@ -38,7 +38,7 @@ import {
     NavbarHamburger,
     NavbarMenu,
     NavbarMenuItem,
-} from './components/Navbar';
+} from './components/navigation/Navbar';
 
 import './app.css';
 

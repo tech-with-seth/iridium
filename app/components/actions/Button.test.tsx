@@ -11,9 +11,7 @@ describe('Button Component', () => {
     });
 
     it('applies visual variants that define interaction affordance', () => {
-        const { rerender } = render(
-            <Button variant="outline">Outline</Button>,
-        );
+        const { rerender } = render(<Button variant="outline">Outline</Button>);
         expect(screen.getByRole('button')).toHaveClass('btn-outline');
 
         rerender(<Button status="success">Success</Button>);

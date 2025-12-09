@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { cva, cx } from '~/cva.config';
-import { Button } from './Button';
+import { Button } from '../actions/Button';
 import { XIcon } from 'lucide-react';
 
 export const drawerVariants = cva({

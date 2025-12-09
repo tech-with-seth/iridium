@@ -8,7 +8,7 @@ import {
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import { usePostHog } from 'posthog-js/react';
 
-import { Container } from '~/components/Container';
+import { Container } from '~/components/layout/Container';
 import { Paths, PostHogEventNames } from '~/constants';
 import { getPostHogClient } from '~/lib/posthog';
 import { getUserFromSession } from '~/lib/session.server';
@@ -20,7 +20,7 @@ import {
     updateThreadTitle,
 } from '~/models/thread.server';
 import type { Route } from './+types/dashboard';
-import { Button } from '~/components/Button';
+import { Button } from '~/components/actions/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     BotIcon,
@@ -36,15 +36,15 @@ import {
     UserIcon,
     XIcon,
 } from 'lucide-react';
-import { Select } from '~/components/Select';
-import { Spinner } from '~/components/Spinner';
+import { Select } from '~/components/data-input/Select';
+import { Loading } from '~/components/feedback/Loading';
 import { cx } from '~/cva.config';
-import { TextInput } from '~/components/TextInput';
+import { TextInput } from '~/components/data-input/TextInput';
 import {
     ChatBubble,
     ChatBubbleAvatar,
     ChatBubbleMessage,
-} from '~/components/ChatBubble';
+} from '~/components/data-display/ChatBubble';
 import invariant from 'tiny-invariant';
 import { RFCDate } from '@polar-sh/sdk/types/rfcdate.js';
 import { polarClient } from '~/lib/polar';
@@ -390,7 +390,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                 status="primary"
                             >
                                 {isCreatingNewThread ? (
-                                    <Spinner />
+                                    <Loading />
                                 ) : (
                                     <PlusIcon />
                                 )}{' '}
@@ -515,7 +515,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                                         }
                                                     >
                                                         {isRenaming ? (
-                                                            <Spinner />
+                                                            <Loading />
                                                         ) : (
                                                             <PencilIcon className="w-4 h-4" />
                                                         )}
@@ -580,7 +580,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             )}
                             {isLoadingMessages ? (
                                 <div className="flex flex-col gap-8 justify-center items-center h-full">
-                                    <Spinner size="lg" />
+                                    <Loading size="lg" />
                                 </div>
                             ) : (
                                 messages.map((message) => {
@@ -613,7 +613,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                             </ChatBubbleAvatar>
                                             <ChatBubbleMessage color={color}>
                                                 {filteredParts.length === 0 ? (
-                                                    <Spinner />
+                                                    <Loading />
                                                 ) : (
                                                     filteredParts.map(
                                                         (part, idx) => (

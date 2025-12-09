@@ -2,7 +2,7 @@ import type { VariantProps } from 'cva';
 import type { PropsWithChildren } from 'react';
 import { cva, cx } from '~/cva.config';
 
-export const spinnerVariants = cva({
+export const loadingVariants = cva({
     base: 'loading',
     variants: {
         variant: {
@@ -38,13 +38,13 @@ export const spinnerVariants = cva({
     },
 });
 
-interface SpinnerProps extends VariantProps<typeof spinnerVariants> {
+interface SpinnerProps extends VariantProps<typeof loadingVariants> {
     className?: string;
 }
 
-export function Spinner({
+export function Loading({
     className,
     size = 'md',
 }: PropsWithChildren<SpinnerProps>) {
-    return <span className={cx(spinnerVariants({ size }), className)}></span>;
+    return <span className={cx(loadingVariants({ size }), className)}></span>;
 }
