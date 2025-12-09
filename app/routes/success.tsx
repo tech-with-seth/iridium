@@ -1,7 +1,7 @@
-import { Alert } from '~/components/Alert';
-import { Button } from '~/components/Button';
-import { Card } from '~/components/Card';
-import { Container } from '~/components/Container';
+import { Alert } from '~/components/feedback/Alert';
+import { Button } from '~/components/actions/Button';
+import { Card } from '~/components/data-display/Card';
+import { Container } from '~/components/layout/Container';
 import { Link } from 'react-router';
 import { Paths } from '~/constants';
 

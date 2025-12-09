@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
-import { Spinner } from './Spinner';
+import { Loading } from '../feedback/Loading';
 
 export const toggleVariants = cva({
     base: 'toggle',
@@ -74,7 +74,7 @@ export function Toggle({
         <div className="form-control">
             <label className="label cursor-pointer justify-start gap-2">
                 {loading ? (
-                    <Spinner />
+                    <Loading />
                 ) : (
                     <input
                         checked={checked}

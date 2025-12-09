@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useFetcher } from 'react-router';
 import type { FeatureFlag } from '~/types/posthog';
-import { Toggle } from './Toggle';
+import { Toggle } from '../data-input/Toggle';
 
 interface FlagsListProps {
     flags: FeatureFlag[];

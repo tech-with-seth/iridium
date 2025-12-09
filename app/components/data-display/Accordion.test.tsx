@@ -61,7 +61,12 @@ describe('AccordionItem', () => {
 
     it('applies variant state classes to support daisyUI behavior', () => {
         const { container } = render(
-            <AccordionItem name="faq" title="Styled" variant="arrow" state="open">
+            <AccordionItem
+                name="faq"
+                title="Styled"
+                variant="arrow"
+                state="open"
+            >
                 Content
             </AccordionItem>,
         );

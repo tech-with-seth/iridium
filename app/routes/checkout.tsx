@@ -1,7 +1,7 @@
 import { Checkout } from '@polar-sh/remix';
 import { OctagonXIcon } from 'lucide-react';
 import { isRouteErrorResponse, useRouteError } from 'react-router';
-import { Container } from '~/components/Container';
+import { Container } from '~/components/layout/Container';
 
 export const loader = Checkout({
     accessToken: process.env.POLAR_ACCESS_TOKEN,

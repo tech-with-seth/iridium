@@ -6,7 +6,7 @@ import { getUserFromSession } from '~/lib/session.server';
 import { getPostHogClient } from '~/lib/posthog';
 import { getCustomerByExternalId } from '~/models/polar.server';
 import { PostHogEventNames } from '~/constants';
-import { Container } from '~/components/Container';
+import { Container } from '~/components/layout/Container';
 
 export const loader = CustomerPortal({
     accessToken: process.env.POLAR_ACCESS_TOKEN,

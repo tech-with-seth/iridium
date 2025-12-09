@@ -30,10 +30,6 @@ export function getUserProfile(userId: string) {
             id: true,
             email: true,
             name: true,
-            bio: true,
-            website: true,
-            location: true,
-            phoneNumber: true,
             image: true,
             emailVerified: true,
             role: true,
@@ -54,10 +50,6 @@ export function updateUser({
         where: { id: userId },
         data: {
             name: data.name,
-            bio: data.bio || null,
-            website: data.website || null,
-            location: data.location || null,
-            phoneNumber: data.phoneNumber || null,
         },
     });
 }
