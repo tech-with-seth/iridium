@@ -66,6 +66,24 @@
             "type": "shell",
             "command": "tsx scripts/reset-database-and-polar.ts",
             "detail": "Resets the Railway database and Polar.sh"
+        },
+        {
+            "label": "Create GitHub pull request",
+            "type": "shell",
+            "command": "gh pr create -f",
+            "detail": "Create PR from current branch"
+        },
+        {
+            "label": "Create GitHub issue",
+            "type": "shell",
+            "command": "gh issue create",
+            "detail": "Create new issue"
+        },
+        {
+            "label": "List GitHub issues",
+            "type": "shell",
+            "command": "gh issue list",
+            "detail": "List issues"
         }
     ]
 }
