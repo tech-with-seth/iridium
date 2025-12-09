@@ -5,58 +5,42 @@
             "label": "prisma:generate",
             "type": "shell",
             "command": "npx prisma generate",
-            "problemMatcher": [],
             "detail": "Generates the Prisma client based on the schema."
         },
         {
             "label": "prisma:migrate",
             "type": "shell",
             "command": "npx prisma migrate dev",
-            "problemMatcher": [],
             "detail": "Creates and applies a new database migration."
         },
         {
             "label": "prisma:studio",
             "type": "shell",
             "command": "npx prisma studio",
-            "isBackground": true,
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
             "detail": "Opens the Prisma Studio GUI to view and edit data."
         },
         {
             "label": "railway:migrate",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npx prisma migrate deploy\"",
-            "problemMatcher": [],
             "detail": "Applies pending migrations to the Railway production database."
         },
         {
             "label": "railway:seed",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npm run seed\"",
-            "problemMatcher": [],
             "detail": "Seeds the Railway production database with initial data."
         },
         {
             "label": "railway:shell",
             "type": "shell",
             "command": "railway shell",
-            "problemMatcher": [],
             "detail": "Opens a shell into the Railway deployment environment."
         },
         {
             "label": "Promote dev to main",
             "type": "shell",
             "command": "git switch main && git merge --ff-only dev && git push origin main && git switch dev",
-            "problemMatcher": [],
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
             "detail": "Merges the dev branch into main and pushes to origin."
         },
         {
