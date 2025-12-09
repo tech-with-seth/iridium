@@ -34,8 +34,8 @@ export default function WelcomeEmail({
                         board.
                     </Text>
                     <Text style={text}>
-                        You now have access to all the features of TWS
-                        Foundations. Here's what you can do:
+                        You now have access to all the features. Here's what you
+                        can do:
                     </Text>
                     <ul style={list}>
                         <li style={listItem}>

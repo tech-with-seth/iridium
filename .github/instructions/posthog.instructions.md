@@ -304,25 +304,25 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 ### Group Analytics
 
-Track organizations or teams:
+Track user cohorts or product lines:
 
 ```tsx
 import { usePostHog } from 'posthog-js/react';
 
-export default function OrganizationPage() {
+export default function ProductPage() {
     const posthog = usePostHog();
 
     useEffect(() => {
         if (posthog) {
-            // Associate user with organization
-            posthog.group('company', 'company_id_123', {
-                name: 'Acme Inc',
-                plan: 'enterprise',
+            // Associate user with product or cohort
+            posthog.group('product', 'premium-course', {
+                name: 'Premium Course',
+                type: 'digital-product',
             });
         }
     }, [posthog]);
 
-    return <div>Organization content</div>;
+    return <div>Product content</div>;
 }
 ```
 
@@ -675,8 +675,7 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
 2. View exceptions grouped by fingerprint (stack trace)
 3. See associated session replays to reproduce issues
 4. Track error trends over time
-5. Assign issues to team members
-6. Create alerts for critical errors
+5. Create alerts for critical errors
 
 ## LLM Analytics
 
@@ -757,13 +756,10 @@ const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
     posthogTraceId: `conversation-${conversationId}`, // Group related calls
     posthogProperties: {
         conversationId,
-        feature: 'customer-support',
+        feature: 'ai-assistant',
         userPlan: user.plan,
-        intent: 'troubleshooting',
+        intent: 'content-generation',
         sessionId: request.headers.get('x-request-id'),
-    },
-    posthogGroups: {
-        company: user.organizationId, // Organization-level analytics
     },
 });
 ```
@@ -829,14 +825,14 @@ const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
     posthogProperties: {
         feature: 'content-generation',
         userPlan: user.plan, // Track cost by plan tier
-        department: user.department, // Track cost by department
+        productId: user.currentProduct, // Track cost by product
     },
 });
 ```
 
 Create PostHog insights to monitor:
 
-- Total cost by user, feature, or organization
+- Total cost by user, feature, or product
 - Cost trends over time
 - Most expensive models or features
 - Token usage patterns

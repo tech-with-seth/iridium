@@ -2,76 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "dev",
-            "type": "shell",
-            "command": "npm run dev",
-            "isBackground": true,
-            "problemMatcher": {
-                "pattern": {
-                    "regexp": "^(.*)$",
-                    "file": 1,
-                    "location": 2,
-                    "message": 3
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": ".",
-                    "endsPattern": "."
-                }
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
-        },
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "npm run build",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "start",
-            "type": "shell",
-            "command": "npm start",
-            "isBackground": true,
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
-        },
-        {
-            "label": "typecheck",
-            "type": "shell",
-            "command": "npm run typecheck",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "problemMatcher": ["$tsc"]
-        },
-        {
-            "label": "seed",
-            "type": "shell",
-            "command": "npm run seed",
-            "problemMatcher": []
-        },
-        {
             "label": "prisma:generate",
             "type": "shell",
             "command": "npx prisma generate",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "detail": "Generates the Prisma client based on the schema."
         },
         {
             "label": "prisma:migrate",
             "type": "shell",
             "command": "npx prisma migrate dev",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "detail": "Creates and applies a new database migration."
         },
         {
             "label": "prisma:studio",
@@ -82,103 +24,64 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
-            }
+            },
+            "detail": "Opens the Prisma Studio GUI to view and edit data."
         },
         {
             "label": "railway:migrate",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npx prisma migrate deploy\"",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "detail": "Applies pending migrations to the Railway production database."
         },
         {
             "label": "railway:seed",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npm run seed\"",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "detail": "Seeds the Railway production database with initial data."
         },
         {
             "label": "railway:shell",
             "type": "shell",
             "command": "railway shell",
-            "problemMatcher": []
-        },
-        {
-            "label": "test",
-            "type": "shell",
-            "command": "npm test",
-            "isBackground": true,
             "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
+            "detail": "Opens a shell into the Railway deployment environment."
         },
         {
-            "label": "test:ui",
+            "label": "Promote dev to main",
             "type": "shell",
-            "command": "npm run test:ui",
-            "isBackground": true,
+            "command": "git switch main && git merge --ff-only dev && git push origin main && git switch dev",
             "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Merges the dev branch into main and pushes to origin."
         },
         {
-            "label": "test:run",
+            "label": "Archive all products",
             "type": "shell",
-            "command": "npm run test:run",
-            "problemMatcher": []
+            "command": "tsx scripts/archive-all-products.ts",
+            "detail": "Archives all products in Polar.sh"
         },
         {
-            "label": "test:coverage",
+            "label": "Delete all customers",
             "type": "shell",
-            "command": "npm run test:coverage",
-            "problemMatcher": []
+            "command": "tsx scripts/delete-all-customers.ts",
+            "detail": "Deletes all customers in Polar.sh"
         },
         {
-            "label": "e2e",
+            "label": "Get all customers",
             "type": "shell",
-            "command": "npm run e2e",
-            "problemMatcher": []
+            "command": "tsx scripts/get-all-customers.ts",
+            "detail": "Gets all customers in Polar.sh"
         },
         {
-            "label": "e2e:ui",
+            "label": "Reset database & Polar",
             "type": "shell",
-            "command": "npm run e2e:ui",
-            "isBackground": true,
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
-        },
-        {
-            "label": "e2e:headed",
-            "type": "shell",
-            "command": "npm run e2e:headed",
-            "problemMatcher": []
-        },
-        {
-            "label": "e2e:debug",
-            "type": "shell",
-            "command": "npm run e2e:debug",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
-        },
-        {
-            "label": "e2e:report",
-            "type": "shell",
-            "command": "npm run e2e:report",
-            "isBackground": true,
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
+            "command": "tsx scripts/reset-database-and-polar.ts",
+            "detail": "Resets the Railway database and Polar.sh"
         }
     ]
 }
