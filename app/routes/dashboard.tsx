@@ -25,7 +25,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     BotIcon,
     EllipsisIcon,
-    MessageCircle,
     MessageCircleDashedIcon,
     MessageCircleQuestionMarkIcon,
     PencilIcon,
