@@ -42,9 +42,9 @@ export function Turnstile({
         formState: { errors },
     } = useValidatedForm<SignInData | SignUpData>({
         defaultValues: {
-            email: 'admin@iridium.com',
-            password: 'Admin123!',
-            name: 'Important User',
+            email: '',
+            password: '',
+            name: '',
         },
         resolver: zodResolver(schema),
     });
