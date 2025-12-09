@@ -97,9 +97,13 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                 name="description"
                 content="Explore and interact with various design components"
             />
-            <Container className="flex flex-col gap-12 py-8 px-4">
-                <h1 className="text-4xl font-bold">Component Showcase</h1>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+            <Container className="flex flex-col gap-12 pb-8 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 bg-base-100 rounded-box p-8">
+                    <div className="col-span-2">
+                        <h1 className="text-4xl font-bold">
+                            Component Showcase
+                        </h1>
+                    </div>
                     {/* 3D Hover Cards Section */}
                     <section className="flex h-full flex-col gap-4">
                         <h2 className="text-2xl font-bold">3D Hover Card</h2>

@@ -46,6 +46,7 @@ export function FlagsList({ flags }: FlagsListProps) {
                             </p>
                         )}
                         <Toggle
+                            color="primary"
                             checked={flag.active}
                             disabled={isTarget && flagFetcher.state !== 'idle'}
                             label={flag.key}

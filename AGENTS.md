@@ -4,7 +4,9 @@ A comprehensive guide for AI coding agents working with the Iridium codebase.
 
 ## Project Overview
 
-Iridium is a modern full-stack SaaS boilerplate built with:
+Iridium is a small, opinionated starter for React Router 7 apps built with:
+
+**Core Stack:**
 
 - **React Router 7** (config-based routing, not v6 file-based)
 - **React 19** (with native meta tags)
@@ -13,8 +15,18 @@ Iridium is a modern full-stack SaaS boilerplate built with:
 - **OpenAI SDK** + Vercel AI SDK (streaming responses)
 - **DaisyUI 5** + **Tailwind CSS 4** (component library)
 - **CVA (Class Variance Authority)** (type-safe component variants)
-- **Polar.sh** (optional billing integration)
 - **TypeScript** (strict mode)
+
+**Optional Integrations:**
+
+- **PostHog** (analytics & feature flags)
+- **Resend** (transactional email)
+
+**Not Included (Scoped Out):**
+
+- Billing/payments (Polar) - See `.github/instructions/polar.instructions.md` if needed
+- Multi-tenancy/organizations
+- E-commerce flows
 
 ### Key Architectural Patterns
 
@@ -52,6 +64,30 @@ npx prisma studio                            # Open database GUI
 
 > Seed data is intended for initializing fresh databases (local dev, new staging instances, or after a deliberate reset). Do not run `npm run seed` as part of every deploy—production data should evolve through the app itself.
 
+## 📋 Critical Pattern Library
+
+**Before implementing features**, familiarize yourself with the instruction files in `.github/instructions/`:
+
+**Must Read First:**
+
+1. `react-router.instructions.md` - Route type imports (prevents most common errors)
+2. `form-validation.instructions.md` - Hybrid client+server validation
+3. `better-auth.instructions.md` - Authentication patterns
+4. `crud-pattern.instructions.md` - API-first CRUD operations
+
+**Component Development:**
+
+- `component-patterns.instructions.md` - CVA + DaisyUI patterns
+- `cva.instructions.md` - Class Variance Authority
+- `daisyui.instructions.md` - DaisyUI component library
+
+**Data & Database:**
+
+- `prisma.instructions.md` - Database patterns
+- `zod.instructions.md` - Schema validation
+
+**See [Additional Resources](#additional-resources) section below for complete list of 25+ guides.**
+
 ## Environment Variables
 
 Required `.env` file at repository root:
@@ -70,10 +106,9 @@ VITE_POSTHOG_HOST="https://us.i.posthog.com"
 POSTHOG_API_KEY="phc_your-posthog-project-api-key"
 POSTHOG_HOST="https://us.i.posthog.com"
 
-# Optional - Polar.sh billing
-POLAR_ACCESS_TOKEN="polar_at_..."
-POLAR_SERVER="sandbox"  # or "production"
-POLAR_WEBHOOK_SECRET="your-webhook-secret"
+# Optional - Resend email
+RESEND_API_KEY="re_..."
+RESEND_FROM_EMAIL="noreply@yourdomain.com"
 ```
 
 ## Critical Development Rules
@@ -699,23 +734,44 @@ OPENAI_API_KEY
 
 ## Additional Resources
 
-- **Detailed Instructions**: See `.github/instructions/` for framework-specific patterns
-  - `react-router.instructions.md` - React Router 7 patterns
-  - `better-auth.instructions.md` - Authentication implementation
-  - `component-patterns.instructions.md` - UI component standards
-  - `polar.instructions.md` - Billing integration
-  - `posthog.instructions.md` - Analytics and feature flags integration
-  - `prisma.instructions.md` - Database patterns
-  - `cva.instructions.md` - Component variant patterns
-  - `daisyui.instructions.md` - DaisyUI component library
-  - `zod.instructions.md` - Validation patterns
-  - `react-hook-form.instructions.md` - Form handling
+### Project Documentation
 
-- **React Router 7 Docs**: <https://reactrouter.com/>
-- **BetterAuth Docs**: <https://better-auth.com/>
-- **Prisma Docs**: <https://www.prisma.io/docs>
-- **DaisyUI Docs**: <https://daisyui.com/>
-- **CVA Docs**: <https://cva.style/>
+**Primary Guides:**
+
+- [CLAUDE.md](CLAUDE.md) - Architecture patterns and conventions (pattern-focused)
+- `.github/instructions/` - 25+ detailed implementation guides (hands-on)
+
+**Critical Patterns (Consult Before Implementing):**
+
+| File | Purpose | Priority |
+|------|---------|----------|
+| `react-router.instructions.md` | React Router 7 patterns | 🔴 Critical |
+| `form-validation.instructions.md` | Hybrid validation | 🔴 Critical |
+| `better-auth.instructions.md` | Authentication | 🟡 High |
+| `component-patterns.instructions.md` | UI standards | 🟡 High |
+| `prisma.instructions.md` | Database patterns | 🟡 High |
+| `crud-pattern.instructions.md` | API design | 🟢 Medium |
+
+**Framework-Specific:**
+
+- `cva.instructions.md` - Component variant patterns
+- `daisyui.instructions.md` - DaisyUI component library
+- `zod.instructions.md` - Validation patterns
+- `react-hook-form.instructions.md` - Form handling
+
+**Optional Integrations:**
+
+- `posthog.instructions.md` - Analytics and feature flags
+- `resend.instructions.md` - Email integration
+- `polar.instructions.md` - Billing integration (not included by default)
+
+### External Documentation
+
+- **React Router 7**: <https://reactrouter.com/>
+- **BetterAuth**: <https://better-auth.com/>
+- **Prisma**: <https://www.prisma.io/docs>
+- **DaisyUI**: <https://daisyui.com/>
+- **CVA**: <https://cva.style/>
 - **Vercel AI SDK**: <https://sdk.vercel.ai/>
 
 ## Notes for AI Coding Agents

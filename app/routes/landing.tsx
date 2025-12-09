@@ -1,12 +1,14 @@
-import { ArrowRightIcon } from 'lucide-react';
-import { useMemo, type ReactNode } from 'react';
-import { Link } from 'react-router';
 import { Alert } from '~/components/feedback/Alert';
+import { ArrowRightIcon, OctagonXIcon } from 'lucide-react';
+import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
+import { useMemo, type ReactNode } from 'react';
+import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 
 import { Container } from '~/components/layout/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
 import { isActive } from '~/lib/flags';
+import { formatToCurrency } from '~/lib/formatters';
 
 function ContentBlock({
     heading,
@@ -42,6 +44,18 @@ export default function LandingPage() {
         () => isActive(data?.allFlags, 'home_page_intro_copy'),
         [data?.allFlags],
     );
+
+    const productPrice = useMemo(() => {
+        return formatToCurrency(
+            'en-US',
+            'USD',
+            2,
+            (data?.product.prices.at(0) as ProductPriceFixed).priceAmount,
+        );
+    }, [data?.product]);
+
+    const introCopyControl = `Your shortcut to a production-ready SaaS. Iridium is a production-ready boilerplate packed with everything you need: secure authentication, subscription billing, a powerful AI toolkit, and a stunning component library. Stop rebuilding boilerplate and start shipping features your users will love. It's the fastest way to go from idea to revenue.`;
+    const introCopyVariant = `Build on a foundation you can trust. Iridium is more than a starter kit—it's a curated collection of modern best practices. With config-based routing in React Router 7, end-to-end type-safe validation with Zod, and a CVA-driven component system, you can build with confidence and scale without compromise. Stop fighting with your tools and start building great software.`;
 
     return (
         <>
@@ -82,41 +96,17 @@ export default function LandingPage() {
                             <h1 className="text-5xl font-bold mb-8 text-base-content">
                                 Welcome to Iridium
                             </h1>
-                            {homePageIntroCopyExperimentActive ? (
-                                <p className="leading-relaxed text-lg">
-                                    Ship features with confidence using
-                                    data-driven experimentation. Iridium
-                                    integrates PostHog feature flags so you can
-                                    test different messaging, UI variations, and
-                                    user flows in production. See what resonates
-                                    with your audience before committing to a
-                                    single approach. This paragraph itself is an
-                                    A/B test—50% of visitors see this version
-                                    while others see alternative copy below.
-                                    Make decisions based on real user behavior,
-                                    not hunches.
-                                </p>
-                            ) : (
-                                <p className="text-lg">
-                                    Stop building the same boilerplate for every
-                                    project. Iridium is a production-ready SaaS
-                                    starter that includes everything you need to
-                                    launch: authentication, subscription
-                                    billing, database management, AI
-                                    integration, analytics, and a beautiful UI
-                                    component library. Focus on building your
-                                    unique value proposition instead of
-                                    reinventing user login for the hundredth
-                                    time. Ship faster, iterate smarter, and get
-                                    to revenue sooner.
-                                </p>
-                            )}
+                            <p className="text-lg mb-12">
+                                {homePageIntroCopyExperimentActive
+                                    ? introCopyVariant
+                                    : introCopyControl}
+                            </p>
                             <Link
-                                to={`/checkout?products=${data?.productId}`}
-                                className="btn btn-secondary mt-8"
+                                to={`/checkout?products=${data?.product.id}`}
+                                className="btn btn-secondary btn-lg"
                             >
-                                Get access to the repo{' '}
-                                <ArrowRightIcon className="ml-2" />
+                                Get access to the repo for {productPrice}
+                                <ArrowRightIcon />
                             </Link>
                         </div>
                     </div>
@@ -239,4 +229,44 @@ export default function LandingPage() {
             </Container>
         </>
     );
+}
+
+export function ErrorBoundary() {
+    const error = useRouteError();
+
+    if (isRouteErrorResponse(error)) {
+        return (
+            <Container className="px-4">
+                <div className="rounded-box p-8 bg-base-100">
+                    <OctagonXIcon className="w-12 h-12 mb-4 text-error" />
+                    <h1 className="text-3xl font-bold mb-4">
+                        {error.status} {error.statusText}
+                    </h1>
+                    <p>{error.data}</p>
+                </div>
+            </Container>
+        );
+    } else if (error instanceof Error) {
+        return (
+            <Container className="px-4">
+                <div className="rounded-box p-8 bg-base-100">
+                    <OctagonXIcon className="w-12 h-12 mb-4 text-error" />
+                    <h1 className="text-3xl font-bold mt-8 mb-4">Error</h1>
+                    <p>{error.message}</p>
+                    <p>The stack trace is:</p>
+                    <pre>{error.stack}</pre>
+                </div>
+            </Container>
+        );
+    } else {
+        return (
+            <Container className="px-4">
+                <div className="rounded-box p-8 bg-base-100">
+                    <h1 className="text-3xl font-bold mt-8 mb-4">
+                        Unknown Error
+                    </h1>
+                </div>
+            </Container>
+        );
+    }
 }

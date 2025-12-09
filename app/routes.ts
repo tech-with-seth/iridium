@@ -19,8 +19,9 @@ export default [
     // ========================
     layout('routes/authenticated.tsx', [
         route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-        route(Paths.PORTAL, 'routes/portal.tsx'),
         route(Paths.DESIGN, 'routes/design.tsx'),
+        route(Paths.FORMS, 'routes/forms.tsx'),
+        route(Paths.PORTAL, 'routes/portal.tsx'),
     ]),
     // ========================
     // API ROUTES
@@ -30,7 +31,6 @@ export default [
         route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
         route(Paths.EMAIL, 'routes/api/email.ts'),
         route(Paths.CHAT, 'routes/api/chat.ts'),
-        route('profile', 'routes/api/profile.ts'),
         ...prefix(Paths.WEBHOOKS, [
             route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
         ]),

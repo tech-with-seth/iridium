@@ -50,6 +50,26 @@ export const profileUpdateSchema = z.object({
         .or(z.literal('')),
 });
 
+export const supportRequestSchema = z.object({
+    name: z
+        .string()
+        .min(1, 'Name is required')
+        .max(100, 'Name must be 100 characters or less'),
+    email: z
+        .string()
+        .min(1, 'Email is required')
+        .email('Invalid email address'),
+    subject: z.string().min(1, 'Please select a subject'),
+    priority: z.enum(['low', 'medium', 'high', 'urgent'], {
+        errorMap: () => ({ message: 'Please select a priority' }),
+    }),
+    message: z
+        .string()
+        .min(10, 'Message must be at least 10 characters')
+        .max(1000, 'Message must be 1000 characters or less'),
+    subscribe: z.coerce.boolean().optional(),
+});
+
 // EMAIL VALIDATION SCHEMAS
 
 export const sendEmailSchema = z
@@ -99,5 +119,6 @@ export type SignInData = z.infer<typeof signInSchema>;
 export type SignUpData = z.infer<typeof signUpSchema>;
 export type ChatMessageData = z.infer<typeof chatMessageSchema>;
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
+export type SupportRequestData = z.infer<typeof supportRequestSchema>;
 export type SendEmailData = z.infer<typeof sendEmailSchema>;
 export type EmailTemplateData = z.infer<typeof emailTemplateSchema>;

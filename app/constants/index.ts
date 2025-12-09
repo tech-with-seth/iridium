@@ -8,6 +8,7 @@ export enum Paths {
     DESIGN = '/design',
     EMAIL = '/email',
     FEATURE_FLAGS = '/feature-flags',
+    FORMS = '/forms',
     HOME = '/',
     POLAR = '/polar',
     PORTAL = '/portal',

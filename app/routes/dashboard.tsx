@@ -49,6 +49,7 @@ import { RFCDate } from '@polar-sh/sdk/types/rfcdate.js';
 import { polarClient } from '~/lib/polar';
 import { DefaultChatTransport } from 'ai';
 import { pickRandom } from '~/lib/common';
+import { formatToCurrency, formatToPercent } from '~/lib/formatters';
 
 enum Intents {
     GET_THREAD = 'get-thread',
@@ -308,14 +309,6 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
         ]);
     }, [chatFetcher.data?.threadId]);
 
-    const formatToDollar = (amount: number) => {
-        return `$${(amount / 100).toFixed(2)}`;
-    };
-
-    const formatToPercent = (amount: number) => {
-        return `${(amount * 100).toFixed(1)}%`;
-    };
-
     const Box = ({
         children,
         className,
@@ -353,7 +346,12 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                     <Box>
                         <h4 className="text-lg font-bold mb-2">Revenue</h4>
                         <span className="text-xl">
-                            {formatToDollar(loaderData.metrics.totals.revenue)}
+                            {formatToCurrency(
+                                'en-US',
+                                'USD',
+                                2,
+                                loaderData.metrics.totals.revenue,
+                            )}
                         </span>
                     </Box>
                     <Box>
@@ -361,7 +359,10 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             Avg Order Value
                         </h4>
                         <span className="text-xl">
-                            {formatToDollar(
+                            {formatToCurrency(
+                                'en-US',
+                                'USD',
+                                2,
                                 loaderData.metrics.totals.averageOrderValue,
                             )}
                         </span>

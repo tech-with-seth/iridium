@@ -12,7 +12,7 @@ import {
     useLocation,
     useNavigate,
 } from 'react-router';
-import { CogIcon, FileQuestionIcon } from 'lucide-react';
+import { CogIcon, ExternalLinkIcon, FileQuestionIcon } from 'lucide-react';
 
 import { authClient } from './lib/auth-client';
 import { Button } from './components/actions/Button';
@@ -41,6 +41,7 @@ import {
 } from './components/navigation/Navbar';
 
 import './app.css';
+import { getProductDetails } from './models/polar.server';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -57,19 +58,28 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
-    const roleObj = user ? await getUserRole(user?.id) : null;
 
-    const allFlags = await getFeatureFlags();
+    const roleObj = user ? await getUserRole(user?.id) : null;
+    const role = roleObj?.role || null;
+
+    const allFlagsResponse = await getFeatureFlags();
+    const allFlags = allFlagsResponse.results;
+
     const userFlags = await getFeatureFlagsForUser(request);
 
     const cookieHeader = request.headers.get('Cookie');
     const cookie = (await themeCookie.parse(cookieHeader)) || {};
+    const theme = cookie.theme || process.env.DEFAULT_THEME || 'light';
+
+    const product =
+        (await getProductDetails(process.env.POLAR_PRODUCT_ID as string)) ||
+        null;
 
     return {
-        allFlags: allFlags.results,
-        productId: process.env.POLAR_PRODUCT_ID || null,
-        role: roleObj?.role,
-        theme: cookie.theme || process.env.DEFAULT_THEME || 'light',
+        allFlags,
+        product,
+        role,
+        theme,
         user,
         userFlags,
     };
@@ -262,11 +272,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                 }
                                 handleClose={adminDrawerActions.closeDrawer}
                                 contents={
-                                    <>
-                                        <h2 className="text-lg font-semibold">
+                                    <div className="space-y-4">
+                                        <h2 className="text-xl font-semibold ">
                                             Admin Panel
                                         </h2>
-                                        <p className="mb-8">
+                                        <p>
+                                            Logged in as{' '}
+                                            <strong>
+                                                {data.user?.email ||
+                                                    'Unknown User'}
+                                            </strong>
+                                        </p>
+                                        <h3 className="text-lg font-semibold ">
+                                            Features
+                                        </h3>
+                                        <p>
                                             Toggle feature flags and customize
                                             application settings.
                                         </p>
@@ -302,7 +322,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                                 />
                                             </TabContent>
                                         </Tabs>
-                                    </>
+                                        <h3 className="text-lg font-semibold ">
+                                            Polar
+                                        </h3>
+                                        <p>
+                                            <a
+                                                className="link"
+                                                href="https://polar.sh/"
+                                            >
+                                                View the Polar.sh dashboard for
+                                                more info
+                                                <ExternalLinkIcon className="inline-block w-4 h-4 ml-1" />
+                                            </a>
+                                        </p>
+                                        <h3 className="text-lg font-semibold ">
+                                            Forms
+                                        </h3>
+                                        <p>
+                                            <Link
+                                                className="link"
+                                                to={Paths.FORMS}
+                                            >
+                                                View the Forms page to see user
+                                                experience
+                                            </Link>
+                                        </p>
+                                        <h3 className="text-lg font-semibold ">
+                                            Components
+                                        </h3>
+                                        <p>
+                                            <Link
+                                                className="link"
+                                                to={Paths.DESIGN}
+                                            >
+                                                View more components on the
+                                                design page
+                                            </Link>
+                                        </p>
+                                    </div>
                                 }
                                 size="lg"
                             />

@@ -1,12 +1,12 @@
 name: Unit Tests
 
+on:
+    workflow_dispatch:
 # on:
 #     push:
 #         branches: [main, dev]
 #     pull_request:
 #         branches: [main, dev]
-on:
-    workflow_dispatch:
 
 jobs:
     vitest:

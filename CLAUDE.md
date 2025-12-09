@@ -4,7 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Iridium is now a **small, opinionated starter** for React Router 7 apps. It ships with BetterAuth email/password auth, a simple dashboard and profile editor, and an AI chat demo (Vercel AI SDK + OpenAI). PostHog analytics and Resend email are optional; billing, multi-tenancy, and shop flows have been scoped out to keep the starter lean. It still uses config-based routing, middleware patterns, a model-layer architecture, and hybrid form validation.
+Iridium is now a **small, opinionated starter** for React Router 7 apps.
+
+**Core Features (Included):**
+
+- ✅ BetterAuth email/password authentication
+- ✅ Simple dashboard and profile editor
+- ✅ AI chat demo (Vercel AI SDK + OpenAI)
+- ✅ PostgreSQL + Prisma ORM
+- ✅ Config-based routing, middleware patterns, model-layer architecture
+- ✅ Hybrid form validation (client + server)
+
+**Optional Integrations:**
+
+- 🔌 PostHog analytics and feature flags
+- 🔌 Resend email integration
+
+**Explicitly Scoped Out (Not Included):**
+
+- ❌ Billing/payments (Polar)
+- ❌ Multi-tenancy/organizations
+- ❌ E-commerce/shop flows
+
+If you need billing integration, see `.github/instructions/polar.instructions.md` for guidance on adding Polar.
 
 ## Essential Commands
 
@@ -31,6 +53,19 @@ npm run format           # Run Prettier
 ```
 
 **Test Credentials:** `admin@iridium.com` / `Admin123!` (see `prisma/seed.ts` for all users)
+
+## 📚 Pattern Library Quick Start
+
+**Before implementing features**, consult the comprehensive pattern library in `.github/instructions/`:
+
+**Critical First Reads:**
+
+- `react-router.instructions.md` - Route type imports (prevents most common errors)
+- `form-validation.instructions.md` - Client+server validation pattern
+- `crud-pattern.instructions.md` - API-first CRUD operations
+- `better-auth.instructions.md` - Authentication flows
+
+**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 25+ guides organized by category.**
 
 ## Critical Architecture Patterns
 
@@ -557,27 +592,40 @@ Use directories for organization, kebab-case for file names.
 
 ## Comprehensive Documentation
 
-See `.github/instructions/` for 50+ detailed pattern guides:
+The `.github/instructions/` folder contains 25+ detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
 
-**Core Patterns:**
+### Core Patterns (Read First)
 
-- `react-router.instructions.md` - React Router 7 patterns (CRITICAL)
-- `form-validation.instructions.md` - Hybrid validation pattern (READ FIRST)
-- `crud-pattern.instructions.md` - API-first CRUD operations
-- `component-patterns.instructions.md` - CVA + DaisyUI components
-- `role-based-access-control.instructions.md` - RBAC implementation
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| `react-router.instructions.md` | React Router 7 patterns | Every route you create |
+| `form-validation.instructions.md` | Hybrid validation | Every form |
+| `crud-pattern.instructions.md` | API-first CRUD | CRUD operations |
+| `component-patterns.instructions.md` | CVA + DaisyUI | New components |
+| `role-based-access-control.instructions.md` | RBAC implementation | Role-based features |
 
-**Framework-Specific:**
+### Framework-Specific
 
-- `better-auth.instructions.md` - Authentication flows
+- `better-auth.instructions.md` - Authentication implementation
 - `prisma.instructions.md` - Database patterns
-- `caching-pattern.instructions.md` - Three-tier caching strategy
+- `cva.instructions.md` - Component variants
+- `daisyui.instructions.md` - DaisyUI components
+- `zod.instructions.md` - Schema validation
+- `react-hook-form.instructions.md` - Form handling
 
-**Integrations:**
+### Optional Integrations
 
-- `polar.instructions.md` - Billing integration
 - `posthog.instructions.md` - Analytics & feature flags
 - `resend.instructions.md` - Email integration
+- `polar.instructions.md` - Billing integration (not included, but documented if needed)
+
+### Advanced Patterns
+
+- `error-boundaries.instructions.md` - Error handling
+- `error-tracking.instructions.md` - Error monitoring
+- `feature-flags.instructions.md` - Feature flag patterns
+- `client-side-caching.instructions.md` - Caching strategy
+- `api-endpoints.instructions.md` - API design patterns
 
 All patterns include code examples, anti-patterns, and troubleshooting.
 
