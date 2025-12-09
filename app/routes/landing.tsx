@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react';
 import { useMemo, type ReactNode } from 'react';
+import { Link } from 'react-router';
 import { Alert } from '~/components/Alert';
 
 import { Container } from '~/components/Container';
@@ -110,10 +111,10 @@ export default function LandingPage() {
                                     to revenue sooner.
                                 </p>
                             )}
-                            <a href="/" className="btn btn-secondary mt-8">
-                                Buy my SaaS Boilerplate{' '}
+                            <Link to={`checkout?products=c820594d-925d-4c30-89e0-aba22334d463`} className="btn btn-secondary mt-8">
+                                Get access to the repo{' '}
                                 <ArrowRightIcon className="ml-2" />
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

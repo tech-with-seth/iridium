@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import {
     data,
     isRouteErrorResponse,
@@ -12,8 +12,7 @@ import {
     useLocation,
     useNavigate,
 } from 'react-router';
-import { CogIcon, FileQuestionIcon, GaugeIcon } from 'lucide-react';
-import type { User } from 'better-auth/client';
+import { CogIcon, FileQuestionIcon } from 'lucide-react';
 
 import { authClient } from './lib/auth-client';
 import { Button } from './components/Button';
@@ -40,11 +39,8 @@ import {
     NavbarMenu,
     NavbarMenuItem,
 } from './components/Navbar';
-import { cx } from '~/cva.config';
-import { isActive } from './lib/flags';
 
 import './app.css';
-import { ConditionalWrapper } from './components/ConditionalWrapper';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -74,7 +70,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         userFlags,
         role: roleObj?.role,
         user,
-        theme: cookie.theme || 'light',
+        theme: cookie.theme || process.env.DEFAULT_THEME || 'light',
     };
 }
 
@@ -224,7 +220,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <html
             lang="en"
             className="min-h-screen bg-base-300"
-            data-theme={data?.theme || 'light'}
+            data-theme={data?.theme || process.env.DEFAULT_THEME || 'light'}
         >
             <head>
                 <meta charSet="utf-8" />
@@ -297,7 +293,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                                 </p>
                                                 <ThemeSwitcher
                                                     selectedTheme={
-                                                        data?.theme || 'light'
+                                                        data?.theme ||
+                                                        process.env
+                                                            .DEFAULT_THEME ||
+                                                        'light'
                                                     }
                                                 />
                                             </TabContent>
