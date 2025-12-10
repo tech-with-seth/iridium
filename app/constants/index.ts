@@ -19,7 +19,8 @@ export enum Paths {
     SHOP = '/shop',
     SIGN_IN = '/sign-in',
     SIGN_OUT = '/sign-out',
-    THREADS = '/threads',
+    THREADS = 'threads',
+    THREAD = ':threadId',
     SUCCESS = '/success',
     WEBHOOKS = '/webhooks',
 }

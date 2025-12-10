@@ -1,115 +1,113 @@
 generator client {
-    provider = "prisma-client"
-    output   = "../app/generated/prisma"
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-}
-
-enum Role {
-    USER
-    EDITOR
-    ADMIN
+  provider = "postgresql"
 }
 
 model User {
-    id            String    @id @default(cuid())
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    name          String
-    email         String
-    emailVerified Boolean   @default(false)
-    image         String?
-    role          Role      @default(USER)
-    banned        Boolean?  @default(false)
-    banReason     String?
-    banExpires    DateTime?
-    sessions      Session[]
-    accounts      Account[]
-    threads       Thread[]
-    messages      Message[]
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          Role      @default(USER)
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  accounts      Account[]
+  messages      Message[]
+  sessions      Session[]
+  threads       Thread[]
 
-    @@unique([email])
-    @@map("user")
+  @@map("user")
 }
 
 model Session {
-    id             String   @id @default(cuid())
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
-    expiresAt      DateTime
-    token          String
-    ipAddress      String?
-    userAgent      String?
-    userId         String
-    user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    impersonatedBy String?
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  expiresAt      DateTime
+  token          String   @unique
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([token])
-    @@index([userId])
-    @@map("session")
+  @@index([userId])
+  @@map("session")
 }
 
 model Account {
-    id                    String    @id @default(cuid())
-    createdAt             DateTime  @default(now())
-    updatedAt             DateTime  @updatedAt
-    accountId             String
-    providerId            String
-    userId                String
-    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    accessToken           String?
-    refreshToken          String?
-    idToken               String?
-    accessTokenExpiresAt  DateTime?
-    refreshTokenExpiresAt DateTime?
-    scope                 String?
-    password              String?
+  id                    String    @id @default(cuid())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-    @@map("account")
+  @@index([userId])
+  @@map("account")
 }
 
 model Verification {
-    id         String   @id @default(cuid())
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    identifier String
-    value      String
-    expiresAt  DateTime
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  identifier String
+  value      String
+  expiresAt  DateTime
 
-    @@index([identifier])
-    @@map("verification")
+  @@index([identifier])
+  @@map("verification")
 }
 
 model Thread {
-    id          String    @id @default(cuid())
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    createdById String
-    messages    Message[]
-    title       String?
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+  title       String?
+  messages    Message[]
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
-    @@map("thread")
+  @@map("thread")
 }
 
 model Message {
-    id        String      @id @default(cuid())
-    role      MessageRole
-    content   String
-    createdAt DateTime    @default(now())
-    user      User?       @relation(fields: [userId], references: [id])
-    userId    String?
-    thread    Thread?     @relation(fields: [threadId], references: [id])
-    threadId  String?
+  id        String      @id @default(cuid())
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+  userId    String?
+  threadId  String?
+  thread    Thread?     @relation(fields: [threadId], references: [id])
+  user      User?       @relation(fields: [userId], references: [id])
 
-    @@map("message")
+  @@map("message")
+}
+
+enum Role {
+  USER
+  EDITOR
+  ADMIN
 }
 
 enum MessageRole {
-    USER
-    ASSISTANT
-    SYSTEM
+  USER
+  ASSISTANT
+  SYSTEM
 }

@@ -12,17 +12,22 @@ export default [
     // ========================
     // PUBLIC ROUTES
     // ========================
-    index('routes/landing.tsx'),
-    route(Paths.CHECKOUT, 'routes/checkout.tsx'),
-    // ========================
-    // PROTECTED ROUTES
-    // ========================
-    layout('routes/authenticated.tsx', [
-        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-        route(Paths.DESIGN, 'routes/design.tsx'),
-        route(Paths.FORMS, 'routes/forms.tsx'),
-        route(Paths.PORTAL, 'routes/portal.tsx'),
+    layout('routes/site-layout.tsx', [
+        index('routes/landing.tsx'),
+        // ========================
+        // PROTECTED ROUTES
+        // ========================
+        layout('routes/authenticated.tsx', [
+            route(Paths.DASHBOARD, 'routes/dashboard.tsx', [
+                index('routes/dashboard-index.tsx'),
+                route(Paths.THREAD, 'routes/thread.tsx'),
+            ]),
+            route(Paths.DESIGN, 'routes/design.tsx'),
+            route(Paths.FORMS, 'routes/forms.tsx'),
+            route(Paths.PORTAL, 'routes/portal.tsx'),
+        ]),
     ]),
+    route(Paths.CHECKOUT, 'routes/checkout.tsx'),
     // ========================
     // API ROUTES
     // ========================

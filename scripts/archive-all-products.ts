@@ -1,7 +1,7 @@
 'use strict';
 
-import { polarClient } from '~/lib/polar';
 import 'dotenv/config';
+import { polarClient } from '~/lib/polar';
 
 async function main() {
     try {

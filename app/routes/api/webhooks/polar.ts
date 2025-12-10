@@ -41,7 +41,6 @@ export const action = Webhooks({
         }
     },
     onCheckoutUpdated: async (payload) => {
-        console.log('Polar checkout updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_CHECKOUT_UPDATED,
@@ -64,7 +63,6 @@ export const action = Webhooks({
         }
     },
     onOrderCreated: async (payload) => {
-        console.log('Polar order created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_ORDER_CREATED,
@@ -86,7 +84,6 @@ export const action = Webhooks({
         }
     },
     onOrderPaid: async (payload) => {
-        console.log('Polar order paid', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_ORDER_PAID,
@@ -108,7 +105,6 @@ export const action = Webhooks({
         }
     },
     onOrderRefunded: async (payload) => {
-        console.log('Polar order refunded', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_ORDER_REFUNDED,
@@ -131,7 +127,6 @@ export const action = Webhooks({
         }
     },
     onRefundCreated: async (payload) => {
-        console.log('Polar refund created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_REFUND_CREATED,
@@ -154,7 +149,6 @@ export const action = Webhooks({
         }
     },
     onRefundUpdated: async (payload) => {
-        console.log('Polar refund updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_REFUND_UPDATED,
@@ -177,7 +171,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionCreated: async (payload) => {
-        console.log('Polar subscription created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_CREATED,
@@ -200,7 +193,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionUpdated: async (payload) => {
-        console.log('Polar subscription updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_UPDATED,
@@ -223,7 +215,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionActive: async (payload) => {
-        console.log('Polar subscription active', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_ACTIVE,
@@ -246,7 +237,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionCanceled: async (payload) => {
-        console.log('Polar subscription canceled', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_CANCELED,
@@ -269,7 +259,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionRevoked: async (payload) => {
-        console.log('Polar subscription revoked', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_REVOKED,
@@ -292,7 +281,6 @@ export const action = Webhooks({
         }
     },
     onSubscriptionUncanceled: async (payload) => {
-        console.log('Polar subscription uncanceled', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_SUBSCRIPTION_UNCANCELED,
@@ -315,7 +303,6 @@ export const action = Webhooks({
         }
     },
     onProductCreated: async (payload) => {
-        console.log('Polar product created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_PRODUCT_CREATED,
@@ -338,7 +325,6 @@ export const action = Webhooks({
         }
     },
     onProductUpdated: async (payload) => {
-        console.log('Polar product updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_PRODUCT_UPDATED,
@@ -361,7 +347,6 @@ export const action = Webhooks({
         }
     },
     onOrganizationUpdated: async (payload) => {
-        console.log('Polar organization updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_ORGANIZATION_UPDATED,
@@ -384,7 +369,6 @@ export const action = Webhooks({
         }
     },
     onBenefitCreated: async (payload) => {
-        console.log('Polar benefit created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_BENEFIT_CREATED,
@@ -407,7 +391,6 @@ export const action = Webhooks({
         }
     },
     onBenefitUpdated: async (payload) => {
-        console.log('Polar benefit updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_BENEFIT_UPDATED,
@@ -430,7 +413,6 @@ export const action = Webhooks({
         }
     },
     onBenefitGrantCreated: async (payload) => {
-        console.log('Polar benefit grant created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_BENEFIT_GRANT_CREATED,
@@ -453,7 +435,6 @@ export const action = Webhooks({
         }
     },
     onBenefitGrantUpdated: async (payload) => {
-        console.log('Polar benefit grant updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_BENEFIT_GRANT_UPDATED,
@@ -476,7 +457,6 @@ export const action = Webhooks({
         }
     },
     onBenefitGrantRevoked: async (payload) => {
-        console.log('Polar benefit grant revoked', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_BENEFIT_GRANT_REVOKED,
@@ -499,7 +479,6 @@ export const action = Webhooks({
         }
     },
     onCustomerCreated: async (payload) => {
-        console.log('Polar customer created', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_CUSTOMER_CREATED,
@@ -522,7 +501,6 @@ export const action = Webhooks({
         }
     },
     onCustomerUpdated: async (payload) => {
-        console.log('Polar customer updated', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_CUSTOMER_UPDATED,
@@ -545,7 +523,6 @@ export const action = Webhooks({
         }
     },
     onCustomerDeleted: async (payload) => {
-        console.log('Polar customer deleted', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_CUSTOMER_DELETED,
@@ -568,7 +545,6 @@ export const action = Webhooks({
         }
     },
     onCustomerStateChanged: async (payload) => {
-        console.log('Polar customer state changed', payload);
         postHogClient?.capture({
             distinctId: 'system',
             event: PostHogEventNames.POLAR_CUSTOMER_STATE_CHANGED,

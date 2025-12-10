@@ -29,13 +29,16 @@ export function Turnstile({
     const postHog = usePostHog();
 
     const [mode, setMode] = useState<AuthMode>('signIn');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState<
+        'email' | 'github' | 'google' | null
+    >(null);
     const [serverError, setServerError] = useState<string | null>(null);
 
     const isSignIn = mode === 'signIn';
     const schema = isSignIn ? signInSchema : signUpSchema;
 
     const {
+        getValues,
         register,
         handleSubmit,
         formState: { errors },
@@ -49,7 +52,7 @@ export function Turnstile({
     });
 
     const onSubmit = async (data: SignInData | SignUpData) => {
-        setIsLoading(true);
+        setIsLoading('email');
         setServerError(null);
 
         try {
@@ -76,7 +79,6 @@ export function Turnstile({
                             onSuccessfulLogin();
                         },
                         onError: (ctx) => {
-                            setIsLoading(false);
                             postHog.captureException(ctx.error, {
                                 email: data.email,
                                 error: ctx?.error?.message || 'unknown',
@@ -127,15 +129,21 @@ export function Turnstile({
             });
             setServerError('An unexpected error occurred. Please try again.');
         } finally {
-            setIsLoading(false);
+            setIsLoading(null);
         }
     };
 
     const onSocialSignIn =
         (provider: 'google' | 'github') =>
-        async (data: SignInData | SignUpData) => {
-            setIsLoading(true);
+        async (event: React.MouseEvent<HTMLButtonElement>) => {
+            setIsLoading(provider);
             setServerError(null);
+
+            const data: SignInData | SignUpData = {
+                email: getValues('email'),
+                password: getValues('password'),
+                name: getValues('name'),
+            };
 
             try {
                 await authClient.signIn.social({
@@ -164,7 +172,7 @@ export function Turnstile({
                     `An unexpected error occurred during ${provider === 'google' ? 'Google' : 'GitHub'} sign-in. Please try again.`,
                 );
             } finally {
-                setIsLoading(false);
+                setIsLoading(null);
             }
         };
 
@@ -223,8 +231,8 @@ export function Turnstile({
                     {/* https://daisyui.com/components/button/#login-buttons */}
                     <Button
                         type="button"
-                        onClick={handleSubmit(onSocialSignIn('google'))}
-                        loading={isLoading}
+                        onClick={onSocialSignIn('google')}
+                        loading={isLoading === 'google'}
                         className="w-full bg-white text-black border-[#e5e5e5]"
                     >
                         <svg
@@ -258,8 +266,8 @@ export function Turnstile({
                     </Button>
                     <Button
                         type="button"
-                        onClick={handleSubmit(onSocialSignIn('github'))}
-                        loading={isLoading}
+                        onClick={onSocialSignIn('github')}
+                        loading={isLoading === 'github'}
                         className="w-full bg-black text-white border-black"
                     >
                         <svg
@@ -312,7 +320,11 @@ export function Turnstile({
                         }
                         required
                     />
-                    <Button type="submit" loading={isLoading} status="primary">
+                    <Button
+                        type="submit"
+                        loading={isLoading === 'email'}
+                        status="primary"
+                    >
                         {`Sign ${isSignIn ? 'In' : 'Up'}`}
                     </Button>
                 </form>

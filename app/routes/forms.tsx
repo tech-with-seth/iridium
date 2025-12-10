@@ -97,19 +97,10 @@ export default function FormsRoute() {
 
     // Handle form submission
     const onSubmit = (data: SupportRequestData) => {
-        console.log('=== CLIENT SUBMISSION ===');
-        console.log('Form data object:', data);
-
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
-            console.log(`  Appending ${key}:`, value, typeof value);
             formData.append(key, String(value));
         });
-
-        console.log('FormData entries:');
-        for (const [key, value] of formData.entries()) {
-            console.log(`  ${key}:`, value);
-        }
 
         fetcher.submit(formData, { method: 'POST' });
     };

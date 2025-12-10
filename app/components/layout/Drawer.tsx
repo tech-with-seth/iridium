@@ -4,7 +4,7 @@ import { Button } from '../actions/Button';
 import { XIcon } from 'lucide-react';
 
 export const drawerVariants = cva({
-    base: 'drawer relative z-50',
+    base: 'drawer relative',
     variants: {
         side: {
             left: 'drawer-start',
@@ -23,7 +23,7 @@ export const drawerVariants = cva({
 });
 
 export const drawerMenuVariants = cva({
-    base: 'menu bg-base-100 text-base-content min-h-full p-4 relative z-50',
+    base: 'menu bg-base-100 text-base-content min-h-full p-4 relative',
     variants: {
         size: {
             sm: 'w-80',
@@ -38,6 +38,8 @@ export const drawerMenuVariants = cva({
 });
 
 interface DrawerProps {
+    className?: string;
+    drawerContentClassName?: string;
     contents: React.ReactNode;
     handleClose: () => void;
     id: string;
@@ -48,6 +50,8 @@ interface DrawerProps {
 
 export function Drawer({
     children,
+    className,
+    drawerContentClassName,
     contents,
     handleClose,
     id,
@@ -56,7 +60,7 @@ export function Drawer({
     size,
 }: PropsWithChildren<DrawerProps>) {
     return (
-        <div className={cx(drawerVariants({ side }))}>
+        <div className={cx(drawerVariants({ side }), className)}>
             <input
                 id={id}
                 type="checkbox"
@@ -64,25 +68,18 @@ export function Drawer({
                 checked={isOpen}
                 readOnly
             />
-            <div className="drawer-content flex min-h-0 flex-1 flex-col">
+            <div className={cx('drawer-content', drawerContentClassName)}>
                 {children}
             </div>
-            <div className="drawer-side z-50">
+            <div className="drawer-side">
                 <label
                     htmlFor={id}
                     aria-label="close sidebar"
-                    className="drawer-overlay z-40"
+                    className="drawer-overlay"
                     onClick={handleClose}
                 ></label>
                 <div className={cx(drawerMenuVariants({ size }))}>
-                    <Button
-                        circle
-                        onClick={handleClose}
-                        className="self-end mb-8"
-                    >
-                        <XIcon />
-                    </Button>
-                    <div>{contents}</div>
+                    {contents}
                 </div>
             </div>
         </div>

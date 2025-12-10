@@ -1,7 +1,7 @@
+import 'dotenv/config';
 import { PrismaClient, Role } from '../app/generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { auth } from '../app/lib/auth.server.js';
-import 'dotenv/config';
 
 const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL!,

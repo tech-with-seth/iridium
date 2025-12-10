@@ -1,7 +1,8 @@
-import { polarClient } from '~/lib/polar';
+import 'dotenv/config';
 import { spawn } from 'child_process';
 import * as readline from 'readline';
-import 'dotenv/config';
+
+import { polarClient } from '~/lib/polar';
 
 /**
  * Prompts user for confirmation before executing destructive operations.
@@ -50,7 +51,9 @@ async function executeCommand(
             if (code === 0) {
                 resolve();
             } else {
-                reject(new Error(`${description} failed with exit code ${code}`));
+                reject(
+                    new Error(`${description} failed with exit code ${code}`),
+                );
             }
         });
 
@@ -73,7 +76,9 @@ async function deletePolarCustomers(): Promise<number> {
     const organizationId = process.env['POLAR_ORGANIZATION_ID'];
 
     if (!organizationId) {
-        console.log('   ⚠️  POLAR_ORGANIZATION_ID not set, skipping Polar cleanup');
+        console.log(
+            '   ⚠️  POLAR_ORGANIZATION_ID not set, skipping Polar cleanup',
+        );
         return 0;
     }
 
@@ -131,10 +136,14 @@ async function resetDatabase(): Promise<void> {
  */
 async function main() {
     try {
-        console.log('⚠️  WARNING: This script will completely reset your database and delete all Polar customers!');
+        console.log(
+            '⚠️  WARNING: This script will completely reset your database and delete all Polar customers!',
+        );
         console.log('\n📋 What will happen:');
         console.log('   1. Delete all Polar customers from your organization');
-        console.log('   2. Drop and recreate your database (prisma db push --force-reset)');
+        console.log(
+            '   2. Drop and recreate your database (prisma db push --force-reset)',
+        );
         console.log('   3. Generate Prisma client');
         console.log('   4. Seed the database with test users');
         console.log('\n🔒 What will NOT be affected:');
@@ -164,7 +173,10 @@ async function main() {
         console.log('   • bob@iridium.com / BobBob123!');
         console.log('   • charlie@iridium.com / Charlie123!');
     } catch (error) {
-        console.error('\n❌ Error:', error instanceof Error ? error.message : error);
+        console.error(
+            '\n❌ Error:',
+            error instanceof Error ? error.message : error,
+        );
         process.exit(1);
     }
 }

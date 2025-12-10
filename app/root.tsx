@@ -1,47 +1,27 @@
-import { useCallback } from 'react';
 import {
     data,
     isRouteErrorResponse,
-    Link,
     Links,
     Meta,
-    NavLink,
     Outlet,
     Scripts,
     ScrollRestoration,
-    useLocation,
     useNavigate,
 } from 'react-router';
-import { CogIcon, ExternalLinkIcon, FileQuestionIcon } from 'lucide-react';
+import { FileQuestionIcon } from 'lucide-react';
 
-import { authClient } from './lib/auth-client';
-import { Button } from './components/actions/Button';
-import { Container } from './components/layout/Container';
-import { Drawer } from './components/layout/Drawer';
-import { FlagsList } from './components/utilities/FlagsList';
-import { Footer } from './components/layout/Footer';
 import { getFeatureFlags } from './models/feature-flags.server';
 import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
-import { Paths } from './constants';
 import { PHProvider } from './components/providers/PostHogProvider';
-import { TabContent, TabRadio, Tabs } from './components/navigation/Tabs';
 import { themeCookie } from './lib/cookies.server';
-import { ThemeSwitcher } from './components/utilities/ThemeSwitcher';
-import { Turnstile } from './components/utilities/Turnstile';
 import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
-import {
-    Navbar,
-    NavbarHamburger,
-    NavbarMenu,
-    NavbarMenuItem,
-} from './components/navigation/Navbar';
+import { getProductDetails } from './models/polar.server';
 
 import './app.css';
-import { getProductDetails } from './models/polar.server';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -99,133 +79,8 @@ export async function action({ request }: Route.ActionArgs) {
     });
 }
 
-interface HeaderProps {
-    handleOpenDrawer: () => void;
-}
-
-function Header({ handleOpenDrawer }: HeaderProps) {
-    const data = useRootData();
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    const isSignedIn = Boolean(data?.user?.id);
-    const isOnHomePage = location.pathname === '/';
-    const hasAccessPermissions =
-        data?.role === 'ADMIN' || data?.role === 'EDITOR';
-
-    const handleSignOut = useCallback(async () => {
-        await authClient.signOut({
-            fetchOptions: {
-                onSuccess: () => {
-                    navigate('/');
-                },
-            },
-        });
-    }, [navigate]);
-
-    return (
-        <header className="my-4">
-            <Container className="px-4">
-                <Navbar
-                    sticky
-                    start={
-                        <div className="flex items-center gap-3 w-full">
-                            <NavbarHamburger className="lg:hidden">
-                                <NavbarMenuItem active={isOnHomePage}>
-                                    <NavLink to="/">Home</NavLink>
-                                </NavbarMenuItem>
-                                {isSignedIn && (
-                                    <NavbarMenuItem
-                                        active={
-                                            location.pathname ===
-                                            Paths.DASHBOARD
-                                        }
-                                    >
-                                        <NavLink to={Paths.DASHBOARD}>
-                                            Dashboard
-                                        </NavLink>
-                                    </NavbarMenuItem>
-                                )}
-                                <NavbarMenuItem className="mt-1 border-t border-base-200 pt-2">
-                                    <Button
-                                        status="primary"
-                                        className="w-full justify-center"
-                                        onClick={
-                                            !isSignedIn
-                                                ? handleOpenDrawer
-                                                : handleSignOut
-                                        }
-                                    >
-                                        {`Sign ${isSignedIn ? 'out' : 'in'}`}
-                                    </Button>
-                                </NavbarMenuItem>
-                            </NavbarHamburger>
-                            <Link
-                                to="/"
-                                className="px-3 text-lg font-black tracking-tight"
-                            >
-                                {`<TWS />`}
-                            </Link>
-                            <NavbarMenu className="hidden lg:flex items-center gap-1">
-                                <NavbarMenuItem active={isOnHomePage}>
-                                    <NavLink to="/">Home</NavLink>
-                                </NavbarMenuItem>
-                            </NavbarMenu>
-                        </div>
-                    }
-                    end={
-                        <NavbarMenu className="items-center gap-2">
-                            {isSignedIn && (
-                                <>
-                                    <NavbarMenuItem>
-                                        <NavLink to={Paths.PORTAL}>
-                                            Portal
-                                        </NavLink>
-                                    </NavbarMenuItem>
-                                    {hasAccessPermissions && (
-                                        <>
-                                            <NavbarMenuItem
-                                                active={
-                                                    location.pathname ===
-                                                    Paths.DASHBOARD
-                                                }
-                                            >
-                                                <NavLink to={Paths.DASHBOARD}>
-                                                    Dashboard
-                                                </NavLink>
-                                            </NavbarMenuItem>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                            <NavbarMenuItem>
-                                <Button
-                                    status="primary"
-                                    onClick={
-                                        !isSignedIn
-                                            ? handleOpenDrawer
-                                            : handleSignOut
-                                    }
-                                >
-                                    {`Sign ${isSignedIn ? 'out' : 'in'}`}
-                                </Button>
-                            </NavbarMenuItem>
-                        </NavbarMenu>
-                    }
-                />
-            </Container>
-        </header>
-    );
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRootData();
-    const navigate = useNavigate();
-
-    const [isAdminDrawerOpen, adminDrawerActions] = useDrawer();
-    const [isTurnstileDrawerOpen, turnstileDrawerActions] = useDrawer();
-    const hasAccessPermissions =
-        data?.role === 'ADMIN' || data?.role === 'EDITOR';
 
     return (
         <html
@@ -242,141 +97,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body className="min-h-screen flex flex-col">
+            <body className="min-h-screen">
                 <PHProvider>
-                    <section className="bg-linear-to-br from-primary/50 to-secondary/50 h-98">
-                        <Header
-                            handleOpenDrawer={turnstileDrawerActions.openDrawer}
-                        />
-                    </section>
-                    <main className="flex grow flex-col -mt-72">
-                        {children}
-                        <Drawer
-                            id="turnstileDrawer"
-                            isOpen={isTurnstileDrawerOpen}
-                            handleClose={turnstileDrawerActions.closeDrawer}
-                            contents={
-                                <Turnstile
-                                    onSuccessfulLogin={() => {
-                                        turnstileDrawerActions.closeDrawer();
-                                        navigate('/');
-                                    }}
-                                />
-                            }
-                        />
-                        {hasAccessPermissions && (
-                            <Drawer
-                                id="appDrawer"
-                                isOpen={
-                                    hasAccessPermissions && isAdminDrawerOpen
-                                }
-                                handleClose={adminDrawerActions.closeDrawer}
-                                contents={
-                                    <div className="space-y-4">
-                                        <h2 className="text-xl font-semibold ">
-                                            Admin Panel
-                                        </h2>
-                                        <p>
-                                            Logged in as{' '}
-                                            <strong>
-                                                {data.user?.email ||
-                                                    'Unknown User'}
-                                            </strong>
-                                        </p>
-                                        <h3 className="text-lg font-semibold ">
-                                            Features
-                                        </h3>
-                                        <p>
-                                            Toggle feature flags and customize
-                                            application settings.
-                                        </p>
-                                        <Tabs variant="lift">
-                                            <TabRadio
-                                                name="my_tabs"
-                                                label="Feature flags"
-                                                defaultChecked
-                                            />
-                                            <TabContent className="bg-base-100 border-base-300 p-6">
-                                                <FlagsList
-                                                    flags={data.allFlags}
-                                                />
-                                            </TabContent>
-
-                                            <TabRadio
-                                                name="my_tabs"
-                                                label="Theme"
-                                            />
-                                            <TabContent className="bg-base-100 border-base-300 p-6">
-                                                <p className="mb-4">
-                                                    Select the theme to
-                                                    temporarily apply to the
-                                                    application interface.
-                                                </p>
-                                                <ThemeSwitcher
-                                                    selectedTheme={
-                                                        data?.theme ||
-                                                        process.env
-                                                            .DEFAULT_THEME ||
-                                                        'light'
-                                                    }
-                                                />
-                                            </TabContent>
-                                        </Tabs>
-                                        <h3 className="text-lg font-semibold ">
-                                            Polar
-                                        </h3>
-                                        <p>
-                                            <a
-                                                className="link"
-                                                href="https://polar.sh/"
-                                            >
-                                                View the Polar.sh dashboard for
-                                                more info
-                                                <ExternalLinkIcon className="inline-block w-4 h-4 ml-1" />
-                                            </a>
-                                        </p>
-                                        <h3 className="text-lg font-semibold ">
-                                            Forms
-                                        </h3>
-                                        <p>
-                                            <Link
-                                                className="link"
-                                                to={Paths.FORMS}
-                                            >
-                                                View the Forms page to see user
-                                                experience
-                                            </Link>
-                                        </p>
-                                        <h3 className="text-lg font-semibold ">
-                                            Components
-                                        </h3>
-                                        <p>
-                                            <Link
-                                                className="link"
-                                                to={Paths.DESIGN}
-                                            >
-                                                View more components on the
-                                                design page
-                                            </Link>
-                                        </p>
-                                    </div>
-                                }
-                                size="lg"
-                            />
-                        )}
-                    </main>
-                    <Footer />
-                    {hasAccessPermissions && (
-                        <div className="fixed bottom-4 right-4">
-                            <Button
-                                circle
-                                onClick={adminDrawerActions.openDrawer}
-                                status="primary"
-                            >
-                                <CogIcon />
-                            </Button>
-                        </div>
-                    )}
+                    {children}
                     <ScrollRestoration />
                     <Scripts />
                 </PHProvider>

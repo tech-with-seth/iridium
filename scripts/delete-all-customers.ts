@@ -1,9 +1,8 @@
 'use strict';
 
+import 'dotenv/config';
 import { polarClient } from '~/lib/polar';
 import { prisma } from '~/db.server';
-
-import 'dotenv/config';
 
 async function main() {
     try {

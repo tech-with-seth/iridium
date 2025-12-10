@@ -4,26 +4,28 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 
 export const navbarVariants = cva({
-    base: 'navbar w-full rounded-box px-4 py-2 gap-3 bg-neutral text-neutral-content',
+    base: 'navbar',
     variants: {
-        background: {
-            'base-100': 'bg-base-100',
-            'base-200': 'bg-base-200',
-            'base-300': 'bg-base-300',
-            primary: 'bg-primary',
-            secondary: 'bg-secondary',
-            accent: 'bg-accent',
-            neutral: 'bg-neutral',
+        variant: {
+            'base-100': 'bg-base-100 text-base-content',
+            'base-200': 'bg-base-200 text-base-content',
+            'base-300': 'bg-base-300 text-base-content',
+            primary: 'bg-primary text-primary-content',
+            secondary: 'bg-secondary text-secondary-content',
+            accent: 'bg-accent text-accent-content',
+            neutral: 'bg-neutral text-neutral-content',
         },
         shadow: {
             sm: 'shadow-sm',
             lg: 'shadow-lg',
         },
-        sticky: {
-            true: 'sticky top-0 z-40',
+        rounded: {
+            true: 'rounded-box',
         },
     },
     defaultVariants: {
+        variant: 'primary',
+        rounded: true,
         shadow: 'sm',
     },
 });
@@ -42,18 +44,14 @@ export function Navbar({
     start,
     center,
     end,
-    background,
+    variant,
     shadow,
-    sticky,
     className,
     ...rest
 }: NavbarProps) {
     return (
         <nav
-            className={cx(
-                navbarVariants({ background, shadow, sticky }),
-                className,
-            )}
+            className={cx(navbarVariants({ variant, shadow }), className)}
             {...rest}
         >
             {/* Brand/Logo - typically on the left */}
@@ -126,26 +124,12 @@ export function NavbarMenu({
 
 export function NavbarMenuItem({
     children,
-    active = false,
-    disabled = false,
     className,
 }: {
     children: ReactNode;
-    active?: boolean;
-    disabled?: boolean;
     className?: string;
 }) {
-    return (
-        <li
-            className={cx(
-                active && 'menu-active rounded-field',
-                disabled && 'menu-disabled',
-                className,
-            )}
-        >
-            {children}
-        </li>
-    );
+    return <li className={cx(className)}>{children}</li>;
 }
 
 export function NavbarDropdown({
@@ -168,7 +152,7 @@ export function NavbarDropdown({
             <ul
                 tabIndex={0}
                 className={cx(
-                    'menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow',
+                    'menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-52 p-2 shadow',
                     className,
                 )}
                 {...rest}
@@ -211,7 +195,7 @@ export function NavbarHamburger({
             </div>
             <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-20 mt-3 w-60 p-3 shadow-lg border border-base-200/80"
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-60 p-3 shadow-lg border border-base-200/80"
             >
                 {children}
             </ul>
