@@ -198,7 +198,24 @@ export default function LandingPage() {
                     </Tooltip>
                 </div>
             </Container>
-
+            <ContentSection heading="What is Iridium?">
+                <ContentBlock heading="Production-Ready React Router 7 Foundation">
+                    Iridium is a carefully architected boilerplate built on
+                    React Router 7 with TypeScript throughout. Config-based
+                    routing, end-to-end type safety, and clear separation of
+                    concerns give you the confidence to build and scale. It's
+                    not just another template—it follows proven patterns used in
+                    real production applications.
+                </ContentBlock>
+                <ContentBlock heading="Everything You Need to Ship Fast">
+                    Skip months of setup. Iridium includes authentication,
+                    database integration, AI capabilities with streaming chat,
+                    analytics, email, testing, and deployment configuration.
+                    Every integration is documented, every pattern is explained,
+                    and every decision is intentional. Build for creators, by
+                    creators.
+                </ContentBlock>
+            </ContentSection>
             <Container className="px-4">
                 <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
                     <div className="col-span-12">
@@ -246,24 +263,6 @@ export default function LandingPage() {
                     </div>
                 </div>
             </Container>
-            <ContentSection heading="What is Iridium?">
-                <ContentBlock heading="Production-Ready React Router 7 Foundation">
-                    Iridium is a carefully architected boilerplate built on
-                    React Router 7 with TypeScript throughout. Config-based
-                    routing, end-to-end type safety, and clear separation of
-                    concerns give you the confidence to build and scale. It's
-                    not just another template—it follows proven patterns used in
-                    real production applications.
-                </ContentBlock>
-                <ContentBlock heading="Everything You Need to Ship Fast">
-                    Skip months of setup. Iridium includes authentication,
-                    database integration, AI capabilities with streaming chat,
-                    analytics, email, testing, and deployment configuration.
-                    Every integration is documented, every pattern is explained,
-                    and every decision is intentional. Build for creators, by
-                    creators.
-                </ContentBlock>
-            </ContentSection>
             <ContentSection heading="What's inside?">
                 <ContentBlock heading="Authentication & User Management">
                     Secure authentication powered by BetterAuth with
