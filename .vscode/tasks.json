@@ -5,85 +5,99 @@
             "label": "prisma:generate",
             "type": "shell",
             "command": "npx prisma generate",
-            "detail": "Generates the Prisma client based on the schema."
+            "detail": "Generates the Prisma client based on the schema.",
+            "problemMatcher": []
         },
         {
             "label": "prisma:migrate",
             "type": "shell",
             "command": "npx prisma migrate dev",
-            "detail": "Creates and applies a new database migration."
+            "detail": "Creates and applies a new database migration.",
+            "problemMatcher": []
         },
         {
             "label": "prisma:studio",
             "type": "shell",
             "command": "npx prisma studio",
-            "detail": "Opens the Prisma Studio GUI to view and edit data."
+            "detail": "Opens the Prisma Studio GUI to view and edit data.",
+            "problemMatcher": []
         },
         {
             "label": "railway:migrate",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npx prisma migrate deploy\"",
-            "detail": "Applies pending migrations to the Railway production database."
+            "detail": "Applies pending migrations to the Railway production database.",
+            "problemMatcher": []
         },
         {
             "label": "railway:seed",
             "type": "shell",
             "command": "railway run -- bash -lc \"cd /app && npm run seed\"",
-            "detail": "Seeds the Railway production database with initial data."
+            "detail": "Seeds the Railway production database with initial data.",
+            "problemMatcher": []
         },
         {
             "label": "railway:shell",
             "type": "shell",
             "command": "railway shell",
-            "detail": "Opens a shell into the Railway deployment environment."
+            "detail": "Opens a shell into the Railway deployment environment.",
+            "problemMatcher": []
         },
         {
             "label": "Promote dev to main",
             "type": "shell",
             "command": "git switch main && git merge --ff-only dev && git push origin main && git switch dev",
-            "detail": "Merges the dev branch into main and pushes to origin."
+            "detail": "Merges the dev branch into main and pushes to origin.",
+            "problemMatcher": []
         },
         {
             "label": "Archive all products",
             "type": "shell",
             "command": "tsx scripts/archive-all-products.ts",
-            "detail": "Archives all products in Polar.sh"
+            "detail": "Archives all products in Polar.sh",
+            "problemMatcher": []
         },
         {
             "label": "Delete all customers",
             "type": "shell",
             "command": "tsx scripts/delete-all-customers.ts",
-            "detail": "Deletes all customers in Polar.sh"
+            "detail": "Deletes all customers in Polar.sh",
+            "problemMatcher": []
         },
         {
             "label": "Get all customers",
             "type": "shell",
             "command": "tsx scripts/get-all-customers.ts",
-            "detail": "Gets all customers in Polar.sh"
+            "detail": "Gets all customers in Polar.sh",
+            "problemMatcher": []
         },
         {
             "label": "Reset database & Polar",
             "type": "shell",
             "command": "tsx scripts/reset-database-and-polar.ts",
-            "detail": "Resets the Railway database and Polar.sh"
+            "detail": "Resets the Railway database and Polar.sh",
+            "problemMatcher": []
         },
         {
             "label": "Create GitHub pull request",
             "type": "shell",
             "command": "gh pr create -f",
-            "detail": "Create PR from current branch"
+            "detail": "Create PR from current branch",
+            "problemMatcher": []
         },
         {
             "label": "Create GitHub issue",
             "type": "shell",
             "command": "gh issue create",
-            "detail": "Create new issue"
+            "detail": "Create new issue",
+            "problemMatcher": []
         },
         {
             "label": "List GitHub issues",
             "type": "shell",
             "command": "gh issue list",
-            "detail": "List issues"
+            "detail": "List issues",
+            "problemMatcher": []
         }
     ]
 }
