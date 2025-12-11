@@ -14,6 +14,7 @@ export default [
     // ========================
     layout('routes/site-layout.tsx', [
         index('routes/landing.tsx'),
+        index('routes/success.tsx'),
         // ========================
         // PROTECTED ROUTES
         // ========================

@@ -1,6 +1,17 @@
 ---
 agent: 'agent'
-tools: ['search/codebase', 'usages', 'changes', 'edit', 'runTests']
+tools:
+    [
+        'vscode',
+        'execute',
+        'read',
+        'edit',
+        'search',
+        'web',
+        'context7/*',
+        'agent',
+        'todo',
+    ]
 description: 'Refactor existing code safely while preserving behavior'
 ---
 
