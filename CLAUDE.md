@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Iridium is now a **small, opinionated starter** for React Router 7 apps.
 
-**Core Features (Included):**
+**Core Features:**
 
 - ✅ BetterAuth email/password authentication
 - ✅ Simple dashboard and profile editor
@@ -15,18 +15,16 @@ Iridium is now a **small, opinionated starter** for React Router 7 apps.
 - ✅ Config-based routing, middleware patterns, model-layer architecture
 - ✅ Hybrid form validation (client + server)
 
-**Optional Integrations:**
+**Optional Integrations (wired but require API keys):**
 
 - 🔌 PostHog analytics and feature flags
-- 🔌 Resend email integration
+- 🔌 Resend transactional email
+- 🔌 Polar billing/subscriptions (see `.github/instructions/polar.instructions.md`)
 
-**Explicitly Scoped Out (Not Included):**
+**Explicitly Scoped Out:**
 
-- ❌ Billing/payments (Polar)
 - ❌ Multi-tenancy/organizations
 - ❌ E-commerce/shop flows
-
-If you need billing integration, see `.github/instructions/polar.instructions.md` for guidance on adding Polar.
 
 ## Essential Commands
 
@@ -35,18 +33,23 @@ If you need billing integration, see `.github/instructions/polar.instructions.md
 npm run dev              # Start dev server (auto-generates route types)
 npm run typecheck        # Generate route types + run TypeScript check
 npm run build            # Production build
+npm start                # Start production server
 
 # Database
 npx prisma generate      # Regenerate Prisma client after schema changes
 npx prisma migrate dev --name <description>  # Create migration
 npx prisma migrate deploy  # Apply migrations (production)
-npm run seed             # Seed database with test users
+npm run seed             # Seed database (fresh databases only, NOT production)
 
 # Testing
-npm run test             # Vitest unit tests
+npm run test             # Vitest unit tests (watch mode)
+npm run test:run         # Vitest single run (no watch)
 npm run test:ui          # Vitest UI mode
+npm run test:coverage    # Vitest with coverage report
 npm run e2e              # Playwright E2E tests
 npm run e2e:ui           # Playwright UI mode
+npm run e2e:headed       # E2E with browser visible
+npm run e2e:debug        # Debug E2E tests
 
 # Formatting
 npm run format           # Run Prettier
@@ -80,16 +83,25 @@ import { type RouteConfig, index, route, layout, prefix } from "@react-router/de
 import { Paths } from './constants';
 
 export default [
-    index('routes/home.tsx'),
+    // Public routes with site layout
+    layout('routes/site-layout.tsx', [
+        index('routes/landing.tsx'),
 
-    // Protected routes with middleware
-    layout('routes/authenticated.tsx', [
-        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
+        // Protected routes (middleware handles auth)
+        layout('routes/authenticated.tsx', [
+            route(Paths.DASHBOARD, 'routes/dashboard.tsx', [
+                index('routes/dashboard-index.tsx'),
+                route(Paths.THREAD, 'routes/thread.tsx'),  // :threadId param
+            ]),
+            route(Paths.PORTAL, 'routes/portal.tsx'),
+        ]),
     ]),
 
     // API routes
     ...prefix(Paths.API, [
-        route(Paths.PROFILE, 'routes/api/profile.ts'),
+        route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+        route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
+        route(Paths.CHAT, 'routes/api/chat.ts'),
     ]),
 ] satisfies RouteConfig;
 ```
@@ -125,14 +137,15 @@ import { getUserProfile } from '~/models/user.server';
 const user = await getUserProfile(userId);
 ```
 
-**Model Layer Files (core):**
+**Model Layer Files:**
 
 - `app/models/user.server.ts` - User CRUD
-- `app/models/email.server.ts` - Email operations (Resend optional)
-- `app/models/feature-flags.server.ts` - PostHog feature flags with caching (optional)
-- `app/models/message.server.ts` / `app/models/thread.ts` - Chat messages/threads
-
-Legacy multi-tenant or billing helpers (e.g., organizations, Polar) are out of scope for the lean starter—avoid reintroducing them unless explicitly required.
+- `app/models/email.server.ts` - Email operations (Resend)
+- `app/models/message.server.ts` / `app/models/thread.server.ts` - Chat messages/threads
+- `app/models/admin.server.ts` - Admin operations
+- `app/models/feature-flags.server.ts` - PostHog feature flags with caching
+- `app/models/posthog.server.ts` - PostHog analytics and error tracking
+- `app/models/polar.server.ts` - Polar billing operations
 
 ### 4. Custom Prisma Output Path
 
@@ -545,9 +558,11 @@ import { Paths } from '~/constants';
 
 - `OPENAI_API_KEY` - AI chat demo
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` - Transactional emails
-- `POSTHOG_*` - Analytics & feature flags
+- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_HOST` - Client-side analytics
+- `POSTHOG_API_KEY`, `POSTHOG_HOST` - Server-side analytics (LLM tracking)
+- `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET` - Polar billing
 
-Billing (Polar) and other legacy variables are out of scope for the lean starter.
+See `.env.example` for the full list.
 
 ## Development Conventions
 
@@ -561,7 +576,7 @@ Billing (Polar) and other legacy variables are out of scope for the lean starter
 - Access loader data via `loaderData` prop (not hooks)
 - Use `<form>` with manual `fetcher.submit()` for React Hook Form
 - Import route types as `./+types/[routeName]`
-- Keep scope lean (auth/profile/dashboard/chat + optional analytics/email); do not add billing or multi-tenancy unless explicitly requested
+- Keep scope lean; do not add multi-tenancy unless explicitly requested
 
 ### NEVER
 
@@ -622,7 +637,7 @@ The `.github/instructions/` folder contains 25+ detailed pattern guides. **Consu
 
 - `posthog.instructions.md` - Analytics & feature flags
 - `resend.instructions.md` - Email integration
-- `polar.instructions.md` - Billing integration (not included, but documented if needed)
+- `polar.instructions.md` - Billing integration
 
 ### Advanced Patterns
 

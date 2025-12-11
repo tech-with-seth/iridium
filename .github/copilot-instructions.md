@@ -2,15 +2,33 @@
 
 ## Project Overview
 
-This is a modern full-stack SaaS boilerplate built with **React Router 7** (not v6), **BetterAuth**, **Polar.sh billing**, and **OpenAI integration**. The architecture uses config-based routing, middleware patterns, and singleton services.
+This is a **small, opinionated starter** for React Router 7 apps with **BetterAuth**, **OpenAI integration**, and optional analytics/email. The architecture uses config-based routing, middleware patterns, model-layer architecture, and singleton services.
+
+**Core Features:**
+
+- ✅ BetterAuth email/password authentication
+- ✅ Dashboard, profile editor, AI chat demo
+- ✅ PostgreSQL + Prisma ORM (custom output path)
+- ✅ DaisyUI 5 + Tailwind CSS 4 + CVA components
+
+**Optional Integrations:**
+
+- 🔌 PostHog (analytics/feature flags)
+- 🔌 Resend (transactional email)
+
+**Explicitly Scoped Out:**
+
+- ❌ Billing/payments (see `.github/instructions/polar.instructions.md` if needed)
+- ❌ Multi-tenancy/organizations
+- ❌ E-commerce/shop flows
 
 **📋 See detailed instruction files in `.github/instructions/` for specific patterns:**
 
-- `form-validation.instructions.md` - **Universal form validation pattern (READ THIS FIRST)**
-- `react-router.instructions.md` - Critical React Router 7 patterns
+- `react-router.instructions.md` - **Critical React Router 7 patterns (READ THIS FIRST)**
+- `form-validation.instructions.md` - Hybrid client+server validation
+- `crud-pattern.instructions.md` - API-first CRUD operations
 - `better-auth.instructions.md` - Authentication implementation
-- `component-patterns.instructions.md` - UI component standards
-- `polar.instructions.md` - Billing integration patterns
+- `component-patterns.instructions.md` - CVA + DaisyUI component standards
 - `posthog.instructions.md` - Analytics and feature flags integration
 
 ## Critical Architecture Patterns
@@ -21,6 +39,22 @@ This is a modern full-stack SaaS boilerplate built with **React Router 7** (not 
 - **NEVER** use file-based routing patterns or React Router v6 syntax
 - Always import route types as `./+types/[routeName]` (relative to route file)
 - Run `npm run typecheck` after adding routes to generate types
+
+**THE MOST IMPORTANT RULE - Route Type Imports:**
+
+```tsx
+// ✅ CORRECT - ALWAYS use this exact pattern:
+import type { Route } from './+types/dashboard';
+
+// ❌ NEVER use relative paths like this:
+import type { Route } from '../+types/dashboard'; // WRONG!
+import type { Route } from '../../+types/product'; // WRONG!
+```
+
+**If you see TypeScript errors about missing `./+types/[routeName]` modules:**
+
+1. IMMEDIATELY run `npm run typecheck` to generate types
+2. NEVER try to "fix" it by changing the import path
 
 #### Meta Tags (React 19 Pattern)
 
@@ -69,12 +103,57 @@ export default [
 - **AI**: `app/lib/ai.ts` - OpenAI client singleton (renamed from `openai` to `ai`)
 - **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL and user-scoped keys
 
+### Model Layer Pattern - CRITICAL
+
+**NEVER call Prisma directly in routes.** All database operations MUST go through `app/models/` functions.
+
+```typescript
+// ❌ NEVER do this in routes:
+const user = await prisma.user.findUnique({ where: { id } });
+
+// ✅ ALWAYS do this:
+import { getUserProfile } from '~/models/user.server';
+const user = await getUserProfile(userId);
+```
+
+**Model Layer Files:**
+
+- `app/models/user.server.ts` - User CRUD operations
+- `app/models/email.server.ts` - Email operations (Resend optional)
+- `app/models/feature-flags.server.ts` - PostHog feature flags with caching
+- `app/models/message.server.ts`, `app/models/thread.server.ts` - Chat messages/threads
+- `app/models/posthog.server.ts` - PostHog analytics and error tracking
+
 ### Authentication & Session Management
 
 - **BetterAuth** with Prisma adapter, 7-day sessions, no email verification required
 - Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUserFromSession()`, `requireAnonymous()`
 - Client-side: `authClient` from `app/lib/auth-client.ts` with Better Auth React
 - Protected routes use middleware pattern in layout files
+
+## File Naming Conventions
+
+**DO NOT use flat route naming with `$` for parameters:**
+
+```text
+❌ BAD:
+organizations.$slug.invitations.ts
+organizations.$slug.settings.general.tsx
+
+✅ GOOD:
+organizations/invitations.ts
+organizations/settings/general.tsx
+```
+
+**Naming Standards:**
+
+- **Components**: PascalCase (`Button.tsx`, `TextInput.tsx`)
+- **Routes**: kebab-case (`sign-in.tsx`, `dashboard.tsx`)
+- **Utilities**: camelCase (`session.server.ts`, `validations.ts`)
+- **Constants**: SCREAMING_SNAKE_CASE or PascalCase enum (see `app/constants/index.ts`)
+- **Server files**: `.server.ts` suffix (never imported client-side)
+
+Use directories for organization, not complex file names with dots/underscores.
 
 ## Development Workflows
 
@@ -85,10 +164,12 @@ npm run dev           # Start dev server (auto-generates types)
 npm run typecheck     # Generate types + run TypeScript check
 npm run build         # Production build
 npm start             # Start production server
-npm run seed          # Seed database with initial data
+npm run seed          # Seed database (CAUTION: fresh databases only - do NOT run on production)
 npx prisma generate   # Regenerate Prisma client (after schema changes)
 npx prisma migrate dev --name <description> # Apply database migrations
 ```
+
+> ⚠️ **Seed Warning**: `npm run seed` is for initializing fresh databases only (local dev, new staging instances, or after deliberate reset). Never run on production—production data should evolve through the app itself.
 
 > Tip: the repo ships with VS Code tasks (`.vscode/tasks.json`) for these commands plus Railway helpers (`railway:migrate`, `railway:seed`, `railway:shell`) so you can run them via **Run Task…**.
 
@@ -143,6 +224,16 @@ export async function action({ request }: Route.ActionArgs) {
 - Register tools via `tool({ description, inputSchema, execute })`; return JSON-safe payloads from `execute`
 - Stream the response back with `result.toUIMessageStreamResponse()` so `@ai-sdk/react` can render partial updates
 - Client-side chat flows use `useChat()` from `@ai-sdk/react` (defaults to `/api/chat`)
+
+**LLM Analytics with PostHog:**
+
+All AI calls are automatically tracked with PostHog's LLM analytics via `@posthog/ai`. The chat endpoint wraps the OpenAI client with `withTracing()` to capture:
+
+- Model used, latency, tokens (input/output), estimated cost
+- Custom properties (feature, userPlan, etc.)
+- Optional privacy mode to exclude sensitive prompt/response data
+
+See `docs/llm-analytics.md` and `.github/instructions/posthog.instructions.md` for complete LLM analytics patterns.
 
 ### Caching Strategy
 
@@ -355,16 +446,18 @@ import { signInSchema, signUpSchema } from '~/lib/validations';
 
 ## Environment Dependencies
 
-Required environment variables:
+**Required:**
 
-- `DATABASE_URL` - PostgreSQL connection
-- `BETTER_AUTH_SECRET` - Session encryption
+- `DATABASE_URL` - PostgreSQL connection string
+- `BETTER_AUTH_SECRET` - Session encryption (min 32 chars)
 - `BETTER_AUTH_URL` - Auth service URL ("http://localhost:5173" for dev)
-- `OPENAI_API_KEY` - AI features
-- `VITE_POSTHOG_API_KEY` - Analytics and feature flags (optional)
-- `VITE_POSTHOG_HOST` - PostHog API host URL (optional)
-- `POLAR_ACCESS_TOKEN` - Billing integration (optional)
-- `POLAR_SERVER` - "sandbox" or "production" (optional)
+
+**Optional:**
+
+- `OPENAI_API_KEY` - AI chat demo
+- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_HOST` - Client-side analytics/feature flags
+- `POSTHOG_API_KEY`, `POSTHOG_HOST` - Server-side analytics (for LLM analytics)
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL` - Transactional email
 
 ## Development Tips
 
