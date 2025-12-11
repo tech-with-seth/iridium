@@ -18,13 +18,13 @@
             "command": "npx",
             "args": ["-y", "@railway/mcp-server"]
         },
-        "Posthog": {
-            "type": "http",
-            "url": "https://mcp.posthog.com/mcp",
-            "headers": {
-                "Authorization": "Bearer {INSERT_YOUR_PERSONAL_API_KEY_HERE}"
-            }
-        },
+        // "Posthog": {
+        //     "type": "http",
+        //     "url": "https://mcp.posthog.com/mcp",
+        //     "headers": {
+        //         "Authorization": "Bearer {INSERT_YOUR_PERSONAL_API_KEY_HERE}"
+        //     }
+        // },
         "Playwright": {
             "command": "npx",
             "args": ["@playwright/mcp@latest"]
