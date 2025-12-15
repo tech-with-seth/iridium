@@ -2,13 +2,13 @@
 FROM node:20-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Stage 2: install only production dependencies for the final runtime image
 FROM node:20-alpine AS production-dependencies-env
 COPY ./package.json package-lock.json /app/
 WORKDIR /app
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Stage 3: compile the app with the full dependency tree
 FROM node:20-alpine AS build-env
