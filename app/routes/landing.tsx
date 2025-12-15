@@ -537,7 +537,7 @@ export default function LandingPage() {
                         </p>
                         <div className="mb-4">
                             <a
-                                href="https://railway.com/deploy/8Vtjm7?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
+                                href="https://railway.com/deploy/UVmPwx?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
