@@ -17,6 +17,8 @@ import {
     Users,
     Briefcase,
     HelpCircle,
+    Zap,
+    Cpu,
 } from 'lucide-react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
 import {
@@ -221,21 +223,29 @@ export default function LandingPage() {
                     </Tooltip>
                 </div>
             </Container>
-            <ContentSection heading="What is Iridium?">
-                <ContentBlock
-                    heading="Production-Ready React Router 7 Foundation"
-                    icon={Layout}
-                >
-                    A carefully architected boilerplate built on React Router 7
-                    with TypeScript. Config-based routing, end-to-end type
-                    safety, and proven patterns used in real production
-                    applications.
+            <ContentSection heading="Perfect For">
+                <ContentBlock heading="AI-Powered Products" icon={Sparkles}>
+                    Writing assistants, code generators, chat interfaces, and
+                    content analysis tools. Streaming responses, tool calling,
+                    and automatic cost tracking included.
                 </ContentBlock>
-                <ContentBlock heading="Ship Fast, Build Better" icon={Rocket}>
-                    Authentication, database, AI chat, analytics, email, and
-                    deployment—all configured and ready. Every integration
-                    documented, every pattern explained. Built for creators who
-                    want to focus on their unique product, not infrastructure.
+                <ContentBlock heading="Membership Platforms" icon={Users}>
+                    Online courses, premium communities, gated content, and
+                    subscription sites. Role-based access control and user
+                    management built-in.
+                </ContentBlock>
+                <ContentBlock
+                    heading="Internal Tools & Dashboards"
+                    icon={Briefcase}
+                >
+                    Admin panels, workflow automation, team dashboards, and
+                    business intelligence tools. Feature flags for gradual
+                    rollouts.
+                </ContentBlock>
+                <ContentBlock heading="Developer Tools" icon={Code}>
+                    API platforms, integration services, and developer portals.
+                    Type-safe patterns, middleware architecture, and
+                    comprehensive error handling.
                 </ContentBlock>
             </ContentSection>
             <Container className="px-4">
@@ -294,6 +304,57 @@ export default function LandingPage() {
                     </div>
                 </div>
             </Container>
+            <Container className="px-4">
+                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold text-base-content mb-4">
+                            AI That Actually Works: Tool Calling Included
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6 flex flex-col gap-4">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/c_crop,g_center,h_600,w_1200/v1765822328/iridium/iridium-tool-calling-1.png"
+                                alt="AI tool calling request - user asks about analytics and AI extracts function parameters"
+                                className="w-full"
+                            />
+                        </div>
+                        <ContentBlock
+                            heading="Function Calling Made Simple"
+                            icon={Cpu}
+                        >
+                            The AI doesn't just chat—it executes real functions.
+                            Define tools with Zod schemas, and the Vercel AI SDK
+                            automatically extracts parameters from natural
+                            language, validates them, and executes your
+                            functions. See the screenshots: a user asks a
+                            question, the AI determines which tool to call,
+                            extracts the parameters, and returns structured,
+                            type-safe results.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6 flex flex-col gap-4">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/c_crop,g_center,h_600,w_1200/v1765822328/iridium/iridium-tool-calling-2.png"
+                                alt="AI tool calling response - function executes and returns structured data with visualization"
+                                className="w-full"
+                            />
+                        </div>
+                        <ContentBlock
+                            heading="Built-In Examples You Can Copy"
+                            icon={Code}
+                        >
+                            Iridium includes working tool definitions for user
+                            analytics, data fetching, and content generation.
+                            Each tool is tracked by PostHog for cost and
+                            performance monitoring. Copy the pattern, adapt it
+                            to your domain, and ship AI features with
+                            confidence.
+                        </ContentBlock>
+                    </div>
+                </div>
+            </Container>
             <ContentSection heading="Core Features">
                 <ContentBlock heading="Authentication & Security" icon={Lock}>
                     BetterAuth with email/password and social login. Session
@@ -327,6 +388,65 @@ export default function LandingPage() {
                     notifications.
                 </ContentBlock>
             </ContentSection>
+            <Container className="px-4">
+                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                    <div className="col-span-12 lg:col-span-6 flex flex-col justify-center">
+                        <div className="flex items-start gap-3 mb-4">
+                            <Zap className="w-8 h-8 text-primary mt-1" />
+                            <h2 className="text-3xl font-semibold text-base-content">
+                                Try It Free with Railway
+                            </h2>
+                        </div>
+                        <p className="text-lg mb-4 text-base-content/80">
+                            Deploy a working instance instantly with automatic
+                            database provisioning and environment setup. Perfect
+                            for testing the architecture and seeing Iridium in
+                            action.
+                        </p>
+                        <div className="mb-4">
+                            <a
+                                href="https://railway.com/deploy/8Vtjm7?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <img
+                                    src="https://railway.com/button.svg"
+                                    alt="Deploy on Railway"
+                                    className="h-10"
+                                />
+                            </a>
+                        </div>
+                        <p className="text-sm text-base-content/70 mb-6">
+                            Don't have a Railway account?{' '}
+                            <a
+                                href="https://railway.com?referralCode=YZe1VE"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link link-primary"
+                            >
+                                Sign up here
+                            </a>{' '}
+                            to get started with $5 in free credits.
+                        </p>
+                        <div className="alert alert-soft alert-info">
+                            <p className="text-sm">
+                                <strong>Free template includes:</strong> Running
+                                app with auth, database, and UI.{' '}
+                                <strong>Full repo access adds:</strong> Complete
+                                source code, 30+ pattern guides, all
+                                documentation, git history, and future updates.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6 flex items-center">
+                        <img
+                            src="https://railway.com/brand/logotype-light.png"
+                            alt="Railway"
+                            className="w-full rounded-box"
+                        />
+                    </div>
+                </div>
+            </Container>
             <Container className="px-4">
                 <div className="rounded-box overflow-hidden mb-8 bg-base-100 p-8">
                     <div className="flex items-center gap-3 mb-8">
@@ -506,33 +626,8 @@ export default function LandingPage() {
                     </Accordion>
                 </div>
             </Container>
-            <ContentSection heading="Perfect For">
-                <ContentBlock heading="AI-Powered Products" icon={Sparkles}>
-                    Writing assistants, code generators, chat interfaces, and
-                    content analysis tools. Streaming responses, tool calling,
-                    and automatic cost tracking included.
-                </ContentBlock>
-                <ContentBlock heading="Membership Platforms" icon={Users}>
-                    Online courses, premium communities, gated content, and
-                    subscription sites. Role-based access control and user
-                    management built-in.
-                </ContentBlock>
-                <ContentBlock
-                    heading="Internal Tools & Dashboards"
-                    icon={Briefcase}
-                >
-                    Admin panels, workflow automation, team dashboards, and
-                    business intelligence tools. Feature flags for gradual
-                    rollouts.
-                </ContentBlock>
-                <ContentBlock heading="Developer Tools" icon={Code}>
-                    API platforms, integration services, and developer portals.
-                    Type-safe patterns, middleware architecture, and
-                    comprehensive error handling.
-                </ContentBlock>
-            </ContentSection>
             <Container className="px-4">
-                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/50 to-secondary/50 p-8 md:p-12 text-center">
+                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/25 to-secondary/25 p-8 md:p-12 text-center">
                     <h2 className="text-4xl font-bold mb-4 text-base-content">
                         Ready to Ship Faster?
                     </h2>
