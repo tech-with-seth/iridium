@@ -344,6 +344,63 @@ export default function LandingPage() {
                     className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
                 >
                     <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            BetterAuth: Flexible Authentication Out of the Box
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/v1765840168/iridium/iridium-google-and-github-auth.png"
+                                alt="BetterAuth Google and GitHub authentication"
+                            />
+                        </div>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <ContentBlock
+                            heading="Google & GitHub Auth Pre-Configured"
+                            icon={Lock}
+                        >
+                            Iridium ships with Google and GitHub OAuth fully
+                            integrated and ready to use. No configuration
+                            guesswork—just add your OAuth credentials to your
+                            environment variables and users can sign in with
+                            their existing accounts. Email/password
+                            authentication is also included with secure session
+                            management and role-based access control built-in.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="35+ Social Providers Supported"
+                            icon={Users}
+                        >
+                            BetterAuth supports 35+ OAuth providers including
+                            Apple, Discord, Facebook, LinkedIn, Microsoft,
+                            Spotify, Twitch, and more. Adding a new provider is
+                            straightforward—install the plugin, add credentials,
+                            and update your auth configuration. The patterns are
+                            already established in the codebase, so extending to
+                            other providers takes minutes, not hours.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Session Management & Security"
+                            icon={Shield}
+                        >
+                            7-day secure sessions with HTTP-only cookies, CSRF
+                            protection, and automatic session refresh.
+                            BetterAuth handles the security complexity while
+                            giving you full control over user data and
+                            authentication flows. All session helpers
+                            (requireUser, requireAnonymous) are implemented and
+                            documented in the middleware patterns.
+                        </ContentBlock>
+                    </div>
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
+                    <div className="col-span-12">
                         <h2 className="text-3xl font-semibold text-base-content mb-4">
                             AI That Actually Works: Tool Calling Included
                         </h2>
