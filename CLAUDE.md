@@ -69,7 +69,7 @@ npm run format           # Run Prettier
 - `better-auth.instructions.md` - Authentication flows
 - `git-workflow.instructions.md` - Git branching strategy (prevents branch divergence)
 
-**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 26+ guides organized by category.**
+**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 30+ guides organized by category.**
 
 ## Critical Architecture Patterns
 
@@ -608,7 +608,7 @@ Use directories for organization, kebab-case for file names.
 
 ## Comprehensive Documentation
 
-The `.github/instructions/` folder contains 25+ detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
+The `.github/instructions/` folder contains 30+ detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
 
 ### Core Patterns (Read First)
 
@@ -623,6 +623,7 @@ The `.github/instructions/` folder contains 25+ detailed pattern guides. **Consu
 ### Development Workflow
 
 - `git-workflow.instructions.md` - Git branching, merging, and release strategy
+- `railway-deployment.instructions.md` - Railway deployment & debugging with CLI
 
 ### Framework-Specific
 
