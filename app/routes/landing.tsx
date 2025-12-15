@@ -1,4 +1,5 @@
 import { Alert } from '~/components/feedback/Alert';
+import { Accordion, AccordionItem } from '~/components/data-display/Accordion';
 import {
     ArrowRightIcon,
     OctagonXIcon,
@@ -11,24 +12,11 @@ import {
     Package,
     BarChart,
     Mail,
-    Activity,
-    Flag,
-    Brain,
     Code,
-    CheckCircle,
-    DollarSign,
-    User,
-    Users,
-    ShoppingBag,
-    Heart,
-    Terminal,
-    Layers,
     Lock,
-    Bot,
+    Users,
     Briefcase,
-    Plug,
-    Database,
-    GraduationCap,
+    HelpCircle,
 } from 'lucide-react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
 import {
@@ -339,6 +327,185 @@ export default function LandingPage() {
                     notifications.
                 </ContentBlock>
             </ContentSection>
+            <Container className="px-4">
+                <div className="rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                    <div className="flex items-center gap-3 mb-8">
+                        <HelpCircle className="w-8 h-8 text-primary" />
+                        <h2 className="text-3xl font-semibold text-base-content">
+                            Frequently Asked Questions
+                        </h2>
+                    </div>
+                    <Accordion name="faq-accordion">
+                        <AccordionItem
+                            title="What makes Iridium different from other React starters?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                            defaultOpen
+                        >
+                            Iridium is deliberately opinionated. Instead of
+                            giving you a minimal setup and saying &apos;figure
+                            it out,&apos; we&apos;ve made the hard architectural
+                            decisions for you: config-based routing over
+                            file-based, CVA for component variants, Prisma with
+                            a custom output path, model-layer separation, hybrid
+                            form validation. You get working examples of AI
+                            chat, authentication flows, and analytics
+                            integration—not just empty templates. Every pattern
+                            is documented in the codebase, so you learn by
+                            reading production-quality code.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="How long does it take to get started?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            If you have Node.js and PostgreSQL installed, you
+                            can be running locally in under 10 minutes. Clone
+                            the repo, copy .env.example to .env, add your
+                            database URL and auth secret, run npm install and
+                            the database migrations, then npm run dev. The core
+                            features (auth, database, routing, components) work
+                            immediately. Optional integrations like OpenAI,
+                            Resend, and PostHog require API keys but aren&apos;t
+                            necessary to start building.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="Do I need to know all these technologies to use Iridium?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            No. If you&apos;re comfortable with React and
+                            TypeScript, you can start building immediately. The
+                            architecture guides you: routes are in routes.ts,
+                            database operations go in app/models/, components
+                            follow CVA patterns. You&apos;ll learn React Router
+                            7, Prisma, and BetterAuth by working with real
+                            implementations. The .github/instructions/ folder
+                            has 30+ pattern guides that explain every
+                            integration with examples and anti-patterns.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="Can I customize or remove features I don't need?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            Absolutely. The AI chat demo, PostHog analytics,
+                            Resend emails, and Polar billing are all optional.
+                            Don&apos;t need AI? Delete app/routes/api/chat.ts
+                            and the related components. Don&apos;t need
+                            analytics? Remove the PostHog provider. The core
+                            foundation—routing, auth, database, validation,
+                            components—is designed to be extended or simplified
+                            based on your product needs. We deliberately kept
+                            the scope lean to make this easier.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="Is this production-ready or just a learning project?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            Production-ready. Iridium itself is a real product
+                            with authentication, billing, and a database
+                            handling actual users. The patterns you
+                            see—role-based access control, error tracking,
+                            feature flags, secure session management—are the
+                            same patterns running in production. We&apos;ve
+                            handled edge cases, security considerations, and
+                            performance optimizations so you don&apos;t have to
+                            discover them the hard way.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="What's the learning curve like?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            If you know React, the curve is gentle. The steepest
+                            part is learning React Router 7&apos;s config-based
+                            routing and data patterns (no useLoaderData hook,
+                            route type imports). But once you&apos;ve built one
+                            feature following the existing patterns, the next
+                            one is straightforward. The documentation
+                            anticipates common mistakes—like route type import
+                            paths—and explains the &apos;why&apos; behind each
+                            architectural choice.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="What's included without needing external API keys?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            Authentication with email/password, full database
+                            access with Prisma, all UI components and variants,
+                            form validation, protected routes, role-based access
+                            control, and the complete routing and middleware
+                            architecture. You can build a full-featured SaaS
+                            product before adding a single integration. External
+                            services (OpenAI, Resend, PostHog, Polar) are wired
+                            up and ready to use with API keys, but they&apos;re
+                            optional.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="When should I use Iridium instead of building from scratch?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            Use Iridium when you want to focus on your unique
+                            product logic, not infrastructure. If you&apos;ve
+                            built authentication, database migrations, form
+                            validation, and deployment pipelines before, you
+                            know it&apos;s weeks of work that adds zero user
+                            value. Iridium handles the undifferentiated heavy
+                            lifting with proven patterns so you can ship
+                            features on day one. Build from scratch when you
+                            have specific architectural requirements that
+                            conflict with Iridium&apos;s opinionated choices.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="How do updates work? Will I get locked into an outdated stack?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            You own the code. When you purchase Iridium, you get
+                            the entire repository—you&apos;re not dependent on
+                            our updates to keep building. That said, we&apos;re
+                            using stable, widely-adopted technologies: React 19,
+                            React Router 7, Prisma, PostgreSQL, TypeScript.
+                            These aren&apos;t experimental. As major versions
+                            release, you can update dependencies like any
+                            Node.js project. The architectural patterns (model
+                            layer, CVA components, config-based routing) remain
+                            valid regardless of minor version bumps.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="What kind of support and documentation is included?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
+                        >
+                            Every integration has a detailed guide in
+                            .github/instructions/ with patterns, examples, and
+                            troubleshooting. The codebase includes inline JSDoc
+                            comments explaining why decisions were made. Common
+                            issues—like route type imports, Prisma client paths,
+                            form validation conflicts—are documented with
+                            solutions. You&apos;re buying both the code and the
+                            accumulated knowledge of how to use it correctly.
+                            This isn&apos;t a template dump; it&apos;s a curated
+                            learning resource that pays for itself in avoided
+                            debugging time.
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+            </Container>
             <ContentSection heading="Perfect For">
                 <ContentBlock heading="AI-Powered Products" icon={Sparkles}>
                     Writing assistants, code generators, chat interfaces, and
@@ -364,6 +531,26 @@ export default function LandingPage() {
                     comprehensive error handling.
                 </ContentBlock>
             </ContentSection>
+            <Container className="px-4">
+                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/50 to-secondary/50 p-8 md:p-12 text-center">
+                    <h2 className="text-4xl font-bold mb-4 text-base-content">
+                        Ready to Ship Faster?
+                    </h2>
+                    <p className="text-lg mb-8 max-w-2xl mx-auto text-base-content/80">
+                        Stop rebuilding the same infrastructure. Get immediate
+                        access to production-ready code, proven patterns, and
+                        comprehensive documentation. Start building your product
+                        today.
+                    </p>
+                    <Link
+                        to={`/checkout?products=${data?.product.id}${data?.user?.email ? `&customerEmail=${data.user.email}` : ''}`}
+                        className="btn btn-secondary btn-lg"
+                    >
+                        Get access to the repo for {productPrice}
+                        <ArrowRightIcon />
+                    </Link>
+                </div>
+            </Container>
         </>
     );
 }

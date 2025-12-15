@@ -12,6 +12,10 @@ export const accordionItemVariants = cva({
             open: 'collapse-open',
             close: 'collapse-close',
         },
+        bordered: {
+            true: 'bg-base-100 border border-base-300',
+            false: '',
+        },
     },
 });
 
@@ -46,6 +50,7 @@ export function AccordionItem({
     name,
     variant,
     state,
+    bordered,
     defaultOpen = false,
     className,
     ...props
@@ -56,13 +61,14 @@ export function AccordionItem({
                 accordionItemVariants({
                     variant,
                     state,
+                    bordered,
                 }),
                 className,
             )}
             {...props}
         >
             <input type="radio" name={name} defaultChecked={defaultOpen} />
-            <div className="collapse-title">{title}</div>
+            <div className="collapse-title font-semibold">{title}</div>
             <div className="collapse-content">{children}</div>
         </div>
     );
