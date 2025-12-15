@@ -29,13 +29,17 @@ import type { RevenueTrendOutput } from '~/lib/chat-tools.types';
 import { RevenueTrendToolCard } from '~/components/data-display/features/RevenueTrendToolCard';
 import type {
     ConversionMetricsOutput,
+    EngagementMetricsOutput,
     MoneyAmount,
     ProductMetricsOutput,
     RevenueMetricsOutput,
+    UserAnalyticsOutput,
 } from '~/lib/chat-tools.types';
 import { ConversionMetricsToolCard } from '~/components/data-display/features/ConversionMetricsToolCard';
 import { ProductMetricsToolCard } from '~/components/data-display/features/ProductMetricsToolCard';
 import { RevenueMetricsToolCard } from '~/components/data-display/features/RevenueMetricsToolCard';
+import { UserAnalyticsToolCard } from '~/components/data-display/features/UserAnalyticsToolCard';
+import { EngagementMetricsToolCard } from '~/components/data-display/features/EngagementMetricsToolCard';
 
 type ToolState =
     | 'input-streaming'
@@ -182,6 +186,42 @@ function isConversionMetricsOutput(
         typeof value.succeededCheckouts === 'number' &&
         typeof value.checkoutConversion === 'number' &&
         typeof value.orders === 'number'
+    );
+}
+
+function isUserAnalyticsOutput(value: unknown): value is UserAnalyticsOutput {
+    if (!isRecord(value)) return false;
+    return (
+        isRecord(value.dateRange) &&
+        typeof value.dateRange.startDate === 'string' &&
+        typeof value.dateRange.endDate === 'string' &&
+        isRecord(value.overview) &&
+        typeof value.overview.totalUsers === 'number' &&
+        typeof value.overview.newUsersInRange === 'number' &&
+        typeof value.overview.activeUsers === 'number' &&
+        typeof value.overview.bannedUsers === 'number' &&
+        isRecord(value.growth) &&
+        isRecord(value.roleDistribution) &&
+        isRecord(value.accountHealth) &&
+        Array.isArray(value.trend)
+    );
+}
+
+function isEngagementMetricsOutput(
+    value: unknown,
+): value is EngagementMetricsOutput {
+    if (!isRecord(value)) return false;
+    return (
+        isRecord(value.dateRange) &&
+        typeof value.dateRange.startDate === 'string' &&
+        typeof value.dateRange.endDate === 'string' &&
+        isRecord(value.overview) &&
+        typeof value.overview.totalThreads === 'number' &&
+        typeof value.overview.totalMessages === 'number' &&
+        isRecord(value.averages) &&
+        isRecord(value.distribution) &&
+        Array.isArray(value.topUsers) &&
+        Array.isArray(value.trend)
     );
 }
 
@@ -423,6 +463,22 @@ export default function ThreadRoute({
             label: 'Checkout conversion (last 30 days)',
             text: 'How is my checkout conversion doing over the last 30 days? Use getConversionMetrics and summarize checkouts, succeeded checkouts, and conversion rate.',
         },
+        {
+            label: 'User growth (30 days)',
+            text: 'Show me user growth over the last 30 days. Use the getUserAnalytics tool and highlight total users, new users, growth rate, and active users.',
+        },
+        {
+            label: 'User analytics overview',
+            text: "What's my current user analytics and role distribution? Use getUserAnalytics and summarize the user base breakdown and account health.",
+        },
+        {
+            label: 'Chat engagement (30 days)',
+            text: 'Show me chat engagement metrics for the last 30 days. Use the getEngagementMetrics tool and highlight thread activity, message volume, and user engagement patterns.',
+        },
+        {
+            label: 'Most active users',
+            text: 'Who are my most active users this month? Use getEngagementMetrics and summarize the top users by message and thread activity.',
+        },
     ];
 
     return (
@@ -589,6 +645,60 @@ export default function ThreadRoute({
                                                             isUser={isUser}
                                                         >
                                                             <RevenueTrendToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
+
+                                                if (
+                                                    tool.toolName ===
+                                                        'getUserAnalytics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isUserAnalyticsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <UserAnalyticsToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
+
+                                                if (
+                                                    tool.toolName ===
+                                                        'getEngagementMetrics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isEngagementMetricsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <EngagementMetricsToolCard
                                                                 output={
                                                                     tool.output
                                                                 }

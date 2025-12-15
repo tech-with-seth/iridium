@@ -50,26 +50,26 @@ export function RevenueMetricsToolCard({ output }: { output: RevenueMetricsOutpu
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Revenue</div>
-                        <div className="stat-value text-primary">
+                        <div className="stat-title text-xs sm:text-sm">Revenue</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {formatCompactCurrency(output.revenue.dollars)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Net Revenue</div>
-                        <div className="stat-value text-accent">
+                        <div className="stat-title text-xs sm:text-sm">Net Revenue</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {formatCompactCurrency(output.netRevenue.dollars)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Orders</div>
-                        <div className="stat-value">{output.orders}</div>
+                        <div className="stat-title text-xs sm:text-sm">Orders</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">{output.orders}</div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Avg Order</div>
-                        <div className="stat-value">
+                        <div className="stat-title text-xs sm:text-sm">Avg Order</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">
                             {formatCurrency(output.averageOrderValue.dollars)}
                         </div>
                     </div>

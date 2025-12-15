@@ -45,22 +45,22 @@ export function ConversionMetricsToolCard({
                         formatValue={(n) => n.toLocaleString()}
                     />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Checkouts</div>
-                        <div className="stat-value text-primary">
+                        <div className="stat-title text-xs sm:text-sm">Checkouts</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {output.checkouts.toLocaleString()}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title">Succeeded</div>
-                        <div className="stat-value text-accent">
+                        <div className="stat-title text-xs sm:text-sm">Succeeded</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {output.succeededCheckouts.toLocaleString()}
                         </div>
                     </div>
-                    <div className="stat bg-base-200 rounded-box p-3 col-span-2">
-                        <div className="stat-title">Orders</div>
-                        <div className="stat-value">
+                    <div className="stat bg-base-200 rounded-box p-3 sm:col-span-2">
+                        <div className="stat-title text-xs sm:text-sm">Orders</div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">
                             {output.orders.toLocaleString()}
                         </div>
                     </div>

@@ -35,8 +35,8 @@ export function ProductMetricsToolCard({ output }: { output: ProductMetricsOutpu
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="stat bg-base-200 rounded-box p-3">
-                    <div className="stat-title">Units Sold</div>
-                    <div className="stat-value text-primary">
+                    <div className="stat-title text-xs sm:text-sm">Units Sold</div>
+                    <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                         {output.oneTimeProducts}
                     </div>
                     <div className="stat-desc">
