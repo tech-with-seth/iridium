@@ -522,6 +522,66 @@ export default function LandingPage() {
                 <div
                     className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
                 >
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            30+ Pattern Guides: Learn By Reading Production Code
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/v1765826239/iridium/iridium-cva-docs.png"
+                                alt="Iridium documentation and instruction files"
+                            />
+                        </div>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <ContentBlock
+                            heading="Comprehensive Pattern Library"
+                            icon={FileCheck}
+                        >
+                            Over 30 instruction files in .github/instructions/
+                            document every pattern: CVA component variants, form
+                            validation, CRUD operations, authentication flows,
+                            error boundaries, feature flags, and more. Each
+                            guide includes working examples, anti-patterns to
+                            avoid, and TypeScript best practices. You're not
+                            just getting code—you're getting the accumulated
+                            knowledge of how to use it correctly.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Complete Technical Documentation"
+                            icon={Code}
+                        >
+                            The docs/ folder contains deep-dives on every
+                            integration: AI implementation with tool calling,
+                            authentication patterns, deployment guides, testing
+                            strategies, and architectural decisions. Each
+                            document explains the 'why' behind technical choices
+                            and provides step-by-step implementation guides.
+                            Learn by reading production-quality documentation
+                            that anticipates your questions.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Decision Records & Context"
+                            icon={Briefcase}
+                        >
+                            The docs/decisions/ folder documents why we chose
+                            React Router 7 over file-based routing, BetterAuth
+                            over Clerk, Prisma's custom output path, and CVA for
+                            component variants. Understanding the reasoning
+                            behind architectural decisions helps you make
+                            informed choices when extending or modifying the
+                            codebase. It's the context most starters never
+                            provide.
+                        </ContentBlock>
+                    </div>
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
                     <div className="col-span-12 lg:col-span-6 flex flex-col justify-center">
                         <div className="flex items-start gap-3 mb-4">
                             <Zap className="w-8 h-8 text-primary mt-1" />
@@ -589,11 +649,34 @@ export default function LandingPage() {
                     </div>
                     <Accordion name="faq-accordion">
                         <AccordionItem
-                            title="What makes Iridium different from other React starters?"
+                            title="What exactly am I getting? What pages are included out of the box?"
                             name="faq-accordion"
                             variant="plus"
                             bordered
                             defaultOpen
+                        >
+                            Iridium is turnkey—clone the repo and you have a
+                            working application immediately. Out of the box, you
+                            get: this landing page (with working A/B tests), a
+                            complete authentication system (sign-in, sign-up,
+                            password reset), a user dashboard with AI chat and
+                            thread management, a profile editor, and an admin
+                            panel with feature flag management and design system
+                            preview. Every page is production-ready with real
+                            functionality, not placeholder content. The
+                            dashboard includes a working AI chat interface with
+                            tool calling, message persistence, and conversation
+                            threads. The admin panel lets you toggle features,
+                            test components, and manage settings. It&apos;s a
+                            complete application you can immediately customize
+                            and build upon—not a bare-bones starter you need to
+                            finish.
+                        </AccordionItem>
+                        <AccordionItem
+                            title="What makes Iridium different from other React starters?"
+                            name="faq-accordion"
+                            variant="plus"
+                            bordered
                         >
                             Iridium is deliberately opinionated. Instead of
                             giving you a minimal setup and saying &apos;figure
@@ -613,15 +696,21 @@ export default function LandingPage() {
                             variant="plus"
                             bordered
                         >
-                            If you have Node.js and PostgreSQL installed, you
-                            can be running locally in under 10 minutes. Clone
-                            the repo, copy .env.example to .env, add your
-                            database URL and auth secret, run npm install and
-                            the database migrations, then npm run dev. The core
-                            features (auth, database, routing, components) work
-                            immediately. Optional integrations like OpenAI,
-                            Resend, and PostHog require API keys but aren&apos;t
-                            necessary to start building.
+                            The fastest way is Railway&apos;s instant
+                            deploy—click the button, and you have a working
+                            instance with database and authentication in under 5
+                            minutes. No local setup required. Perfect for
+                            testing the architecture and seeing everything work
+                            immediately. For local development: if you have
+                            Node.js and PostgreSQL installed, you can be running
+                            locally in under 10 minutes. Clone the repo, copy
+                            .env.example to .env, add your database URL and auth
+                            secret, run npm install and the database migrations,
+                            then npm run dev. The core features (auth, database,
+                            routing, components) work immediately. Optional
+                            integrations like OpenAI, Resend, and PostHog
+                            require API keys but aren&apos;t necessary to start
+                            building.
                         </AccordionItem>
                         <AccordionItem
                             title="Do I need to know all these technologies to use Iridium?"
