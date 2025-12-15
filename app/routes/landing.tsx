@@ -29,7 +29,7 @@ import {
     type PropsWithChildren,
     type ReactNode,
 } from 'react';
-import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
+// import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 
 import { Container } from '~/components/layout/Container';
 import { cx } from '~/cva.config';
@@ -73,6 +73,9 @@ function ContentBlock({
 }
 
 const GRID_GAP = `gap-4 md:gap-8`;
+const isLive = false;
+const liveUrl = (productId: string, email: string) =>
+    `/checkout?products=${productId}${email ? `&customerEmail=${email}` : ''}`;
 
 function ContentSection({
     children,
@@ -121,17 +124,39 @@ export default function LandingPage() {
         [data?.allFlags],
     );
 
-    const productPrice = useMemo(() => {
-        return formatToCurrency(
-            'en-US',
-            'USD',
-            2,
-            (data?.product.prices.at(0) as ProductPriceFixed).priceAmount,
-        );
-    }, [data?.product]);
+    // const productPrice = useMemo(() => {
+    //     return formatToCurrency(
+    //         'en-US',
+    //         'USD',
+    //         2,
+    //         (data?.product.prices.at(0) as ProductPriceFixed).priceAmount,
+    //     );
+    // }, [data?.product]);
+
+    const productPrice = '$??.??';
 
     const introCopyControl = `Your shortcut to a production-ready SaaS. Iridium is a production-ready boilerplate packed with everything you need: secure authentication, subscription billing, a powerful AI toolkit, and a stunning component library. Stop rebuilding boilerplate and start shipping features your users will love. It's the fastest way to go from idea to revenue.`;
     const introCopyVariant = `Build on a foundation you can trust. Iridium is more than a starter kit—it's a curated collection of modern best practices. With config-based routing in React Router 7, end-to-end type-safe validation with Zod, and a CVA-driven component system, you can build with confidence and scale without compromise. Stop fighting with your tools and start building great software.`;
+
+    const ctaLink =
+        isLive && data?.product.id && data?.user?.email
+            ? liveUrl(data?.product.id, data?.user?.email)
+            : '/';
+
+    const iridiumCta = (
+        <Tooltip content="Coming soon!" open>
+            <Link
+                to={ctaLink}
+                className={cx(
+                    'btn btn-secondary btn-lg',
+                    !isLive && 'btn-disabled',
+                )}
+            >
+                Get access to the repo for {productPrice}
+                <ArrowRightIcon />
+            </Link>
+        </Tooltip>
+    );
 
     return (
         <>
@@ -179,13 +204,7 @@ export default function LandingPage() {
                                     ? introCopyVariant
                                     : introCopyControl}
                             </p>
-                            <Link
-                                to={`/checkout?products=${data?.product.id}${data?.user?.email ? `&customerEmail=${data.user.email}` : ''}`}
-                                className="btn btn-secondary btn-lg"
-                            >
-                                Get access to the repo for {productPrice}
-                                <ArrowRightIcon />
-                            </Link>
+                            {iridiumCta}
                         </div>
                     </div>
                 </div>
@@ -858,13 +877,7 @@ export default function LandingPage() {
                         comprehensive documentation. Start building your product
                         today.
                     </p>
-                    <Link
-                        to={`/checkout?products=${data?.product.id}${data?.user?.email ? `&customerEmail=${data.user.email}` : ''}`}
-                        className="btn btn-secondary btn-lg"
-                    >
-                        Get access to the repo for {productPrice}
-                        <ArrowRightIcon />
-                    </Link>
+                    {iridiumCta}
                 </div>
             </Container>
         </>
