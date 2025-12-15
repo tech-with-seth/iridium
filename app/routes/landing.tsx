@@ -143,8 +143,12 @@ export default function LandingPage() {
             ? liveUrl(data?.product.id, data?.user?.email)
             : '/';
 
-    const iridiumCta = (
-        <Tooltip content="Coming soon!" open>
+    const IridiumCta = ({
+        position,
+    }: {
+        position?: 'top' | 'right' | 'bottom' | 'left';
+    }) => (
+        <Tooltip content="Coming soon!" open position={position}>
             <Link
                 to={ctaLink}
                 className={cx(
@@ -204,7 +208,7 @@ export default function LandingPage() {
                                     ? introCopyVariant
                                     : introCopyControl}
                             </p>
-                            {iridiumCta}
+                            <IridiumCta position="top" />
                         </div>
                     </div>
                 </div>
@@ -615,7 +619,7 @@ export default function LandingPage() {
                             action.
                         </p>
                         <div className="mb-4">
-                            <a
+                            {/* <a
                                 href="https://railway.com/deploy/UVmPwx?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -625,7 +629,18 @@ export default function LandingPage() {
                                     alt="Deploy on Railway"
                                     className="h-10"
                                 />
-                            </a>
+                            </a> */}
+                            <Tooltip
+                                content="Coming soon!"
+                                open
+                                position="right"
+                            >
+                                <img
+                                    src="https://railway.com/button.svg"
+                                    alt="Deploy on Railway"
+                                    className="h-10"
+                                />
+                            </Tooltip>
                         </div>
                         <p className="text-sm text-base-content/70 mb-6">
                             Don't have a Railway account?{' '}
@@ -877,7 +892,7 @@ export default function LandingPage() {
                         comprehensive documentation. Start building your product
                         today.
                     </p>
-                    {iridiumCta}
+                    <IridiumCta position="right" />
                 </div>
             </Container>
         </>
