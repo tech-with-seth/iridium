@@ -1,0 +1,1 @@
+export { PHProvider } from './PostHogProvider';

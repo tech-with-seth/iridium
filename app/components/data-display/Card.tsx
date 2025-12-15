@@ -40,6 +40,25 @@ interface CardProps
     };
 }
 
+/**
+ * Card component for grouping and displaying content with optional images, titles, and actions.
+ *
+ * @example
+ * ```tsx
+ * <Card title="Product Name" actions={<Button>Buy Now</Button>}>
+ *   Product description goes here
+ * </Card>
+ * <Card
+ *   image={{ src: "/photo.jpg", alt: "Photo" }}
+ *   title="Gallery Item"
+ *   size="lg"
+ * >
+ *   Content with image
+ * </Card>
+ * ```
+ *
+ * @see {@link https://daisyui.com/components/card/ DaisyUI Card Documentation}
+ */
 export function Card({
     children,
     title,

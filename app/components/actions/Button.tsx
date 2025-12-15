@@ -53,6 +53,20 @@ interface ButtonProps
     loading?: boolean;
 }
 
+/**
+ * Primary UI button component with multiple variants, sizes, and states.
+ *
+ * @example
+ * ```tsx
+ * <Button variant="outline" status="primary" size="lg">
+ *   Click me
+ * </Button>
+ * <Button loading>Loading...</Button>
+ * <Button status="error" variant="soft">Delete</Button>
+ * ```
+ *
+ * @see {@link https://daisyui.com/components/button/ DaisyUI Button Documentation}
+ */
 export function Button({
     active,
     block,

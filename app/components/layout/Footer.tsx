@@ -2,12 +2,12 @@ import { Container } from './Container';
 
 export function Footer() {
     return (
-        <footer className="py-12 bg-base-200">
+        <footer className="py-4 bg-base-200 text-sm">
             <Container className="px-4">
-                <div className="grid grid-cols-1 gap-8 md:gap-4 md:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4 md:grid-cols-4 md:gap-3">
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">About</h3>
-                        <ul className="flex flex-col gap-2">
+                        <h3 className="font-semibold mb-1">About</h3>
+                        <ul className="flex flex-col gap-1">
                             <li>
                                 <a href="https://sethdavis.tech/iridium">
                                     More info on Iridium
@@ -16,10 +16,8 @@ export function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">
-                            Core Stack
-                        </h3>
-                        <ul className="flex flex-col gap-2">
+                        <h3 className="font-semibold mb-1">Core Stack</h3>
+                        <ul className="flex flex-col gap-1">
                             <li>
                                 <a
                                     href="https://typescriptlang.org/"
@@ -50,10 +48,10 @@ export function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">
+                        <h3 className="font-semibold mb-1">
                             Authentication & UI
                         </h3>
-                        <ul className="flex flex-col gap-2">
+                        <ul className="flex flex-col gap-1">
                             <li>
                                 <a
                                     href="https://www.better-auth.com/"
@@ -84,8 +82,8 @@ export function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-lg mb-2">Services</h3>
-                        <ul className="flex flex-col gap-2">
+                        <h3 className="font-semibold mb-1">Services</h3>
+                        <ul className="flex flex-col gap-1">
                             <li>
                                 <a
                                     href="https://posthog.com/"

@@ -31,6 +31,21 @@ interface AlertProps
     icon?: React.ReactNode;
 }
 
+/**
+ * Alert component for displaying important messages to users.
+ *
+ * @example
+ * ```tsx
+ * <Alert status="success" icon={<CheckIcon />}>
+ *   Your changes have been saved
+ * </Alert>
+ * <Alert status="error" variant="outline">
+ *   An error occurred. Please try again.
+ * </Alert>
+ * ```
+ *
+ * @see {@link https://daisyui.com/components/alert/ DaisyUI Alert Documentation}
+ */
 export function Alert({
     variant,
     status,

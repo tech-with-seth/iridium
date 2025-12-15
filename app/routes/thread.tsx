@@ -26,16 +26,16 @@ import { getUserFromSession } from '~/lib/session.server';
 import { getThreadById } from '~/models/thread.server';
 import invariant from 'tiny-invariant';
 import type { RevenueTrendOutput } from '~/lib/chat-tools.types';
-import { RevenueTrendToolCard } from '~/components/data-display/RevenueTrendToolCard';
+import { RevenueTrendToolCard } from '~/components/data-display/features/RevenueTrendToolCard';
 import type {
     ConversionMetricsOutput,
     MoneyAmount,
     ProductMetricsOutput,
     RevenueMetricsOutput,
 } from '~/lib/chat-tools.types';
-import { ConversionMetricsToolCard } from '~/components/data-display/ConversionMetricsToolCard';
-import { ProductMetricsToolCard } from '~/components/data-display/ProductMetricsToolCard';
-import { RevenueMetricsToolCard } from '~/components/data-display/RevenueMetricsToolCard';
+import { ConversionMetricsToolCard } from '~/components/data-display/features/ConversionMetricsToolCard';
+import { ProductMetricsToolCard } from '~/components/data-display/features/ProductMetricsToolCard';
+import { RevenueMetricsToolCard } from '~/components/data-display/features/RevenueMetricsToolCard';
 
 type ToolState =
     | 'input-streaming'
@@ -249,7 +249,10 @@ function ToolCallPart({ tool }: { tool: NormalizedToolPart }) {
                         <div className="flex items-center gap-2 text-sm">
                             <span className="loading loading-spinner loading-sm" />
                             <span>
-                                Running <span className="font-mono">{tool.toolName}</span>
+                                Running{' '}
+                                <span className="font-mono">
+                                    {tool.toolName}
+                                </span>
                                 …
                             </span>
                         </div>
@@ -259,8 +262,11 @@ function ToolCallPart({ tool }: { tool: NormalizedToolPart }) {
                         <div className="alert alert-info">
                             <span>
                                 Received results from{' '}
-                                <span className="font-mono">{tool.toolName}</span>.
-                                The assistant will incorporate them into the reply.
+                                <span className="font-mono">
+                                    {tool.toolName}
+                                </span>
+                                . The assistant will incorporate them into the
+                                reply.
                             </span>
                         </div>
                     )}
@@ -269,7 +275,9 @@ function ToolCallPart({ tool }: { tool: NormalizedToolPart }) {
                         <div className="alert alert-error">
                             <span>
                                 Something went wrong while running{' '}
-                                <span className="font-mono">{tool.toolName}</span>
+                                <span className="font-mono">
+                                    {tool.toolName}
+                                </span>
                                 {tool.errorText ? `: ${tool.errorText}` : '.'}
                             </span>
                         </div>

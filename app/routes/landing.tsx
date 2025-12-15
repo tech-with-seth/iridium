@@ -1,5 +1,35 @@
 import { Alert } from '~/components/feedback/Alert';
-import { ArrowRightIcon, OctagonXIcon } from 'lucide-react';
+import {
+    ArrowRightIcon,
+    OctagonXIcon,
+    Rocket,
+    Layout,
+    MessageSquare,
+    Shield,
+    Sparkles,
+    FileCheck,
+    Package,
+    BarChart,
+    Mail,
+    Activity,
+    Flag,
+    Brain,
+    Code,
+    CheckCircle,
+    DollarSign,
+    User,
+    Users,
+    ShoppingBag,
+    Heart,
+    Terminal,
+    Layers,
+    Lock,
+    Bot,
+    Briefcase,
+    Plug,
+    Database,
+    GraduationCap,
+} from 'lucide-react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
 import {
     Children,
@@ -32,15 +62,20 @@ import { Tooltip } from '~/components/feedback/Tooltip';
 function ContentBlock({
     heading,
     children,
+    icon: Icon,
 }: {
     heading: string;
     children: ReactNode;
+    icon?: React.ComponentType<{ className?: string }>;
 }) {
     return (
         <div className="mb-4">
-            <h3 className="text-xl font-semibold mb-4 text-base-content">
-                {heading}
-            </h3>
+            <div className="flex items-start gap-3 mb-4">
+                {Icon && <Icon className="w-6 h-6 text-primary mt-0.5" />}
+                <h3 className="text-xl font-semibold text-base-content">
+                    {heading}
+                </h3>
+            </div>
             <p>{children}</p>
         </div>
     );
@@ -199,7 +234,10 @@ export default function LandingPage() {
                 </div>
             </Container>
             <ContentSection heading="What is Iridium?">
-                <ContentBlock heading="Production-Ready React Router 7 Foundation">
+                <ContentBlock
+                    heading="Production-Ready React Router 7 Foundation"
+                    icon={Layout}
+                >
                     Iridium is a carefully architected boilerplate built on
                     React Router 7 with TypeScript throughout. Config-based
                     routing, end-to-end type safety, and clear separation of
@@ -207,7 +245,10 @@ export default function LandingPage() {
                     not just another template—it follows proven patterns used in
                     real production applications.
                 </ContentBlock>
-                <ContentBlock heading="Everything You Need to Ship Fast">
+                <ContentBlock
+                    heading="Everything You Need to Ship Fast"
+                    icon={Rocket}
+                >
                     Skip months of setup. Iridium includes authentication,
                     database integration, AI capabilities with streaming chat,
                     analytics, email, testing, and deployment configuration.
@@ -224,7 +265,10 @@ export default function LandingPage() {
                         </h2>
                     </div>
                     <div className="col-span-12 lg:col-span-6">
-                        <ContentBlock heading="Production-Ready Dashboard">
+                        <ContentBlock
+                            heading="Production-Ready Dashboard"
+                            icon={Layout}
+                        >
                             Iridium includes a fully functional dashboard with
                             real metrics, thread management, and a working AI
                             chat interface. Every button click, every message
@@ -232,7 +276,10 @@ export default function LandingPage() {
                             See exactly how to instrument your features by
                             reading production code that actually works.
                         </ContentBlock>
-                        <ContentBlock heading="AI Chat with Tool Calling">
+                        <ContentBlock
+                            heading="AI Chat with Tool Calling"
+                            icon={MessageSquare}
+                        >
                             Built with Vercel AI SDK and OpenAI, the chat
                             interface demonstrates streaming responses,
                             multi-turn conversations, and tool calling patterns.
@@ -242,7 +289,10 @@ export default function LandingPage() {
                             implementation, adapt it to your product, and ship
                             AI features in hours instead of weeks.
                         </ContentBlock>
-                        <ContentBlock heading="End-to-End Type Safety">
+                        <ContentBlock
+                            heading="End-to-End Type Safety"
+                            icon={Shield}
+                        >
                             From database schema to API response to UI
                             component, every piece is type-safe. Prisma
                             generates types from your schema, Zod validates
@@ -264,41 +314,53 @@ export default function LandingPage() {
                 </div>
             </Container>
             <ContentSection heading="What's inside?">
-                <ContentBlock heading="Authentication & User Management">
+                <ContentBlock
+                    heading="Authentication & User Management"
+                    icon={Lock}
+                >
                     Secure authentication powered by BetterAuth with
                     email/password and social login support. Session management,
                     role-based access control, and protected route patterns are
                     ready to use. User profiles, account settings, and secure
                     password reset flows included.
                 </ContentBlock>
-                <ContentBlock heading="AI Integration">
+                <ContentBlock heading="AI Integration" icon={Sparkles}>
                     OpenAI integration with streaming chat capabilities using
                     the Vercel AI SDK. Pre-built chat UI components, message
                     persistence with Prisma, and LLM analytics tracking via
                     PostHog. Add AI-powered features to your product in minutes,
                     not weeks.
                 </ContentBlock>
-                <ContentBlock heading="Form & Validation System">
+                <ContentBlock
+                    heading="Form & Validation System"
+                    icon={FileCheck}
+                >
                     Hybrid client/server form validation using Zod schemas and
                     React Hook Form. Instant client-side feedback with
                     server-side security validation. Pre-built form components
                     with error handling, loading states, and accessibility
                     features built in.
                 </ContentBlock>
-                <ContentBlock heading="Component Library">
+                <ContentBlock heading="Component Library" icon={Package}>
                     DaisyUI 5 components with CVA-powered variants for type-safe
                     styling. Buttons, inputs, modals, alerts, and more—all
                     customizable and accessible. Dark mode support, responsive
                     design, and consistent theming across your entire
                     application.
                 </ContentBlock>
-                <ContentBlock heading="Analytics & Feature Flags">
+                <ContentBlock
+                    heading="Analytics & Feature Flags"
+                    icon={BarChart}
+                >
                     PostHog integration for user analytics, session replay, and
                     A/B testing. Feature flags let you test variations with real
                     users and roll out features gradually. Built-in LLM
                     analytics tracks AI model usage, costs, and performance.
                 </ContentBlock>
-                <ContentBlock heading="Email & Transactional Messages">
+                <ContentBlock
+                    heading="Email & Transactional Messages"
+                    icon={Mail}
+                >
                     Resend integration with React Email components for
                     beautiful, responsive emails. Pre-built templates for
                     welcome emails, password resets, account notifications, and
@@ -306,28 +368,34 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <ContentSection heading="Built-in Analytics & Intelligence">
-                <ContentBlock heading="Comprehensive Event Tracking">
+                <ContentBlock
+                    heading="Comprehensive Event Tracking"
+                    icon={Activity}
+                >
                     Every action tracked with PostHog: user behavior patterns,
                     chat interactions, thread management, and LLM usage metrics.
                     Automatic exception capture with full context gives you
                     visibility into errors before users report them. See exactly
                     how your features are being used.
                 </ContentBlock>
-                <ContentBlock heading="Feature Flags & A/B Testing">
+                <ContentBlock heading="Feature Flags & A/B Testing" icon={Flag}>
                     Test UI variations with real users instantly using PostHog
                     feature flags. Roll out features gradually to specific user
                     segments. Watch session replays to understand actual user
                     behavior. The landing page you're reading right now uses
                     feature flags for experimentation.
                 </ContentBlock>
-                <ContentBlock heading="LLM Analytics Built-In">
+                <ContentBlock heading="LLM Analytics Built-In" icon={Brain}>
                     Track AI model usage, token consumption, response times, and
                     costs automatically. Every chat message, every streaming
                     response, every tool call is captured with the @posthog/ai
                     wrapper. See exactly what your AI features cost and how
                     users interact with them.
                 </ContentBlock>
-                <ContentBlock heading="Real Implementation Examples">
+                <ContentBlock
+                    heading="Real Implementation Examples"
+                    icon={Code}
+                >
                     The dashboard includes working examples of analytics
                     tracking: button clicks, message streams, thread operations,
                     and error handling. Every event is properly structured with
@@ -337,28 +405,34 @@ export default function LandingPage() {
             </ContentSection>
 
             <ContentSection heading="What's the purpose?">
-                <ContentBlock heading="Ship Faster, Build Better">
+                <ContentBlock heading="Ship Faster, Build Better" icon={Rocket}>
                     Every creator business needs the same foundation: user
                     authentication, payments, email, and a dashboard. Iridium
                     gives you all of this on day one, so you can spend your time
                     building features that make your product unique instead of
                     rebuilding infrastructure everyone else already has.
                 </ContentBlock>
-                <ContentBlock heading="Code You Can Trust">
+                <ContentBlock heading="Code You Can Trust" icon={Shield}>
                     This isn't just a collection of npm packages thrown
                     together. Iridium follows modern best practices with
                     config-based routing, type-safe operations, middleware
                     patterns, and comprehensive testing. The architecture is
                     designed to scale as your business grows, not hold you back.
                 </ContentBlock>
-                <ContentBlock heading="Focus on Revenue, Not Boilerplate">
+                <ContentBlock
+                    heading="Focus on Revenue, Not Boilerplate"
+                    icon={DollarSign}
+                >
                     Time spent building authentication is time you're not
                     spending talking to customers or building revenue-generating
                     features. Iridium handles the boring infrastructure work so
                     you can focus on the problems only you can solve—the ones
                     your customers will actually pay for.
                 </ContentBlock>
-                <ContentBlock heading="Built for Real Products">
+                <ContentBlock
+                    heading="Built for Real Products"
+                    icon={CheckCircle}
+                >
                     Iridium isn't a toy project or experimental framework. It's
                     built with production-ready patterns, comprehensive error
                     handling, and real-world testing. Security best practices,
@@ -367,35 +441,41 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <ContentSection heading="Who is this for?">
-                <ContentBlock heading="Solo Creators & Indie Hackers">
+                <ContentBlock
+                    heading="Solo Creators & Indie Hackers"
+                    icon={User}
+                >
                     You have a great idea for a creator business but don't want
                     to spend months building authentication, user dashboards,
                     and database architecture. Iridium gives you a
                     production-ready foundation so you can focus on your unique
                     offering instead of reinventing the wheel.
                 </ContentBlock>
-                <ContentBlock heading="Technical Founders">
+                <ContentBlock heading="Technical Founders" icon={Code}>
                     You know how to code but want to ship fast without cutting
                     corners. Iridium provides battle-tested patterns for React
                     Router 7, type-safe database operations, and secure
                     authentication. Clean, well-documented code that you can
                     confidently build on.
                 </ContentBlock>
-                <ContentBlock heading="Digital Product Creators">
+                <ContentBlock
+                    heading="Digital Product Creators"
+                    icon={ShoppingBag}
+                >
                     You want to sell courses, templates, guides, or access to
                     exclusive content. Iridium gives you user authentication,
                     role-based access control, and a dashboard where your
                     customers can manage their accounts. Add your payment
                     integration and start selling.
                 </ContentBlock>
-                <ContentBlock heading="Community Builders">
+                <ContentBlock heading="Community Builders" icon={Heart}>
                     You're building a membership site, private repository
                     access, or exclusive community platform. Iridium handles
                     user management, secure authentication, and provides the
                     foundation for gating content based on membership levels or
                     permissions.
                 </ContentBlock>
-                <ContentBlock heading="AI-Powered Creators">
+                <ContentBlock heading="AI-Powered Creators" icon={Bot}>
                     You want to build intelligent tools or AI-enhanced
                     experiences for your audience. Iridium includes OpenAI
                     integration with streaming chat out of the box, plus user
@@ -404,34 +484,34 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <ContentSection heading="Tech stack">
-                <ContentBlock heading="Built for Developers">
+                <ContentBlock heading="Built for Developers" icon={Terminal}>
                     Iridium is designed with developers in mind. The codebase is
                     clean, modular, and easy to understand, making it simple to
                     customize and extend. With comprehensive documentation and a
                     focus on best practices, Iridium helps you build your SaaS
                     product with confidence.
                 </ContentBlock>
-                <ContentBlock heading="Modern Tech Stack">
+                <ContentBlock heading="Modern Tech Stack" icon={Layers}>
                     Built on React Router 7 with TypeScript for type-safe,
                     full-stack development. Config-based routing, middleware
                     patterns, and a model layer architecture provide a solid
                     foundation. DaisyUI components with CVA give you a
                     beautiful, customizable design system out of the box.
                 </ContentBlock>
-                <ContentBlock heading="Authentication & Billing">
+                <ContentBlock heading="Authentication & Billing" icon={Lock}>
                     User authentication powered by BetterAuth with
                     email/password and social login support. Subscription
                     billing integrated via Polar.sh with webhook handling and
                     customer management. Role-based access control keeps your
                     application secure from day one.
                 </ContentBlock>
-                <ContentBlock heading="AI-Ready">
+                <ContentBlock heading="AI-Ready" icon={Sparkles}>
                     OpenAI integration with Vercel AI SDK provides streaming
                     chat capabilities and AI-powered features. Pre-built chat UI
                     components and message persistence let you add intelligent
                     features to your product without starting from scratch.
                 </ContentBlock>
-                <ContentBlock heading="Production-Ready">
+                <ContentBlock heading="Production-Ready" icon={CheckCircle}>
                     PostgreSQL with Prisma for robust data management. PostHog
                     analytics and feature flags for data-driven decisions.
                     Resend for transactional emails. Vitest and Playwright
@@ -440,7 +520,10 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <ContentSection heading="Use cases">
-                <ContentBlock heading="AI-Powered SaaS Products">
+                <ContentBlock
+                    heading="AI-Powered SaaS Products"
+                    icon={Sparkles}
+                >
                     Build intelligent tools that use OpenAI's models for content
                     generation, analysis, or chat interfaces. The streaming chat
                     implementation, message persistence, and LLM analytics
@@ -448,34 +531,46 @@ export default function LandingPage() {
                     like writing assistants, code generators, or conversational
                     tools.
                 </ContentBlock>
-                <ContentBlock heading="Membership & Subscription Sites">
+                <ContentBlock
+                    heading="Membership & Subscription Sites"
+                    icon={Users}
+                >
                     Create exclusive content platforms with tiered access
                     levels. Use role-based permissions to gate premium content,
                     manage subscriptions, and provide member-only features.
                     Perfect for online courses, premium newsletters, or private
                     communities.
                 </ContentBlock>
-                <ContentBlock heading="Internal Business Tools">
+                <ContentBlock
+                    heading="Internal Business Tools"
+                    icon={Briefcase}
+                >
                     Build dashboards, admin panels, or workflow automation tools
                     for your team. The authentication system handles user
                     management, feature flags let you roll out updates
                     gradually, and the component library provides a professional
                     interface out of the box.
                 </ContentBlock>
-                <ContentBlock heading="API & Integration Platforms">
+                <ContentBlock heading="API & Integration Platforms" icon={Plug}>
                     Create developer tools, API management platforms, or
                     integration services. The type-safe API patterns, middleware
                     architecture, and comprehensive error handling make it easy
                     to build reliable backend services with clean documentation.
                 </ContentBlock>
-                <ContentBlock heading="Data Collection & Analysis Tools">
+                <ContentBlock
+                    heading="Data Collection & Analysis Tools"
+                    icon={Database}
+                >
                     Build form builders, survey platforms, or analytics
                     dashboards. The validation system handles complex form
                     logic, PostHog integration provides real-time analytics, and
                     the database layer with Prisma makes data management
                     straightforward.
                 </ContentBlock>
-                <ContentBlock heading="E-Learning & Course Platforms">
+                <ContentBlock
+                    heading="E-Learning & Course Platforms"
+                    icon={GraduationCap}
+                >
                     Launch online course platforms with user progress tracking,
                     content gating, and email notifications. The authentication
                     system manages student accounts, while the component library

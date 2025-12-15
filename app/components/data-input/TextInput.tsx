@@ -38,6 +38,26 @@ interface TextInputProps
     helperText?: string;
 }
 
+/**
+ * Text input field with label, error states, and helper text support.
+ *
+ * @example
+ * ```tsx
+ * <TextInput
+ *   label="Email"
+ *   type="email"
+ *   placeholder="user@example.com"
+ *   required
+ * />
+ * <TextInput
+ *   label="Username"
+ *   error="Username is already taken"
+ *   helperText="3-20 characters"
+ * />
+ * ```
+ *
+ * @see {@link https://daisyui.com/components/input/ DaisyUI Input Documentation}
+ */
 export function TextInput({
     label,
     error,

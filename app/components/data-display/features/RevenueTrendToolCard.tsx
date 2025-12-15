@@ -1,5 +1,5 @@
 import { Card } from '~/components/data-display/Card';
-import { RevenueTrendChart } from '~/components/data-display/RevenueTrendChart';
+import { RevenueTrendChart } from './RevenueTrendChart';
 import type { RevenueTrendOutput } from '~/lib/chat-tools.types';
 
 function formatDateRange(startDate: string, endDate: string): string {
@@ -14,7 +14,11 @@ function formatCurrency(amount: number): string {
     }).format(amount);
 }
 
-export function RevenueTrendToolCard({ output }: { output: RevenueTrendOutput }) {
+export function RevenueTrendToolCard({
+    output,
+}: {
+    output: RevenueTrendOutput;
+}) {
     const totalRevenue = output.points.reduce(
         (sum, p) => sum + p.revenue.dollars,
         0,
@@ -61,4 +65,3 @@ export function RevenueTrendToolCard({ output }: { output: RevenueTrendOutput })
         </Card>
     );
 }
-

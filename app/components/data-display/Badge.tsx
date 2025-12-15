@@ -37,6 +37,18 @@ interface BadgeProps
     extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'>,
         VariantProps<typeof badgeVariants> {}
 
+/**
+ * Badge component for displaying status indicators, labels, or counts.
+ *
+ * @example
+ * ```tsx
+ * <Badge color="success">Active</Badge>
+ * <Badge variant="outline" color="info" size="sm">New</Badge>
+ * <Badge color="error" size="lg">99+</Badge>
+ * ```
+ *
+ * @see {@link https://daisyui.com/components/badge/ DaisyUI Badge Documentation}
+ */
 export function Badge({
     children,
     variant,
