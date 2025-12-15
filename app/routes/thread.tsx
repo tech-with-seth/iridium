@@ -109,7 +109,11 @@ function isRevenueTrendOutput(value: unknown): value is RevenueTrendOutput {
     if (!isRecord(value)) return false;
     if (typeof value.startDate !== 'string') return false;
     if (typeof value.endDate !== 'string') return false;
-    if (value.interval !== 'day' && value.interval !== 'month' && value.interval !== 'year') {
+    if (
+        value.interval !== 'day' &&
+        value.interval !== 'month' &&
+        value.interval !== 'year'
+    ) {
         return false;
     }
     if (!Array.isArray(value.points)) return false;
@@ -117,7 +121,10 @@ function isRevenueTrendOutput(value: unknown): value is RevenueTrendOutput {
         if (!isRecord(p)) return false;
         if (typeof p.date !== 'string') return false;
         if (!isRecord(p.revenue) || !isRecord(p.netRevenue)) return false;
-        if (typeof p.revenue.cents !== 'number' || typeof p.revenue.dollars !== 'number') {
+        if (
+            typeof p.revenue.cents !== 'number' ||
+            typeof p.revenue.dollars !== 'number'
+        ) {
             return false;
         }
         if (
@@ -222,18 +229,7 @@ function MessagePartBubble({
     );
 }
 
-function JsonBlock({ value }: { value: unknown }) {
-    return (
-        <pre className="whitespace-pre-wrap break-all font-mono bg-base-200 p-2 rounded-md">
-            {JSON.stringify(value, null, 2)}
-        </pre>
-    );
-}
-
 function ToolCallPart({ tool }: { tool: NormalizedToolPart }) {
-    const showInput =
-        tool.state === 'input-streaming' || tool.state === 'input-available';
-
     return (
         <details className="collapse collapse-arrow border border-base-200">
             <summary className="collapse-title px-2 py-1">
@@ -248,28 +244,34 @@ function ToolCallPart({ tool }: { tool: NormalizedToolPart }) {
             </summary>
             <div className="collapse-content px-2 pb-2">
                 <div className="flex flex-col gap-2">
-                    {showInput && (
-                        <div className="flex flex-col gap-2">
-                            <div className="text-xs opacity-70">
-                                Input
-                                {tool.state === 'input-streaming' &&
-                                    ' (streaming)'}
-                                :
-                            </div>
-                            <JsonBlock value={tool.input} />
+                    {(tool.state === 'input-streaming' ||
+                        tool.state === 'input-available') && (
+                        <div className="flex items-center gap-2 text-sm">
+                            <span className="loading loading-spinner loading-sm" />
+                            <span>
+                                Running <span className="font-mono">{tool.toolName}</span>
+                                …
+                            </span>
                         </div>
                     )}
 
                     {tool.state === 'output-available' && (
-                        <div className="flex flex-col gap-2">
-                            <div className="text-xs opacity-70">Output:</div>
-                            <JsonBlock value={tool.output} />
+                        <div className="alert alert-info">
+                            <span>
+                                Received results from{' '}
+                                <span className="font-mono">{tool.toolName}</span>.
+                                The assistant will incorporate them into the reply.
+                            </span>
                         </div>
                     )}
 
                     {tool.state === 'output-error' && (
                         <div className="alert alert-error">
-                            <span>Tool error: {tool.errorText}</span>
+                            <span>
+                                Something went wrong while running{' '}
+                                <span className="font-mono">{tool.toolName}</span>
+                                {tool.errorText ? `: ${tool.errorText}` : '.'}
+                            </span>
                         </div>
                     )}
                 </div>
@@ -315,6 +317,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         });
     }
 }
+
+const threadLayout = {
+    root: 'grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2',
+    messages:
+        'min-h-0 overflow-y-auto flex flex-col gap-2 bg-base-100 rounded-box p-8',
+    composer: 'bg-base-100 p-2 rounded-box',
+} as const;
 
 export default function ThreadRoute({
     loaderData,
@@ -370,11 +379,10 @@ export default function ThreadRoute({
         }
     }, [params.threadId]);
 
-    const isStreaming = status === 'streaming';
-
     const hasNoMessages = messages.length === 0;
     const isLoadingMessages = navigation.state === 'loading';
     const threadChosenZeroMessages = !isLoadingMessages && hasNoMessages;
+    const isStreaming = status === 'streaming' && !isLoadingMessages;
 
     const PresetButton = ({ label, text }: { label: string; text: string }) => {
         return (
@@ -416,169 +424,199 @@ export default function ThreadRoute({
                 name="description"
                 content="Chat with your data using Iridium's AI-powered assistant."
             />
-            <div className="grid grid-rows-[1fr_auto] gap-2">
+            <div className={threadLayout.root}>
                 {error && (
                     <div className="alert alert-error">
                         <span>Error: {error.message}</span>
                     </div>
                 )}
-                {/* TODO: Fix heights to feel more "fit" to the viewport */}
-                <div
-                    ref={messageRef}
-                    className="flex-1 flex flex-col gap-2 bg-base-100 rounded-box p-8 min-h-[300px] max-h-[500px] overflow-y-scroll"
-                >
-                    {threadChosenZeroMessages && (
-                        <div className="flex flex-col gap-8 justify-center items-center h-full">
-                            <MessageCircleDashedIcon className="w-16 h-16 stroke-base-300" />
-                            <p className="text-base-content">
-                                No messages yet. Start a conversation!
-                            </p>
-                        </div>
-                    )}
+                <div ref={messageRef} className={threadLayout.messages}>
                     {isLoadingMessages ? (
                         <div className="flex flex-col gap-8 justify-center items-center h-full">
                             <Loading size="lg" />
                         </div>
                     ) : (
-                        messages.flatMap((message) => {
-                            const isUser = message.role === 'user';
-                            const placement = isUser ? 'end' : 'start';
-                            const color = isUser ? 'secondary' : undefined;
+                        <>
+                            {threadChosenZeroMessages ? (
+                                <div className="flex flex-col gap-8 justify-center items-center h-full">
+                                    <MessageCircleDashedIcon className="w-16 h-16 stroke-base-300" />
+                                    <p className="text-base-content">
+                                        No messages yet. Start a conversation!
+                                    </p>
+                                </div>
+                            ) : (
+                                messages.flatMap((message) => {
+                                    const isUser = message.role === 'user';
+                                    const placement = isUser ? 'end' : 'start';
+                                    const color = isUser
+                                        ? 'secondary'
+                                        : undefined;
 
-                            return message.parts
-                                .map((part, partIndex) => {
-                                    if (isStepStartPart(part)) {
-                                        return partIndex > 0 ? (
-                                            <div
-                                                key={`${message.id}-step-${partIndex}`}
-                                                className="my-2"
-                                            >
-                                                <hr className="border border-base-300" />
-                                            </div>
-                                        ) : null;
-                                    }
+                                    return message.parts
+                                        .map((part, partIndex) => {
+                                            if (isStepStartPart(part)) {
+                                                return partIndex > 0 ? (
+                                                    <div
+                                                        key={`${message.id}-step-${partIndex}`}
+                                                        className="my-2"
+                                                    >
+                                                        <hr className="border border-base-300" />
+                                                    </div>
+                                                ) : null;
+                                            }
 
-                                    if (isTextPart(part)) {
-                                        return (
-                                            <MessagePartBubble
-                                                key={`${message.id}-${partIndex}`}
-                                                placement={placement}
-                                                color={color}
-                                                isUser={isUser}
-                                            >
-                                                <span>{part.text}</span>
-                                            </MessagePartBubble>
-                                        );
-                                    }
+                                            if (isTextPart(part)) {
+                                                return (
+                                                    <MessagePartBubble
+                                                        key={`${message.id}-${partIndex}`}
+                                                        placement={placement}
+                                                        color={color}
+                                                        isUser={isUser}
+                                                    >
+                                                        <span>{part.text}</span>
+                                                    </MessagePartBubble>
+                                                );
+                                            }
 
-                                    const tool = normalizeToolPart(part);
-                                    if (tool) {
-                                        if (
-                                            tool.toolName ===
-                                                'getRevenueMetrics' &&
-                                            tool.state === 'output-available' &&
-                                            isRevenueMetricsOutput(tool.output)
-                                        ) {
-                                            return (
-                                                <MessagePartBubble
-                                                    key={`${message.id}-${partIndex}`}
-                                                    placement={placement}
-                                                    color={color}
-                                                    isUser={isUser}
-                                                >
-                                                    <RevenueMetricsToolCard
-                                                        output={tool.output}
-                                                    />
-                                                </MessagePartBubble>
-                                            );
-                                        }
+                                            const tool =
+                                                normalizeToolPart(part);
+                                            if (tool) {
+                                                if (
+                                                    tool.toolName ===
+                                                        'getRevenueMetrics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isRevenueMetricsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <RevenueMetricsToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
 
-                                        if (
-                                            tool.toolName ===
-                                                'getProductMetrics' &&
-                                            tool.state === 'output-available' &&
-                                            isProductMetricsOutput(tool.output)
-                                        ) {
-                                            return (
-                                                <MessagePartBubble
-                                                    key={`${message.id}-${partIndex}`}
-                                                    placement={placement}
-                                                    color={color}
-                                                    isUser={isUser}
-                                                >
-                                                    <ProductMetricsToolCard
-                                                        output={tool.output}
-                                                    />
-                                                </MessagePartBubble>
-                                            );
-                                        }
+                                                if (
+                                                    tool.toolName ===
+                                                        'getProductMetrics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isProductMetricsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <ProductMetricsToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
 
-                                        if (
-                                            tool.toolName ===
-                                                'getConversionMetrics' &&
-                                            tool.state === 'output-available' &&
-                                            isConversionMetricsOutput(
-                                                tool.output,
-                                            )
-                                        ) {
-                                            return (
-                                                <MessagePartBubble
-                                                    key={`${message.id}-${partIndex}`}
-                                                    placement={placement}
-                                                    color={color}
-                                                    isUser={isUser}
-                                                >
-                                                    <ConversionMetricsToolCard
-                                                        output={tool.output}
-                                                    />
-                                                </MessagePartBubble>
-                                            );
-                                        }
+                                                if (
+                                                    tool.toolName ===
+                                                        'getConversionMetrics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isConversionMetricsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <ConversionMetricsToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
 
-                                        if (
-                                            tool.toolName ===
-                                                'getRevenueTrend' &&
-                                            tool.state === 'output-available' &&
-                                            isRevenueTrendOutput(tool.output)
-                                        ) {
-                                            return (
-                                                <MessagePartBubble
-                                                    key={`${message.id}-${partIndex}`}
-                                                    placement={placement}
-                                                    color={color}
-                                                    isUser={isUser}
-                                                >
-                                                    <RevenueTrendToolCard
-                                                        output={tool.output}
-                                                    />
-                                                </MessagePartBubble>
-                                            );
-                                        }
+                                                if (
+                                                    tool.toolName ===
+                                                        'getRevenueTrend' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isRevenueTrendOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <RevenueTrendToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
 
-                                        return (
-                                            <MessagePartBubble
-                                                key={`${message.id}-${partIndex}`}
-                                                placement={placement}
-                                                color={color}
-                                                isUser={isUser}
-                                            >
-                                                <ToolCallPart tool={tool} />
-                                            </MessagePartBubble>
-                                        );
-                                    }
+                                                return (
+                                                    <MessagePartBubble
+                                                        key={`${message.id}-${partIndex}`}
+                                                        placement={placement}
+                                                        color={color}
+                                                        isUser={isUser}
+                                                    >
+                                                        <ToolCallPart
+                                                            tool={tool}
+                                                        />
+                                                    </MessagePartBubble>
+                                                );
+                                            }
 
-                                    return null;
+                                            return null;
+                                        })
+                                        .filter(isNonNullable);
                                 })
-                                .filter(isNonNullable);
-                        })
-                    )}
-                    {isStreaming && (
-                        <div className="text-base-content italic">
-                            Assistant is typing...
-                        </div>
+                            )}
+                            {isStreaming && !hasNoMessages && (
+                                <span className="italic">
+                                    Assistant is typing...
+                                </span>
+                            )}
+                        </>
                     )}
                 </div>
-                <div className="bg-base-100 p-2 rounded-box">
+                <div className={threadLayout.composer}>
                     <div className="mb-2 overflow-x-auto flex gap-2">
                         {presentQuestions.map((question) => (
                             <PresetButton

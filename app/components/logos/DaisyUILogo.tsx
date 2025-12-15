@@ -10,24 +10,27 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
             className={cx(className)}
             role="img"
             viewBox="0 0 450 450"
-            fill="none"
             xmlns="http://www.w3.org/2000/svg"
         >
+            <title>DaisyUI</title>
             <path
                 d="M58.7553 275.431C76.9072 243.903 76.9072 205.097 58.7553 173.569C15.8899 99.1155 99.1155 15.8899 173.569 58.7553C205.097 76.9072 243.903 76.9072 275.431 58.7553C349.884 15.8899 433.11 99.1155 390.245 173.569C372.093 205.097 372.093 243.903 390.245 275.431C433.11 349.884 349.884 433.11 275.431 390.245C243.903 372.093 205.097 372.093 173.569 390.245C99.1155 433.11 15.8899 349.884 58.7553 275.431Z"
                 strokeWidth={18}
-                className="stroke-zinc-700 dark:stroke-white"
+                fill="none"
+                stroke="currentColor"
             />
             <path
                 d="M71.2389 143.287C106.378 133.826 133.826 106.378 143.287 71.2389C165.63 -11.7463 283.37 -11.7463 305.713 71.2389C315.174 106.378 342.622 133.826 377.761 143.287C460.746 165.63 460.746 283.37 377.761 305.713C342.622 315.174 315.174 342.622 305.713 377.761C283.37 460.746 165.63 460.746 143.287 377.761C133.826 342.622 106.378 315.174 71.2389 305.713C-11.7463 283.37 -11.7463 165.63 71.2389 143.287Z"
                 strokeWidth={18}
-                className="stroke-zinc-700 dark:stroke-white"
+                fill="none"
+                stroke="currentColor"
             />
             <path
                 d="M207.871 250.91C211.999 255.482 219.318 258.735 225.478 258.735C231.637 258.735 238.957 255.482 243.084 250.91"
                 strokeWidth={12}
                 strokeLinecap="round"
-                className="stroke-zinc-700 dark:stroke-white"
+                fill="none"
+                stroke="currentColor"
             />
             <rect
                 x="125.037"
@@ -36,7 +39,6 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
                 height="15.6503"
                 rx="7.82514"
                 transform="rotate(45 125.037 192.221)"
-                className="fill-zinc-700 dark:fill-white"
             />
             <rect
                 x="117.883"
@@ -44,7 +46,6 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
                 width="58.6886"
                 height="58.6886"
                 rx="29.3443"
-                className="fill-zinc-700 dark:fill-white"
             />
             <rect
                 x="337.18"
@@ -53,7 +54,6 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
                 height="15.6503"
                 rx="7.82514"
                 transform="rotate(135 337.18 203.288)"
-                className="fill-zinc-700 dark:fill-white"
             />
             <rect
                 x="274.385"
@@ -61,7 +61,6 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
                 width="58.6886"
                 height="58.6886"
                 rx="29.3443"
-                className="fill-zinc-700 dark:fill-white"
             />
             <rect
                 x="290.035"
@@ -69,7 +68,6 @@ export function DaisyUILogo({ className }: DaisyUILogoProps) {
                 width="27.388"
                 height="27.388"
                 rx="13.694"
-                className="fill-zinc-700 dark:fill-white"
             />
         </svg>
     );

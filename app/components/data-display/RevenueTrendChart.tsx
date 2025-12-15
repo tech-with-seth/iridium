@@ -80,18 +80,28 @@ function RevenueTrendChartInner({
     const xMax = width - defaultMargin.left - defaultMargin.right;
     const yMax = height - defaultMargin.top - defaultMargin.bottom;
 
-    const numXTicks = Math.max(2, Math.min(6, Math.floor(width / 140)));
+    const numXTicks =
+        parsedPoints.length <= 1
+            ? 1
+            : Math.max(2, Math.min(6, Math.floor(width / 140)));
     const numYTicks = 5;
 
-    const domainX = [
-        Math.min(...parsedPoints.map((p) => p.dateValue.getTime())),
-        Math.max(...parsedPoints.map((p) => p.dateValue.getTime())),
-    ].map((t) => new Date(t)) as [Date, Date];
+    const minX = Math.min(...parsedPoints.map((p) => p.dateValue.getTime()));
+    const maxX = Math.max(...parsedPoints.map((p) => p.dateValue.getTime()));
+    const domainX =
+        minX === maxX
+            ? ([
+                  new Date(minX - 1000 * 60 * 60 * 24 * 15),
+                  new Date(maxX + 1000 * 60 * 60 * 24 * 15),
+              ] as [Date, Date])
+            : ([new Date(minX), new Date(maxX)] as [Date, Date]);
 
     const maxY = Math.max(
         0,
         ...parsedPoints.map((p) => Math.max(p.revenueDollars, p.netRevenueDollars)),
     );
+    const paddedMaxY =
+        maxY === 0 ? 1 : maxY + Math.max(1, Math.round(maxY * 0.1));
 
     const xScale = scaleTime<number>({
         domain: domainX,
@@ -99,16 +109,18 @@ function RevenueTrendChartInner({
     });
 
     const yScale = scaleLinear<number>({
-        domain: [0, maxY],
+        domain: [0, paddedMaxY],
         nice: true,
         range: [yMax, 0],
     });
 
-    const axisColor = 'hsl(var(--bc) / 0.35)';
-    const revenueColor = 'hsl(var(--p))';
-    const netRevenueColor = 'hsl(var(--a))';
-    const gridColor = 'hsl(var(--bc) / 0.1)';
-    const plotBg = 'hsl(var(--b2))';
+    const axisColor = 'var(--color-base-content)';
+    const revenueColor = 'var(--color-primary)';
+    const netRevenueColor = 'var(--color-accent)';
+    const gridColor = axisColor;
+    const plotBg = 'var(--color-base-200)';
+    const plotBgRing = 'var(--color-base-300)';
+    const contrastStroke = axisColor;
 
     return (
         <svg width={width} height={height} role="img">
@@ -126,6 +138,8 @@ function RevenueTrendChartInner({
                     height={yMax}
                     rx={8}
                     fill={plotBg}
+                    stroke={plotBgRing}
+                    strokeWidth={1}
                 />
 
                 {yScale.ticks(numYTicks).map((tick) => (
@@ -136,6 +150,7 @@ function RevenueTrendChartInner({
                         y1={yScale(tick)}
                         y2={yScale(tick)}
                         stroke={gridColor}
+                        strokeOpacity={0.12}
                         strokeWidth={1}
                     />
                 ))}
@@ -152,6 +167,7 @@ function RevenueTrendChartInner({
                         textAnchor: 'end',
                         dx: '-0.25em',
                         dy: '0.25em',
+                        opacity: 0.65,
                     })}
                 />
                 <AxisBottom
@@ -168,14 +184,26 @@ function RevenueTrendChartInner({
                     tickLabelProps={() => ({
                         fill: axisColor,
                         fontSize: 11,
-                        textAnchor: 'end',
-                        transform: 'rotate(-35)',
-                        dx: '-0.2em',
-                        dy: '0.4em',
+                        textAnchor: parsedPoints.length <= 2 ? 'middle' : 'end',
+                        transform:
+                            parsedPoints.length <= 2 ? undefined : 'rotate(-35)',
+                        dx: parsedPoints.length <= 2 ? undefined : '-0.2em',
+                        dy: parsedPoints.length <= 2 ? '0.25em' : '0.4em',
+                        opacity: 0.65,
                     })}
                 />
 
                 <Group clipPath="url(#revenue-trend-clip)">
+                    {/* Contrast underlay ensures lines remain visible on low-contrast themes */}
+                    <LinePath
+                        data={parsedPoints}
+                        x={(d) => xScale(d.dateValue) ?? 0}
+                        y={(d) => yScale(d.revenueDollars) ?? 0}
+                        curve={curveMonotoneX}
+                        stroke={contrastStroke}
+                        strokeOpacity={0.25}
+                        strokeWidth={5}
+                    />
                     <LinePath
                         data={parsedPoints}
                         x={(d) => xScale(d.dateValue) ?? 0}
@@ -189,10 +217,40 @@ function RevenueTrendChartInner({
                         x={(d) => xScale(d.dateValue) ?? 0}
                         y={(d) => yScale(d.netRevenueDollars) ?? 0}
                         curve={curveMonotoneX}
+                        stroke={contrastStroke}
+                        strokeOpacity={0.25}
+                        strokeWidth={5}
+                        strokeDasharray="6 4"
+                    />
+                    <LinePath
+                        data={parsedPoints}
+                        x={(d) => xScale(d.dateValue) ?? 0}
+                        y={(d) => yScale(d.netRevenueDollars) ?? 0}
+                        curve={curveMonotoneX}
                         stroke={netRevenueColor}
                         strokeWidth={2}
                         strokeDasharray="6 4"
                     />
+
+                    {parsedPoints.map((p) => (
+                        <g
+                            key={`dot-${p.date}-${p.orders}`}
+                            transform={`translate(${xScale(p.dateValue) ?? 0}, ${yScale(p.revenueDollars) ?? 0})`}
+                        >
+                            <circle r={4} fill={revenueColor} />
+                            <circle r={2} fill="var(--color-base-100)" />
+                        </g>
+                    ))}
+
+                    {parsedPoints.map((p) => (
+                        <g
+                            key={`dot-net-${p.date}-${p.orders}`}
+                            transform={`translate(${xScale(p.dateValue) ?? 0}, ${yScale(p.netRevenueDollars) ?? 0})`}
+                        >
+                            <circle r={4} fill={netRevenueColor} />
+                            <circle r={2} fill="var(--color-base-100)" />
+                        </g>
+                    ))}
                 </Group>
             </Group>
         </svg>

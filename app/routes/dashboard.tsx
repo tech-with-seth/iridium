@@ -1,5 +1,4 @@
 import {
-    data,
     NavLink,
     Outlet,
     redirect,
@@ -32,9 +31,6 @@ import { Select } from '~/components/data-input/Select';
 import { Loading } from '~/components/feedback/Loading';
 import { cx } from '~/cva.config';
 import { TextInput } from '~/components/data-input/TextInput';
-import { RFCDate } from '@polar-sh/sdk/types/rfcdate.js';
-import { polarClient } from '~/lib/polar';
-import { formatToCurrency, formatToPercent } from '~/lib/formatters';
 
 enum Intents {
     GET_THREAD = 'get-thread',
@@ -43,16 +39,18 @@ enum Intents {
     RENAME_THREAD = 'rename-thread',
 }
 
+const dashboardLayout = {
+    container: 'px-4 pb-4 flex flex-col flex-1 min-h-0 overflow-hidden',
+    grid: 'grid flex-1 min-h-0 grid-rows-[auto_minmax(0,1fr)] md:grid-rows-1 md:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] gap-4',
+    sidebar: 'min-h-0 flex flex-col',
+    sidebarDesktop: 'hidden md:flex flex-1 min-h-0 flex-col',
+    sidebarList: 'space-y-2 min-h-0 overflow-y-auto pr-1',
+    main: 'min-h-0 overflow-hidden grid grid-rows-1',
+} as const;
+
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await getUserFromSession(request);
     const postHogClient = getPostHogClient();
-
-    const metrics = await polarClient.metrics.get({
-        startDate: new RFCDate('2025-01-01'),
-        endDate: new RFCDate('2025-12-31'),
-        interval: 'year',
-        organizationId: null,
-    });
 
     if (!user) {
         throw new Response('Unauthorized', { status: 401 });
@@ -69,14 +67,14 @@ export async function loader({ request }: Route.LoaderArgs) {
             },
         });
 
-        return { metrics, threads };
+        return { threads };
     } catch (error) {
         postHogClient?.captureException(error as Error, user.id, {
             context: PostHogEventNames.CHAT_THREADS_LOADING_ERROR,
         });
     }
 
-    return { metrics, threads: [] };
+    return { threads: [] };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -202,53 +200,11 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
             <title>Dashboard | Iridium</title>
             <meta
                 name="description"
-                content="Dashboard overview of key metrics"
+                content="Manage threads and chat with your data."
             />
-            <Container className="px-4 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 mb-4 gap-4">
-                    <Box>
-                        <h4 className="text-lg font-bold mb-2">Orders</h4>
-                        <span className="text-xl">
-                            {loaderData.metrics.totals.orders}
-                        </span>
-                    </Box>
-                    <Box>
-                        <h4 className="text-lg font-bold mb-2">Revenue</h4>
-                        <span className="text-xl">
-                            {formatToCurrency(
-                                'en-US',
-                                'USD',
-                                2,
-                                loaderData.metrics.totals.revenue,
-                            )}
-                        </span>
-                    </Box>
-                    <Box>
-                        <h4 className="text-lg font-bold mb-2">
-                            Avg Order Value
-                        </h4>
-                        <span className="text-xl">
-                            {formatToCurrency(
-                                'en-US',
-                                'USD',
-                                2,
-                                loaderData.metrics.totals.averageOrderValue,
-                            )}
-                        </span>
-                    </Box>
-                    <Box>
-                        <h4 className="text-lg font-bold mb-2">
-                            Checkout Conversion
-                        </h4>
-                        <span className="text-xl">
-                            {formatToPercent(
-                                loaderData.metrics.totals.checkoutsConversion,
-                            )}
-                        </span>
-                    </Box>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:min-h-[500px] md:max-h-[750px]">
-                    <Box>
+            <Container className={dashboardLayout.container}>
+                <div className={dashboardLayout.grid}>
+                    <Box className={dashboardLayout.sidebar}>
                         <newThreadFetcher.Form method="POST">
                             <Button
                                 type="submit"
@@ -280,9 +236,9 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                 })),
                             ]}
                         />
-                        <ul className="hidden md:block space-y-2">
+                        <div className={dashboardLayout.sidebarDesktop}>
                             {loaderData.threads.length === 0 ? (
-                                <div className="bg-base-100 p-4 rounded-box flex flex-col items-center justify-center">
+                                <div className="bg-base-100 p-4 rounded-box flex flex-1 flex-col items-center justify-center">
                                     <div className="w-12 h-12 rounded-full bg-base-300 p-2 flex items-center justify-center mb-4">
                                         <SpoolIcon className="w-6 h-6 stroke-base-content" />
                                     </div>
@@ -292,111 +248,118 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                     </p>
                                 </div>
                             ) : (
-                                loaderData.threads.map(({ id, title }) => (
-                                    <li key={id}>
-                                        <div className="flex gap-2">
-                                            <NavLink
-                                                className={({ isActive }) =>
-                                                    cx(
-                                                        `grow px-3 py-2 rounded-field ${isActive ? 'bg-accent text-accent-content' : 'bg-base-100/50 hover:bg-base-100/25'}`,
-                                                    )
-                                                }
-                                                to={id}
-                                            >
-                                                {`${title?.substring(0, 20)}${title && title.length > 20 ? '...' : ''}`}
-                                            </NavLink>
-                                            <Button
-                                                onClick={() => {
-                                                    if (
-                                                        openThreadPanel === id
-                                                    ) {
-                                                        setOpenThreadPanel(
-                                                            null,
-                                                        );
-                                                    } else {
-                                                        setOpenThreadPanel(id);
+                                <ul className={dashboardLayout.sidebarList}>
+                                    {loaderData.threads.map(({ id, title }) => (
+                                        <li key={id}>
+                                            <div className="flex gap-2">
+                                                <NavLink
+                                                    className={({ isActive }) =>
+                                                        cx(
+                                                            `grow px-3 py-2 rounded-field ${isActive ? 'bg-accent text-accent-content' : 'bg-base-100/50 hover:bg-base-100/25'}`,
+                                                        )
                                                     }
-                                                }}
-                                            >
-                                                <EllipsisIcon className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                        {openThreadPanel === id && (
-                                            <div className="flex flex-col gap-2 mt-2 bg-base-100 rounded-box p-4">
-                                                <renameThreadFetcher.Form
-                                                    method="POST"
-                                                    className="flex gap-2"
+                                                    to={id}
                                                 >
-                                                    <input
-                                                        type="hidden"
-                                                        name="threadId"
-                                                        value={id}
-                                                    />
-                                                    <fieldset className="flex-1 flex flex-col gap-1">
-                                                        <label
-                                                            className="block font-bold"
-                                                            htmlFor={`rename-title-${id}`}
-                                                        >
-                                                            New title
-                                                        </label>
-                                                        <TextInput
-                                                            id={`rename-title-${id}`}
-                                                            name="title"
-                                                            type="text"
-                                                            defaultValue={
-                                                                title as string
-                                                            }
-                                                        />
-                                                    </fieldset>
-                                                    <Button
-                                                        className="px-3 self-end"
-                                                        type="submit"
-                                                        name="intent"
-                                                        value="rename-thread"
-                                                        status="warning"
-                                                        disabled={
-                                                            isNavigating ||
-                                                            isRenaming
+                                                    {`${title?.substring(0, 20)}${title && title.length > 20 ? '...' : ''}`}
+                                                </NavLink>
+                                                <Button
+                                                    onClick={() => {
+                                                        if (
+                                                            openThreadPanel ===
+                                                            id
+                                                        ) {
+                                                            setOpenThreadPanel(
+                                                                null,
+                                                            );
+                                                        } else {
+                                                            setOpenThreadPanel(
+                                                                id,
+                                                            );
                                                         }
-                                                    >
-                                                        {isRenaming ? (
-                                                            <Loading />
-                                                        ) : (
-                                                            <PencilIcon className="w-4 h-4" />
-                                                        )}
-                                                    </Button>
-                                                </renameThreadFetcher.Form>
-                                                <deleteThreadFetcher.Form
-                                                    method="POST"
-                                                    className="flex gap-2 justify-between items-center"
+                                                    }}
                                                 >
-                                                    <input
-                                                        type="hidden"
-                                                        name="threadId"
-                                                        value={id}
-                                                    />
-                                                    <div className="flex-1 py-2 px-4 bg-error/10 rounded-box">
-                                                        Delete?
-                                                    </div>
-                                                    <Button
-                                                        className="px-3"
-                                                        type="submit"
-                                                        name="intent"
-                                                        value="delete-thread"
-                                                        status="error"
-                                                        disabled={isNavigating}
-                                                    >
-                                                        <XIcon className="w-4 h-4" />
-                                                    </Button>
-                                                </deleteThreadFetcher.Form>
+                                                    <EllipsisIcon className="w-4 h-4" />
+                                                </Button>
                                             </div>
-                                        )}
-                                    </li>
-                                ))
+                                            {openThreadPanel === id && (
+                                                <div className="flex flex-col gap-2 mt-2 bg-base-100 rounded-box p-4">
+                                                    <renameThreadFetcher.Form
+                                                        method="POST"
+                                                        className="flex gap-2"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="threadId"
+                                                            value={id}
+                                                        />
+                                                        <fieldset className="flex-1 flex flex-col gap-1">
+                                                            <label
+                                                                className="block font-bold"
+                                                                htmlFor={`rename-title-${id}`}
+                                                            >
+                                                                New title
+                                                            </label>
+                                                            <TextInput
+                                                                id={`rename-title-${id}`}
+                                                                name="title"
+                                                                type="text"
+                                                                defaultValue={
+                                                                    title as string
+                                                                }
+                                                            />
+                                                        </fieldset>
+                                                        <Button
+                                                            className="px-3 self-end"
+                                                            type="submit"
+                                                            name="intent"
+                                                            value="rename-thread"
+                                                            status="warning"
+                                                            disabled={
+                                                                isNavigating ||
+                                                                isRenaming
+                                                            }
+                                                        >
+                                                            {isRenaming ? (
+                                                                <Loading />
+                                                            ) : (
+                                                                <PencilIcon className="w-4 h-4" />
+                                                            )}
+                                                        </Button>
+                                                    </renameThreadFetcher.Form>
+                                                    <deleteThreadFetcher.Form
+                                                        method="POST"
+                                                        className="flex gap-2 justify-between items-center"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="threadId"
+                                                            value={id}
+                                                        />
+                                                        <div className="flex-1 py-2 px-4 bg-error/10 rounded-box">
+                                                            Delete?
+                                                        </div>
+                                                        <Button
+                                                            className="px-3"
+                                                            type="submit"
+                                                            name="intent"
+                                                            value="delete-thread"
+                                                            status="error"
+                                                            disabled={
+                                                                isNavigating
+                                                            }
+                                                        >
+                                                            <XIcon className="w-4 h-4" />
+                                                        </Button>
+                                                    </deleteThreadFetcher.Form>
+                                                </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
-                        </ul>
+                        </div>
                     </Box>
-                    <Box className="col-span-1 md:col-span-3">
+                    <Box className={dashboardLayout.main}>
                         <Outlet />
                     </Box>
                 </div>

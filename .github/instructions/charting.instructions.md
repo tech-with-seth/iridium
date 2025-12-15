@@ -76,13 +76,12 @@ Prefer:
 - Secondary series: `text-accent`, `bg-accent` (or CSS `hsl(var(--a))`)
 - Text: `text-base-content` with `opacity-*` for de-emphasis
 
-In SVG, use CSS variables:
+In SVG, use DaisyUI theme variables (DaisyUI 5):
 
-- `hsl(var(--p))` for primary
-- `hsl(var(--a))` for accent
-- `hsl(var(--bc) / 0.35)` for axes
-- `hsl(var(--bc) / 0.1)` for grid lines
-- `hsl(var(--b2))` / `hsl(var(--b3))` for plot backgrounds
+- `var(--color-primary)` for primary series
+- `var(--color-accent)` for secondary series
+- `var(--color-base-content)` for axes/text (apply opacity via `strokeOpacity`/`fillOpacity`)
+- `var(--color-base-200)` / `var(--color-base-300)` for plot backgrounds
 
 ## visx Patterns
 
@@ -139,4 +138,3 @@ npm install --legacy-peer-deps @visx/axis @visx/group @visx/scale @visx/shape @v
 - ❌ Charts without context (no date range / no labels)
 - ❌ Unbounded axis ticks that overlap and become unreadable
 - ❌ Hardcoded colors that ignore DaisyUI theme variables
-

@@ -25,9 +25,13 @@ export function DonutProgress({
     const radius = size / 2;
     const innerRadius = radius - strokeWidth;
 
-    const background = 'hsl(var(--b3))';
-    const foreground = 'hsl(var(--p))';
-    const textColor = 'hsl(var(--bc))';
+    // Use theme variables + opacity/stroke so the donut stays visible across all themes.
+    const trackColor = 'var(--color-base-content)';
+    const trackOpacity = 0.18;
+    const foreground = 'var(--color-primary)';
+    const foregroundStroke = 'var(--color-base-content)';
+    const foregroundStrokeOpacity = 0.35;
+    const textColor = 'var(--color-base-content)';
 
     const data = [
         { key: 'value', v: clamped },
@@ -52,11 +56,21 @@ export function DonutProgress({
                                 <path
                                     key={arc.data.key}
                                     d={pie.path(arc) ?? undefined}
-                                    fill={
-                                        arc.data.key === 'value'
-                                            ? foreground
-                                            : background
+                                    fill={arc.data.key === 'value' ? foreground : trackColor}
+                                    fillOpacity={
+                                        arc.data.key === 'value' ? 1 : trackOpacity
                                     }
+                                    stroke={
+                                        arc.data.key === 'value'
+                                            ? foregroundStroke
+                                            : 'none'
+                                    }
+                                    strokeOpacity={
+                                        arc.data.key === 'value'
+                                            ? foregroundStrokeOpacity
+                                            : undefined
+                                    }
+                                    strokeWidth={arc.data.key === 'value' ? 2 : 0}
                                 />
                             ))
                         }
@@ -88,4 +102,3 @@ export function DonutProgress({
         </div>
     );
 }
-
