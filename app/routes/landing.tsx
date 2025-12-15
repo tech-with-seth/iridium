@@ -19,6 +19,7 @@ import {
     HelpCircle,
     Zap,
     Cpu,
+    Activity,
 } from 'lucide-react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
 import {
@@ -71,13 +72,17 @@ function ContentBlock({
     );
 }
 
+const GRID_GAP = `gap-4 md:gap-8`;
+
 function ContentSection({
     children,
     heading,
 }: PropsWithChildren<{ heading: string }>) {
     return (
         <Container className="px-4">
-            <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+            <div
+                className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+            >
                 <div className="col-span-12">
                     <h2 className="text-3xl font-semibold text-base-content">
                         {heading}
@@ -150,7 +155,9 @@ export default function LandingPage() {
                 </div>
             )}
             <Container className="px-4">
-                <div className="grid grid-cols-12 gap-0 lg:gap-4 rounded-box overflow-hidden mb-8 bg-base-100">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100`}
+                >
                     <div className="col-span-12 lg:col-span-6 p-4 md:p-8">
                         <div
                             className={cx(
@@ -184,7 +191,9 @@ export default function LandingPage() {
                 </div>
             </Container>
             <Container className="px-4">
-                <div className="grid grid-cols-3 lg:grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8 place-items-center">
+                <div
+                    className={`grid grid-cols-3 lg:grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8 place-items-center`}
+                >
                     <Tooltip content="TypeScript">
                         <TypescriptLogo className="w-12 md:w-16 fill-base-content" />
                     </Tooltip>
@@ -249,7 +258,9 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <Container className="px-4">
-                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
                     <div className="col-span-12">
                         <h2 className="text-3xl font-semibold mb-4 text-base-content">
                             See It In Action
@@ -305,7 +316,9 @@ export default function LandingPage() {
                 </div>
             </Container>
             <Container className="px-4">
-                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
                     <div className="col-span-12">
                         <h2 className="text-3xl font-semibold text-base-content mb-4">
                             AI That Actually Works: Tool Calling Included
@@ -355,6 +368,123 @@ export default function LandingPage() {
                     </div>
                 </div>
             </Container>
+            <Container className="px-4">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            Developer-Friendly Admin Panel
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <ContentBlock
+                            heading="Feature Flag Management"
+                            icon={Sparkles}
+                        >
+                            Toggle features on and off without deployments. The
+                            admin panel integrates with PostHog for real-time
+                            feature flag control, A/B testing, and gradual
+                            rollouts. Test new features with a subset of users,
+                            roll back instantly if needed, and iterate faster
+                            with confidence.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Built-In Developer Tools"
+                            icon={Code}
+                        >
+                            Quick access to theme switching, form demos, and
+                            component galleries. The admin panel serves as a
+                            central hub for developers to test UI variations,
+                            preview components, and manage application settings
+                            without touching code. Links to external services
+                            like Polar.sh keep everything in one place.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Design System Playground"
+                            icon={Layout}
+                        >
+                            Test every component variant in isolation with the
+                            built-in design system preview. See all button
+                            styles, form states, and UI patterns at once.
+                            Perfect for validating design decisions, testing
+                            accessibility, and ensuring consistency across your
+                            application without hunting through routes.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/v1765823837/iridium/iridium-admin-panel.png"
+                                alt="Iridium Admin Panel - feature flags, theme switching, and developer tools"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            Powered by PostHog: Analytics That Actually Help You
+                            Build
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <div className="rounded-box overflow-hidden bg-base-300 shadow-lg">
+                            <img
+                                src="https://res.cloudinary.com/setholito/image/upload/v1765824201/iridium/iridium-and-posthog.png"
+                                alt="PostHog Integration - Real-time analytics, feature flags, and LLM tracking"
+                            />
+                        </div>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <ContentBlock
+                            heading="Event Tracking Built Into Your Code"
+                            icon={BarChart}
+                        >
+                            Every meaningful action—sign-ups, thread creation,
+                            message sends, tool calls—automatically tracked. No
+                            guessing about user behavior. PostHog events are
+                            instrumented throughout the codebase, so you can see
+                            patterns like which features drive retention and
+                            where users get stuck.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Feature Flags for Confident Releases"
+                            icon={Sparkles}
+                        >
+                            Toggle features on and off without deploying. Run
+                            A/B tests to validate product decisions before
+                            committing. This landing page uses feature flags
+                            right now—different hero images and copy variants
+                            served to different users, measured in real-time.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="LLM Analytics: Track AI Costs Automatically"
+                            icon={Cpu}
+                        >
+                            The @posthog/ai wrapper captures every AI
+                            interaction: model used, tokens consumed, estimated
+                            cost, latency. See which prompts work, which tools
+                            get called, and how much your AI features actually
+                            cost—without manual logging.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Session Replay & Error Tracking"
+                            icon={Activity}
+                        >
+                            Watch user sessions to understand confusion and
+                            bugs. Automatic exception capture with stack traces
+                            means you know about issues before users report
+                            them. Debug with context instead of guessing from
+                            error messages.
+                        </ContentBlock>
+                    </div>
+                </div>
+            </Container>
             <ContentSection heading="Core Features">
                 <ContentBlock heading="Authentication & Security" icon={Lock}>
                     BetterAuth with email/password and social login. Session
@@ -389,7 +519,9 @@ export default function LandingPage() {
                 </ContentBlock>
             </ContentSection>
             <Container className="px-4">
-                <div className="grid grid-cols-12 gap-4 rounded-box overflow-hidden mb-8 bg-base-100 p-8">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
                     <div className="col-span-12 lg:col-span-6 flex flex-col justify-center">
                         <div className="flex items-start gap-3 mb-4">
                             <Zap className="w-8 h-8 text-primary mt-1" />
@@ -627,7 +759,7 @@ export default function LandingPage() {
                 </div>
             </Container>
             <Container className="px-4">
-                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/25 to-secondary/25 p-8 md:p-12 text-center">
+                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/50 to-secondary/50 p-8 md:p-12 text-center">
                     <h2 className="text-4xl font-bold mb-4 text-base-content">
                         Ready to Ship Faster?
                     </h2>
