@@ -49,6 +49,7 @@ import { ReactRouterLogo } from '~/components/logos/ReactRouterLogo';
 import { TailwindLogo } from '~/components/logos/TailwindLogo';
 import { TypescriptLogo } from '~/components/logos/TypescriptLogo';
 import { Tooltip } from '~/components/feedback/Tooltip';
+import { PolarLogoType } from '~/components/logos/PolarLogoType';
 
 function ContentBlock({
     heading,
@@ -598,6 +599,136 @@ export default function LandingPage() {
                             codebase. It's the context most starters never
                             provide.
                         </ContentBlock>
+                    </div>
+                </div>
+            </Container>
+            <Container className="px-4">
+                <div
+                    className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
+                >
+                    <div className="col-span-12">
+                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
+                            Polar.sh: Developer-First Billing Built Right In
+                        </h2>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <ContentBlock
+                            heading="Lower Fees Than Competitors"
+                            icon={BarChart}
+                        >
+                            Polar charges 4% + 40¢ per transaction as a full
+                            Merchant of Record, handling payment processing, tax
+                            compliance, and receipts. Compare that to Gumroad's
+                            10% total fee or Lemon Squeezy's 5% + 50¢. For a $50
+                            product, you keep $47.60 with Polar versus $45 with
+                            Gumroad or $47.00 with Lemon Squeezy. Polar covers
+                            Stripe's 2.9% + 30¢ from their fee—you get all the
+                            MoR benefits while keeping slightly more per sale.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Built for Technical Products"
+                            icon={Code}
+                        >
+                            Unlike creator-focused platforms like Gumroad, Polar
+                            is purpose-built for developers selling to
+                            developers. Native GitHub integration,
+                            webhook-driven architecture, TypeScript SDK, and MCP
+                            server support. Iridium includes complete Polar
+                            integration with checkout flows, webhook handling,
+                            and customer management—production-ready from day
+                            one.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Full Merchant of Record Services"
+                            icon={Lock}
+                        >
+                            Polar acts as the Merchant of Record, handling tax
+                            compliance, VAT collection, payment processing, and
+                            receipts for you. Unlike Stripe direct integration
+                            where you handle all compliance yourself, Polar
+                            takes on that burden while keeping fees competitive.
+                            You maintain control over your customer
+                            relationships and pricing strategy while Polar
+                            handles the regulatory complexity.
+                        </ContentBlock>
+                        <ContentBlock
+                            heading="Modern API-First Architecture"
+                            icon={Zap}
+                        >
+                            Polar's API is designed for developers who want full
+                            control. Create custom checkout experiences,
+                            implement usage-based billing, manage subscriptions
+                            programmatically, and integrate deeply with your
+                            product. The Polar SDK in Iridium demonstrates
+                            production patterns: webhook verification, customer
+                            syncing, and benefit management all implemented
+                            correctly.
+                        </ContentBlock>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                        <PolarLogoType className="h-12 mb-4" />
+                        <div className="rounded-box overflow-hidden bg-black text-white shadow-lg p-8">
+                            <div className="mb-6">
+                                <h3 className="text-xl font-semibold mb-4">
+                                    Cost Comparison: $50 Product Sale
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/20 border border-white/40">
+                                        <div>
+                                            <div className="font-semibold">
+                                                Polar.sh
+                                            </div>
+                                            <div className="text-sm text-white/70">
+                                                4% + 40¢ (MoR included)
+                                            </div>
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            $47.60
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/10 border border-white/20">
+                                        <div>
+                                            <div className="font-semibold">
+                                                Lemon Squeezy
+                                            </div>
+                                            <div className="text-sm text-white/70">
+                                                5% + 50¢ (MoR included)
+                                            </div>
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            $47.00
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10">
+                                        <div>
+                                            <div className="font-semibold">
+                                                Gumroad
+                                            </div>
+                                            <div className="text-sm text-white/70">
+                                                10% total
+                                            </div>
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            $45.00
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="alert alert-soft alert-info">
+                                <p className="text-sm">
+                                    <strong>Why Polar wins:</strong> Full
+                                    Merchant of Record services (tax compliance,
+                                    VAT, receipts) at lower fees than
+                                    competitors. Polar and Lemon Squeezy both
+                                    handle tax compliance, but Polar charges
+                                    slightly less (4% + 40¢ vs 5% + 50¢) while
+                                    being developer-first with open-source
+                                    transparency. Gumroad is better for creators
+                                    selling courses and ebooks, not technical
+                                    products.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </Container>
