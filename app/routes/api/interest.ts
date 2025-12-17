@@ -6,7 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { prisma } from '~/db.server';
 import { Prisma } from '~/generated/prisma/client';
 import { getPostHogClient } from '~/lib/posthog';
-import { sendInterestListConfirmationEmail } from '~/models/email.server';
+import {
+    sendInterestListConfirmationEmail,
+    sendTransactionalEmail,
+} from '~/models/email.server';
 
 /**
  * Interest List Signup API Endpoint
@@ -45,7 +48,7 @@ export async function action({ request }: Route.ActionArgs) {
             },
         });
 
-        // Send confirmation email
+        // Send confirmation email to user
         try {
             await sendInterestListConfirmationEmail({
                 to: validatedData!.email,
@@ -57,6 +60,27 @@ export async function action({ request }: Route.ActionArgs) {
                 new Error('Failed to send interest list confirmation email'),
                 'system',
             );
+        }
+
+        // Send notification email to admin
+        const adminEmail =
+            process.env.ADMIN_EMAIL || process.env.RESEND_FROM_EMAIL;
+        if (adminEmail) {
+            try {
+                await sendTransactionalEmail({
+                    to: adminEmail,
+                    heading: 'New Interest List Signup',
+                    previewText: `${validatedData!.email} signed up for the interest list`,
+                    message: `A new user has signed up for the Iridium interest list:\n\nEmail: ${validatedData!.email}\nTimestamp: ${new Date().toISOString()}`,
+                });
+            } catch (emailError) {
+                // Log email error but don't fail the signup
+                console.error('Failed to send admin notification:', emailError);
+                postHogClient?.captureException(
+                    new Error('Failed to send admin notification email'),
+                    'system',
+                );
+            }
         }
 
         // Track successful signup in PostHog
