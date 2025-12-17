@@ -100,7 +100,7 @@ function ColoredSection({
     return (
         <div
             className={cx(
-                `bg-linear-to-tl from-accent to-accent/50 text-accent-content p-4 rounded-box`,
+                `bg-linear-to-br from-accent/50 via-base-100 to-base-100 p-4 rounded-box`,
                 className,
             )}
             {...rest}
@@ -161,7 +161,7 @@ function InterestForm() {
                     <div className="self-center">
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
                             <Bell className="w-8 h-8 stroke-amber-500 fill-amber-500" />
-                            <h2 className="text-3xl font-bold text-white">
+                            <h2 className="text-3xl font-bold">
                                 Get Early Access
                             </h2>
                         </div>
