@@ -11,33 +11,57 @@ import {
 
 interface InterestListConfirmationEmailProps {
     userEmail: string;
+    inquiryType?: string;
+    note?: string;
 }
 
 export default function InterestListConfirmationEmail({
     userEmail,
+    inquiryType,
+    note,
 }: InterestListConfirmationEmailProps) {
     return (
         <Html>
             <Head />
-            <Preview>You're on the list! Get ready for early access to Iridium.</Preview>
+            <Preview>
+                You're on the list! Get ready for early access to Iridium.
+            </Preview>
             <Body style={main}>
                 <Container style={container}>
                     <Heading style={h1}>You're on the List!</Heading>
                     <Text style={text}>
-                        Thanks for your interest in Iridium! We've successfully added{' '}
-                        <strong>{userEmail}</strong> to our interest list.
+                        Thanks for your interest in Iridium! We've successfully
+                        added <strong>{userEmail}</strong> to our interest list.
                     </Text>
+                    {inquiryType && (
+                        <Text style={text}>
+                            <strong>Inquiry Type:</strong>{' '}
+                            {inquiryType === 'business'
+                                ? 'Business opportunity'
+                                : 'General inquiry'}
+                        </Text>
+                    )}
+                    {note && (
+                        <Text style={text}>
+                            <strong>Your Note:</strong> {note}
+                        </Text>
+                    )}
                     <Text style={text}>
-                        You'll be among the first to know when we launch. Expect:
+                        You'll be among the first to know when we launch.
+                        Expect:
                     </Text>
                     <Section style={listContainer}>
-                        <Text style={listItem}>✨ Early access notification</Text>
-                        <Text style={listItem}>🎁 Exclusive launch pricing</Text>
+                        <Text style={listItem}>
+                            ✨ Early access notification
+                        </Text>
+                        <Text style={listItem}>
+                            🎁 Exclusive launch pricing
+                        </Text>
                         <Text style={listItem}>📚 Updates on new features</Text>
                     </Section>
                     <Text style={text}>
-                        We're working hard to bring Iridium to life and can't wait to
-                        share it with you.
+                        We're working hard to bring Iridium to life and can't
+                        wait to share it with you.
                     </Text>
                     <Text style={footer}>
                         Stay tuned,

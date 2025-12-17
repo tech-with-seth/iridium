@@ -45,6 +45,8 @@ export async function action({ request }: Route.ActionArgs) {
         await prisma.interestListSignup.create({
             data: {
                 email: validatedData!.email,
+                inquiryType: validatedData!.inquiryType,
+                note: validatedData!.note || null,
             },
         });
 
@@ -52,6 +54,8 @@ export async function action({ request }: Route.ActionArgs) {
         try {
             await sendInterestListConfirmationEmail({
                 to: validatedData!.email,
+                inquiryType: validatedData!.inquiryType,
+                note: validatedData!.note,
             });
         } catch (emailError) {
             // Log email error but don't fail the signup
@@ -71,7 +75,7 @@ export async function action({ request }: Route.ActionArgs) {
                     to: adminEmail,
                     heading: 'New Interest List Signup',
                     previewText: `${validatedData!.email} signed up for the interest list`,
-                    message: `A new user has signed up for the Iridium interest list:\n\nEmail: ${validatedData!.email}\nTimestamp: ${new Date().toISOString()}`,
+                    message: `A new user has signed up for the Iridium interest list:\n\nEmail: ${validatedData!.email}\nInquiry Type: ${validatedData!.inquiryType === 'business' ? 'Business opportunity' : 'General inquiry'}\nNote: ${validatedData!.note || 'N/A'}\nTimestamp: ${new Date().toISOString()}`,
                 });
             } catch (emailError) {
                 // Log email error but don't fail the signup
@@ -89,13 +93,16 @@ export async function action({ request }: Route.ActionArgs) {
             event: 'interest_list_signup',
             properties: {
                 email: validatedData!.email,
+                inquiryType: validatedData!.inquiryType,
+                hasNote: !!validatedData!.note,
                 source: 'landing_page',
             },
         });
 
         return data({
             success: true,
-            message: "Thanks for your interest! Check your email for confirmation.",
+            message:
+                'Thanks for your interest! Check your email for confirmation.',
         });
     } catch (error) {
         // Handle duplicate email error

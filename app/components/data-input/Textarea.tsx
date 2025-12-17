@@ -80,7 +80,7 @@ export function Textarea({
                 <span
                     className={cx(
                         'text-xs',
-                        error ? 'text-error' : 'text-base-content/70',
+                        error ? 'text-error' : 'text-base-100',
                     )}
                 >
                     {error || helperText}

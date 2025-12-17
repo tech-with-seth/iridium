@@ -241,13 +241,19 @@ export async function sendUserBanEmail({
 export async function sendInterestListConfirmationEmail({
     to,
     from,
+    inquiryType,
+    note,
 }: {
     to: string;
     from?: string;
+    inquiryType?: string;
+    note?: string;
 }) {
     const html = await render(
         InterestListConfirmationEmail({
             userEmail: to,
+            inquiryType,
+            note,
         }),
     );
 

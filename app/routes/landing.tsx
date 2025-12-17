@@ -57,11 +57,12 @@ import { TypescriptLogo } from '~/components/logos/TypescriptLogo';
 import { Tooltip } from '~/components/feedback/Tooltip';
 import { PolarLogoType } from '~/components/logos/PolarLogoType';
 import { TextInput } from '~/components/data-input/TextInput';
+import { Select } from '~/components/data-input/Select';
+import { Textarea } from '~/components/data-input/Textarea';
 import { Button } from '~/components/actions/Button';
 import { useValidatedForm } from '~/lib/form-hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { interestFormSchema, type InterestFormData } from '~/lib/validations';
-import { Paths } from '~/constants';
 
 function ContentBlock({
     heading,
@@ -126,6 +127,10 @@ function InterestForm() {
     const onSubmit = (formData: InterestFormData) => {
         const formDataObj = new FormData();
         formDataObj.append('email', formData.email);
+        formDataObj.append('inquiryType', formData.inquiryType || 'general');
+        if (formData.note) {
+            formDataObj.append('note', formData.note);
+        }
         fetcher.submit(formDataObj, {
             method: 'POST',
             action: '/api/interest',
@@ -143,62 +148,104 @@ function InterestForm() {
         }
     }, [isSuccess, reset]);
 
-    // Show validation error or server error
-    const errorMessage =
-        (isSubmitted && errors.email?.message) || fetcher.data?.error;
+    // Show server error only (field errors shown inline)
+    const serverError = fetcher.data?.error;
 
     return (
         <Container className="px-4">
             <ColoredSection
                 id="interest-form"
-                className={`rounded-box overflow-hidden mb-8 p-8 md:p-12 text-center`}
+                className={`rounded-box overflow-hidden mb-8 p-8 md:p-12`}
             >
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-                    <Bell className="w-8 h-8" />
-                    <h2 className="text-3xl font-bold">
-                        Join the Interest List
-                    </h2>
-                </div>
-                <p className="text-lg mb-8 max-w-2xl mx-auto opacity-80">
-                    Be the first to know when Iridium launches. Get early
-                    access, exclusive updates, and special launch pricing.
-                </p>
-
-                {isSuccess ? (
-                    <Alert status="success" className="max-w-md mx-auto">
-                        {fetcher.data.message}
-                    </Alert>
-                ) : (
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="max-w-md mx-auto space-y-4"
-                    >
-                        {errorMessage && (
-                            <Alert status="error">{errorMessage}</Alert>
-                        )}
-
-                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                            <TextInput
-                                {...register('email')}
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full sm:flex-1"
-                                disabled={isLoading}
-                                size="lg"
-                            />
-                            <Button
-                                type="submit"
-                                status="secondary"
-                                size="lg"
-                                loading={isLoading}
-                                disabled={isLoading}
-                                className="w-full sm:w-auto"
-                            >
-                                {isLoading ? 'Joining...' : 'Notify Me'}
-                            </Button>
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                    <div className="self-center">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+                            <Bell className="w-8 h-8 stroke-amber-500 fill-amber-500" />
+                            <h2 className="text-3xl font-bold text-white">
+                                Get Early Access
+                            </h2>
                         </div>
-                    </form>
-                )}
+                        <p className="text-lg mb-8 max-w-2xl mx-auto text-center opacity-80">
+                            Tell us about your interest in Iridium. Whether
+                            you're exploring for personal projects or business
+                            opportunities, we'll keep you updated with exclusive
+                            early access, launch pricing, and feature updates.
+                        </p>
+                    </div>
+                    <div>
+                        {isSuccess ? (
+                            <Alert
+                                status="success"
+                                className="max-w-md mx-auto"
+                            >
+                                {fetcher.data.message}
+                            </Alert>
+                        ) : (
+                            <form
+                                onSubmit={handleSubmit(onSubmit)}
+                                className="max-w-md mx-auto space-y-5 text-base-content"
+                            >
+                                {serverError && (
+                                    <Alert status="error">{serverError}</Alert>
+                                )}
+                                <TextInput
+                                    {...register('email')}
+                                    type="email"
+                                    label="Email"
+                                    placeholder="Enter your email"
+                                    disabled={isLoading}
+                                    size="lg"
+                                    required
+                                    error={errors.email?.message}
+                                    className="w-full"
+                                />
+                                <Select
+                                    {...register('inquiryType')}
+                                    label="What brings you here?"
+                                    options={[
+                                        {
+                                            value: 'general',
+                                            label: 'General inquiry',
+                                        },
+                                        {
+                                            value: 'business',
+                                            label: 'Business opportunity',
+                                        },
+                                    ]}
+                                    defaultValue="general"
+                                    disabled={isLoading}
+                                    size="lg"
+                                    required
+                                    error={errors.inquiryType?.message}
+                                    className="w-full"
+                                />
+                                <Textarea
+                                    {...register('note')}
+                                    label="Tell us more (optional)"
+                                    placeholder="What are you planning to build? Any specific features you're interested in?"
+                                    rows={3}
+                                    disabled={isLoading}
+                                    size="lg"
+                                    error={errors.note?.message}
+                                    helperText="Maximum 500 characters"
+                                    className="w-full"
+                                />
+                                <Button
+                                    type="submit"
+                                    status="secondary"
+                                    size="lg"
+                                    loading={isLoading}
+                                    disabled={isLoading}
+                                    className="w-full"
+                                >
+                                    {isLoading
+                                        ? 'Submitting...'
+                                        : 'Get Notified'}
+                                </Button>
+                            </form>
+                        )}
+                    </div>
+                </div>
             </ColoredSection>
         </Container>
     );

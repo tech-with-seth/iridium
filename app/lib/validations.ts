@@ -120,6 +120,8 @@ export const interestFormSchema = z.object({
         .string()
         .min(1, 'Email is required')
         .email('Invalid email address'),
+    inquiryType: z.enum(['general', 'business']),
+    note: z.string().max(500, 'Note must be 500 characters or less').optional(),
 });
 
 export type SignInData = z.infer<typeof signInSchema>;
