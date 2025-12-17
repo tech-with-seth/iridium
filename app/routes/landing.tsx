@@ -3,7 +3,6 @@ import { Accordion, AccordionItem } from '~/components/data-display/Accordion';
 import {
     ArrowRightIcon,
     OctagonXIcon,
-    Rocket,
     Layout,
     MessageSquare,
     Shield,
