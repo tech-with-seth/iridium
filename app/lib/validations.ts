@@ -115,6 +115,13 @@ export const emailTemplateSchema = z.object({
     props: z.record(z.any()).optional(),
 });
 
+export const interestFormSchema = z.object({
+    email: z
+        .string()
+        .min(1, 'Email is required')
+        .email('Invalid email address'),
+});
+
 export type SignInData = z.infer<typeof signInSchema>;
 export type SignUpData = z.infer<typeof signUpSchema>;
 export type ChatMessageData = z.infer<typeof chatMessageSchema>;
@@ -122,3 +129,4 @@ export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 export type SupportRequestData = z.infer<typeof supportRequestSchema>;
 export type SendEmailData = z.infer<typeof sendEmailSchema>;
 export type EmailTemplateData = z.infer<typeof emailTemplateSchema>;
+export type InterestFormData = z.infer<typeof interestFormSchema>;

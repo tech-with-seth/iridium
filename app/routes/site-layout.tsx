@@ -24,13 +24,14 @@ export default function SiteLayoutRoute() {
 
     const mainClassName = cx(
         'flex flex-col',
-        isDashboardAppShell ? 'min-h-0 overflow-hidden' : 'grow',
+        isDashboardAppShell ? 'flex-1 min-h-0 overflow-hidden' : 'grow',
     );
 
     const drawerContentClassName = cx(
+        'flex flex-col',
         isDashboardAppShell
-            ? 'h-screen overflow-hidden grid grid-rows-[auto_minmax(0,1fr)]'
-            : 'min-h-screen flex flex-col',
+            ? 'min-h-[100dvh] h-[100dvh] overflow-hidden'
+            : 'min-h-screen',
     );
 
     const drawerContents = data?.user?.id ? (
@@ -50,7 +51,12 @@ export default function SiteLayoutRoute() {
     );
 
     const adminButton = hasAccessPermissions ? (
-        <div className="fixed bottom-4 right-4">
+        <div
+            className={cx(
+                'fixed right-4',
+                isDashboardAppShell ? 'bottom-24' : 'bottom-4',
+            )}
+        >
             <Button
                 circle
                 onClick={appDrawerActions.openDrawer}
@@ -70,11 +76,14 @@ export default function SiteLayoutRoute() {
                 drawerContentClassName={drawerContentClassName}
                 contents={drawerContents}
             >
-                <Header handleOpenDrawer={appDrawerActions.openDrawer} />
+                <Header
+                    handleOpenDrawer={appDrawerActions.openDrawer}
+                    className={isDashboardAppShell ? 'my-0 py-2' : undefined}
+                />
                 <main className={mainClassName}>
                     <Outlet />
                 </main>
-                <Footer />
+                {!isDashboardAppShell && <Footer />}
                 {adminButton}
             </Drawer>
         </>

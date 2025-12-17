@@ -9,6 +9,7 @@ import {
 import { useRootData } from '~/hooks/useRootData';
 import { authClient } from '~/lib/auth-client';
 import { Container } from './Container';
+import { cx } from '~/cva.config';
 import {
     Navbar,
     NavbarHamburger,
@@ -17,13 +18,13 @@ import {
 } from '../navigation/Navbar';
 import { Paths } from '~/constants';
 import { Button } from '../actions/Button';
-import { isActive } from '~/lib/flags';
 
 interface HeaderProps {
     handleOpenDrawer: () => void;
+    className?: string;
 }
 
-export function Header({ handleOpenDrawer }: HeaderProps) {
+export function Header({ handleOpenDrawer, className }: HeaderProps) {
     const data = useRootData();
     const location = useLocation();
     const navigate = useNavigate();
@@ -50,7 +51,7 @@ export function Header({ handleOpenDrawer }: HeaderProps) {
             : '';
 
     return (
-        <header className="my-4">
+        <header className={cx('my-4', className)}>
             <Container className="px-4">
                 <Navbar
                     variant="neutral"
@@ -59,6 +60,11 @@ export function Header({ handleOpenDrawer }: HeaderProps) {
                             <NavbarHamburger className="lg:hidden">
                                 <NavbarMenuItem>
                                     <NavLink to="/">Home</NavLink>
+                                </NavbarMenuItem>
+                                <NavbarMenuItem>
+                                    <NavLink to="/#interest-form">
+                                        Get updates
+                                    </NavLink>
                                 </NavbarMenuItem>
                                 {isSignedIn && (
                                     <NavbarMenuItem>
@@ -94,6 +100,11 @@ export function Header({ handleOpenDrawer }: HeaderProps) {
                                         className={navLinkClassName}
                                     >
                                         Home
+                                    </NavLink>
+                                </NavbarMenuItem>
+                                <NavbarMenuItem>
+                                    <NavLink to="/#interest-form">
+                                        Get updates
                                     </NavLink>
                                 </NavbarMenuItem>
                             </NavbarMenu>

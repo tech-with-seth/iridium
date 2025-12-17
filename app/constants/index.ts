@@ -10,6 +10,7 @@ export enum Paths {
     FEATURE_FLAGS = '/feature-flags',
     FORMS = '/forms',
     HOME = '/',
+    INTEREST = '/interest',
     POLAR = '/polar',
     PORTAL = '/portal',
     POSTHOG = '/posthog',

@@ -195,7 +195,7 @@ export function NavbarHamburger({
             </div>
             <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-60 p-3 shadow-lg border border-base-200/80"
+                className="menu menu-sm dropdown-content bg-base-100 text-base-content rounded-box mt-3 w-60 p-3 shadow-lg border border-base-200/80 z-10"
             >
                 {children}
             </ul>

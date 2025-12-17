@@ -1,4 +1,4 @@
-import { AxisBottom, AxisLeft } from '@visx/axis';
+import { AxisLeft } from '@visx/axis';
 import { curveMonotoneX } from '@visx/curve';
 import { Group } from '@visx/group';
 import { ParentSize } from '@visx/responsive';
@@ -16,6 +16,18 @@ interface RevenueTrendChartProps {
 }
 
 const defaultMargin = { top: 12, right: 16, bottom: 28, left: 52 };
+
+function parseISODateToLocalMidnight(isoDate: string): Date {
+    const [year, month, day] = isoDate.split('-').map((part) => Number(part));
+    if (
+        !Number.isFinite(year) ||
+        !Number.isFinite(month) ||
+        !Number.isFinite(day)
+    ) {
+        return new Date(Number.NaN);
+    }
+    return new Date(year, month - 1, day);
+}
 
 function formatMonthDay(date: Date): string {
     return new Intl.DateTimeFormat('en-US', {
@@ -66,7 +78,7 @@ function RevenueTrendChartInner({
         return points
             .map((p) => ({
                 ...p,
-                dateValue: new Date(p.date),
+                dateValue: parseISODateToLocalMidnight(p.date),
                 revenueDollars: p.revenue.dollars,
                 netRevenueDollars: p.netRevenue.dollars,
             }))
@@ -113,6 +125,9 @@ function RevenueTrendChartInner({
         nice: true,
         range: [yMax, 0],
     });
+
+    const xTicks = xScale.ticks(numXTicks);
+    const rotateXLabels = parsedPoints.length > 2;
 
     const axisColor = 'var(--color-base-content)';
     const revenueColor = 'var(--color-primary)';
@@ -170,28 +185,43 @@ function RevenueTrendChartInner({
                         opacity: 0.65,
                     })}
                 />
-                <AxisBottom
-                    top={yMax}
-                    scale={xScale}
-                    numTicks={numXTicks}
-                    tickFormat={(v) => {
-                        const date =
-                            v instanceof Date ? v : new Date(v.valueOf());
-                        return formatMonthDay(date);
-                    }}
+                <line
+                    x1={0}
+                    x2={xMax}
+                    y1={yMax}
+                    y2={yMax}
                     stroke={axisColor}
-                    tickStroke={axisColor}
-                    tickLabelProps={() => ({
-                        fill: axisColor,
-                        fontSize: 11,
-                        textAnchor: parsedPoints.length <= 2 ? 'middle' : 'end',
-                        transform:
-                            parsedPoints.length <= 2 ? undefined : 'rotate(-35)',
-                        dx: parsedPoints.length <= 2 ? undefined : '-0.2em',
-                        dy: parsedPoints.length <= 2 ? '0.25em' : '0.4em',
-                        opacity: 0.65,
-                    })}
+                    strokeWidth={1}
                 />
+                {xTicks.map((tick) => {
+                    const x = xScale(tick) ?? 0;
+                    return (
+                        <g
+                            key={`x-tick-${tick.toISOString()}`}
+                            transform={`translate(${x}, ${yMax})`}
+                        >
+                            <line
+                                x1={0}
+                                x2={0}
+                                y1={0}
+                                y2={6}
+                                stroke={axisColor}
+                                strokeWidth={1}
+                            />
+                            <text
+                                fill={axisColor}
+                                fontSize={11}
+                                opacity={0.65}
+                                textAnchor={rotateXLabels ? 'end' : 'middle'}
+                                transform={rotateXLabels ? 'rotate(-35)' : undefined}
+                                dx={rotateXLabels ? '-0.2em' : undefined}
+                                dy={rotateXLabels ? '1.1em' : '1.25em'}
+                            >
+                                {formatMonthDay(tick)}
+                            </text>
+                        </g>
+                    );
+                })}
 
                 <Group clipPath="url(#revenue-trend-clip)">
                     {/* Contrast underlay ensures lines remain visible on low-contrast themes */}

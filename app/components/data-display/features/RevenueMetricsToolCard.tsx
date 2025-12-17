@@ -10,6 +10,7 @@ function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
+        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(amount);
 }
@@ -19,11 +20,16 @@ function formatCompactCurrency(amount: number): string {
         style: 'currency',
         currency: 'USD',
         notation: 'compact',
+        minimumFractionDigits: 1,
         maximumFractionDigits: 1,
     }).format(amount);
 }
 
-export function RevenueMetricsToolCard({ output }: { output: RevenueMetricsOutput }) {
+export function RevenueMetricsToolCard({
+    output,
+}: {
+    output: RevenueMetricsOutput;
+}) {
     return (
         <Card
             variant="border"
@@ -52,23 +58,33 @@ export function RevenueMetricsToolCard({ output }: { output: RevenueMetricsOutpu
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Revenue</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Revenue
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {formatCompactCurrency(output.revenue.dollars)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Net Revenue</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Net Revenue
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {formatCompactCurrency(output.netRevenue.dollars)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Orders</div>
-                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">{output.orders}</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Orders
+                        </div>
+                        <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">
+                            {output.orders}
+                        </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Avg Order</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Avg Order
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">
                             {formatCurrency(output.averageOrderValue.dollars)}
                         </div>
@@ -78,4 +94,3 @@ export function RevenueMetricsToolCard({ output }: { output: RevenueMetricsOutpu
         </Card>
     );
 }
-

@@ -264,7 +264,9 @@ function MessagePartBubble({
                     )}
                 </div>
             </ChatBubbleAvatar>
-            <ChatBubbleMessage color={color}>{children}</ChatBubbleMessage>
+            <ChatBubbleMessage className="w-full" color={color}>
+                {children}
+            </ChatBubbleMessage>
         </ChatBubble>
     );
 }
@@ -367,10 +369,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 const threadLayout = {
-    root: 'grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2',
+    root: 'flex flex-col flex-1 min-h-0 h-full gap-2',
     messages:
-        'min-h-0 overflow-y-auto flex flex-col gap-2 bg-base-100 rounded-box p-8',
-    composer: 'bg-base-100 p-2 rounded-box',
+        'flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 bg-base-100 rounded-box p-4 lg:p-8',
+    composer:
+        'flex-shrink-0 bg-base-100 p-2 rounded-box sticky bottom-0 z-10 pb-[env(safe-area-inset-bottom)]',
 } as const;
 
 export default function ThreadRoute({
@@ -754,6 +757,7 @@ export default function ThreadRoute({
                     >
                         <TextInput
                             className="w-full"
+                            labelClassName="w-full"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
                             disabled={isStreaming}

@@ -41,11 +41,11 @@ enum Intents {
 
 const dashboardLayout = {
     container: 'px-4 pb-4 flex flex-col flex-1 min-h-0 overflow-hidden',
-    grid: 'grid flex-1 min-h-0 grid-rows-[auto_minmax(0,1fr)] md:grid-rows-1 md:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] gap-4',
-    sidebar: 'min-h-0 flex flex-col',
-    sidebarDesktop: 'hidden md:flex flex-1 min-h-0 flex-col',
+    grid: 'flex flex-col lg:grid lg:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] flex-1 min-h-0 gap-4',
+    sidebar: 'flex-shrink-0 flex flex-col lg:min-h-0',
+    sidebarDesktop: 'hidden lg:flex flex-1 min-h-0 flex-col',
     sidebarList: 'space-y-2 min-h-0 overflow-y-auto pr-1',
-    main: 'min-h-0 overflow-hidden grid grid-rows-1',
+    main: 'flex flex-col flex-1 min-h-0 overflow-hidden',
 } as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -168,7 +168,7 @@ const Box = ({
     return (
         <div
             className={cx(
-                `bg-base-200 rounded-box p-4 border border-base-300`,
+                `bg-base-200 rounded-box p-4 border border-base-300 min-h-0`,
                 className,
             )}
         >
@@ -211,7 +211,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                 name="intent"
                                 value="create-thread"
                                 disabled={isNavigating || isCreatingNewThread}
-                                className="mb-4 w-full md:w-auto"
+                                className="mb-4 w-full lg:w-auto"
                                 status="primary"
                             >
                                 {isCreatingNewThread ? (
@@ -223,7 +223,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                             </Button>
                         </newThreadFetcher.Form>
                         <Select
-                            className="w-full md:hidden"
+                            className="w-full lg:hidden"
                             placeholder="Choose a thread"
                             onChange={(event) => {
                                 const threadId = event.target.value;

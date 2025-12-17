@@ -34,7 +34,7 @@ export function ConversionMetricsToolCard({
                 </div>
             }
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                 <div className="bg-base-200 rounded-box p-3">
                     <div className="text-sm font-semibold mb-3">Progress</div>
                     <ComparisonBars
@@ -69,4 +69,3 @@ export function ConversionMetricsToolCard({
         </Card>
     );
 }
-

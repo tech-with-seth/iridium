@@ -20,12 +20,19 @@ import {
     Zap,
     Cpu,
     Activity,
+    Bell,
 } from 'lucide-react';
-import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
+import {
+    isRouteErrorResponse,
+    Link,
+    useRouteError,
+    useFetcher,
+} from 'react-router';
 import {
     Children,
     useId,
     useMemo,
+    useEffect,
     type PropsWithChildren,
     type ReactNode,
 } from 'react';
@@ -50,6 +57,12 @@ import { TailwindLogo } from '~/components/logos/TailwindLogo';
 import { TypescriptLogo } from '~/components/logos/TypescriptLogo';
 import { Tooltip } from '~/components/feedback/Tooltip';
 import { PolarLogoType } from '~/components/logos/PolarLogoType';
+import { TextInput } from '~/components/data-input/TextInput';
+import { Button } from '~/components/actions/Button';
+import { useValidatedForm } from '~/lib/form-hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { interestFormSchema, type InterestFormData } from '~/lib/validations';
+import { Paths } from '~/constants';
 
 function ContentBlock({
     heading,
@@ -77,6 +90,101 @@ const GRID_GAP = `gap-4 md:gap-8`;
 const isLive = false;
 const liveUrl = (productId: string, email: string) =>
     `/checkout?products=${productId}${email ? `&customerEmail=${email}` : ''}`;
+
+function InterestForm() {
+    const fetcher = useFetcher();
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitted },
+    } = useValidatedForm<InterestFormData>({
+        resolver: zodResolver(interestFormSchema),
+        errors: fetcher.data?.errors,
+        mode: 'onSubmit',
+    });
+
+    const onSubmit = (formData: InterestFormData) => {
+        const formDataObj = new FormData();
+        formDataObj.append('email', formData.email);
+        fetcher.submit(formDataObj, {
+            method: 'POST',
+            action: '/api/interest',
+        });
+    };
+
+    const isLoading =
+        fetcher.state === 'submitting' || fetcher.state === 'loading';
+    const isSuccess = fetcher.state === 'idle' && fetcher.data?.success;
+
+    // Reset form after successful submission
+    useEffect(() => {
+        if (isSuccess) {
+            reset();
+        }
+    }, [isSuccess, reset]);
+
+    // Show validation error or server error
+    const errorMessage =
+        (isSubmitted && errors.email?.message) || fetcher.data?.error;
+
+    return (
+        <Container className="px-4">
+            <div
+                id="interest-form"
+                className={`rounded-box overflow-hidden mb-8 bg-primary text-primary-content p-8 md:p-12 text-center`}
+            >
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+                    <Bell className="w-8 h-8" />
+                    <h2 className="text-3xl font-bold">
+                        Join the Interest List
+                    </h2>
+                </div>
+                <p className="text-lg mb-8 max-w-2xl mx-auto opacity-80">
+                    Be the first to know when Iridium launches. Get early
+                    access, exclusive updates, and special launch pricing.
+                </p>
+
+                {isSuccess ? (
+                    <Alert status="success" className="max-w-md mx-auto">
+                        {fetcher.data.message}
+                    </Alert>
+                ) : (
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="max-w-md mx-auto space-y-4"
+                    >
+                        {errorMessage && (
+                            <Alert status="error">{errorMessage}</Alert>
+                        )}
+
+                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                            <TextInput
+                                {...register('email')}
+                                type="email"
+                                placeholder="Enter your email"
+                                className="w-full sm:flex-1"
+                                disabled={isLoading}
+                                size="lg"
+                            />
+                            <Button
+                                type="submit"
+                                status="secondary"
+                                size="lg"
+                                loading={isLoading}
+                                disabled={isLoading}
+                                className="w-full sm:w-auto"
+                            >
+                                {isLoading ? 'Joining...' : 'Notify Me'}
+                            </Button>
+                        </div>
+                    </form>
+                )}
+            </div>
+        </Container>
+    );
+}
 
 function ContentSection({
     children,
@@ -861,6 +969,7 @@ export default function LandingPage() {
                     </div>
                 </div>
             </Container>
+            <InterestForm />
             <Container className="px-4">
                 <div className="rounded-box overflow-hidden mb-8 bg-base-100 p-8">
                     <div className="flex items-center gap-3 mb-8">
@@ -1070,11 +1179,11 @@ export default function LandingPage() {
                 </div>
             </Container>
             <Container className="px-4">
-                <div className="rounded-box overflow-hidden mb-8 bg-linear-to-br from-primary/50 to-secondary/50 p-8 md:p-12 text-center">
-                    <h2 className="text-4xl font-bold mb-4 text-base-content">
+                <div className="rounded-box overflow-hidden mb-8 bg-primary text-primary-content p-8 md:p-12 text-center">
+                    <h2 className="text-3xl font-bold mb-4">
                         Ready to Ship Faster?
                     </h2>
-                    <p className="text-lg mb-8 max-w-2xl mx-auto text-base-content/80">
+                    <p className="text-lg mb-8 max-w-2xl mx-auto opacity-80">
                         Stop rebuilding the same infrastructure. Get immediate
                         access to production-ready code, proven patterns, and
                         comprehensive documentation. Start building your product

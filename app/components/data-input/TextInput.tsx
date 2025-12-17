@@ -34,6 +34,7 @@ interface TextInputProps
     extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'color'>,
         VariantProps<typeof textInputVariants> {
     label?: React.ReactNode;
+    labelClassName?: string;
     error?: string;
     helperText?: string;
 }
@@ -68,10 +69,11 @@ export function TextInput({
     color,
     variant,
     className,
+    labelClassName,
     ...props
 }: TextInputProps) {
     return (
-        <label className="w-full flex flex-col gap-1">
+        <label className={cx('flex flex-col gap-1', labelClassName)}>
             {label && (
                 <span className="text-sm font-medium">
                     {label}

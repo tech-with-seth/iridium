@@ -6,6 +6,7 @@ import WelcomeEmail from '~/emails/welcome-email';
 import TransactionalEmail from '~/emails/transactional-email';
 import AccountDeletionEmail from '~/emails/account-deletion-email';
 import UserBanEmail from '~/emails/user-ban-email';
+import InterestListConfirmationEmail from '~/emails/interest-list-confirmation-email';
 import { getPostHogClient } from '~/lib/posthog';
 
 /**
@@ -229,6 +230,31 @@ export async function sendUserBanEmail({
         to,
         from: from || process.env.RESEND_FROM_EMAIL!,
         subject: 'Your Iridium account has been suspended',
+        html,
+    });
+}
+
+/**
+ * Send interest list confirmation email
+ * Call this after someone signs up for the interest list
+ */
+export async function sendInterestListConfirmationEmail({
+    to,
+    from,
+}: {
+    to: string;
+    from?: string;
+}) {
+    const html = await render(
+        InterestListConfirmationEmail({
+            userEmail: to,
+        }),
+    );
+
+    return sendEmail({
+        to,
+        from: from || process.env.RESEND_FROM_EMAIL!,
+        subject: "You're on the list! Early access to Iridium",
         html,
     });
 }
