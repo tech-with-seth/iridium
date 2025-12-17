@@ -7,6 +7,7 @@ import TransactionalEmail from '~/emails/transactional-email';
 import AccountDeletionEmail from '~/emails/account-deletion-email';
 import UserBanEmail from '~/emails/user-ban-email';
 import InterestListConfirmationEmail from '~/emails/interest-list-confirmation-email';
+import AdminInterestListNotification from '~/emails/admin-interest-list-notification';
 import { getPostHogClient } from '~/lib/posthog';
 
 /**
@@ -261,6 +262,42 @@ export async function sendInterestListConfirmationEmail({
         to,
         from: from || process.env.RESEND_FROM_EMAIL!,
         subject: "You're on the list! Early access to Iridium",
+        html,
+    });
+}
+
+/**
+ * Send admin notification for new interest list signups
+ * Call this after someone signs up to notify the admin
+ */
+export async function sendAdminInterestListNotification({
+    to,
+    userEmail,
+    inquiryType,
+    note,
+    timestamp,
+    from,
+}: {
+    to: string;
+    userEmail: string;
+    inquiryType: string;
+    note?: string;
+    timestamp: string;
+    from?: string;
+}) {
+    const html = await render(
+        AdminInterestListNotification({
+            userEmail,
+            inquiryType,
+            note,
+            timestamp,
+        }),
+    );
+
+    return sendEmail({
+        to,
+        from: from || process.env.RESEND_FROM_EMAIL!,
+        subject: `🎉 New Interest List Signup - ${userEmail}`,
         html,
     });
 }

@@ -8,7 +8,7 @@ import { Prisma } from '~/generated/prisma/client';
 import { getPostHogClient } from '~/lib/posthog';
 import {
     sendInterestListConfirmationEmail,
-    sendTransactionalEmail,
+    sendAdminInterestListNotification,
 } from '~/models/email.server';
 
 /**
@@ -71,11 +71,12 @@ export async function action({ request }: Route.ActionArgs) {
             process.env.ADMIN_EMAIL || process.env.RESEND_FROM_EMAIL;
         if (adminEmail) {
             try {
-                await sendTransactionalEmail({
+                await sendAdminInterestListNotification({
                     to: adminEmail,
-                    heading: 'New Interest List Signup',
-                    previewText: `${validatedData!.email} signed up for the interest list`,
-                    message: `A new user has signed up for the Iridium interest list:\n\nEmail: ${validatedData!.email}\nInquiry Type: ${validatedData!.inquiryType === 'business' ? 'Business opportunity' : 'General inquiry'}\nNote: ${validatedData!.note || 'N/A'}\nTimestamp: ${new Date().toISOString()}`,
+                    userEmail: validatedData!.email,
+                    inquiryType: validatedData!.inquiryType,
+                    note: validatedData!.note,
+                    timestamp: new Date().toISOString(),
                 });
             } catch (emailError) {
                 // Log email error but don't fail the signup
