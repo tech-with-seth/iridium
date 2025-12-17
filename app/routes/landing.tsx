@@ -91,6 +91,25 @@ const isLive = false;
 const liveUrl = (productId: string, email: string) =>
     `/checkout?products=${productId}${email ? `&customerEmail=${email}` : ''}`;
 
+function ColoredSection({
+    children,
+    className,
+    ...rest
+}: PropsWithChildren<{ className?: string }> &
+    React.HTMLAttributes<HTMLDivElement>) {
+    return (
+        <div
+            className={cx(
+                `bg-linear-to-tl from-accent to-accent/50 text-accent-content p-4 rounded-box`,
+                className,
+            )}
+            {...rest}
+        >
+            {children}
+        </div>
+    );
+}
+
 function InterestForm() {
     const fetcher = useFetcher();
 
@@ -131,9 +150,9 @@ function InterestForm() {
 
     return (
         <Container className="px-4">
-            <div
+            <ColoredSection
                 id="interest-form"
-                className={`rounded-box overflow-hidden mb-8 bg-primary text-primary-content p-8 md:p-12 text-center`}
+                className={`rounded-box overflow-hidden mb-8 p-8 md:p-12 text-center`}
             >
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
                     <Bell className="w-8 h-8" />
@@ -181,7 +200,7 @@ function InterestForm() {
                         </div>
                     </form>
                 )}
-            </div>
+            </ColoredSection>
         </Container>
     );
 }
@@ -261,7 +280,7 @@ export default function LandingPage() {
             <Link
                 to={ctaLink}
                 className={cx(
-                    'btn btn-secondary btn-lg',
+                    'btn btn-accent btn-lg',
                     !isLive && 'btn-disabled',
                 )}
             >
@@ -1179,7 +1198,7 @@ export default function LandingPage() {
                 </div>
             </Container>
             <Container className="px-4">
-                <div className="rounded-box overflow-hidden mb-8 bg-primary text-primary-content p-8 md:p-12 text-center">
+                <ColoredSection className="rounded-box overflow-hidden mb-8 p-8 md:p-12 text-center">
                     <h2 className="text-3xl font-bold mb-4">
                         Ready to Ship Faster?
                     </h2>
@@ -1190,7 +1209,7 @@ export default function LandingPage() {
                         today.
                     </p>
                     <IridiumCta position="right" />
-                </div>
+                </ColoredSection>
             </Container>
         </>
     );
