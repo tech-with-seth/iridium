@@ -88,7 +88,7 @@
             }
         },
         {
-            "label": "Promote dev to main",
+            "label": "Promote DEV to MAIN",
             "type": "shell",
             "command": "git switch main && git merge --ff-only dev && git push origin main && git switch dev",
             "detail": "Merges the dev branch into main and pushes to origin.",
