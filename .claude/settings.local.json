@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "WebFetch(domain:www.better-auth.com)",
+      "Bash(npm run seed:*)",
+      "Bash(npx prisma migrate:*)",
+      "WebFetch(domain:polar.sh)",
+      "WebFetch(domain:daisyui.com)",
+      "Bash(curl:*)",
+      "Bash(psql:*)",
+      "Bash(pkill:*)",
+      "Bash(pgrep:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265/railway?schema=public\" psql:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265/railway\" psql:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265/iridium?schema=public\" psql:*)",
+      "Bash(cat:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265/seth\" psql:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265/postgres\" psql:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:elKlTFMBofgRYdiFhQbSZZsIPuIGEYtY@maglev.proxy.rlwy.net:14265\" psql:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(gh repo view:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -9,4 +9,3 @@
 .env
 
 /playwright-report/
-/.claude/

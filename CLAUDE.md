@@ -71,6 +71,42 @@ npm run format           # Run Prettier
 
 **See [Comprehensive Documentation](#comprehensive-documentation) section below for all 30+ guides organized by category.**
 
+## AI Skills Library
+
+The `.claude/skills/` directory contains 10 specialized skills that Claude Code (and VS Code Copilot) use automatically when relevant tasks are detected.
+
+### Core Development Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `create-component` | CVA + DaisyUI components | "create button", "add modal" |
+| `create-route` | React Router 7 routes | "add page", "create route" |
+| `create-crud-api` | API endpoints with validation | "create API", "add endpoint" |
+| `create-form` | Hybrid validated forms | "add form", "create form" |
+
+### Database & Auth Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `create-model` | Prisma model layer functions | "add database", "create model" |
+| `add-auth` | BetterAuth route protection | "protect route", "add auth" |
+
+### Testing Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `create-unit-test` | Vitest unit tests | "add tests", "write test" |
+| `create-e2e-test` | Playwright E2E tests | "add E2E test", "integration test" |
+
+### Quality Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `add-docs` | JSDoc and inline documentation | "document this", "add JSDoc" |
+| `refactor-code` | Simplification and cleanup | "clean up", "simplify", "refactor" |
+
+Skills include templates, examples, and reference the full instruction files in `.github/instructions/`.
+
 ## Critical Architecture Patterns
 
 ### 1. Config-Based Routing (NOT File-Based)
