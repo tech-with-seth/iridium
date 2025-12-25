@@ -19,29 +19,20 @@ import {
     Zap,
     Cpu,
     Activity,
-    Bell,
 } from 'lucide-react';
-import {
-    isRouteErrorResponse,
-    Link,
-    useRouteError,
-    useFetcher,
-} from 'react-router';
+import { isRouteErrorResponse, useRouteError } from 'react-router';
 import {
     Children,
     useId,
     useMemo,
-    useEffect,
     type PropsWithChildren,
     type ReactNode,
 } from 'react';
-// import type { ProductPriceFixed } from '@polar-sh/sdk/models/components/productpricefixed.js';
 
 import { Container } from '~/components/layout/Container';
 import { cx } from '~/cva.config';
 import { useRootData } from '~/hooks/useRootData';
 import { isActive } from '~/lib/flags';
-import { formatToCurrency } from '~/lib/formatters';
 import { BetterAuthLogo } from '~/components/logos/BetterAuthLogo';
 import { DaisyUILogo } from '~/components/logos/DaisyUILogo';
 import { GitHubLogo } from '~/components/logos/GitHubLogo';
@@ -56,13 +47,6 @@ import { TailwindLogo } from '~/components/logos/TailwindLogo';
 import { TypescriptLogo } from '~/components/logos/TypescriptLogo';
 import { Tooltip } from '~/components/feedback/Tooltip';
 import { PolarLogoType } from '~/components/logos/PolarLogoType';
-import { TextInput } from '~/components/data-input/TextInput';
-import { Select } from '~/components/data-input/Select';
-import { Textarea } from '~/components/data-input/Textarea';
-import { Button } from '~/components/actions/Button';
-import { useValidatedForm } from '~/lib/form-hooks';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { interestFormSchema, type InterestFormData } from '~/lib/validations';
 
 function ContentBlock({
     heading,
@@ -87,9 +71,7 @@ function ContentBlock({
 }
 
 const GRID_GAP = `gap-4 md:gap-8`;
-const isLive = false;
-const liveUrl = (productId: string, email: string) =>
-    `/checkout?products=${productId}${email ? `&customerEmail=${email}` : ''}`;
+const GITHUB_REPO_URL = 'https://github.com/tech-with-seth/iridium';
 
 function ColoredSection({
     children,
@@ -107,147 +89,6 @@ function ColoredSection({
         >
             {children}
         </div>
-    );
-}
-
-function InterestForm() {
-    const fetcher = useFetcher();
-
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitted },
-    } = useValidatedForm<InterestFormData>({
-        resolver: zodResolver(interestFormSchema),
-        errors: fetcher.data?.errors,
-        mode: 'onSubmit',
-    });
-
-    const onSubmit = (formData: InterestFormData) => {
-        const formDataObj = new FormData();
-        formDataObj.append('email', formData.email);
-        formDataObj.append('inquiryType', formData.inquiryType || 'general');
-        if (formData.note) {
-            formDataObj.append('note', formData.note);
-        }
-        fetcher.submit(formDataObj, {
-            method: 'POST',
-            action: '/api/interest',
-        });
-    };
-
-    const isLoading =
-        fetcher.state === 'submitting' || fetcher.state === 'loading';
-    const isSuccess = fetcher.state === 'idle' && fetcher.data?.success;
-
-    // Reset form after successful submission
-    useEffect(() => {
-        if (isSuccess) {
-            reset();
-        }
-    }, [isSuccess, reset]);
-
-    // Show server error only (field errors shown inline)
-    const serverError = fetcher.data?.error;
-
-    return (
-        <Container className="px-4">
-            <ColoredSection
-                id="interest-form"
-                className={`rounded-box overflow-hidden mb-8 p-8 md:p-12`}
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2">
-                    <div className="self-center">
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-                            <Bell className="w-8 h-8 stroke-amber-500 fill-amber-500" />
-                            <h2 className="text-3xl font-bold">
-                                Get Early Access
-                            </h2>
-                        </div>
-                        <p className="text-lg mb-8 max-w-2xl mx-auto text-center opacity-80">
-                            Tell us about your interest in Iridium. Whether
-                            you're exploring for personal projects or business
-                            opportunities, we'll keep you updated with exclusive
-                            early access, launch pricing, and feature updates.
-                        </p>
-                    </div>
-                    <div>
-                        {isSuccess ? (
-                            <Alert
-                                status="success"
-                                className="max-w-md mx-auto"
-                            >
-                                {fetcher.data.message}
-                            </Alert>
-                        ) : (
-                            <form
-                                onSubmit={handleSubmit(onSubmit)}
-                                className="max-w-md mx-auto space-y-5 text-base-content"
-                            >
-                                {serverError && (
-                                    <Alert status="error">{serverError}</Alert>
-                                )}
-                                <TextInput
-                                    {...register('email')}
-                                    type="email"
-                                    label="Email"
-                                    placeholder="Enter your email"
-                                    disabled={isLoading}
-                                    size="lg"
-                                    required
-                                    error={errors.email?.message}
-                                    className="w-full"
-                                />
-                                <Select
-                                    {...register('inquiryType')}
-                                    label="What brings you here?"
-                                    options={[
-                                        {
-                                            value: 'general',
-                                            label: 'General inquiry',
-                                        },
-                                        {
-                                            value: 'business',
-                                            label: 'Business opportunity',
-                                        },
-                                    ]}
-                                    defaultValue="general"
-                                    disabled={isLoading}
-                                    size="lg"
-                                    required
-                                    error={errors.inquiryType?.message}
-                                    className="w-full"
-                                />
-                                <Textarea
-                                    {...register('note')}
-                                    label="Tell us more (optional)"
-                                    placeholder="What are you planning to build? Any specific features you're interested in?"
-                                    rows={3}
-                                    disabled={isLoading}
-                                    size="lg"
-                                    error={errors.note?.message}
-                                    helperText="Maximum 500 characters"
-                                    className="w-full"
-                                />
-                                <Button
-                                    type="submit"
-                                    status="secondary"
-                                    size="lg"
-                                    loading={isLoading}
-                                    disabled={isLoading}
-                                    className="w-full"
-                                >
-                                    {isLoading
-                                        ? 'Submitting...'
-                                        : 'Get Notified'}
-                                </Button>
-                            </form>
-                        )}
-                    </div>
-                </div>
-            </ColoredSection>
-        </Container>
     );
 }
 
@@ -298,42 +139,20 @@ export default function LandingPage() {
         [data?.allFlags],
     );
 
-    // const productPrice = useMemo(() => {
-    //     return formatToCurrency(
-    //         'en-US',
-    //         'USD',
-    //         2,
-    //         (data?.product.prices.at(0) as ProductPriceFixed).priceAmount,
-    //     );
-    // }, [data?.product]);
-
-    const productPrice = '$??.??';
-
-    const introCopyControl = `Your shortcut to a production-ready SaaS. Iridium is a production-ready boilerplate packed with everything you need: secure authentication, subscription billing, a powerful AI toolkit, and a stunning component library. Stop rebuilding boilerplate and start shipping features your users will love. It's the fastest way to go from idea to revenue.`;
+    const introCopyControl = `Your shortcut to a production-ready SaaS. Iridium is an open source boilerplate packed with everything you need: secure authentication, optional billing integration, a powerful AI toolkit, and a stunning component library. Stop rebuilding boilerplate and start shipping features your users will love.`;
     const introCopyVariant = `Build on a foundation you can trust. Iridium is more than a starter kit—it's a curated collection of modern best practices. With config-based routing in React Router 7, end-to-end type-safe validation with Zod, and a CVA-driven component system, you can build with confidence and scale without compromise. Stop fighting with your tools and start building great software.`;
 
-    const ctaLink =
-        isLive && data?.product.id && data?.user?.email
-            ? liveUrl(data?.product.id, data?.user?.email)
-            : '/';
-
-    const IridiumCta = ({
-        position,
-    }: {
-        position?: 'top' | 'right' | 'bottom' | 'left';
-    }) => (
-        <Tooltip content="Coming soon!" open position={position}>
-            <Link
-                to={ctaLink}
-                className={cx(
-                    'btn btn-accent btn-lg',
-                    !isLive && 'btn-disabled',
-                )}
-            >
-                Get access to the repo for {productPrice}
-                <ArrowRightIcon />
-            </Link>
-        </Tooltip>
+    const GitHubCta = () => (
+        <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-accent btn-lg"
+        >
+            <GitHubLogo className="w-5 h-5 fill-current" />
+            View on GitHub
+            <ArrowRightIcon />
+        </a>
     );
 
     return (
@@ -382,7 +201,7 @@ export default function LandingPage() {
                                     ? introCopyVariant
                                     : introCopyControl}
                             </p>
-                            <IridiumCta position="top" />
+                            <GitHubCta />
                         </div>
                     </div>
                 </div>
@@ -836,129 +655,36 @@ export default function LandingPage() {
                 <div
                     className={`grid grid-cols-12 ${GRID_GAP} rounded-box overflow-hidden mb-8 bg-base-100 p-8`}
                 >
-                    <div className="col-span-12">
-                        <h2 className="text-3xl font-semibold mb-4 text-base-content">
-                            Polar.sh: Developer-First Billing Built Right In
-                        </h2>
-                    </div>
-                    <div className="col-span-12 lg:col-span-6">
-                        <ContentBlock
-                            heading="Lower Fees Than Competitors"
-                            icon={BarChart}
-                        >
-                            Polar charges 4% + 40¢ per transaction as a full
-                            Merchant of Record, handling payment processing, tax
-                            compliance, and receipts. Compare that to Gumroad's
-                            10% total fee or Lemon Squeezy's 5% + 50¢. For a $50
-                            product, you keep $47.60 with Polar versus $45 with
-                            Gumroad or $47.00 with Lemon Squeezy. Polar covers
-                            Stripe's 2.9% + 30¢ from their fee—you get all the
-                            MoR benefits while keeping slightly more per sale.
-                        </ContentBlock>
-                        <ContentBlock
-                            heading="Built for Technical Products"
-                            icon={Code}
-                        >
-                            Unlike creator-focused platforms like Gumroad, Polar
-                            is purpose-built for developers selling to
-                            developers. Native GitHub integration,
-                            webhook-driven architecture, TypeScript SDK, and MCP
-                            server support. Iridium includes complete Polar
-                            integration with checkout flows, webhook handling,
-                            and customer management—production-ready from day
-                            one.
-                        </ContentBlock>
-                        <ContentBlock
-                            heading="Full Merchant of Record Services"
-                            icon={Lock}
-                        >
-                            Polar acts as the Merchant of Record, handling tax
-                            compliance, VAT collection, payment processing, and
-                            receipts for you. Unlike Stripe direct integration
-                            where you handle all compliance yourself, Polar
-                            takes on that burden while keeping fees competitive.
-                            You maintain control over your customer
-                            relationships and pricing strategy while Polar
-                            handles the regulatory complexity.
-                        </ContentBlock>
-                        <ContentBlock
-                            heading="Modern API-First Architecture"
-                            icon={Zap}
-                        >
-                            Polar's API is designed for developers who want full
-                            control. Create custom checkout experiences,
-                            implement usage-based billing, manage subscriptions
-                            programmatically, and integrate deeply with your
-                            product. The Polar SDK in Iridium demonstrates
-                            production patterns: webhook verification, customer
-                            syncing, and benefit management all implemented
-                            correctly.
-                        </ContentBlock>
-                    </div>
-                    <div className="col-span-12 lg:col-span-6">
-                        <PolarLogoType className="h-12 mb-4" />
-                        <div className="rounded-box overflow-hidden bg-black text-white shadow-lg p-8">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold mb-4">
-                                    Cost Comparison: $50 Product Sale
-                                </h3>
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/20 border border-white/40">
-                                        <div>
-                                            <div className="font-semibold">
-                                                Polar.sh
-                                            </div>
-                                            <div className="text-sm text-white/70">
-                                                4% + 40¢ (MoR included)
-                                            </div>
-                                        </div>
-                                        <div className="text-2xl font-bold">
-                                            $47.60
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/10 border border-white/20">
-                                        <div>
-                                            <div className="font-semibold">
-                                                Lemon Squeezy
-                                            </div>
-                                            <div className="text-sm text-white/70">
-                                                5% + 50¢ (MoR included)
-                                            </div>
-                                        </div>
-                                        <div className="text-2xl font-bold">
-                                            $47.00
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-lg bg-white/5 border border-white/10">
-                                        <div>
-                                            <div className="font-semibold">
-                                                Gumroad
-                                            </div>
-                                            <div className="text-sm text-white/70">
-                                                10% total
-                                            </div>
-                                        </div>
-                                        <div className="text-2xl font-bold">
-                                            $45.00
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="alert alert-soft alert-info">
-                                <p className="text-sm">
-                                    <strong>Why Polar wins:</strong> Full
-                                    Merchant of Record services (tax compliance,
-                                    VAT, receipts) at lower fees than
-                                    competitors. Polar and Lemon Squeezy both
-                                    handle tax compliance, but Polar charges
-                                    slightly less (4% + 40¢ vs 5% + 50¢) while
-                                    being developer-first with open-source
-                                    transparency. Gumroad is better for creators
-                                    selling courses and ebooks, not technical
-                                    products.
-                                </p>
-                            </div>
+                    <div className="col-span-12 lg:col-span-6 flex flex-col justify-center">
+                        <div className="flex items-start gap-3 mb-4">
+                            <BarChart className="w-8 h-8 text-primary mt-1" />
+                            <h2 className="text-3xl font-semibold text-base-content">
+                                Optional Billing with Polar
+                            </h2>
                         </div>
+                        <p className="text-lg mb-4 text-base-content/80">
+                            Polar billing integration is pre-wired but
+                            completely optional. Add your credentials when
+                            you&apos;re ready to monetize, or remove it if you
+                            don&apos;t need billing.
+                        </p>
+                        <div className="mb-4">
+                            <a
+                                href="https://polar.sh"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-outline"
+                            >
+                                Learn more at polar.sh
+                            </a>
+                        </div>
+                        <p className="text-sm text-base-content/70">
+                            Polar acts as a Merchant of Record, handling tax
+                            compliance, VAT, and payment processing for you.
+                        </p>
+                    </div>
+                    <div className="col-span-12 lg:col-span-6 flex items-center justify-center">
+                        <PolarLogoType className="w-full max-w-xs" />
                     </div>
                 </div>
             </Container>
@@ -970,7 +696,7 @@ export default function LandingPage() {
                         <div className="flex items-start gap-3 mb-4">
                             <Zap className="w-8 h-8 text-primary mt-1" />
                             <h2 className="text-3xl font-semibold text-base-content">
-                                Try It Free with Railway
+                                Deploy with Railway
                             </h2>
                         </div>
                         <p className="text-lg mb-4 text-base-content/80">
@@ -980,8 +706,8 @@ export default function LandingPage() {
                             action.
                         </p>
                         <div className="mb-4">
-                            {/* <a
-                                href="https://railway.com/deploy/UVmPwx?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
+                            <a
+                                href="https://railway.com/deploy/8Vtjm7?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -990,40 +716,13 @@ export default function LandingPage() {
                                     alt="Deploy on Railway"
                                     className="h-10"
                                 />
-                            </a> */}
-                            <Tooltip
-                                content="Coming soon!"
-                                open
-                                position="right"
-                            >
-                                <img
-                                    src="https://railway.com/button.svg"
-                                    alt="Deploy on Railway"
-                                    className="h-10"
-                                />
-                            </Tooltip>
+                            </a>
                         </div>
                         <p className="text-sm text-base-content/70 mb-6">
-                            Don't have a Railway account?{' '}
-                            <a
-                                href="https://railway.com?referralCode=YZe1VE"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="link link-primary"
-                            >
-                                Sign up here
-                            </a>{' '}
-                            to get started with $5 in free credits.
+                            Railway offers a free tier to get started. One-click
+                            deployment provisions your PostgreSQL database and
+                            configures environment variables automatically.
                         </p>
-                        <div className="alert alert-soft alert-info">
-                            <p className="text-sm">
-                                <strong>Free template includes:</strong> Running
-                                app with auth, database, and UI.{' '}
-                                <strong>Full repo access adds:</strong> Complete
-                                source code, 30+ pattern guides, all
-                                documentation, git history, and future updates.
-                            </p>
-                        </div>
                     </div>
                     <div className="col-span-12 lg:col-span-6 flex items-center">
                         <img
@@ -1034,7 +733,6 @@ export default function LandingPage() {
                     </div>
                 </div>
             </Container>
-            <InterestForm />
             <Container className="px-4">
                 <div className="rounded-box overflow-hidden mb-8 bg-base-100 p-8">
                     <div className="flex items-center gap-3 mb-8">
@@ -1146,15 +844,13 @@ export default function LandingPage() {
                             variant="plus"
                             bordered
                         >
-                            Production-ready. Iridium itself is a real product
-                            with authentication, billing, and a database
-                            handling actual users. The patterns you
-                            see—role-based access control, error tracking,
-                            feature flags, secure session management—are the
-                            same patterns running in production. We&apos;ve
-                            handled edge cases, security considerations, and
-                            performance optimizations so you don&apos;t have to
-                            discover them the hard way.
+                            Production-ready. The patterns you see—role-based
+                            access control, error tracking, feature flags,
+                            secure session management—are battle-tested and
+                            designed for real applications. We&apos;ve handled
+                            edge cases, security considerations, and performance
+                            optimizations so you don&apos;t have to discover
+                            them the hard way.
                         </AccordionItem>
                         <AccordionItem
                             title="What's the learning curve like?"
@@ -1211,14 +907,13 @@ export default function LandingPage() {
                             variant="plus"
                             bordered
                         >
-                            You own the code. When you purchase Iridium, you get
-                            the entire repository—you&apos;re not dependent on
-                            our updates to keep building. That said, we&apos;re
-                            using stable, widely-adopted technologies: React 19,
-                            React Router 7, Prisma, PostgreSQL, TypeScript.
-                            These aren&apos;t experimental. As major versions
-                            release, you can update dependencies like any
-                            Node.js project. The architectural patterns (model
+                            You own your fork. Clone or fork the repository and
+                            it&apos;s yours to customize. You can pull upstream
+                            updates or diverge completely—your choice.
+                            We&apos;re using stable, widely-adopted
+                            technologies: React 19, React Router 7, Prisma,
+                            PostgreSQL, TypeScript. These aren&apos;t
+                            experimental. The architectural patterns (model
                             layer, CVA components, config-based routing) remain
                             valid regardless of minor version bumps.
                         </AccordionItem>
@@ -1234,11 +929,11 @@ export default function LandingPage() {
                             comments explaining why decisions were made. Common
                             issues—like route type imports, Prisma client paths,
                             form validation conflicts—are documented with
-                            solutions. You&apos;re buying both the code and the
-                            accumulated knowledge of how to use it correctly.
-                            This isn&apos;t a template dump; it&apos;s a curated
-                            learning resource that pays for itself in avoided
-                            debugging time.
+                            solutions. You get both the code and the accumulated
+                            knowledge of how to use it correctly. This
+                            isn&apos;t a template dump; it&apos;s a curated
+                            learning resource. For questions and contributions,
+                            open an issue on GitHub.
                         </AccordionItem>
                     </Accordion>
                 </div>
@@ -1249,12 +944,11 @@ export default function LandingPage() {
                         Ready to Ship Faster?
                     </h2>
                     <p className="text-lg mb-8 max-w-2xl mx-auto opacity-80">
-                        Stop rebuilding the same infrastructure. Get immediate
-                        access to production-ready code, proven patterns, and
-                        comprehensive documentation. Start building your product
-                        today.
+                        Stop rebuilding the same infrastructure. Clone the repo,
+                        follow the setup guide, and start building your product
+                        in minutes. Open source and free forever.
                     </p>
-                    <IridiumCta position="right" />
+                    <GitHubCta />
                 </ColoredSection>
             </Container>
         </>
