@@ -61,11 +61,6 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                 <NavbarMenuItem>
                                     <NavLink to="/">Home</NavLink>
                                 </NavbarMenuItem>
-                                <NavbarMenuItem>
-                                    <NavLink to="/#interest-form">
-                                        Get updates
-                                    </NavLink>
-                                </NavbarMenuItem>
                                 {isSignedIn && (
                                     <NavbarMenuItem>
                                         <NavLink to={Paths.DASHBOARD}>

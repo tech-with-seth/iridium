@@ -33,19 +33,16 @@ npm run dev
 - [Authentication](./authentication.md) - Better Auth setup with Polar billing integration
 - [Email](./email.md) - Resend email service with React Email templates
 - [Routing](./routing.md) - React Router 7 patterns and conventions
-- [Forms](./forms.md) - Form validation with Zod and React Hook Form
-- [Form Building](./form-building.md) - Comprehensive form building patterns and best practices
+- [Form Building](./form-building.md) - Comprehensive form patterns with Zod and React Hook Form
 - [Components](./components.md) - DaisyUI and CVA component patterns
 - [Custom Theming](./custom-theming.md) - Creating and customizing DaisyUI themes
 - [AI Chat Integration](./ai.md) - Vercel AI SDK endpoint and streaming chat workflow
 - [LLM Analytics](./llm-analytics.md) - PostHog LLM analytics with Vercel AI SDK integration
 - [Image Handling](./image-handling.md) - Cloudinary integration for image uploads and transformations
-- [Multi-tenancy](./multi-tenancy.md) - Organization and invitation system
 
 ### Development
 
 - **[Build Your First Feature](./build-your-first-feature.md)** - Step-by-step guide for building features
-- **[Common Commands](./common-commands.md)** - Frequently used development commands
 - [Development Workflow](./development.md) - Day-to-day development practices
 - [Testing](./testing.md) - Unit and end-to-end testing with Vitest and Playwright
 - [Contributing](./contributing.md) - Guidelines for contributing to the project

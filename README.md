@@ -9,7 +9,7 @@ Iridium is now a **small, opinionated starter** for building auth-protected Reac
 
 ## Instant deploy
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/8Vtjm7?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/UVmPwx?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 ## What you get
 
