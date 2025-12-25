@@ -26,7 +26,7 @@ Nice-to-have integrations stay optional (PostHog analytics, Resend emails). Bill
 ## Quick start
 
 ```bash
-git clone https://github.com/sethdavis512/iridium.git
+git clone https://github.com/tech-with-seth/iridium.git
 cd iridium
 npm install
 
