@@ -22,7 +22,7 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 - ❌ Multi-tenancy/organizations
 - ❌ E-commerce/shop flows
 
-**📋 See detailed instruction files in `.github/instructions/` for specific patterns:**
+**📋 See detailed instruction files in `.github/instructions/` for specific patterns (33 guides):**
 
 - `react-router.instructions.md` - **Critical React Router 7 patterns (READ THIS FIRST)**
 - `form-validation.instructions.md` - Hybrid client+server validation
@@ -30,6 +30,23 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 - `better-auth.instructions.md` - Authentication implementation
 - `component-patterns.instructions.md` - CVA + DaisyUI component standards
 - `posthog.instructions.md` - Analytics and feature flags integration
+
+## AI Skills Library
+
+The `.claude/skills/` directory contains 10 specialized skills for common development tasks:
+
+| Skill | Purpose |
+|-------|---------|
+| `create-component` | CVA + DaisyUI components |
+| `create-route` | React Router 7 routes |
+| `create-crud-api` | API endpoints with validation |
+| `create-form` | Hybrid validated forms |
+| `create-model` | Prisma model layer functions |
+| `add-auth` | BetterAuth route protection |
+| `create-unit-test` | Vitest unit tests |
+| `create-e2e-test` | Playwright E2E tests |
+| `add-docs` | JSDoc and inline documentation |
+| `refactor-code` | Code simplification and cleanup |
 
 ## Critical Architecture Patterns
 
@@ -120,9 +137,12 @@ const user = await getUserProfile(userId);
 
 - `app/models/user.server.ts` - User CRUD operations
 - `app/models/email.server.ts` - Email operations (Resend optional)
+- `app/models/message.server.ts` / `app/models/thread.server.ts` - Chat messages/threads
+- `app/models/admin.server.ts` - Admin operations
+- `app/models/analytics.server.ts` - Analytics operations
 - `app/models/feature-flags.server.ts` - PostHog feature flags with caching
-- `app/models/message.server.ts`, `app/models/thread.server.ts` - Chat messages/threads
 - `app/models/posthog.server.ts` - PostHog analytics and error tracking
+- `app/models/polar.server.ts` - Polar billing operations
 
 ### Authentication & Session Management
 

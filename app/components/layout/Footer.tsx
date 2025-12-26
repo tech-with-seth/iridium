@@ -95,7 +95,7 @@ export function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="https://railway.com/"
+                                    href="https://railway.com/deploy/?referralCode=YZe1VE"
                                     target="_blank"
                                     rel="noreferrer"
                                 >

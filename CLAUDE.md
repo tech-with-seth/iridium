@@ -69,7 +69,7 @@ npm run format           # Run Prettier
 - `better-auth.instructions.md` - Authentication flows
 - `git-workflow.instructions.md` - Git branching strategy (prevents branch divergence)
 
-**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 30+ guides organized by category.**
+**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 33 guides organized by category.**
 
 ## AI Skills Library
 
@@ -179,6 +179,7 @@ const user = await getUserProfile(userId);
 - `app/models/email.server.ts` - Email operations (Resend)
 - `app/models/message.server.ts` / `app/models/thread.server.ts` - Chat messages/threads
 - `app/models/admin.server.ts` - Admin operations
+- `app/models/analytics.server.ts` - Analytics operations
 - `app/models/feature-flags.server.ts` - PostHog feature flags with caching
 - `app/models/posthog.server.ts` - PostHog analytics and error tracking
 - `app/models/polar.server.ts` - Polar billing operations
@@ -644,7 +645,7 @@ Use directories for organization, kebab-case for file names.
 
 ## Comprehensive Documentation
 
-The `.github/instructions/` folder contains 30+ detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
+The `.github/instructions/` folder contains 33 detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
 
 ### Core Patterns (Read First)
 
