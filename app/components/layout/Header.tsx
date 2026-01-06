@@ -97,11 +97,6 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                         Home
                                     </NavLink>
                                 </NavbarMenuItem>
-                                <NavbarMenuItem>
-                                    <NavLink to="/#interest-form">
-                                        Get updates
-                                    </NavLink>
-                                </NavbarMenuItem>
                             </NavbarMenu>
                         </div>
                     }
