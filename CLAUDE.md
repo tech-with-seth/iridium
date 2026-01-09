@@ -73,7 +73,7 @@ npm run format           # Run Prettier
 
 ## AI Skills Library
 
-The `.claude/skills/` directory contains 10 specialized skills that Claude Code (and VS Code Copilot) use automatically when relevant tasks are detected.
+The `.github/skills/` directory contains 20 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
 
 ### Core Development Skills
 
@@ -83,6 +83,7 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 | `create-route` | React Router 7 routes | "add page", "create route" |
 | `create-crud-api` | API endpoints with validation | "create API", "add endpoint" |
 | `create-form` | Hybrid validated forms | "add form", "create form" |
+| `create-ai-tool` | AI chat tools with Vercel AI SDK | "add AI tool", "chat tool" |
 
 ### Database & Auth Skills
 
@@ -90,6 +91,7 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 |-------|---------|--------------|
 | `create-model` | Prisma model layer functions | "add database", "create model" |
 | `add-auth` | BetterAuth route protection | "protect route", "add auth" |
+| `add-rbac` | Role-based access control | "add role check", "admin only" |
 
 ### Testing Skills
 
@@ -104,6 +106,19 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 |-------|---------|--------------|
 | `add-docs` | JSDoc and inline documentation | "document this", "add JSDoc" |
 | `refactor-code` | Simplification and cleanup | "clean up", "simplify", "refactor" |
+| `add-error-boundary` | Error handling for routes | "add error handling", "404 page" |
+
+### Integration Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `create-email` | React Email + Resend templates | "send email", "email template" |
+| `add-feature-flag` | PostHog feature flags | "feature flag", "A/B test" |
+| `add-billing` | Polar subscriptions/payments | "add billing", "checkout" |
+| `add-chart` | visx data visualizations | "add chart", "visualize data" |
+| `add-caching` | Client-side SWR caching | "add caching", "improve performance" |
+| `add-seo` | Meta tags, Open Graph, JSON-LD | "add SEO", "meta tags" |
+| `ship` | Railway deployment & debugging | "deploy", "ship", "debug deployment" |
 
 Skills include templates, examples, and reference the full instruction files in `.github/instructions/`.
 
