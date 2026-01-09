@@ -5,210 +5,97 @@ description: Set up hybrid client/server validated forms with Zod and React Hook
 
 # Create Form
 
-Creates forms with hybrid client + server validation using Zod schemas and React Hook Form.
-
 ## When to Use
 
 - Creating any form with validation
-- User asks to "add a form", "create a form", or "add validation"
+- User asks to "add a form" or "create a form"
 
-## Core Pattern
-
-1. **Same Zod schema** validates on both client and server
-2. **Client:** Instant feedback with React Hook Form
-3. **Server:** Security guarantee with `validateFormData()`
-4. **Automatic error sync:** Server errors populate form fields
-
-## Critical Rule: `<form>` vs `<fetcher.Form>`
+## Critical Rule
 
 ```tsx
-// ✅ CORRECT - Use <form> with manual fetcher.submit()
-const onSubmit = (data: FormData) => {
-    const formData = new FormData();
-    formData.append('name', data.name);
-    fetcher.submit(formData, { method: 'POST' });
-};
-
+// CORRECT - Use <form> with manual fetcher.submit()
 <form onSubmit={handleSubmit(onSubmit)}>
 
-// ❌ WRONG - Causes submission conflicts
+// WRONG - Causes submission conflicts
 <fetcher.Form onSubmit={handleSubmit(onSubmit)}>
 ```
 
-## Implementation Steps
+## Core Pattern
 
-### Step 1: Define Zod Schema
+1. **Same Zod schema** on client and server
+2. **Client:** Instant feedback with React Hook Form
+3. **Server:** Security with `validateFormData()`
+4. **Auto error sync:** Server errors populate form fields
 
-**Location:** `app/lib/validations.ts`
+## Quick Start
+
+### 1. Schema (`app/lib/validations.ts`)
 
 ```typescript
 import { z } from 'zod';
 
 export const contactFormSchema = z.object({
     name: z.string().min(1, 'Name is required'),
-    email: z.string().min(1, 'Email is required').email('Invalid email'),
-    message: z.string().min(10, 'Message must be at least 10 characters'),
+    email: z.string().email('Invalid email'),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 ```
 
-### Step 2: Server Action
+### 2. Server Action
 
 ```typescript
-import type { Route } from './+types/contact';
-import { data, redirect } from 'react-router';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { validateFormData } from '~/lib/form-validation.server';
-import { contactFormSchema, type ContactFormData } from '~/lib/validations';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
-    const { data: validated, errors } = await validateFormData<ContactFormData>(
+    const { data, errors } = await validateFormData<ContactFormData>(
         formData,
         zodResolver(contactFormSchema)
     );
 
-    if (errors) {
-        return data({ errors }, { status: 400 });
-    }
+    if (errors) return data({ errors }, { status: 400 });
 
-    // Process validated data
-    await sendMessage(validated!);
-    return redirect('/contact/success');
+    await processData(data!);
+    return redirect('/success');
 }
 ```
 
-### Step 3: Client Form Component
+### 3. Client Form
 
-```typescript
+```tsx
 import { useFetcher } from 'react-router';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useValidatedForm } from '~/lib/form-hooks';
-import { contactFormSchema, type ContactFormData } from '~/lib/validations';
-import { TextInput } from '~/components/data-input/TextInput';
-import { Textarea } from '~/components/data-input/Textarea';
-import { Button } from '~/components/actions/Button';
-import { Alert } from '~/components/feedback/Alert';
 
 export default function ContactPage() {
     const fetcher = useFetcher();
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useValidatedForm<ContactFormData>({
+    const { register, handleSubmit, formState: { errors } } = useValidatedForm({
         resolver: zodResolver(contactFormSchema),
-        errors: fetcher.data?.errors,  // Auto-syncs server errors
+        errors: fetcher.data?.errors,
     });
 
     const onSubmit = (data: ContactFormData) => {
         const formData = new FormData();
         formData.append('name', data.name);
-        formData.append('email', data.email);
-        formData.append('message', data.message);
         fetcher.submit(formData, { method: 'POST' });
     };
 
-    const isLoading = fetcher.state === 'submitting';
-
     return (
-        <>
-            <title>Contact | Iridium</title>
-
-            {fetcher.data?.error && (
-                <Alert status="error">{fetcher.data.error}</Alert>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <TextInput
-                    {...register('name')}
-                    label="Name"
-                    error={errors.name?.message}
-                    required
-                />
-
-                <TextInput
-                    {...register('email')}
-                    label="Email"
-                    type="email"
-                    error={errors.email?.message}
-                    required
-                />
-
-                <Textarea
-                    {...register('message')}
-                    label="Message"
-                    rows={5}
-                    error={errors.message?.message}
-                    required
-                />
-
-                <Button type="submit" loading={isLoading}>
-                    Send Message
-                </Button>
-            </form>
-        </>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <TextInput {...register('name')} error={errors.name?.message} />
+            <Button type="submit">Submit</Button>
+        </form>
     );
 }
 ```
 
-## Two Types of Errors
+## Checklist
 
-### Field-Level Errors (Validation)
-
-```tsx
-<TextInput
-    {...register('email')}
-    error={errors.email?.message}  // Shows inline with field
-/>
-```
-
-### Form-Level Errors (Business Logic)
-
-```tsx
-{fetcher.data?.error && (
-    <Alert status="error">{fetcher.data.error}</Alert>
-)}
-```
-
-## Common Schema Patterns
-
-### Optional Fields
-
-```typescript
-z.string().optional()
-z.string().optional().or(z.literal(''))  // Allow empty string
-```
-
-### Conditional Validation
-
-```typescript
-z.object({
-    hasAddress: z.boolean(),
-    address: z.string().optional(),
-}).refine(
-    (data) => !data.hasAddress || data.address,
-    { message: 'Address required', path: ['address'] }
-);
-```
-
-### File Upload
-
-```typescript
-z.custom<FileList>()
-    .refine((files) => files?.length > 0, 'File required')
-    .refine((files) => files?.[0]?.size < 5_000_000, 'Max 5MB')
-```
-
-## Anti-Patterns
-
-- ❌ Using `<fetcher.Form>` with `handleSubmit` (causes conflicts)
-- ❌ Duplicating validation logic (use same schema everywhere)
-- ❌ Trusting client-only validation
-- ❌ Manual error syncing (use `useValidatedForm`)
-- ❌ Missing `required` attribute for accessibility
+1. [ ] Define Zod schema in `app/lib/validations.ts`
+2. [ ] Add server action with `validateFormData()`
+3. [ ] Use `useValidatedForm` hook in component
+4. [ ] Use `<form>` (not `<fetcher.Form>`) with `handleSubmit`
 
 ## Templates
 
@@ -217,4 +104,8 @@ z.custom<FileList>()
 
 ## Full Reference
 
-See `.github/instructions/form-validation.instructions.md` for comprehensive documentation.
+See `.github/instructions/form-validation.instructions.md` for:
+- Field-level vs form-level errors
+- Conditional validation
+- File uploads
+- Complex schema patterns

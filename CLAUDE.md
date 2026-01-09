@@ -69,11 +69,11 @@ npm run format           # Run Prettier
 - `better-auth.instructions.md` - Authentication flows
 - `git-workflow.instructions.md` - Git branching strategy (prevents branch divergence)
 
-**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 33 guides organized by category.**
+**See [Comprehensive Documentation](#comprehensive-documentation) section below for all 31 guides organized by category.**
 
 ## AI Skills Library
 
-The `.github/skills/` directory contains 20 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
+The `.github/skills/` directory contains 16 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
 
 ### Core Development Skills
 
@@ -85,13 +85,11 @@ The `.github/skills/` directory contains 20 specialized skills that VS Code Copi
 | `create-form` | Hybrid validated forms | "add form", "create form" |
 | `create-ai-tool` | AI chat tools with Vercel AI SDK | "add AI tool", "chat tool" |
 
-### Database & Auth Skills
+### Database Skills
 
 | Skill | Purpose | Triggered By |
 |-------|---------|--------------|
 | `create-model` | Prisma model layer functions | "add database", "create model" |
-| `add-auth` | BetterAuth route protection | "protect route", "add auth" |
-| `add-rbac` | Role-based access control | "add role check", "admin only" |
 
 ### Testing Skills
 
@@ -100,12 +98,10 @@ The `.github/skills/` directory contains 20 specialized skills that VS Code Copi
 | `create-unit-test` | Vitest unit tests | "add tests", "write test" |
 | `create-e2e-test` | Playwright E2E tests | "add E2E test", "integration test" |
 
-### Quality Skills
+### Error Handling Skills
 
 | Skill | Purpose | Triggered By |
 |-------|---------|--------------|
-| `add-docs` | JSDoc and inline documentation | "document this", "add JSDoc" |
-| `refactor-code` | Simplification and cleanup | "clean up", "simplify", "refactor" |
 | `add-error-boundary` | Error handling for routes | "add error handling", "404 page" |
 
 ### Integration Skills
@@ -660,7 +656,7 @@ Use directories for organization, kebab-case for file names.
 
 ## Comprehensive Documentation
 
-The `.github/instructions/` folder contains 33 detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
+The `.github/instructions/` folder contains 31 detailed pattern guides. **Consult these BEFORE implementing features** to maintain consistency.
 
 ### Core Patterns (Read First)
 
