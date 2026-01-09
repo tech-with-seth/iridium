@@ -277,20 +277,29 @@ Configuration in `playwright.config.ts`:
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-    testDir: './tests',
+    testDir: './tests/e2e',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://localhost:5173',
-        trace: 'on-first-retry',
+        baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
+        trace: 'retain-on-failure',
+        screenshot: 'only-on-failure',
     },
     projects: [
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
+        },
+        {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+        },
+        {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
         },
     ],
     webServer: {
@@ -325,38 +334,28 @@ npm run e2e:report
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test('user can sign up', async ({ page }) => {
-    await page.goto('/signup');
+test('opens auth drawer and shows email fields', async ({ page }) => {
+    await test.step('Setup', async () => {
+        await page.goto('/');
+    });
 
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.fill('input[name="name"]', 'Test User');
+    await test.step('Action', async () => {
+        const header = page.getByRole('banner');
+        await header.getByRole('button', { name: /sign in/i }).click();
+    });
 
-    await page.click('button[type="submit"]');
-
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.locator('text=Welcome, Test User')).toBeVisible();
-});
-
-test('shows validation errors', async ({ page }) => {
-    await page.goto('/signup');
-
-    await page.click('button[type="submit"]');
-
-    await expect(page.locator('text=Email is required')).toBeVisible();
-    await expect(page.locator('text=Password is required')).toBeVisible();
-});
-
-test('user can navigate between pages', async ({ page }) => {
-    await page.goto('/');
-
-    await page.click('text=About');
-    await expect(page).toHaveURL('/about');
-
-    await page.click('text=Contact');
-    await expect(page).toHaveURL('/contact');
+    await test.step('Assert', async () => {
+        await expect(page.getByLabel(/email/i)).toBeVisible();
+        await expect(page.getByLabel(/password/i)).toBeVisible();
+    });
 });
 ```
+
+### Phase 1 Scope (Baseline)
+
+- Focus on signed-out smoke flows and protected-route redirects
+- No database seeding or authenticated journeys
+- No page objects, fixtures, or storage-state auth yet
 
 ### Page Object Pattern
 
@@ -435,11 +434,8 @@ app/
     └── utils.test.ts
 
 tests/
-├── auth.spec.ts
-├── navigation.spec.ts
-└── pages/
-    ├── login-page.ts
-    └── dashboard-page.ts
+└── e2e/
+    └── smoke.spec.ts
 ```
 
 ### Test Naming
@@ -521,16 +517,13 @@ jobs:
 
 ### E2E Tests Workflow
 
-`.github/workflows/e2e-tests.yml` runs Playwright tests with minimal setup for current test suite:
+`.github/workflows/e2e-tests.yml` runs Playwright tests on manual trigger with minimal setup for the current suite:
 
 ```yaml
 name: E2E Tests
 
 on:
-    push:
-        branches: [main, dev]
-    pull_request:
-        branches: [main, dev]
+    workflow_dispatch:
 
 jobs:
     playwright:

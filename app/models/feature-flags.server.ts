@@ -5,14 +5,21 @@ import type { FeatureFlagsResponse } from '~/types/posthog';
 const postHogClient = getPostHogClient();
 
 export async function getFeatureFlags() {
+    const projectId = process.env.POSTHOG_PROJECT_ID;
+    const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+
+    if (!projectId || !personalApiKey) {
+        return { results: [] };
+    }
+
     try {
         const featureFlagsResponse = await fetch(
-            `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/feature_flags/`,
+            `https://us.posthog.com/api/projects/${projectId}/feature_flags/`,
             {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+                    Authorization: `Bearer ${personalApiKey}`,
                 },
             },
         );

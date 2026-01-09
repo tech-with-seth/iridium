@@ -6,23 +6,23 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 
 **Core Features:**
 
-- ✅ BetterAuth email/password authentication
-- ✅ Dashboard, profile editor, AI chat demo
+- ✅ BetterAuth email/password auth + social OAuth (GitHub/Google) + roles (admin plugin)
+- ✅ Landing page auth UI, dashboard with threaded AI chat, design system + forms demos
 - ✅ PostgreSQL + Prisma ORM (custom output path)
 - ✅ DaisyUI 5 + Tailwind CSS 4 + CVA components
 
 **Optional Integrations:**
 
-- 🔌 PostHog (analytics/feature flags)
-- 🔌 Resend (transactional email)
+- 🔌 PostHog (analytics, feature flags, LLM analytics)
+- 🔌 Resend (transactional email + React Email templates)
+- 🔌 Polar (billing/checkout/portal/webhooks)
 
 **Explicitly Scoped Out:**
 
-- ❌ Billing/payments (see `.github/instructions/polar.instructions.md` if needed)
 - ❌ Multi-tenancy/organizations
-- ❌ E-commerce/shop flows
+- ❌ E-commerce/shop flows (beyond the Polar demo routes)
 
-**📋 See detailed instruction files in `.github/instructions/` for specific patterns (33 guides):**
+**📋 See detailed instruction files in `.github/instructions/` for specific patterns (32 guides):**
 
 - `react-router.instructions.md` - **Critical React Router 7 patterns (READ THIS FIRST)**
 - `form-validation.instructions.md` - Hybrid client+server validation
@@ -33,7 +33,7 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 
 ## AI Skills Library
 
-The `.claude/skills/` directory contains 10 specialized skills for common development tasks:
+The `.github/skills/` directory contains 20 specialized skills for common development tasks:
 
 | Skill | Purpose |
 |-------|---------|
@@ -41,12 +41,22 @@ The `.claude/skills/` directory contains 10 specialized skills for common develo
 | `create-route` | React Router 7 routes |
 | `create-crud-api` | API endpoints with validation |
 | `create-form` | Hybrid validated forms |
+| `create-ai-tool` | AI chat tools with Vercel AI SDK |
 | `create-model` | Prisma model layer functions |
 | `add-auth` | BetterAuth route protection |
+| `add-rbac` | Role-based access control |
 | `create-unit-test` | Vitest unit tests |
 | `create-e2e-test` | Playwright E2E tests |
 | `add-docs` | JSDoc and inline documentation |
 | `refactor-code` | Code simplification and cleanup |
+| `add-error-boundary` | Error handling for routes |
+| `create-email` | React Email + Resend templates |
+| `add-feature-flag` | PostHog feature flags |
+| `add-billing` | Polar subscriptions/payments |
+| `add-chart` | visx data visualizations |
+| `add-caching` | Client-side SWR caching |
+| `add-seo` | Meta tags, Open Graph, JSON-LD |
+| `ship` | Railway deployment & debugging |
 
 ## Critical Architecture Patterns
 
@@ -95,14 +105,27 @@ export default function MyRoute() {
 ```tsx
 // app/routes.ts - Single source of truth for routing
 export default [
-    index('routes/home.tsx'),
-    route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
-    layout('routes/authenticated.tsx', [
-        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-        route(Paths.PROFILE, 'routes/profile.tsx'),
-        ...prefix('admin', [route('/design', 'routes/admin/design.tsx')]),
+    layout('routes/site-layout.tsx', [
+        index('routes/landing.tsx'),
+        layout('routes/authenticated.tsx', [
+            route(Paths.DASHBOARD, 'routes/dashboard.tsx', [
+                index('routes/dashboard-index.tsx'),
+                route(Paths.THREAD, 'routes/thread.tsx'),
+            ]),
+            route(Paths.DESIGN, 'routes/design.tsx'),
+            route(Paths.FORMS, 'routes/forms.tsx'),
+            route(Paths.PORTAL, 'routes/portal.tsx'),
+        ]),
     ]),
-    ...prefix('api', [route('auth/*', 'routes/api/auth/better-auth.ts')]),
+    route(Paths.CHECKOUT, 'routes/checkout.tsx'),
+    ...prefix(Paths.API, [
+        route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+        route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
+        route(Paths.CHAT, 'routes/api/chat.ts'),
+        ...prefix(Paths.WEBHOOKS, [
+            route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
+        ]),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -116,19 +139,18 @@ export default [
 ### Singleton Pattern Usage
 
 - **Database**: `app/db.server.ts` - Global Prisma client with custom output path
-- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance with PostgreSQL adapter
-- **AI**: `app/lib/ai.ts` - OpenAI client singleton (renamed from `openai` to `ai`)
-- **Cache**: `app/lib/cache.ts` - FlatCache instance with TTL and user-scoped keys
+- **Auth**: `app/lib/auth.server.ts` - BetterAuth instance with PostgreSQL adapter + plugins
+- **AI**: `app/lib/ai.ts` - OpenAI SDK client (separate from Vercel AI SDK in routes)
+- **Analytics**: `app/lib/posthog.ts` - PostHog Node client singleton
+- **Email**: `app/lib/resend.ts` - Resend client singleton
+- **Billing**: `app/lib/polar.ts` - Polar SDK client
 
-### Model Layer Pattern - CRITICAL
+### Model Layer Pattern
 
-**NEVER call Prisma directly in routes.** All database operations MUST go through `app/models/` functions.
+Prefer model helpers in `app/models/` when they exist (user, thread, email, analytics, PostHog, Polar). Some endpoints (e.g. `/api/interest`) still call Prisma directly, and the CRUD pattern guide shows direct Prisma usage for simple features, so follow the instruction file that matches the task.
 
 ```typescript
-// ❌ NEVER do this in routes:
-const user = await prisma.user.findUnique({ where: { id } });
-
-// ✅ ALWAYS do this:
+// Prefer model helpers when available
 import { getUserProfile } from '~/models/user.server';
 const user = await getUserProfile(userId);
 ```
@@ -146,29 +168,19 @@ const user = await getUserProfile(userId);
 
 ### Authentication & Session Management
 
-- **BetterAuth** with Prisma adapter, 7-day sessions, no email verification required
-- Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUserFromSession()`, `requireAnonymous()`
+- **BetterAuth** with Prisma adapter, 7-day sessions, email verification sent but not required
+- Session helpers in `app/lib/session.server.ts`: `requireUser()`, `getUserFromSession()`, `requireAnonymous()`, `requireRole()`/`requireAdmin()`
 - Client-side: `authClient` from `app/lib/auth-client.ts` with Better Auth React
 - Protected routes use middleware pattern in layout files
 
 ## File Naming Conventions
 
-**DO NOT use flat route naming with `$` for parameters:**
-
-```text
-❌ BAD:
-organizations.$slug.invitations.ts
-organizations.$slug.settings.general.tsx
-
-✅ GOOD:
-organizations/invitations.ts
-organizations/settings/general.tsx
-```
+Routes are config-based, so file names are descriptive (not path-derived). Use directories for grouping and keep route files kebab-case.
 
 **Naming Standards:**
 
 - **Components**: PascalCase (`Button.tsx`, `TextInput.tsx`)
-- **Routes**: kebab-case (`sign-in.tsx`, `dashboard.tsx`)
+- **Routes**: kebab-case (`landing.tsx`, `dashboard-index.tsx`, `thread.tsx`)
 - **Utilities**: camelCase (`session.server.ts`, `validations.ts`)
 - **Constants**: SCREAMING_SNAKE_CASE or PascalCase enum (see `app/constants/index.ts`)
 - **Server files**: `.server.ts` suffix (never imported client-side)
@@ -185,23 +197,25 @@ npm run typecheck     # Generate types + run TypeScript check
 npm run build         # Production build
 npm start             # Start production server
 npm run seed          # Seed database (CAUTION: fresh databases only - do NOT run on production)
+npm run test          # Vitest unit tests
+npm run e2e           # Playwright E2E tests
 npx prisma generate   # Regenerate Prisma client (after schema changes)
 npx prisma migrate dev --name <description> # Apply database migrations
 ```
 
 > ⚠️ **Seed Warning**: `npm run seed` is for initializing fresh databases only (local dev, new staging instances, or after deliberate reset). Never run on production—production data should evolve through the app itself.
 
-> Tip: the repo ships with VS Code tasks (`.vscode/tasks.json`) for these commands plus Railway helpers (`railway:migrate`, `railway:seed`, `railway:shell`) so you can run them via **Run Task…**.
+> Tip: the repo ships with VS Code tasks (`.vscode/tasks.json`) for Prisma and Railway helpers plus Polar/GitHub scripts so you can run them via **Run Task…**.
 
 ### Adding New Features
 
 #### 1. Protected Routes
 
 ```tsx
-// 1. Add to app/routes.ts using constants
+// 1. Add to app/routes.ts under the authenticated layout
 import { Paths } from './constants';
 layout('routes/authenticated.tsx', [
-    route('new-feature', 'routes/new-feature.tsx'),
+    route('/new-feature', 'routes/new-feature.tsx'),
 ]);
 
 // 2. Create route file - middleware handles auth automatically
@@ -215,8 +229,8 @@ export default function NewFeature() {
 
 ```tsx
 // Add to api prefix in routes.ts
-...prefix('api', [
-  route('new-endpoint', 'routes/api/new-endpoint.ts')
+...prefix(Paths.API, [
+  route('/new-endpoint', 'routes/api/new-endpoint.ts')
 ])
 
 // API route with manual auth (no middleware)
@@ -238,12 +252,12 @@ export async function action({ request }: Route.ActionArgs) {
 
 ### AI Features (OpenAI + Vercel AI SDK)
 
-- Chat endpoint lives at `app/routes/api/chat.ts` and uses `streamText()` with `openai('gpt-4o')`
+- Chat endpoint lives at `app/routes/api/chat.ts` and uses `createOpenAI()` with `gpt-5-mini`, `streamText()`, and `chatTools`
 - Always call `convertToModelMessages()` on incoming `UIMessage[]` before passing them to the model
 - Guard runaway tool loops with `stopWhen: stepCountIs(5)` (raise carefully if you extend reasoning depth)
-- Register tools via `tool({ description, inputSchema, execute })`; return JSON-safe payloads from `execute`
-- Stream the response back with `result.toUIMessageStreamResponse()` so `@ai-sdk/react` can render partial updates
-- Client-side chat flows use `useChat()` from `@ai-sdk/react` (defaults to `/api/chat`)
+- Tools live in `~/lib/chat-tools.server` and use `tool({ description, inputSchema, execute })` for Polar metrics + analytics
+- Stream the response back with `result.toUIMessageStreamResponse()` (optionally persist messages in `onFinish`)
+- Client-side chat uses `DefaultChatTransport` + `useChat()` (see `app/routes/thread.tsx`)
 
 **LLM Analytics with PostHog:**
 
@@ -255,12 +269,10 @@ All AI calls are automatically tracked with PostHog's LLM analytics via `@postho
 
 See `docs/llm-analytics.md` and `.github/instructions/posthog.instructions.md` for complete LLM analytics patterns.
 
-### Caching Strategy
+### Client-Side Caching (Optional)
 
-- File-based caching with TTL support via `flat-cache`
-- User-scoped keys: `getUserScopedKey(userId, key)`
-- Check expiration: `isCacheExpired(key)`
-- Cache saved to file system automatically
+- `remix-client-cache` is installed for loader data caching but is not wired into default routes
+- See `.github/instructions/client-side-caching.instructions.md` and `docs/decisions/007-client-side-caching.md` for patterns
 
 ### Form Validation Pattern (Server + Client)
 
@@ -268,23 +280,17 @@ This project uses a hybrid validation approach with Zod schemas validated on bot
 
 - **Zod schemas** in `app/lib/validations.ts` - Single source of truth
 - **Server-side utilities** in `app/lib/form-validation.server.ts`:
-    - `parseFormData(request)` - Extract FormData from POST body or GET params
-    - `getValidatedFormData(request, resolver)` - Validate with Zod, return errors/data
+    - `validateFormData(formData, resolver)` - Validate `FormData` with Zod resolver
 - **Client-side hook** in `app/lib/form-hooks.ts`:
     - `useValidatedForm(options)` - Wraps React Hook Form's `useForm`
     - Automatically syncs server errors with form state
     - Maintains full React Hook Form API
-- **Central auth endpoint**: `/api/auth/authenticate`
-    - POST with `intent=signIn` - Validates and signs in user
-    - POST with `intent=signUp` - Validates and creates user account
-    - DELETE - Signs out user
 - **Pattern flow**:
     1. Client validates with React Hook Form + Zod (instant feedback)
     2. Form submits to server via `useFetcher()`
     3. Server validates with same Zod schema (security)
     4. Server errors automatically populate form fields
-    5. BetterAuth handles authentication on server
-- Pre-built schemas: `signInSchema`, `signUpSchema`, `chatMessageSchema`
+- Pre-built schemas: `signInSchema`, `signUpSchema`, `supportRequestSchema`, `sendEmailSchema`, `interestFormSchema`
 
 ## File Organization
 
@@ -293,22 +299,27 @@ app/
 ├── lib/              # Singleton services & utilities
 │   ├── auth.server.ts    # BetterAuth configuration
 │   ├── auth-client.ts    # Client-side auth
-│   ├── session.server.ts # Session helpers (requireUser, getUser)
+│   ├── session.server.ts # Session helpers (requireUser, roles)
 │   ├── ai.ts            # OpenAI client
-│   ├── cache.ts         # FlatCache with TTL
+│   ├── posthog.ts       # PostHog Node client
+│   ├── polar.ts         # Polar SDK client
+│   ├── resend.ts        # Resend email client
 │   ├── validations.ts   # Zod schemas
-│   ├── form-validation.server.ts # Server-side form parsing/validation
+│   ├── form-validation.server.ts # Server-side form validation
 │   └── form-hooks.ts    # Client-side useValidatedForm hook
 ├── middleware/       # Request middleware
 │   ├── auth.ts          # Authentication middleware
 │   ├── context.ts       # React Router contexts
 │   └── logging.ts       # Request logging
+├── models/          # Server-side model helpers
 ├── routes/           # Route components (descriptive naming)
 │   ├── authenticated.tsx # Layout with Outlet for protected routes
 │   ├── api/             # API endpoints
 ├── constants/        # App constants (Paths enum)
 ├── components/       # UI components
 ├── hooks/           # Custom React hooks
+├── emails/          # React Email templates
+├── types/           # Shared types
 └── generated/        # Prisma client output (never edit)
 ```
 
@@ -317,6 +328,8 @@ app/
 ### UI Component Paradigm (DaisyUI + TypeScript)
 
 All UI components should follow the established `TextInput` paradigm:
+
+Reference implementations: `app/components/actions/Button.tsx`, `app/components/data-input/TextInput.tsx`.
 
 #### Core Requirements
 
@@ -447,7 +460,13 @@ import { prisma } from '~/db.server';
 import type { Route } from './+types/dashboard';
 
 // Auth helpers
-import { requireUser, getUser } from '~/lib/session.server';
+import {
+  getUserFromSession,
+  requireAdmin,
+  requireEditor,
+  requireRole,
+  requireUser,
+} from '~/lib/session.server';
 import { authClient } from '~/lib/auth-client';
 
 // AI client (renamed from openai to ai)
@@ -466,18 +485,25 @@ import { signInSchema, signUpSchema } from '~/lib/validations';
 
 ## Environment Dependencies
 
-**Required:**
+**Required (core app):**
 
 - `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Session encryption (min 32 chars)
-- `BETTER_AUTH_URL` - Auth service URL ("http://localhost:5173" for dev)
+- `BETTER_AUTH_URL` - App URL ("http://localhost:5173" for dev)
+- `VITE_BETTER_AUTH_BASE_URL` - Client auth base URL
 
-**Optional:**
+**Optional (feature-specific):**
 
+- `DEFAULT_THEME` - Theme fallback (defaults to `light`)
+- `ADMIN_EMAIL` - Admin notifications (Polar webhooks, interest list)
 - `OPENAI_API_KEY` - AI chat demo
-- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_HOST` - Client-side analytics/feature flags
-- `POSTHOG_API_KEY`, `POSTHOG_HOST` - Server-side analytics (for LLM analytics)
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` - GitHub OAuth
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` - Google OAuth
+- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_API_HOST`, `VITE_POSTHOG_UI_HOST`, `VITE_POSTHOG_HOST`, `VITE_POSTHOG_PROJECT_ID` - Client analytics
+- `POSTHOG_API_KEY`, `POSTHOG_HOST`, `POSTHOG_PROJECT_ID`, `POSTHOG_PERSONAL_API_KEY` - Server analytics/feature flags
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` - Transactional email
+- `POLAR_ACCESS_TOKEN`, `POLAR_ORGANIZATION_ID`, `POLAR_PRODUCT_ID` - Polar billing
+- `POLAR_SERVER`, `POLAR_SUCCESS_URL`, `POLAR_RETURN_URL`, `POLAR_WEBHOOK_SECRET` - Polar checkout/webhooks
 
 ## Development Tips
 
@@ -486,7 +512,7 @@ import { signInSchema, signUpSchema } from '~/lib/validations';
 - Session-dependent routes require auth mocking
 - Database state affects user capabilities
 - Types must be generated before testing routes (`npm run typecheck`)
-- Use `/admin/design` route to test component variants
+- Use `/design` route to test component variants
 
 ### Common Debugging
 
@@ -498,5 +524,5 @@ import { signInSchema, signUpSchema } from '~/lib/validations';
 ### Performance Notes
 
 - Prisma client uses singleton pattern to prevent connection leaks
-- FlatCache provides file-based caching with TTL
+- PostHog and Resend clients are lazily instantiated when configured
 - React Router 7 automatically optimizes with code splitting

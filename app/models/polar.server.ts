@@ -14,8 +14,14 @@ export function getCustomerByExternalId(userId: string) {
     });
 }
 
-export function getProductDetails(id: string) {
-    return polarClient.products.get({
-        id,
-    });
+export async function getProductDetails(id?: string) {
+    if (!id || !process.env.POLAR_ACCESS_TOKEN) {
+        return null;
+    }
+
+    try {
+        return await polarClient.products.get({ id });
+    } catch {
+        return null;
+    }
 }

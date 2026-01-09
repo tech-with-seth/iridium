@@ -31,9 +31,8 @@ Tests are located in the `tests/` directory:
 
 ```
 tests/
-├── app-layout.spec.ts       # Application layout and structure tests
-├── authentication.spec.ts    # Authentication flow and protected routes
-└── home.spec.ts             # Home page content tests
+└── e2e/
+    └── smoke.spec.ts        # Phase 1 baseline smoke tests
 ```
 
 ## Configuration
@@ -41,7 +40,7 @@ tests/
 Playwright configuration is defined in `playwright.config.ts`:
 
 - **Base URL**: `http://localhost:5173` (development server)
-- **Test Directory**: `./tests`
+- **Test Directory**: `./tests/e2e`
 - **Browsers**: Chromium, Firefox, WebKit
 - **Auto-start Dev Server**: Playwright automatically starts the dev server before running tests
 
@@ -75,28 +74,27 @@ test.describe('Feature Name', () => {
 ### Example: Testing Protected Routes
 
 ```typescript
-test('protected routes redirect to sign-in', async ({ page }) => {
+test('protected routes redirect to home', async ({ page }) => {
     await page.goto('/dashboard');
 
     // Should redirect unauthenticated users
-    await expect(page).toHaveURL(/sign-in/);
+    await expect(page).toHaveURL(/\/$/);
 });
 ```
 
 ### Example: Testing Form Interactions
 
 ```typescript
-test('submits form with valid data', async ({ page }) => {
-    await page.goto('/sign-in');
+test('opens auth drawer and shows email fields', async ({ page }) => {
+    await page.goto('/');
 
-    await page
-        .getByRole('textbox', { name: /email/i })
-        .fill('user@example.com');
+    const header = page.getByRole('banner');
+    await header.getByRole('button', { name: /sign in/i }).click();
+
+    await page.getByLabel(/email/i).fill('user@example.com');
     await page.getByLabel(/password/i).fill('password123');
-    await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Assert success state
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByLabel(/email/i)).toBeVisible();
 });
 ```
 

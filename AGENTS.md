@@ -19,22 +19,24 @@ Iridium is a small, opinionated starter for React Router 7 apps built with:
 
 **Optional Integrations:**
 
-- **PostHog** (analytics & feature flags)
-- **Resend** (transactional email)
+- **PostHog** (analytics, feature flags, LLM analytics)
+- **Resend** (transactional email + React Email templates)
+- **Polar** (billing/checkout/portal/webhooks via BetterAuth plugin)
+- **OAuth providers** (GitHub, Google)
 
 **Not Included (Scoped Out):**
 
-- Billing/payments (Polar) - See `.github/instructions/polar.instructions.md` if needed
 - Multi-tenancy/organizations
-- E-commerce flows
+- E-commerce/shop flows (beyond the Polar demo routes)
 
 ### Key Architectural Patterns
 
 1. **Config-Based Routing**: Routes defined in `app/routes.ts`, not file-based
 2. **Middleware Architecture**: Auth, logging, and context middleware applied via layouts
-3. **Singleton Services**: Database, auth, AI, and cache use singleton pattern
+3. **Singleton Services**: Database, auth, AI, PostHog, Resend, Polar clients use singleton pattern
 4. **CVA Component System**: All UI components use CVA for variants with DaisyUI classes
 5. **Custom Prisma Output**: Client generated to `app/generated/prisma` (not default)
+6. **Model Helpers**: Prefer `app/models/*` for domain logic when available
 
 ## Setup Commands
 
@@ -86,29 +88,57 @@ npx prisma studio                            # Open database GUI
 - `prisma.instructions.md` - Database patterns
 - `zod.instructions.md` - Schema validation
 
-**See [Additional Resources](#additional-resources) section below for complete list of 33 guides.**
+**See [Additional Resources](#additional-resources) section below for complete list of 32 guides.**
 
 ## Environment Variables
 
-Required `.env` file at repository root:
+Required `.env` file at repository root (see `.env.example` for full list):
 
 ```bash
+# Required (core app)
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
 BETTER_AUTH_SECRET="your-secret-key-min-32-chars"
 BETTER_AUTH_URL="http://localhost:5173"
+VITE_BETTER_AUTH_BASE_URL="http://localhost:5173"
+
+# Optional - App defaults
+DEFAULT_THEME="emerald"
+ADMIN_EMAIL="admin@yourdomain.com"
+
+# Optional - OAuth providers (BetterAuth)
+GITHUB_CLIENT_ID="..."
+GITHUB_CLIENT_SECRET="..."
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+
+# Optional - OpenAI (chat demo)
 OPENAI_API_KEY="sk-..."
 
-# Optional - PostHog analytics (client-side)
+# Optional - PostHog (client-side analytics)
 VITE_POSTHOG_API_KEY="phc_your-posthog-api-key"
+VITE_POSTHOG_API_HOST="https://us.i.posthog.com"
+VITE_POSTHOG_UI_HOST="https://us.posthog.com"
 VITE_POSTHOG_HOST="https://us.i.posthog.com"
+VITE_POSTHOG_PROJECT_ID="12345"
 
-# Optional - PostHog analytics (server-side for LLM analytics)
+# Optional - PostHog (server-side analytics + feature flags)
 POSTHOG_API_KEY="phc_your-posthog-project-api-key"
 POSTHOG_HOST="https://us.i.posthog.com"
+POSTHOG_PROJECT_ID="12345"
+POSTHOG_PERSONAL_API_KEY="phx_..."
 
 # Optional - Resend email
 RESEND_API_KEY="re_..."
 RESEND_FROM_EMAIL="noreply@yourdomain.com"
+
+# Optional - Polar billing
+POLAR_ACCESS_TOKEN="polar_..."
+POLAR_ORGANIZATION_ID="org_..."
+POLAR_PRODUCT_ID="prod_..."
+POLAR_SERVER="sandbox"
+POLAR_SUCCESS_URL="/success"
+POLAR_RETURN_URL="/"
+POLAR_WEBHOOK_SECRET="whsec_..."
 ```
 
 ## Critical Development Rules
@@ -129,12 +159,27 @@ import {
 import { Paths } from './constants';
 
 export default [
-    index('routes/home.tsx'),
-    route(Paths.SIGN_IN, 'routes/sign-in.tsx'),
-    layout('routes/authenticated.tsx', [
-        route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
+    layout('routes/site-layout.tsx', [
+        index('routes/landing.tsx'),
+        layout('routes/authenticated.tsx', [
+            route(Paths.DASHBOARD, 'routes/dashboard.tsx', [
+                index('routes/dashboard-index.tsx'),
+                route(Paths.THREAD, 'routes/thread.tsx'),
+            ]),
+            route(Paths.DESIGN, 'routes/design.tsx'),
+            route(Paths.FORMS, 'routes/forms.tsx'),
+            route(Paths.PORTAL, 'routes/portal.tsx'),
+        ]),
     ]),
-    ...prefix('api', [route('endpoint', 'routes/api/endpoint.ts')]),
+    route(Paths.CHECKOUT, 'routes/checkout.tsx'),
+    ...prefix(Paths.API, [
+        route(Paths.AUTHENTICATE, 'routes/api/auth/authenticate.ts'),
+        route(Paths.BETTER_AUTH, 'routes/api/auth/better-auth.ts'),
+        route(Paths.CHAT, 'routes/api/chat.ts'),
+        ...prefix(Paths.WEBHOOKS, [
+            route(Paths.POLAR, 'routes/api/webhooks/polar.ts'),
+        ]),
+    ]),
 ] satisfies RouteConfig;
 ```
 
@@ -167,14 +212,22 @@ export default function MyRoute() {
 ```tsx
 // app/routes/authenticated.tsx - Layout with middleware
 import { authMiddleware } from '~/middleware/auth';
+import { loggingMiddleware } from '~/middleware/logging';
+import { userContext } from '~/middleware/context';
 
-export async function loader(args: Route.LoaderArgs) {
-    return authMiddleware(args);
+export const middleware: Route.MiddlewareFunction[] = [
+    authMiddleware,
+    loggingMiddleware,
+];
+
+export async function loader({ context }: Route.LoaderArgs) {
+    return { user: context.get(userContext) };
 }
 
-export default function AuthenticatedLayout() {
-    const { user } = useAuthenticatedContext();
-    return <Outlet />;
+export default function AuthenticatedLayout({
+    loaderData,
+}: Route.ComponentProps) {
+    return <Outlet context={{ user: loaderData.user }} />;
 }
 
 // Child routes automatically protected
@@ -194,9 +247,10 @@ export async function action({ request }: Route.ActionArgs) {
 
 **Session Helpers**:
 
-- `requireUser(request)` - Throws redirect if not authenticated
+- `requireUser(request)` - Throws 401 response if not authenticated
 - `getUserFromSession(request)` - Returns user or null
 - `requireAnonymous(request)` - Redirects authenticated users (for sign-in/up pages)
+- `requireAdmin(request)` / `requireEditor(request)` / `requireRole(request, roles)` - Role-based access control
 
 ### Prisma Database Pattern
 
@@ -298,7 +352,7 @@ export function Component({
 - Support DaisyUI color variants (primary, secondary, accent, success, warning, error)
 - Accessibility: proper ARIA attributes, semantic HTML
 
-**Reference**: See `app/components/Button.tsx` (canonical), `app/components/TextInput.tsx` (form pattern).
+**Reference**: See `app/components/actions/Button.tsx` (canonical), `app/components/data-input/TextInput.tsx` (form pattern).
 
 ### Import Patterns
 
@@ -311,7 +365,14 @@ import type { User, Session } from '~/generated/prisma/client';
 import type { Route } from './+types/dashboard';
 
 // Auth helpers
-import { requireUser, getUser, requireAnonymous } from '~/lib/session.server';
+import {
+    getUserFromSession,
+    requireAdmin,
+    requireAnonymous,
+    requireEditor,
+    requireRole,
+    requireUser,
+} from '~/lib/session.server';
 import { authClient } from '~/lib/auth-client';
 
 // AI client
@@ -342,16 +403,23 @@ npm run build
 
 # Run development server (auto-reloads)
 npm run dev
+
+# Unit tests
+npm run test
+
+# E2E tests
+npm run e2e
 ```
 
 ## VS Code Tasks Reference
 
 The repo ships with predefined VS Code tasks in `.vscode/tasks.json` so common workflows stay consistent:
 
-- `dev`, `build`, `start`, `typecheck`, `test:*`, `e2e:*` mirror the npm scripts.
-- `prisma:*` tasks cover `generate`, `migrate dev`, and `studio`.
-- `railway:migrate` and `railway:seed` run `npx prisma migrate deploy` or `npm run seed` inside the linked Railway service via `railway run -- bash -lc "cd /app && …"`.
-- `railway:shell` opens a subshell with all Railway environment variables loaded.
+- `prisma:generate`, `prisma:migrate`, `prisma:studio`
+- `railway:migrate`, `railway:seed`, `railway:shell`
+- Polar maintenance scripts (`Archive all products`, `Delete all customers`, `Get all customers`, `Reset database & Polar`)
+- GitHub helpers (`Create GitHub pull request`, `Create GitHub issue`, `List GitHub issues`)
+- `Promote DEV to MAIN` (fast-forward merge helper)
 
 Use these tasks from the VS Code command palette (`Run Task…`) when you need a one-click way to apply migrations, seed data, or open Railway shells.
 
@@ -408,7 +476,7 @@ Use these tasks from the VS Code command palette (`Run Task…`) when you need a
 ### Naming Conventions
 
 - **Components**: PascalCase (`Button.tsx`, `TextInput.tsx`)
-- **Routes**: kebab-case (`sign-in.tsx`, `dashboard.tsx`)
+- **Routes**: kebab-case (`landing.tsx`, `dashboard-index.tsx`, `thread.tsx`)
 - **Utilities**: camelCase (`session.server.ts`, `validations.ts`)
 - **Constants**: SCREAMING_SNAKE_CASE or PascalCase enum
 - **Server files**: `.server.ts` suffix (not imported client-side)
@@ -452,8 +520,8 @@ Use these tasks from the VS Code command palette (`Run Task…`) when you need a
 1. Add route to `api` prefix in `app/routes.ts`:
 
     ```typescript
-    ...prefix("api", [
-        route("new-endpoint", "routes/api/new-endpoint.ts")
+    ...prefix(Paths.API, [
+        route('/new-endpoint', 'routes/api/new-endpoint.ts'),
     ])
     ```
 
@@ -516,7 +584,7 @@ Use these tasks from the VS Code command palette (`Run Task…`) when you need a
 
 4. Implement component with proper TypeScript types
 
-5. Test in `/admin/design` route
+5. Test in `/design` route
 
 ### Modifying Database Schema
 
@@ -568,52 +636,42 @@ import {
     convertToModelMessages,
     stepCountIs,
     streamText,
-    tool,
     type UIMessage,
 } from 'ai';
 import { withTracing } from '@posthog/ai';
-import { postHogClient } from '~/lib/posthog';
-import z from 'zod';
+import { chatTools } from '~/lib/chat-tools.server';
+import { getPostHogClient } from '~/lib/posthog';
+import { getUserFromSession } from '~/lib/session.server';
 
 export async function action({ request }: Route.ActionArgs) {
     if (request.method !== 'POST') {
-        return null;
+        return Response.json({ error: 'Method not allowed' }, { status: 405 });
     }
 
+    const { messages } = (await request.json()) as { messages: UIMessage[] };
     const user = await getUserFromSession(request);
-    const { messages }: { messages: UIMessage[] } = await request.json();
+
+    if (!user) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const openAIClient = createOpenAI({
         apiKey: process.env.OPENAI_API_KEY!,
     });
 
-    // Wrap with PostHog tracing
-    const model = withTracing(openAIClient('gpt-4o'), postHogClient, {
-        posthogDistinctId: user?.id,
-        posthogProperties: {
-            feature: 'chat',
-            userPlan: user?.plan,
-        },
-    });
+    const baseModel = openAIClient('gpt-5-mini');
+    const postHogClient = getPostHogClient();
+    const model = postHogClient
+        ? withTracing(baseModel, postHogClient, {
+              posthogDistinctId: user.id,
+          })
+        : baseModel;
 
     const result = streamText({
         model,
         messages: convertToModelMessages(messages),
         stopWhen: stepCountIs(5),
-        tools: {
-            weather: tool({
-                description: 'Get the weather in a location (fahrenheit)',
-                inputSchema: z.object({
-                    location: z.string().describe(
-                        'The location to get the weather for',
-                    ),
-                }),
-                execute: async ({ location }) => ({
-                    location,
-                    temperature: 72,
-                }),
-            }),
-        },
+        tools: chatTools,
     });
 
     return result.toUIMessageStreamResponse();
@@ -622,7 +680,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 **LLM Analytics Captured**:
 
-- `$ai_model` - Model used (e.g., "gpt-4o")
+- `$ai_model` - Model used (e.g., "gpt-5-mini")
 - `$ai_latency` - Response time in seconds
 - `$ai_input_tokens` - Prompt tokens
 - `$ai_output_tokens` - Completion tokens
@@ -634,7 +692,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 - Use `convertToModelMessages()` whenever the client sends `UIMessage[]` payloads
 - Apply `stepCountIs()` (currently capped at five reasoning steps) to constrain tool loops
-- Register tools with `tool({ description, inputSchema, execute })`; update the `execute` implementation with real data sources when productionizing
+- Use `chatTools` from `~/lib/chat-tools.server` (Polar metrics + analytics), and extend it with `tool({ description, inputSchema, execute })` as needed
 - Return `result.toUIMessageStreamResponse()` so the client receives incremental updates that match the Vercel AI SDK expectations
 - Wrap the model with `withTracing()` to automatically capture LLM analytics in PostHog
 - Add custom properties via `posthogProperties` for better filtering and insights
@@ -655,13 +713,16 @@ OPENAI_API_KEY="sk-proj-your-openai-api-key"
 
 ```typescript
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 
-const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: '/api/chat',
+const transport = new DefaultChatTransport({ api: '/api/chat' });
+
+const { messages, sendMessage, status, stop } = useChat({
+    transport,
 });
 ```
 
-The `useChat` hook defaults to `/api/chat`, streams the `UIMessage` payloads, and emits each assistant update as it arrives. Supply custom `api` paths or callbacks to tune the behaviour for other endpoints.
+`DefaultChatTransport` targets `/api/chat` and streams `UIMessage` payloads as the assistant responds. Supply custom `api` paths or callbacks to tune the behaviour for other endpoints.
 
 **See Also**:
 
@@ -697,7 +758,28 @@ npx prisma migrate deploy
 DATABASE_URL
 BETTER_AUTH_SECRET
 BETTER_AUTH_URL  # Your production domain
+VITE_BETTER_AUTH_BASE_URL
+
+# Optional integrations
 OPENAI_API_KEY
+RESEND_API_KEY
+RESEND_FROM_EMAIL
+POSTHOG_API_KEY
+POSTHOG_HOST
+POSTHOG_PROJECT_ID
+POSTHOG_PERSONAL_API_KEY
+VITE_POSTHOG_API_KEY
+VITE_POSTHOG_API_HOST
+VITE_POSTHOG_UI_HOST
+POLAR_ACCESS_TOKEN
+POLAR_ORGANIZATION_ID
+POLAR_PRODUCT_ID
+POLAR_SERVER
+POLAR_SUCCESS_URL
+POLAR_RETURN_URL
+POLAR_WEBHOOK_SECRET
+DEFAULT_THEME
+ADMIN_EMAIL
 ```
 
 > ℹ️ Railway deployments (and any environment using the provided Docker image) automatically execute `npx prisma migrate deploy` on container startup. Use the manual command above when running outside that image or when you need to reapply migrations explicitly.
@@ -776,7 +858,7 @@ OPENAI_API_KEY
 
 ## AI Skills Library
 
-The `.claude/skills/` directory contains 10 specialized skills that Claude Code (and VS Code Copilot) use automatically when relevant tasks are detected.
+The `.github/skills/` directory contains 20 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
 
 ### Core Development Skills
 
@@ -786,6 +868,7 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 | `create-route` | React Router 7 routes | "add page", "create route" |
 | `create-crud-api` | API endpoints with validation | "create API", "add endpoint" |
 | `create-form` | Hybrid validated forms | "add form", "create form" |
+| `create-ai-tool` | AI chat tools with Vercel AI SDK | "add AI tool", "chat tool" |
 
 ### Database & Auth Skills
 
@@ -793,6 +876,7 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 |-------|---------|--------------|
 | `create-model` | Prisma model layer functions | "add database", "create model" |
 | `add-auth` | BetterAuth route protection | "protect route", "add auth" |
+| `add-rbac` | Role-based access control | "add role check", "admin only" |
 
 ### Testing Skills
 
@@ -807,6 +891,19 @@ The `.claude/skills/` directory contains 10 specialized skills that Claude Code 
 |-------|---------|--------------|
 | `add-docs` | JSDoc and inline documentation | "document this", "add JSDoc" |
 | `refactor-code` | Simplification and cleanup | "clean up", "simplify", "refactor" |
+| `add-error-boundary` | Error handling for routes | "add error handling", "404 page" |
+
+### Integration Skills
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `create-email` | React Email + Resend templates | "send email", "email template" |
+| `add-feature-flag` | PostHog feature flags | "feature flag", "A/B test" |
+| `add-billing` | Polar subscriptions/payments | "add billing", "checkout" |
+| `add-chart` | visx data visualizations | "add chart", "visualize data" |
+| `add-caching` | Client-side SWR caching | "add caching", "improve performance" |
+| `add-seo` | Meta tags, Open Graph, JSON-LD | "add SEO", "meta tags" |
+| `ship` | Railway deployment & debugging | "deploy", "ship", "debug deployment" |
 
 Skills include templates, examples, and reference the full instruction files in `.github/instructions/`.
 
@@ -814,9 +911,10 @@ Skills include templates, examples, and reference the full instruction files in 
 
 - **Route types must be generated** - Always run `npm run typecheck` after route changes
 - **Prisma uses custom output path** - Import from `~/generated/prisma/client`, not `@prisma/client`
-- **Middleware applies in layouts** - Don't add auth checks to individual route files
+- **Middleware applies in layouts** - UI routes under `routes/authenticated.tsx` are protected via middleware; API routes still call `requireUser()`/`requireRole()`
 - **React 19 meta pattern** - No `meta()` export, use JSX elements
 - **CVA for all components** - Follow established Button/TextInput patterns
 - **Server/client separation** - `.server.ts` files never imported client-side
-- **Singleton services** - Always use existing instances (prisma, ai, authClient)
+- **Singleton services** - Always use existing instances (prisma, ai, authClient, posthog, resend, polarClient)
+- **Model layer usage** - Prefer `app/models/*` helpers where they exist; some routes still call Prisma directly (e.g., `/api/interest`)
 - **Type safety first** - Explicit types, no implicit any, use Zod for runtime validation

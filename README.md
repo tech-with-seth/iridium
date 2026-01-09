@@ -5,7 +5,7 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Iridium is now a **small, opinionated starter** for building auth-protected React Router 7 apps with a clean UI kit and a minimal feature set. It ships with email/password auth, a profile editor, a simple dashboard, and an AI chat demo so you can start from a working app instead of an empty shell.
+Iridium is a **small, opinionated starter** for building auth-protected React Router 7 apps with a clean UI kit and a minimal feature set. It ships with email/password auth (plus social OAuth), a threaded AI chat dashboard, and design/form demos so you can start from a working app instead of an empty shell.
 
 ## Instant deploy
 
@@ -14,14 +14,13 @@ Iridium is now a **small, opinionated starter** for building auth-protected Reac
 ## What you get
 
 - **React Router 7 + React 19** with config-based routing and native meta tags
-- **Authentication**: BetterAuth (email/password) with Prisma + sessions
-- **Profile & dashboard**: View/edit profile, basic dashboard shell
-- **AI chat demo**: Vercel AI SDK + OpenAI wired to a chat UI
+- **Authentication**: BetterAuth (email/password + GitHub/Google OAuth) with Prisma + sessions
+- **Dashboard + chat**: Threaded chat UI wired to Vercel AI SDK + OpenAI
 - **UI system**: DaisyUI 5 + Tailwind CSS v4 + CVA-based components
-- **Docs & patterns**: Short instructions for routing, validation, and components
+- **Docs & patterns**: Instruction guides for routing, validation, components, auth, and CRUD
 - **Testing ready**: Vitest unit tests and Playwright e2e examples
 
-Nice-to-have integrations stay optional (PostHog analytics, Resend emails). Billing, multi-tenancy, and shop flows have been scoped out to keep the starter lean.
+Nice-to-have integrations stay optional (PostHog analytics/LLM tracking, Resend emails, Polar billing). Multi-tenancy and full shop flows stay out of scope to keep the starter lean.
 
 ## Quick start
 
@@ -31,8 +30,8 @@ cd iridium
 npm install
 
 cp .env.example .env
-# Fill in at least: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL
-# Optional: RESEND_API_KEY (emails), OPENAI_API_KEY (chat demo)
+# Fill in at least: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, VITE_BETTER_AUTH_BASE_URL
+# Optional: OPENAI_API_KEY (chat demo), RESEND_API_KEY (emails), PostHog, Polar, OAuth providers
 
 npx prisma generate
 npx prisma migrate deploy
@@ -45,9 +44,9 @@ npm run dev
 
 ## App overview
 
-- **Public**: Home, sign-in, sign-out
-- **Protected**: Dashboard, profile (view/edit), AI chat, design system demo
-- **API**: Auth handler, profile CRUD, chat endpoint, feature flags (PostHog optional)
+- **Public**: Landing, success, checkout
+- **Protected**: Dashboard + threads, chat, design system demo, forms demo, Polar portal
+- **API**: BetterAuth handler, sign-out endpoint, chat, email, interest list, PostHog feature flags, Polar webhooks
 
 Routes live in `app/routes.ts` (config-based, not file-system routing). Run `npm run typecheck` after route edits to regenerate types.
 
@@ -55,10 +54,11 @@ Routes live in `app/routes.ts` (config-based, not file-system routing). Run `npm
 
 - **Routing**: Config in `app/routes.ts`; React 19 meta elements in components
 - **Auth**: BetterAuth + Prisma, session helpers in `app/lib/session.server.ts`
-- **Data**: Model-layer helpers in `app/models/` (do not call Prisma directly in routes)
+- **Data**: Model-layer helpers in `app/models/` when available
 - **UI**: CVA + DaisyUI components in `app/components/` with `cx` from `app/cva.config.ts`
 - **Validation**: Zod schemas in `app/lib/validations.ts`; shared server/client pattern in `app/lib/form-hooks.ts` and `app/lib/form-validation.server.ts`
-- **AI**: OpenAI client singleton in `app/lib/ai.ts`; Vercel AI SDK streaming in chat endpoint
+- **AI**: OpenAI SDK client in `app/lib/ai.ts`; Vercel AI SDK streaming with `chatTools`
+- **Analytics/Email/Billing**: PostHog, Resend, Polar clients in `app/lib/`
 
 Custom Prisma client lives at `app/generated/prisma` (import from `~/generated/prisma/client`).
 
@@ -69,12 +69,17 @@ Required
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET` (32+ chars)
 - `BETTER_AUTH_URL` (e.g., <http://localhost:5173>)
+- `VITE_BETTER_AUTH_BASE_URL` (client auth base URL)
 
 Optional
 
 - `OPENAI_API_KEY` (AI chat demo)
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (transactional emails)
-- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_HOST` (analytics/feature flags)
+- `DEFAULT_THEME`, `ADMIN_EMAIL`
+- `VITE_POSTHOG_API_KEY`, `VITE_POSTHOG_API_HOST`, `VITE_POSTHOG_UI_HOST`, `VITE_POSTHOG_HOST`, `VITE_POSTHOG_PROJECT_ID` (client analytics)
+- `POSTHOG_API_KEY`, `POSTHOG_HOST`, `POSTHOG_PROJECT_ID`, `POSTHOG_PERSONAL_API_KEY` (server analytics/feature flags)
+- `POLAR_ACCESS_TOKEN`, `POLAR_ORGANIZATION_ID`, `POLAR_PRODUCT_ID`, `POLAR_SERVER`, `POLAR_SUCCESS_URL`, `POLAR_RETURN_URL`, `POLAR_WEBHOOK_SECRET`
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
 See `.env.example` for the full list.
 
@@ -91,9 +96,9 @@ See `.env.example` for the full list.
 ```text
 app/
   routes.ts           # Config-based routing
-  routes/             # Route modules (dashboard, profile, chat, design)
+  routes/             # Route modules (landing, dashboard, chat, design, forms)
   components/         # CVA + DaisyUI components
-  lib/                # Auth, AI, validation, utilities
+  lib/                # Auth, AI, validation, PostHog, Resend, Polar
   models/             # Server-side data helpers
   middleware/         # Auth/context/logging middleware
   generated/prisma/   # Prisma client (custom output)
@@ -104,7 +109,7 @@ docs/                 # Guides and patterns
 ## Contributing
 
 - Keep changes aligned with the smaller starter scope
-- Use the model layer for data access (no direct Prisma in routes)
+- Prefer the model layer for data access when available
 - Follow the CVA + DaisyUI component pattern
 - Run `npm run typecheck` before opening a PR
 

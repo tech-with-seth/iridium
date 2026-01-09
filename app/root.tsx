@@ -52,8 +52,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const theme = cookie.theme || process.env.DEFAULT_THEME || 'light';
 
     const product =
-        (await getProductDetails(process.env.POLAR_PRODUCT_ID as string)) ||
-        null;
+        (await getProductDetails(process.env.POLAR_PRODUCT_ID)) || null;
 
     return {
         allFlags,

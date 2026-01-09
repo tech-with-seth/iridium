@@ -202,6 +202,66 @@
                 "close": true,
                 "showReuseMessage": false
             }
+        },
+        {
+            "label": "e2e",
+            "type": "shell",
+            "command": "npm run e2e",
+            "detail": "Run Playwright E2E tests (headless).",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "e2e:ui",
+            "type": "shell",
+            "command": "npm run e2e:ui",
+            "detail": "Run Playwright E2E tests in UI mode.",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "e2e:headed",
+            "type": "shell",
+            "command": "npm run e2e:headed",
+            "detail": "Run Playwright E2E tests in headed mode.",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "e2e:debug",
+            "type": "shell",
+            "command": "npm run e2e:debug",
+            "detail": "Debug Playwright E2E tests.",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
         }
     ]
 }
