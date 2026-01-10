@@ -238,3 +238,22 @@ Before saving the PRD:
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Saved to `tasks/prd-[feature-name].md`
+
+---
+
+## After PRD Creation
+
+Once the PRD is saved, inform the user of the handoff process:
+
+```
+✅ PRD created at tasks/prd-[feature-name].md
+
+Next steps:
+1. Review the PRD and make any adjustments
+2. When ready for implementation, use the `ralph` skill to convert it to JSON and prepare for autonomous execution
+   Example: "convert this PRD to ralph format" or "prepare for ralph execution"
+```
+
+This creates a clear two-step workflow:
+- **Step 1:** Human creates and reviews PRD (this skill)
+- **Step 2:** Convert to automation format and execute (ralph skill)

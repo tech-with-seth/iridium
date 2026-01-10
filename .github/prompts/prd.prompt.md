@@ -1,5 +1,5 @@
 ---
-name: PRD Generator
+name: prd
 description: Create a clear, actionable PRD for a new feature. Ask a few clarifying questions, then draft the PRD in Markdown.
 tools:
     [
@@ -93,3 +93,18 @@ Unresolved questions that need follow-up.
 - Format: Markdown
 - Location: `tasks/`
 - Filename: `prd-[feature-name].md`
+
+## After PRD Creation
+
+Once the PRD is saved, inform the user:
+
+```
+PRD created at tasks/prd-[feature-name].md
+
+Next steps:
+1. Review the PRD and make any adjustments
+2. Use the `ralph` skill to convert it to prd.json and prepare for execution
+   Example: "convert this PRD to ralph format"
+```
+
+This creates a clear handoff point between PRD generation and automation.

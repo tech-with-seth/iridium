@@ -1,17 +1,34 @@
 ---
 name: ralph
-description: "Convert PRDs to prd.json format for the Ralph autonomous agent system. Use when you have an existing PRD and need to convert it to Ralph's JSON format. Triggers on: convert this prd, turn this into ralph format, create prd.json from this, ralph json."
+description: "Convert PRDs to prd.json format and prepare for Ralph autonomous execution. This is the handoff step between PRD creation and automation. Use after creating a PRD. Triggers on: convert this prd, turn this into ralph format, create prd.json, prepare for ralph, handoff to ralph."
 ---
 
-# Ralph PRD Converter
+# Ralph PRD Converter & Execution Prep
 
-Converts existing PRDs to the prd.json format that Ralph uses for autonomous execution.
+Converts PRDs to `prd.json` format and prepares the environment for Ralph autonomous execution.
+
+---
+
+## When to Use This Skill
+
+**After** creating a PRD in `tasks/prd-[feature].md`, use this skill to:
+
+1. Convert the Markdown PRD to JSON format at `plans/prd.json`
+2. Archive any previous Ralph run (if applicable)
+3. Prepare the execution environment
+4. Provide instructions for running Ralph
+
+This is the **handoff step** between human PRD creation and autonomous execution.
 
 ---
 
 ## The Job
 
-Take a PRD (markdown file or text) and convert it to `prd.json` in your ralph directory.
+1. **Read the PRD** from `tasks/prd-[feature].md` (or from user-provided text)
+2. **Archive previous run** if `plans/prd.json` exists with different feature
+3. **Convert to JSON** at `plans/prd.json` using the format below
+4. **Reset progress log** at `plans/progress.txt` with fresh header
+5. **Provide execution instructions** to the user
 
 ---
 
@@ -24,7 +41,7 @@ Take a PRD (markdown file or text) and convert it to `prd.json` in your ralph di
   "description": "[Feature description from PRD title/intro]",
   "userStories": [
     {
-      "id": "IR-001",
+      "id": "US-001",
       "title": "[Story title]",
       "description": "As a [user], I want [feature] so that [benefit]",
       "acceptanceCriteria": [
@@ -267,3 +284,36 @@ Before writing prd.json, verify:
 - [ ] UI stories have "Verify in browser using dev-browser skill" as criterion
 - [ ] Acceptance criteria are verifiable (not vague)
 - [ ] No story depends on a later story
+
+---
+
+## After Conversion
+
+Once `prd.json` is created and `progress.txt` is reset, provide these instructions to the user:
+
+```
+✅ Ralph preparation complete!
+
+Files created/updated:
+- plans/prd.json (JSON format for Ralph)
+- plans/progress.txt (fresh progress log)
+- plans/archive/[previous-run]/ (if applicable)
+
+To start Ralph:
+```bash
+cd /Users/seth/repositories/iridium
+./plans/ralph.sh 20  # Adjust max iterations as needed
+```
+
+Ralph will:
+
+1. Checkout/create branch: [branchName from prd.json]
+2. Work through stories one at a time (highest priority first)
+3. Run quality checks after each story
+4. Commit completed work
+5. Update progress.txt with learnings
+6. Stop when all stories have passes: true
+
+```
+
+This provides a clear completion signal and next steps.

@@ -1,13 +1,8 @@
+# Ralph Progress Log
+Started: 2026-01-10
+
 ## Codebase Patterns
 - Example: Use `cx()` for className merging in UI components
 - Example: Import Prisma types from `~/generated/prisma/client`
 
-## 2025-01-10 11:30 - IR-001
-Thread: https://claude.ai/chat/$CLAUDE_THREAD_ID
-- What was implemented (replace this with real progress)
-- Files changed: `app/routes/example.tsx`
-- Learnings for future iterations:
-  - Patterns discovered (replace with real patterns)
-  - Gotchas encountered (replace with real gotchas)
-  - Useful context (replace with real context)
 ---
