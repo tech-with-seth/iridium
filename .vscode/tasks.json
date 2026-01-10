@@ -306,6 +306,20 @@
                 "close": true,
                 "showReuseMessage": false
             }
+        },
+        {
+            "label": "git: prune local branches",
+            "type": "shell",
+            "command": "git branch --format '%(refname:short)' | grep -Ev '^(main|dev)$' | xargs -r git branch -D",
+            "detail": "Deletes all local branches except main and dev.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
         }
     ]
 }
