@@ -306,8 +306,7 @@
                 "close": true,
                 "showReuseMessage": false
             }
-        }
-        ,
+        },
         {
             "label": "Merge → DEV (no-ff)",
             "type": "shell",
