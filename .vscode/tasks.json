@@ -105,8 +105,8 @@
         {
             "label": "Merge → DEV",
             "type": "shell",
-            "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git switch -",
-            "detail": "Merges the current branch into dev and pushes to origin.",
+            "command": "git fetch origin && git rebase origin/dev && git switch dev && git merge --ff-only @{-1} && git push origin dev && git switch -",
+            "detail": "Rebases the previous branch onto dev for linear history, then fast-forward merges into dev and pushes to origin.",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
