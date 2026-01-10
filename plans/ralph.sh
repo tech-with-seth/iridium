@@ -68,7 +68,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   echo "═══════════════════════════════════════════════════════"
   
   # Run Claude Code with the Ralph instructions
-  OUTPUT=$(cat "$INSTRUCTIONS_FILE" | claude --dangerously-skip-permissions --model sonnet 2>&1 | tee /dev/stderr)
+  OUTPUT=$(cat "$INSTRUCTIONS_FILE" | claude --dangerously-skip-permissions --model opus 2>&1 | tee /dev/stderr)
   CLAUDE_STATUS=$?
   if [ $CLAUDE_STATUS -ne 0 ]; then
     echo "Warning: Claude command failed with exit code $CLAUDE_STATUS. Continuing..."
