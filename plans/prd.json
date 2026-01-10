@@ -1,0 +1,20 @@
+{
+    "branchName": "ralph/example-feature",
+    "project": "Iridium",
+    "stories": [
+        {
+            "id": "IR-001",
+            "title": "New chat button creates a fresh conversation",
+            "description": "Clicking the New Chat button resets the current thread and shows the welcome state.",
+            "acceptanceCriteria": [
+                "Navigate to the main interface",
+                "Click the New Chat button",
+                "A new conversation is created",
+                "The chat area shows the welcome state",
+                "The new conversation appears in the sidebar"
+            ],
+            "priority": 1,
+            "passes": false
+        }
+    ]
+}
