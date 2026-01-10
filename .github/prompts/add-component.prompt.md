@@ -1,7 +1,7 @@
+---
 agent: 'agent'
-tools: ['search/codebase', 'usages', 'edit', 'new']
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 description: 'Create a reusable UI component following CVA + DaisyUI standards'
-
 ---
 
 # Add UI Component

@@ -1,6 +1,17 @@
 ---
 agent: 'agent'
-tools: ['search/codebase', 'usages', 'edit', 'runTests']
+tools:
+    [
+        'vscode',
+        'execute',
+        'read',
+        'edit',
+        'search',
+        'web',
+        'context7/*',
+        'agent',
+        'todo',
+    ]
 description: 'Add or expand automated tests using project-approved patterns'
 ---
 

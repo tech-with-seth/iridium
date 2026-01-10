@@ -1,6 +1,17 @@
 ---
-mode: 'agent'
-tools: ['githubRepo', 'search/codebase']
+agent: 'agent'
+tools:
+    [
+        'vscode',
+        'execute',
+        'read',
+        'edit',
+        'search',
+        'web',
+        'context7/*',
+        'agent',
+        'todo',
+    ]
 description: 'Generate a complete vertical slice feature across all application layers'
 ---
 

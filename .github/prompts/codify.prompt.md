@@ -1,3 +1,9 @@
+---
+agent: 'agent'
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+description: 'Create or update project documentation to canonize architectural patterns and conventions discussed'
+---
+
 # Codify Command
 
 **Purpose**: Document and canonize architectural patterns, conventions, or implementation details discussed in the current conversation into the project's formal documentation.

@@ -1,24 +1,16 @@
 ---
-mode: 'agent'
+agent: 'agent'
 tools:
     [
-        'extensions',
-        'usages',
-        'vscodeAPI',
-        'problems',
-        'changes',
-        'testFailure',
-        'openSimpleBrowser',
-        'fetch',
-        'githubRepo',
-        'todos',
-        'runTests',
-        'runCommands',
-        'runTasks',
+        'vscode',
+        'execute',
+        'read',
         'edit',
-        'runNotebooks',
         'search',
-        'new',
+        'web',
+        'context7/*',
+        'agent',
+        'todo',
     ]
 description: 'Update documentation to reflect recent code changes'
 ---

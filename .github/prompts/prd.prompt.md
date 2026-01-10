@@ -1,4 +1,5 @@
 ---
+agent: agent
 name: prd
 description: Create a clear, actionable PRD for a new feature. Ask a few clarifying questions, then draft the PRD in Markdown.
 tools:
