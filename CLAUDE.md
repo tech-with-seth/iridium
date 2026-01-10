@@ -118,6 +118,25 @@ The `.github/skills/` directory contains 16 specialized skills that VS Code Copi
 
 Skills include templates, examples, and reference the full instruction files in `.github/instructions/`.
 
+## Ralph Automation (Optional)
+
+Ralph is a lightweight autonomous loop for working through PRDs using Claude Code.
+
+- Run via `plans/ralph.sh`
+- Instructions live at `.github/instructions/ralph.instructions.md`
+- Prompt files (VS Code) live at `.github/prompts/ralph.prompt.md` and `.github/prompts/prd.prompt.md`
+- PRD + progress files are `plans/prd.json` and `plans/progress.txt`
+
+Run it with:
+```bash
+./plans/ralph.sh [max_iterations]
+```
+
+The loop invokes:
+```bash
+claude --dangerously-skip-permissions --model opus
+```
+
 ## Critical Architecture Patterns
 
 ### 1. Config-Based Routing (NOT File-Based)

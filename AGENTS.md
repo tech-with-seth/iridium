@@ -90,6 +90,26 @@ npx prisma studio                            # Open database GUI
 
 **See [Additional Resources](#additional-resources) section below for complete list of 32 guides.**
 
+## Ralph Automation (Optional)
+
+Iridium includes a lightweight autonomous loop called Ralph for working through PRDs.
+
+- Entry point: `plans/ralph.sh` (runs the loop with Claude Code CLI)
+- Instructions: `.github/instructions/ralph.instructions.md`
+- Prompt files (VS Code): `.github/prompts/ralph.prompt.md`, `.github/prompts/prd.prompt.md`
+- Data files: `plans/prd.json` and `plans/progress.txt`
+- Archives: `plans/archive/` (previous runs, auto-created)
+
+Run it with:
+```bash
+./plans/ralph.sh [max_iterations]
+```
+
+By default the loop calls Claude Code as:
+```bash
+claude --dangerously-skip-permissions --model opus
+```
+
 ## Environment Variables
 
 Required `.env` file at repository root (see `.env.example` for full list):

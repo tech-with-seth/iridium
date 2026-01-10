@@ -58,6 +58,25 @@ The `.github/skills/` directory contains 20 specialized skills for common develo
 | `add-seo` | Meta tags, Open Graph, JSON-LD |
 | `ship` | Railway deployment & debugging |
 
+## Ralph Automation (Optional)
+
+Ralph is an autonomous loop for iterating on PRDs with Claude Code.
+
+- Loop runner: `plans/ralph.sh`
+- Instructions: `.github/instructions/ralph.instructions.md`
+- Prompt files: `.github/prompts/ralph.prompt.md`, `.github/prompts/prd.prompt.md`
+- Data files: `plans/prd.json`, `plans/progress.txt`
+
+Run it with:
+```bash
+./plans/ralph.sh [max_iterations]
+```
+
+The loop invokes:
+```bash
+claude --dangerously-skip-permissions --model opus
+```
+
 ## Critical Architecture Patterns
 
 ### 🚨 React Router 7 - Config-Based Routing
