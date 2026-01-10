@@ -43,6 +43,7 @@ npm run dev
 ### Development
 
 - **[Build Your First Feature](./build-your-first-feature.md)** - Step-by-step guide for building features
+- **[Ralph: Autonomous PRD Execution](./ralph.md)** - AI agent loop for implementing PRDs automatically
 - [Development Workflow](./development.md) - Day-to-day development practices
 - [Testing](./testing.md) - Unit and end-to-end testing with Vitest and Playwright
 - [Contributing](./contributing.md) - Guidelines for contributing to the project

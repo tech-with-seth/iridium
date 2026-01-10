@@ -19,6 +19,26 @@ if [ ! -f "$INSTRUCTIONS_FILE" ]; then
   exit 1
 fi
 
+# Fail fast if prd.json is missing or has no user stories
+if [ ! -f "$PRD_FILE" ]; then
+  echo "Error: prd.json not found at $PRD_FILE"
+  echo ""
+  echo "To create a PRD, use the /prd command in VS Code Copilot Chat."
+  echo "Example: /prd add user notifications feature"
+  exit 1
+fi
+
+STORY_COUNT=$(jq '.userStories | length' "$PRD_FILE" 2>/dev/null || echo "0")
+if [ "$STORY_COUNT" -eq 0 ]; then
+  echo "Error: prd.json has no user stories."
+  echo ""
+  echo "The PRD file exists but contains no stories to implement."
+  echo "Use the /prd command to generate a PRD with user stories."
+  echo "Example: /prd add user notifications feature"
+  exit 1
+fi
+
+echo "Found $STORY_COUNT user stories in prd.json"
 # Archive previous run if branch changed
 if [ -f "$PRD_FILE" ] && [ -f "$LAST_BRANCH_FILE" ]; then
   CURRENT_BRANCH=$(jq -r '.branchName // empty' "$PRD_FILE" 2>/dev/null || echo "")
