@@ -307,5 +307,51 @@
                 "showReuseMessage": false
             }
         }
+        ,
+        {
+            "label": "Merge → DEV (no-ff)",
+            "type": "shell",
+            "command": "git switch dev && git merge --no-ff @{-1} && git push origin dev && git switch -",
+            "detail": "Merges the previous branch into dev with a merge commit (no fast-forward).",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Merge → DEV + delete (no-ff)",
+            "type": "shell",
+            "command": "git switch dev && git merge --no-ff @{-1} && git push origin dev && git branch -d @{-1} && git switch -",
+            "detail": "Merges the previous branch into dev with a merge commit, deletes the merged branch, and switches back.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Rebase → Merge → DEV + delete",
+            "type": "shell",
+            "command": "git fetch origin && git rebase origin/dev && git switch dev && git merge --ff-only @{-1} && git push origin dev && git branch -d @{-1} && git switch -",
+            "detail": "Rebases the current branch onto dev for linear history, then fast-forward merges into dev, deletes the branch, and switches back.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        }
     ]
 }
