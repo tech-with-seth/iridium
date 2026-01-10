@@ -139,8 +139,8 @@ export default function LandingPage() {
         [data?.allFlags],
     );
 
-    const introCopyControl = `Your shortcut to a production-ready SaaS. Iridium is an open source boilerplate packed with everything you need: secure authentication, optional billing integration, a powerful AI toolkit, and a stunning component library. Stop rebuilding boilerplate and start shipping features your users will love.`;
-    const introCopyVariant = `Build on a foundation you can trust. Iridium is more than a starter kit—it's a curated collection of modern best practices. With config-based routing in React Router 7, end-to-end type-safe validation with Zod, and a CVA-driven component system, you can build with confidence and scale without compromise. Stop fighting with your tools and start building great software.`;
+    const introCopyControl = `Skip the 40+ hours of integration work and start building what makes your product unique. Iridium handles authentication, database patterns, and component architecture—so you can focus on features your users actually care about.`;
+    const introCopyVariant = `Tired of decision fatigue? Iridium makes the hard choices for you—React Router 7, Prisma patterns, type-safe validation—so you can ship your MVP without second-guessing your stack. Build with confidence from day one.`;
 
     const GitHubCta = () => (
         <a
@@ -150,17 +150,17 @@ export default function LandingPage() {
             className="btn btn-accent btn-lg"
         >
             <GitHubLogo className="w-5 h-5 fill-current" />
-            View on GitHub
+            Start Building Your SaaS
             <ArrowRightIcon />
         </a>
     );
 
     return (
         <>
-            <title>Home | Iridium</title>
+            <title>Iridium - Ship Your SaaS Faster</title>
             <meta
                 name="description"
-                content="Modern full-stack boilerplate with authentication, billing, and AI"
+                content="Stop rebuilding boilerplate. Iridium gives you auth, database patterns, and AI—so you can focus on what makes your product unique."
             />
             {alertExperimentActive && (
                 <div>
@@ -194,7 +194,7 @@ export default function LandingPage() {
                     <div className="col-span-12 lg:col-span-6 flex flex-col justify-center p-8">
                         <div>
                             <h1 className="text-5xl font-bold mb-8 text-base-content">
-                                Welcome to Iridium
+                                Ship Your SaaS, Not Boilerplate
                             </h1>
                             <p className="text-lg mb-12">
                                 {homePageIntroCopyExperimentActive
