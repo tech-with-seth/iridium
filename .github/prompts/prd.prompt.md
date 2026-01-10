@@ -94,6 +94,7 @@ Unresolved questions that need follow-up.
 ## Output Requirements
 
 ### Markdown PRD
+
 - Format: Markdown
 - Location: `tasks/`
 - Filename: `prd-[feature-name].md`

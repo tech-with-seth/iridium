@@ -8,7 +8,7 @@ Ralph automates the tedious work of implementing PRD user stories. You create th
 
 **The workflow:**
 
-```
+```text
 /prd command → Markdown PRD + JSON automation file → Run ralph task → Done
 ```
 
@@ -18,7 +18,7 @@ Ralph automates the tedious work of implementing PRD user stories. You create th
 
 Use the `/prd` command in VS Code Copilot Chat:
 
-```
+```text
 /prd add user notifications feature
 ```
 
@@ -33,7 +33,7 @@ Copilot will:
 
 **VS Code:**
 
-```
+```text
 Cmd+Shift+P → "Tasks: Run Task" → "ralph"
 ```
 
@@ -212,7 +212,7 @@ Ralph automatically archives previous runs when you start a new feature (differe
 
 ## How It Works
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                      ralph.sh loop                          │
 ├─────────────────────────────────────────────────────────────┤
