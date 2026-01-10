@@ -103,6 +103,20 @@
             }
         },
         {
+            "label": "ralph",
+            "type": "shell",
+            "command": "./plans/ralph.sh 3",
+            "detail": "Run Ralph autonomous agent to implement PRD user stories (max 10 iterations).",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "Archive all products",
             "type": "shell",
             "command": "tsx scripts/archive-all-products.ts",
