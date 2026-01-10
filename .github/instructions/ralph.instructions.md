@@ -18,6 +18,7 @@ You are an autonomous coding agent working on a software project.
 ## Progress Report Format
 
 APPEND to progress.txt (never replace, always append):
+
 ```
 ## [Date/Time] - [Story ID]
 Thread: https://claude.ai/chat/$CLAUDE_THREAD_ID
@@ -47,31 +48,29 @@ If you discover a **reusable pattern** that future iterations should know, add i
 
 Only add patterns that are **general and reusable**, not story-specific details.
 
-## Update AGENTS.md Files
+## Update AGENTS.md Files (Optional)
 
-Before committing, check if any edited files have learnings worth preserving in nearby AGENTS.md files:
+If you discover **critical patterns** that would prevent future bugs, consider updating nearby AGENTS.md files:
 
-1. **Identify directories with edited files** - Look at which directories you modified
-2. **Check for existing AGENTS.md** - Look for AGENTS.md in those directories or parent directories
-3. **Add valuable learnings** - If you discovered something future developers/agents should know:
-   - API patterns or conventions specific to that module
-   - Gotchas or non-obvious requirements
-   - Dependencies between files
-   - Testing approaches for that area
-   - Configuration or environment requirements
+**When to update:**
 
-**Examples of good AGENTS.md additions:**
+- You discovered a non-obvious requirement that caused issues
+- There's a dependency between files that must be maintained
+- A pattern is consistently used across the module
+
+**Examples of good additions:**
+
 - "When modifying X, also update Y to keep them in sync"
-- "This module uses pattern Z for all API calls"
-- "Tests require the dev server running on PORT 3000"
-- "Field names must match the template exactly"
+- "This module requires environment variable Z to be set"
+- "Tests depend on specific database seed data"
 
 **Do NOT add:**
-- Story-specific implementation details
-- Temporary debugging notes
-- Information already in progress.txt
 
-Only update AGENTS.md if you have **genuinely reusable knowledge** that would help future work in that directory.
+- Story-specific details
+- Debugging notes
+- Things already documented elsewhere
+
+Only update if the knowledge would **prevent future bugs** or **significantly speed up development** in that area. When in doubt, just add it to progress.txt instead.
 
 ## Quality Requirements
 
@@ -80,25 +79,33 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 - Keep changes focused and minimal
 - Follow existing code patterns
 
-## Browser Testing (Required for Frontend Stories)
+##**All commits must pass quality checks** - Run `npm run typecheck`, `npm run lint`, and relevant tests
 
-For any story that changes UI, you MUST verify it works in the browser:
+- **Do NOT commit broken code** - If checks fail, fix the issues before committing
+- **Keep changes focused** - Only modify what's necessary for the story
+- **Follow existing patterns** - Read the codebase first, then match its style and conventions
+- **Document breaking changes** - If you must change an API, note it in progress.txt
 
-1. Load the `dev-browser` skill
-2. Navigate to the relevant page
+1. Run `npm run dev` in the background if not already running
+2. Use the Playwright MCP tools to navigate to the relevant page
 3. Verify the UI changes work as expected
 4. Take a screenshot if helpful for the progress log
 
-A frontend story is NOT complete until browser verification passes.
+Browser verification is recommended but not required—use your judgment based on the story complexity.
 
 ## Stop Condition
 
 After completing a user story, check if ALL stories have `passes: true`.
 
-If ALL stories are complete and passing, reply with:
-<promise>COMPLETE</promise>
+If ALL stories are complete and passing, output this exact signal:
 
-If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
+```
+<promise>COMPLETE</promise>
+```
+
+This signal tells the shell script to exit the loop successfully.
+
+If there are still stories with `passes: false`, end your response normally without the completion signal. The shell script will continue to the next iteration.
 
 ## Important
 
