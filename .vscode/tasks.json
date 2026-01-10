@@ -103,6 +103,21 @@
             }
         },
         {
+            "label": "Merge current branch to DEV",
+            "type": "shell",
+            "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git switch -",
+            "detail": "Merges the current branch into dev and pushes to origin.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "ralph",
             "type": "shell",
             "command": "./plans/ralph.sh 3",
