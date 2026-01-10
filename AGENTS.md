@@ -101,11 +101,13 @@ Iridium includes a lightweight autonomous loop called Ralph for working through 
 - Archives: `plans/archive/` (previous runs, auto-created)
 
 Run it with:
+
 ```bash
 ./plans/ralph.sh [max_iterations]
 ```
 
 By default the loop calls Claude Code as:
+
 ```bash
 claude --dangerously-skip-permissions --model opus
 ```

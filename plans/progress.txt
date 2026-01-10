@@ -1,8 +1,10 @@
 # Ralph Progress Log
 Started: 2026-01-10
 
-## Codebase Patterns
-- Example: Use `cx()` for className merging in UI components
-- Example: Import Prisma types from `~/generated/prisma/client`
+## Current Iteration
+
+## Completed User Stories
+
+## Codebase Patterns Discovered
 
 ---
