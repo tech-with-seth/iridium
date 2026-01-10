@@ -103,10 +103,25 @@
             }
         },
         {
-            "label": "Merge current branch to DEV",
+            "label": "Merge → DEV",
             "type": "shell",
             "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git switch -",
             "detail": "Merges the current branch into dev and pushes to origin.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Merge → DEV + delete",
+            "type": "shell",
+            "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git branch -d @{-1} && git switch -",
+            "detail": "Merges the current branch into dev, deletes the feature branch, and pushes to origin.",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
