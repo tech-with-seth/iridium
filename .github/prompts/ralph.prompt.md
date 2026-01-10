@@ -20,4 +20,4 @@ Execute the Ralph method. Follow the instructions in .github/instructions/ralph.
 
 Do not take control, do not implement PRD, you (LLM) should be kicking off a process that runs autonomously.
 
-Your goal is to implement user stories from the PRD located at `tasks/prd-[feature-name].md` one at a time, ensuring quality and maintaining a progress log.
+Your goal is to have another agent/process implement user stories from the PRD located at `tasks/prd-[feature-name].md` one at a time, ensuring quality and maintaining a progress log.
