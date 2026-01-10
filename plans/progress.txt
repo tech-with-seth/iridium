@@ -1,0 +1,23 @@
+# Ralph Progress Log
+Started: 2026-01-10
+Feature: marketing-copy-enhancements
+---
+
+## Codebase Patterns
+- Hero section lives in `app/routes/landing.tsx` with A/B test variants via feature flags
+- Intro copy has control and variant versions toggled by `home_page_intro_copy` flag
+- Use `GitHubCta` component for CTA buttons with consistent styling
+---
+
+## 2026-01-10 - US-001
+- Implemented benefit-focused hero section
+- Changed headline from "Welcome to Iridium" to "Ship Your SaaS, Not Boilerplate"
+- Rewrote both intro copy variants to address pain points (time savings, decision fatigue)
+- Updated CTA from "View on GitHub" to "Start Building Your SaaS"
+- Updated page title and meta description
+- Files changed: `app/routes/landing.tsx`
+- **Learnings for future iterations:**
+  - The landing page uses feature flags for A/B testing hero images and intro copy
+  - `introCopyControl` and `introCopyVariant` are the two versions of subheadline copy
+  - `GitHubCta` is a reusable component defined inline in the landing page
+---

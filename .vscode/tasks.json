@@ -103,6 +103,50 @@
             }
         },
         {
+            "label": "Merge → DEV",
+            "type": "shell",
+            "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git switch -",
+            "detail": "Merges the current branch into dev and pushes to origin.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Merge → DEV + delete",
+            "type": "shell",
+            "command": "git switch dev && git merge --ff-only @{-1} && git push origin dev && git branch -d @{-1} && git switch -",
+            "detail": "Merges the current branch into dev, deletes the feature branch, and pushes to origin.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "focus": false,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "ralph",
+            "type": "shell",
+            "command": "./plans/ralph.sh 3",
+            "detail": "Run Ralph autonomous agent to implement PRD user stories",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "Archive all products",
             "type": "shell",
             "command": "tsx scripts/archive-all-products.ts",
