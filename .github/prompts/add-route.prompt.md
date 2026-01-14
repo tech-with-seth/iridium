@@ -17,247 +17,138 @@ description: 'Generate a new React Router 7 route with proper configuration'
 
 # Add React Router 7 Route
 
-You are a Lead Web Developer creating a new route in a React Router 7 application. Follow these steps:
+You are creating a new route in a React Router 7 application.
 
-## Step 1: Determine Route Type
+## Core Workflow
 
-Ask the user to clarify:
+Follow the route creation pattern documented in:
 
+📚 **`.github/instructions/react-router.instructions.md`**
+🛠️ **`.github/skills/create-route/SKILL.md`**
+
+These files contain complete patterns for routes, loaders, actions, and type generation.
+
+## Quick Reference
+
+### Step 1: Determine Route Type
+Ask the user:
 - **Route purpose**: Public page, protected page, or API endpoint?
-- **Route path**: What URL path should this route use?
-- **Dynamic params**: Does it need URL parameters (e.g., `:userId`)?
+- **Route path**: What URL path? (e.g., `/dashboard`, `/api/profile`)
+- **Dynamic params**: Need URL parameters like `:userId`?
 
-## Step 2: Add Path Constant (if applicable)
-
-For user-facing routes, add the path to `app/constants/index.ts`:
-
+### Step 2: Add Path Constant
+For user-facing routes, add to `app/constants/index.ts`:
 ```typescript
 export enum Paths {
-    DASHBOARD = '/dashboard',
-    PROFILE = '/profile',
-    NEW_ROUTE = '/new-route', // Add here
+    NEW_ROUTE = '/new-route',
 }
 ```
 
-## Step 3: Create Route File
+### Step 3: Create Route File
+Choose the appropriate template:
 
-### Public Page Route
-
-Create in `app/routes/[route-name].tsx`:
-
-```typescript
+**Public Page** → `app/routes/[route-name].tsx`
+```tsx
 import type { Route } from './+types/[route-name]';
 import { Container } from '~/components/Container';
 
 export async function loader({ request }: Route.LoaderArgs) {
-    // Fetch data here
     return { data: 'example' };
 }
 
 export default function RouteName({ loaderData }: Route.ComponentProps) {
     return (
-        <Container>
-            <h1>Route Title</h1>
-            <p>{loaderData.data}</p>
-        </Container>
+        <>
+            <title>Page Title - Iridium</title>
+            <Container>Content here</Container>
+        </>
     );
 }
 ```
 
-### Protected Page Route (requires authentication)
+**Protected Page** → Add under `authenticated` layout in routes.ts
 
-Create in `app/routes/[route-name].tsx` - will be added under `authenticated` layout:
-
+**API Endpoint** → `app/routes/api/[endpoint].ts`
 ```typescript
-import type { Route } from './+types/[route-name]';
-import { Container } from '~/components/Container';
-import { useAuthenticatedContext } from '~/hooks/useAuthenticatedContext';
-
-export default function RouteName() {
-    const { user } = useAuthenticatedContext();
-
-    return (
-        <Container>
-            <h1>Welcome, {user.name}</h1>
-        </Container>
-    );
-}
-```
-
-### API Endpoint Route
-
-Create in `app/routes/api/[endpoint-name].ts`:
-
-```typescript
-import type { Route } from './+types/[endpoint-name]';
+import type { Route } from './+types/[endpoint]';
 import { data } from 'react-router';
 import { requireUser } from '~/lib/session.server';
-import { prisma } from '~/db.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
     const user = await requireUser(request);
-
-    const data = await prisma.model.findMany({
-        where: { userId: user.id },
-    });
-
-    return data({ data });
+    // Return JSON data
+    return data({ data: [] });
 }
 
 export async function action({ request }: Route.ActionArgs) {
     const user = await requireUser(request);
-
-    if (request.method === 'POST') {
-        const body = await request.json();
-        // Handle POST
-        return data({ success: true });
-    }
-
-    if (request.method === 'PUT') {
-        // Handle PUT
-        return data({ success: true });
-    }
-
-    if (request.method === 'DELETE') {
-        // Handle DELETE
-        return data({ success: true });
-    }
-
-    return data({ error: 'Method not allowed' }, { status: 405 });
+    if (request.method === 'POST') { /* handle POST */ }
+    if (request.method === 'PUT') { /* handle PUT */ }
+    if (request.method === 'DELETE') { /* handle DELETE */ }
 }
 ```
 
-### Dynamic Route with Params
-
-Create in `app/routes/posts.$postId.tsx`:
-
+### Step 4: Register in app/routes.ts
 ```typescript
-import type { Route } from './+types/posts.$postId';
-import { prisma } from '~/db.server';
+// Public route
+route(Paths.NEW_ROUTE, 'routes/new-route.tsx')
 
-export async function loader({ params }: Route.LoaderArgs) {
-    const post = await prisma.post.findUnique({
-        where: { id: params.postId }
-    });
-
-    if (!post) {
-        throw new Response('Not Found', { status: 404 });
-    }
-
-    return { post };
-}
-
-export default function PostDetail({ loaderData }: Route.ComponentProps) {
-    const { post } = loaderData;
-
-    return (
-        <article>
-            <h1>{post.title}</h1>
-            <p>{post.content}</p>
-        </article>
-    );
-}
-```
-
-## Step 4: Register Route in app/routes.ts
-
-### Public Route
-
-```typescript
-import { type RouteConfig, route } from '@react-router/dev/routes';
-import { Paths } from './constants';
-
-export default [
-    route(Paths.NEW_ROUTE, 'routes/new-route.tsx'), // Add here
-] satisfies RouteConfig;
-```
-
-### Protected Route (under authenticated layout)
-
-```typescript
+// Protected route (under authenticated layout)
 layout('routes/authenticated.tsx', [
-    route(Paths.DASHBOARD, 'routes/dashboard.tsx'),
-    route(Paths.NEW_ROUTE, 'routes/new-route.tsx'), // Add here
-]);
-```
+    route(Paths.NEW_ROUTE, 'routes/new-route.tsx')
+])
 
-### API Route (under api prefix)
-
-```typescript
+// API route (under api prefix)
 ...prefix('api', [
-    route('auth/*', 'routes/api/auth/better-auth.ts'),
-    route('endpoint-name', 'routes/api/endpoint-name.ts') // Add here
+    route('endpoint', 'routes/api/endpoint.ts')
 ])
 ```
 
-### Nested/Admin Routes
-
-```typescript
-...prefix('admin', [
-    route('/design', 'routes/admin/design.tsx'),
-    route('/new-admin-route', 'routes/admin/new-admin-route.tsx') // Add here
-])
-```
-
-## Step 5: Generate Types
-
-After adding the route, run:
-
+### Step 5: Generate Types
 ```bash
 npm run typecheck
 ```
 
-This generates the route types in `./+types/[route-name]` for type-safe access to `loaderData`, `params`, etc.
+## Critical Rules
 
-## Important Patterns
+1. **Route Type Imports**: ALWAYS use `./+types/[routeName]`
+```tsx
+// ✅ CORRECT
+import type { Route } from './+types/my-route';
 
-### Authentication
+// ❌ WRONG
+import type { Route } from '../+types/my-route';
+```
 
-- **Protected routes**: Add under `authenticated` layout - middleware handles auth automatically
-- **API routes**: Manually call `requireUser(request)` in loader/action
-- **Anonymous only**: Use `requireAnonymous(request)` for sign-in/sign-up pages
+2. **Access Data via Props**: Use `loaderData` prop, NOT `useLoaderData()` hook
+```tsx
+export default function MyPage({ loaderData }: Route.ComponentProps) {
+    // Access loaderData.user, etc.
+}
+```
 
-### Data Loading
+3. **Destructure Directly**: In function signatures
+```tsx
+// ✅ CORRECT
+export async function action({ request, params }: Route.ActionArgs) {}
 
-- Use `loader` for GET requests (data fetching)
-- Use `action` for POST/PUT/DELETE requests (mutations)
-- Access loader data via `loaderData` prop (not `useLoaderData` hook)
-
-### Type Safety
-
-- Always import `Route` type from `./+types/[route-name]`
-- Use `Route.LoaderArgs`, `Route.ActionArgs`, `Route.ComponentProps`
-- Generate types with `npm run typecheck` after route changes
-
-### File Naming
-
-- Use `.tsx` for routes with JSX components
-- Use `.ts` for API-only routes (no component)
-- Dynamic params: Use `$paramName` (e.g., `posts.$postId.tsx`)
+// ❌ WRONG
+export async function action(args: Route.ActionArgs) {
+    const { request } = args;
+}
+```
 
 ## Checklist
-
-After creating the route:
-
-- [ ] Path constant added to `app/constants/index.ts` (if applicable)
-- [ ] Route file created in correct directory
+- [ ] Path constant added (if applicable)
+- [ ] Route file created with correct type imports
 - [ ] Route registered in `app/routes.ts`
 - [ ] Types generated with `npm run typecheck`
 - [ ] Route tested in browser
-- [ ] Authentication working correctly (if protected)
 
-## Reference
-
-See these project files for examples:
-
-- Public route: `app/routes/sign-in.tsx`
-- Protected route: `app/routes/dashboard.tsx`
-- API route: `app/routes/api/auth/better-auth.ts`
-- Layout route: `app/routes/authenticated.tsx`
-- Routes config: `app/routes.ts`
-
-For detailed patterns, see:
-
-- `.github/instructions/react-router.instructions.md`
-- `.github/instructions/better-auth.instructions.md`
-- `.github/instructions/prisma.instructions.md`
+## Full Reference
+See `react-router.instructions.md` for comprehensive documentation on:
+- Nested routes & layouts
+- Dynamic segments
+- Streaming with Suspense
+- Error boundaries
+- Navigation patterns

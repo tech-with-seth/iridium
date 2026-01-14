@@ -60,7 +60,6 @@ Content here...
 |------|------------|---------|
 | `form-validation.instructions.md` | `app/lib/validations*`, `app/lib/form*` | Hybrid form validation |
 | `crud-pattern.instructions.md` | `app/routes/api/**/*`, `app/models/**/*` | CRUD operations |
-| `api-endpoints.instructions.md` | `app/routes/api/**/*` | API endpoint design |
 | `component-patterns.instructions.md` | `app/components/**/*` | UI component patterns |
 | `error-boundaries.instructions.md` | `app/routes/**/*.tsx` | Error handling |
 | `role-based-access-control.instructions.md` | `app/lib/session*`, `app/middleware/**/*` | RBAC patterns |
