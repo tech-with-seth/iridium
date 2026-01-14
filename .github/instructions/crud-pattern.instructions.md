@@ -1,3 +1,7 @@
+---
+applyTo: 'app/routes/api/**/*.ts,app/models/**/*.server.ts'
+---
+
 # CRUD Pattern Instructions
 
 ## Overview

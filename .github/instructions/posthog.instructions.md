@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/posthog*.ts,app/models/posthog*.ts,app/models/analytics*.ts'
+---
+
 # PostHog Analytics Integration
 
 ## Overview

@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/validations.ts,app/lib/*.server.ts'
+---
+
 # Zod Validation Instructions
 
 ## Overview

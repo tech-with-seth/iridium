@@ -1,3 +1,7 @@
+---
+applyTo: 'railway.json,Dockerfile,docker-compose.yml'
+---
+
 # Railway Deployment & Debugging Instructions
 
 ## Overview

@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/auth*.ts,app/lib/session*.ts,app/routes/api/auth/**/*'
+---
+
 # BetterAuth Instructions
 
 ## Overview

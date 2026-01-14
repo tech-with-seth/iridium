@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Git Workflow & Merge Strategy
 
 ## Overview

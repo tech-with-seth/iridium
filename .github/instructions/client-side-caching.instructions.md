@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/cache*.ts,app/routes/**/*.tsx'
+---
+
 # Client-Side Caching with remix-client-cache
 
 This project uses `remix-client-cache` for managing client-side caching in React Router 7.

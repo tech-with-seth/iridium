@@ -1,3 +1,7 @@
+---
+applyTo: 'app/routes/api/**/*.ts'
+---
+
 # API Endpoint Creation in React Router 7
 
 ## Overview

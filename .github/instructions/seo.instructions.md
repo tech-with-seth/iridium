@@ -1,4 +1,7 @@
-````instructions
+---
+applyTo: 'app/routes/**/*.tsx'
+---
+
 # SEO & Meta Tags
 
 ## Overview

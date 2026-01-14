@@ -1,3 +1,7 @@
+---
+applyTo: 'plans/**/*'
+---
+
 # Ralph Agent Instructions
 
 **NOTE:** This file is designed to be piped to Claude Code CLI via `plans/ralph.sh`. It is NOT a VS Code Copilot prompt file. Do not invoke this manually in VS Code.

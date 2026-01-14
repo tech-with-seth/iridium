@@ -1,3 +1,7 @@
+---
+applyTo: 'app/cva.config.ts,app/components/**/*.tsx'
+---
+
 # CVA (Class Variance Authority) Instructions
 
 ## Overview

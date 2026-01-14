@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/error*.ts,app/models/posthog*.ts'
+---
+
 # Error Tracking Instructions
 
 ## Overview

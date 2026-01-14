@@ -1,3 +1,7 @@
+---
+applyTo: 'prisma/**/*,app/models/**/*.server.ts,app/db.server.ts'
+---
+
 # Prisma Instructions
 
 ## Overview

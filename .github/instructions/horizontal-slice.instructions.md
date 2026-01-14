@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Horizontal Slice Instructions
 
 ## Overview

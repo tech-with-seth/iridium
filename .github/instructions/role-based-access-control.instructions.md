@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/session*.ts,app/middleware/**/*,app/routes/api/**/*.ts'
+---
+
 # Role-Based Access Control (RBAC)
 
 This application implements a hierarchical role-based access control system with three role levels.

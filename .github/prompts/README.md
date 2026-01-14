@@ -1,51 +1,113 @@
 # VS Code Copilot Prompts
 
-This directory contains **user-invokable prompts** for VS Code Copilot. These are triggered manually in VS Code using `@workspace /promptName`.
+This directory contains **user-invokable prompts** for multi-step development workflows.
 
 ## How to Use
 
-In VS Code, type `@workspace /` followed by the prompt name (without `.prompt.md`):
+In VS Code Copilot Chat, type `@workspace /` followed by the prompt name:
 
 ```
-@workspace /prd
-@workspace /add-component
+@workspace /add-feature
 @workspace /add-route
+@workspace /prd
 ```
 
 ## Available Prompts
 
-- **`prd.prompt.md`** - Generate a Product Requirements Document for a new feature
-- **`add-component.prompt.md`** - Create a new UI component following CVA + DaisyUI patterns
-- **`add-route.prompt.md`** - Add a new route to the React Router 7 config
-- **`add-test.prompt.md`** - Create unit or E2E tests
-- **`add-docs.prompt.md`** - Add JSDoc documentation to code
-- **`add-feature.prompt.md`** - Implement a complete feature end-to-end
-- **`refactor.prompt.md`** - Refactor code for better structure
-- **`codify.prompt.md`** - Extract patterns into reusable abstractions
-- **`overhaul.prompt.md`** - Major refactoring or restructuring
+### Feature Development
+
+| Prompt | Purpose | When to Use |
+|--------|---------|-------------|
+| `/add-feature` | Complete vertical slice implementation | Adding a new feature that spans database → API → UI |
+| `/add-route` | Create React Router 7 route | Adding new pages, API endpoints, or layouts |
+| `/add-component` | Create CVA + DaisyUI component | Building reusable UI components |
+| `/add-test` | Generate unit or E2E tests | Adding test coverage |
+
+### Documentation & Codification
+
+| Prompt | Purpose | When to Use |
+|--------|---------|-------------|
+| `/add-docs` | Add JSDoc documentation | Documenting functions and components |
+| `/codify` | Extract patterns into reusable abstractions | Identifying and formalizing patterns |
+
+### Refactoring
+
+| Prompt | Purpose | When to Use |
+|--------|---------|-------------|
+| `/refactor` | Refactor code while preserving behavior | Improving code quality without changing functionality |
+| `/overhaul` | Major restructuring | Large-scale architectural changes |
+
+### Ralph Automation
+
+| Prompt | Purpose | When to Use |
+|--------|---------|-------------|
+| `/prd` | Generate Product Requirements Document | Planning new features for Ralph to implement |
+| `/ralph` | Ralph automation instructions | Running the Ralph autonomous loop |
 
 ## Prompt File Format
 
-Each prompt file has YAML frontmatter with metadata:
-
 ```yaml
 ---
-name: Prompt Name
-description: What this prompt does
-tools: [vscode, execute, read, edit, search, web]
+agent: 'agent'
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+description: 'Brief description of what this prompt does'
 ---
 
-# Prompt Instructions
+# Prompt Title
 
-Your detailed instructions here...
+Step-by-step instructions...
 ```
+
+### Frontmatter Fields
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `agent` | Enable agent mode | `'agent'` |
+| `tools` | Available tools | `['read', 'edit', 'search']` |
+| `description` | Brief description | `'Generate a new React Router 7 route'` |
+
+## Prompts vs Instructions vs Skills
+
+| System | Purpose | Trigger |
+|--------|---------|---------|
+| **Instructions** | Complete reference documentation | Auto-applied based on `applyTo` file patterns |
+| **Skills** | Quick-start guides with templates | Auto-triggered when task matches description |
+| **Prompts** | Multi-step workflows | User-invoked via `@workspace /promptName` |
+
+**Key Differences:**
+
+- **Instructions**: Reference docs (always active based on file patterns)
+- **Skills**: Quick help (auto-triggered when Copilot detects relevant task)
+- **Prompts**: Guided workflows (manually invoked for complex multi-step tasks)
+
+**Hierarchy:**
+- Prompts orchestrate multiple Instructions into workflows
+- Instructions are the source of truth
+- Skills provide quick-start guidance
+
+## Creating New Prompts
+
+1. Create file: `.github/prompts/[name].prompt.md`
+2. Add frontmatter with `description` and `tools`
+3. Write step-by-step workflow instructions
+4. Include checklists and validation steps
+5. Reference related instruction files
+
+**Guidelines:**
+- Prompts are for multi-step workflows, not single operations
+- Include clarification questions at the start
+- Provide checklists for validation
+- Reference instruction files for detailed patterns
+- Keep steps actionable and sequential
 
 ## Related Files
 
-- **`..instructions/*.instructions.md`** - Always-applied instructions (automatic context for all Copilot interactions)
-- **`plans/ralph.sh`** - Autonomous coding loop that uses `ralph.instructions.md` (NOT a VS Code prompt)
+- **Instructions**: `.github/instructions/*.instructions.md` - Full reference documentation
+- **Skills**: `.github/skills/*/SKILL.md` - Auto-triggered quick references
+- **CLAUDE.md**: High-level architecture documentation
 
 ## Documentation
 
-- [VS Code Copilot Custom Instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
-- [VS Code Copilot Prompt Files](https://code.visualstudio.com/docs/copilot/customization/prompt-files)
+- [VS Code Prompt Files](https://code.visualstudio.com/docs/copilot/customization/prompt-files)
+- [VS Code Custom Instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
+- [VS Code Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills)

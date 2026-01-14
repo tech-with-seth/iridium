@@ -1,3 +1,7 @@
+---
+applyTo: 'app/components/charts/**/*'
+---
+
 # Charting Instructions (visx)
 
 ## Overview

@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Voice & Tone Guidelines
 
 This document defines the voice and marketing communication style for Iridium. These guidelines help maintain a consistent, welcoming, and enthusiastic brand presence across all documentation, marketing materials, and user-facing content.

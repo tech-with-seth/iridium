@@ -1,3 +1,7 @@
+---
+applyTo: 'app/routes/**/*.tsx,app/root.tsx'
+---
+
 # Error Boundaries
 
 ## Overview

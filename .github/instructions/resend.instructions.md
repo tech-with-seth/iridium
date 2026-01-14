@@ -1,3 +1,7 @@
+---
+applyTo: 'app/emails/**/*,app/models/email.server.ts'
+---
+
 # Resend Integration
 
 ## Overview

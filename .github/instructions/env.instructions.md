@@ -1,4 +1,7 @@
-````instructions
+---
+applyTo: '.env*,app/lib/env*.ts,vite.config.ts'
+---
+
 # Environment Variables & Modes
 
 This document defines how to properly use environment variables in this Vite + React Router 7 project.

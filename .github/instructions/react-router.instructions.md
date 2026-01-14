@@ -1,3 +1,7 @@
+---
+applyTo: 'app/routes/**/*.tsx,app/routes/**/*.ts,app/routes.ts'
+---
+
 # React Router 7
 
 ## Critical: Route Type Imports

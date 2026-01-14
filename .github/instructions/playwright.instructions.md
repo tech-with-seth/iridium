@@ -1,3 +1,7 @@
+---
+applyTo: 'e2e/**/*,playwright.config.ts'
+---
+
 # Playwright End-to-End Testing
 
 This project uses [Playwright](https://playwright.dev/) for end-to-end testing. Playwright provides reliable, fast, and cross-browser testing capabilities.

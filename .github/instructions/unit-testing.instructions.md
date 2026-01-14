@@ -1,3 +1,7 @@
+---
+applyTo: '**/*.test.ts,**/*.test.tsx,vitest.config.ts'
+---
+
 # Testing with Vitest
 
 This project uses [Vitest](https://vitest.dev/) for fast, modern unit and integration testing.

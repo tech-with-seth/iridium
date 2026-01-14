@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/ai*.ts,app/routes/api/chat.ts'
+---
+
 # AI Tool Calling Instructions
 
 ## Overview

@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/form*.ts,app/routes/**/*.tsx'
+---
+
 # React Hook Form Instructions
 
 ## Overview

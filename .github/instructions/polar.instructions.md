@@ -1,3 +1,7 @@
+---
+applyTo: 'app/models/polar*.ts,app/routes/api/webhooks/**/*'
+---
+
 # Polar Integration
 
 Polar provides billing and subscription management for Iridium. This guide covers the complete integration pattern.

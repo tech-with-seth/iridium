@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Vertical Slice Instructions
 
 ## Overview

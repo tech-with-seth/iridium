@@ -1,3 +1,7 @@
+---
+applyTo: 'app/components/**/*.tsx'
+---
+
 # Component Patterns
 
 This document defines the canonical patterns for building UI components in Iridium.

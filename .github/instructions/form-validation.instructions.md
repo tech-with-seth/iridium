@@ -1,3 +1,7 @@
+---
+applyTo: 'app/lib/validations.ts,app/lib/form*.ts,app/lib/form*.server.ts'
+---
+
 # Form Validation Instructions
 
 ## Overview

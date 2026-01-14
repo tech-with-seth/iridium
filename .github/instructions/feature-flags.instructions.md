@@ -1,3 +1,7 @@
+---
+applyTo: 'app/models/feature-flags*.ts,app/lib/posthog*.ts'
+---
+
 # PostHog Feature Flags
 
 ## Overview

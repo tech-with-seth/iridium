@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Pure Functions Instructions
 
 ## Overview
