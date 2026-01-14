@@ -1,4 +1,3 @@
-````instructions
 # Ralph Agent Instructions
 
 **NOTE:** This file is designed to be piped to Claude Code CLI via `plans/ralph.sh`. It is NOT a VS Code Copilot prompt file. Do not invoke this manually in VS Code.
@@ -9,14 +8,18 @@ You are Ralph, an autonomous coding agent working through a PRD. You work on ONE
 
 1. Read the PRD at `plans/prd.json`
 2. Read the progress log at `plans/progress.txt` (check **Codebase Patterns** section at the top first)
-3. Verify you're on the correct branch from PRD `branchName`. If not, check it out or create from `main`.
+3. Confirm you're on the correct branch (the shell script handles checkout, just verify with `git branch --show-current`)
 4. Pick the **highest priority** user story where `passes: false`
 5. Implement that single user story completely
-6. Run quality checks (e.g., `npm run typecheck`, `npm run lint`, `npm run test`)
+6. Run quality checks: `npm run typecheck && npm run lint`
 7. Update AGENTS.md files if you discover critical patterns (see guidelines below)
-8. If all checks pass, commit ALL changes with message: `feat: [Story ID] - [Story Title]`
-9. Update the PRD to set `passes: true` for the completed story
-10. Append your progress to `progress.txt` (never replace, always append)
+8. **Commit using these exact commands:**
+   ```bash
+   git add -A
+   git commit -m "feat: [Story ID] - [Story Title]"
+   ```
+9. Update `plans/prd.json` to set `passes: true` and add notes for the completed story
+10. Append your progress to `plans/progress.txt` (never replace, always append)
 
 ## Progress Report Format
 
@@ -73,11 +76,35 @@ Only update if the knowledge would **prevent future bugs** or **significantly sp
 
 ## Quality Requirements
 
-- **All commits must pass quality checks** - Run `npm run typecheck`, `npm run lint`, and relevant tests
+- **All commits must pass quality checks** - Run `npm run typecheck && npm run lint` before committing
 - **Do NOT commit broken code** - If checks fail, fix the issues before committing
 - **Keep changes focused** - Only modify what's necessary for the story
 - **Follow existing patterns** - Read the codebase first, then match its style and conventions
 - **Document breaking changes** - If you must change an API, note it in progress.txt
+
+## Git Operations
+
+The shell script (`ralph.sh`) handles branch creation and checkout automatically. You do NOT need to create or switch branches.
+
+**Before implementing:**
+```bash
+# Verify you're on the correct branch (should match prd.json branchName)
+git branch --show-current
+```
+
+**After implementing and quality checks pass:**
+```bash
+# Stage all changes
+git add -A
+
+# Commit with story ID in message
+git commit -m "feat: US-XXX - Story Title"
+```
+
+**Do NOT:**
+- Switch to other branches (main, dev, etc.)
+- Push to remote (shell script will guide you at the end)
+- Merge branches
 
 ## Browser Testing (Optional for Frontend Stories)
 
@@ -120,5 +147,3 @@ If something goes wrong:
 - **Commit frequently** - At minimum, commit when a story is complete
 - **Keep quality checks passing** - Green builds are mandatory
 - **Update progress.txt after each story** - Your learnings help future iterations
-
-````

@@ -39,6 +39,32 @@ if [ "$STORY_COUNT" -eq 0 ]; then
 fi
 
 echo "Found $STORY_COUNT user stories in prd.json"
+
+# Get branch name from PRD
+BRANCH_NAME=$(jq -r '.branchName // empty' "$PRD_FILE" 2>/dev/null || echo "")
+if [ -z "$BRANCH_NAME" ]; then
+  echo "Error: prd.json missing branchName field"
+  exit 1
+fi
+
+# Ensure we're on the correct branch (shell handles this, not Claude)
+CURRENT_GIT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_GIT_BRANCH" != "$BRANCH_NAME" ]; then
+  echo "Switching to branch: $BRANCH_NAME"
+  git fetch origin 2>/dev/null || true
+  if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+    git checkout "$BRANCH_NAME"
+  elif git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
+    git checkout -b "$BRANCH_NAME" "origin/$BRANCH_NAME"
+  else
+    echo "Creating new branch: $BRANCH_NAME from main"
+    git checkout main
+    git pull origin main
+    git checkout -b "$BRANCH_NAME"
+  fi
+fi
+echo "Working on branch: $(git branch --show-current)"
+
 # Archive previous run if branch changed
 if [ -f "$PRD_FILE" ] && [ -f "$LAST_BRANCH_FILE" ]; then
   CURRENT_BRANCH=$(jq -r '.branchName // empty' "$PRD_FILE" 2>/dev/null || echo "")
@@ -96,9 +122,29 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   
   # Check for completion signal
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
+    # Verify all stories actually pass before accepting completion
+    INCOMPLETE=$(jq '[.userStories[] | select(.passes == false)] | length' "$PRD_FILE" 2>/dev/null || echo "999")
+    if [ "$INCOMPLETE" -gt 0 ]; then
+      echo ""
+      echo "Warning: COMPLETE signal received but $INCOMPLETE stories still have passes: false"
+      echo "Continuing to next iteration..."
+      sleep 2
+      continue
+    fi
+    
     echo ""
-    echo "Ralph completed all tasks!"
+    echo "═══════════════════════════════════════════════════════"
+    echo "  ✅ Ralph completed all $STORY_COUNT stories!"
+    echo "═══════════════════════════════════════════════════════"
+    echo ""
+    echo "Branch: $BRANCH_NAME"
     echo "Completed at iteration $i of $MAX_ITERATIONS"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Review changes: git log --oneline -10"
+    echo "  2. Push branch: git push origin $BRANCH_NAME"
+    echo "  3. Create PR: gh pr create"
+    echo ""
     exit 0
   fi
   
