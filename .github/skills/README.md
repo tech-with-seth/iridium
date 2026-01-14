@@ -36,6 +36,12 @@ Agent Skills use "progressive disclosure":
 | `create-form` | "add form", "create form" | `form-validation.instructions.md` |
 | `create-ai-tool` | "add AI tool", "chat tool" | `ai-tool-calling.instructions.md` |
 
+### Development & Debugging
+
+| Skill | Auto-Triggers On | Full Reference |
+|-------|------------------|----------------|
+| `dev-browser` | "debug", "browse", "check page", "inspect" | N/A (Playwright MCP integration) |
+
 ### Database
 
 | Skill | Auto-Triggers On | Full Reference |

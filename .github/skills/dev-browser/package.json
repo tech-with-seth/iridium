@@ -1,0 +1,27 @@
+{
+    "name": "@iridium/dev-browser-utils",
+    "version": "1.0.0",
+    "description": "Optional TypeScript utilities for dev-browser skill",
+    "type": "module",
+    "exports": {
+        ".": "./utils/index.ts",
+        "./outline": "./utils/outline.ts",
+        "./text": "./utils/text.ts",
+        "./wait": "./utils/wait.ts",
+        "./refs": "./utils/refs.ts"
+    },
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "playwright": "^1.49.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.5",
+        "tsx": "^4.21.0",
+        "typescript": "^5.7.3",
+        "vitest": "^2.1.8"
+    }
+}
