@@ -33,6 +33,7 @@ import { TextInput } from '~/components/data-input/TextInput';
 import { Toggle } from '~/components/data-input/Toggle';
 import { Tooltip } from '~/components/feedback/Tooltip';
 import { cx } from '~/cva.config';
+import { createSignedDownloadUrl, uploadObject } from '~/lib/s3.server';
 
 const DESIGN_TIMELINE_INDICATOR_CLASSES: Record<
     'positive' | 'warning' | 'info' | 'error',
@@ -68,10 +69,57 @@ const DESIGN_TIMELINE_STEPS = [
     },
 ];
 
-export async function action() {
-    return {
-        error: 'File uploads are disabled in this demo build.',
-    };
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+export async function action({ request }: Route.ActionArgs) {
+    try {
+        const formData = await request.formData();
+        const file = formData.get('file');
+
+        if (!(file instanceof File) || file.size === 0) {
+            return { error: 'Please choose a file to upload.' };
+        }
+
+        if (file.size > MAX_UPLOAD_SIZE) {
+            return {
+                error: 'File is too large. Max size is 5 MB.',
+            };
+        }
+
+        if (file.type && !ALLOWED_IMAGE_TYPES.has(file.type)) {
+            return {
+                error: 'Unsupported file type. Use PNG, JPG, or WEBP.',
+            };
+        }
+
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const uploadKey = `uploads/${Date.now()}-${safeName}`;
+        const buffer = new Uint8Array(await file.arrayBuffer());
+
+        await uploadObject({
+            key: uploadKey,
+            body: buffer,
+            contentType: file.type || undefined,
+        });
+
+        const signedUrl = await createSignedDownloadUrl({
+            key: uploadKey,
+            expiresIn: 3600,
+        });
+
+        return {
+            uploadedKey: uploadKey,
+            signedUrl,
+        };
+    } catch (error) {
+        return {
+            error:
+                error instanceof Error
+                    ? error.message
+                    : 'Upload failed. Please try again.',
+        };
+    }
 }
 
 export default function DesignRoute({ actionData }: Route.ComponentProps) {
@@ -113,23 +161,14 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                         </p>
                         <div className="flex flex-col md:flex-row gap-4 justify-center py-8">
                             <HoverCard>
-                                <figure className="rounded-box shadow-lg">
-                                    <img
-                                        src="https://res.cloudinary.com/setholito/image/upload/v1762955464/iridium/l9dprlavvhqb47dncnug.jpg"
-                                        alt="3D hover demonstration"
-                                        className="rounded-box"
-                                    />
-                                </figure>
-                            </HoverCard>
-                            <HoverCard>
                                 <div className="card md:w-96 bg-black text-white bg-[radial-gradient(circle_at_bottom_left,#ffffff04_35%,transparent_36%),radial-gradient(circle_at_top_right,#ffffff04_35%,transparent_36%)] bg-size-[4.95em_4.95em]">
                                     <div className="card-body">
                                         <div className="flex justify-between mb-10">
                                             <div className="font-bold">
                                                 BANK OF IRIDIUM
                                             </div>
-                                            <div className="text-5xl opacity-10">
-                                                😎
+                                            <div className="text-5xl opacity-50 grayscale">
+                                                🤑
                                             </div>
                                         </div>
                                         <div className="text-lg mb-4 opacity-40">
@@ -173,6 +212,22 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                     {/* File Input Section */}
                     <section className="flex h-full flex-col gap-4">
                         <h2 className="text-2xl font-bold">File Upload</h2>
+                        <p className="text-base-content/70">
+                            This demo posts the file to the server, stores it in
+                            the Railway S3 bucket, and returns a signed download
+                            link that expires in 1 hour.
+                        </p>
+                        <ul className="list-disc pl-5 text-sm text-base-content/70 space-y-1">
+                            <li>
+                                Files are private by default and only accessible
+                                via presigned URLs.
+                            </li>
+                            <li>
+                                Requires{' '}
+                                <span className="font-semibold">S3_*</span>{' '}
+                                environment variables on the server.
+                            </li>
+                        </ul>
 
                         <Form
                             method="POST"
@@ -180,18 +235,39 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             className="space-y-4"
                         >
                             <FileInput
+                                className='w-full'
                                 name="file"
-                                label="Upload (disabled in demo)"
-                                helperText="Uploads are disabled in this build"
-                                accept=".png,.jpg,.jpeg"
+                                label="Upload a file"
+                                helperText="PNG, JPG, or WEBP up to 5 MB"
+                                accept=".png,.jpg,.jpeg,.webp"
                                 color="primary"
                                 size="lg"
                                 error={actionData?.error}
                             />
-                            <Button type="submit" status="primary" disabled>
+                            <Button type="submit" status="primary">
                                 Upload File
                             </Button>
                         </Form>
+                        {actionData?.signedUrl && (
+                            <Alert status="success">
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-semibold">
+                                        Upload successful
+                                    </span>
+                                    <span className="text-xs text-base-content/70">
+                                        Key: {actionData.uploadedKey}
+                                    </span>
+                                    <a
+                                        href={actionData.signedUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="link link-primary text-sm"
+                                    >
+                                        View temporary link
+                                    </a>
+                                </div>
+                            </Alert>
+                        )}
                         <Code
                             className="mt-auto"
                             lines={[
@@ -202,19 +278,18 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                                 { content: '  <FileInput' },
                                 { content: '    name="file"' },
                                 {
-                                    content:
-                                        '    label="Upload (disabled in demo)"',
+                                    content: '    label="Upload a file"',
                                 },
                                 {
                                     content:
-                                        '    helperText="Uploads are disabled"',
+                                        '    helperText="PNG, JPG, or WEBP"',
                                 },
                                 { content: '    color="primary"' },
                                 { content: '    error={actionData?.error}' },
                                 { content: '  />' },
                                 {
                                     content:
-                                        '  <Button type="submit" disabled>Upload</Button>',
+                                        '  <Button type="submit">Upload</Button>',
                                 },
                                 { content: '</Form>' },
                             ]}

@@ -2,6 +2,7 @@ export enum Paths {
     API = '/api',
     AUTHENTICATE = '/authenticate',
     BETTER_AUTH = '/auth/*',
+    BUCKET_BROWSER = '/bucket-browser',
     CHAT = '/chat',
     CHECKOUT = '/checkout',
     DASHBOARD = '/dashboard',
