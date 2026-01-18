@@ -1,4 +1,12 @@
 {
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "posthog-api-key",
+            "description": "PostHog Personal API Key",
+            "password": true
+        }
+    ],
     "servers": {
         "React Router Docs": {
             "type": "sse",
@@ -18,13 +26,13 @@
             "command": "npx",
             "args": ["-y", "@railway/mcp-server"]
         },
-        // "Posthog": {
-        //     "type": "http",
-        //     "url": "https://mcp.posthog.com/mcp",
-        //     "headers": {
-        //         "Authorization": "Bearer {INSERT_YOUR_PERSONAL_API_KEY_HERE}"
-        //     }
-        // },
+        "PostHog": {
+            "type": "sse",
+            "url": "https://mcp.posthog.com/sse",
+            "headers": {
+                "Authorization": "Bearer ${input:posthog-api-key}"
+            }
+        },
         "Playwright": {
             "type": "stdio",
             "command": "npx",
@@ -33,6 +41,14 @@
         "Prisma (Local)": {
             "command": "npx",
             "args": ["-y", "prisma", "mcp"]
+        },
+        "BetterAuth": {
+            "type": "sse",
+            "url": "https://gitmcp.io/better-auth/better-auth"
+        },
+        "Vercel AI SDK": {
+            "type": "sse",
+            "url": "https://gitmcp.io/vercel/ai"
         }
     }
 }
