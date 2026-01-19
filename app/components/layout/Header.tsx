@@ -104,11 +104,6 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                         <NavbarMenu className="items-center gap-2">
                             {isSignedIn && (
                                 <>
-                                    <NavbarMenuItem>
-                                        <NavLink to={Paths.PORTAL}>
-                                            Portal
-                                        </NavLink>
-                                    </NavbarMenuItem>
                                     {hasAccessPermissions && (
                                         <>
                                             <NavbarMenuItem>
@@ -130,6 +125,9 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                 >
                                     Files
                                 </NavLink>
+                            </NavbarMenuItem>
+                            <NavbarMenuItem>
+                                <NavLink to={Paths.PORTAL}>Portal</NavLink>
                             </NavbarMenuItem>
                             <NavbarMenuItem>
                                 <Button
