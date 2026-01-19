@@ -9,7 +9,7 @@ Iridium is a **small, opinionated starter** for building auth-protected React Ro
 
 ## Instant deploy
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/iridium?referralCode=YZe1VE&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/?referralCode=YZe1VE)
 
 ## What you get
 
