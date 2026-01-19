@@ -24,13 +24,13 @@ export interface S3ObjectSummary {
 }
 
 function getS3Config(): S3Config {
-    const bucket = process.env.S3_BUCKET;
-    const accessKeyId = process.env.S3_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+    const bucket = process.env.AWS_BUCKET_NAME;
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
     if (!bucket || !accessKeyId || !secretAccessKey) {
         throw new Error(
-            'S3 bucket credentials are missing. Set S3_BUCKET, S3_ACCESS_KEY_ID, and S3_SECRET_ACCESS_KEY.',
+            'S3 bucket credentials are missing. Set AWS_BUCKET_NAME, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.',
         );
     }
 
@@ -38,9 +38,9 @@ function getS3Config(): S3Config {
         bucket,
         accessKeyId,
         secretAccessKey,
-        endpoint: process.env.S3_ENDPOINT ?? 'https://storage.railway.app',
-        region: process.env.S3_REGION ?? 'auto',
-        forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
+        endpoint: process.env.AWS_ENDPOINT_URL ?? 'https://storage.railway.app',
+        region: process.env.AWS_DEFAULT_REGION ?? 'auto',
+        forcePathStyle: process.env.AWS_FORCE_PATH_STYLE === 'true',
     };
 }
 

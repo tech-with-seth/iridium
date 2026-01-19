@@ -224,7 +224,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             </li>
                             <li>
                                 Requires{' '}
-                                <span className="font-semibold">S3_*</span>{' '}
+                                <span className="font-semibold">AWS_*</span>{' '}
                                 environment variables on the server.
                             </li>
                         </ul>
@@ -235,7 +235,7 @@ export default function DesignRoute({ actionData }: Route.ComponentProps) {
                             className="space-y-4"
                         >
                             <FileInput
-                                className='w-full'
+                                className="w-full"
                                 name="file"
                                 label="Upload a file"
                                 helperText="PNG, JPG, or WEBP up to 5 MB"
