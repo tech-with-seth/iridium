@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router';
-import type { Route } from './+types/bucket-browser-view';
+import type { Route } from './+types/file-browser-view';
 import { Alert } from '~/components/feedback/Alert';
 import { createSignedDownloadUrl } from '~/lib/s3.server';
 

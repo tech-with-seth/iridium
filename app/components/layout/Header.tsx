@@ -124,6 +124,14 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                 </>
                             )}
                             <NavbarMenuItem>
+                                <NavLink
+                                    to="/files"
+                                    className={navLinkClassName}
+                                >
+                                    Files
+                                </NavLink>
+                            </NavbarMenuItem>
+                            <NavbarMenuItem>
                                 <Button
                                     status="primary"
                                     onClick={

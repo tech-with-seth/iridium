@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router';
-import type { Route } from './+types/bucket-browser-index';
+import type { Route } from './+types/file-browser-index';
 import { Alert } from '~/components/feedback/Alert';
 
 export default function BucketBrowserIndexRoute(_: Route.ComponentProps) {

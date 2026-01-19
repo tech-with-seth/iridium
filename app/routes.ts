@@ -24,9 +24,9 @@ export default [
                 route(Paths.THREAD, 'routes/thread.tsx'),
             ]),
             route(Paths.DESIGN, 'routes/design.tsx'),
-            route(Paths.BUCKET_BROWSER, 'routes/bucket-browser.tsx', [
-                index('routes/bucket-browser-index.tsx'),
-                route('view/*', 'routes/bucket-browser-view.tsx'),
+            route(Paths.FILE_BROWSER, 'routes/file-browser.tsx', [
+                index('routes/file-browser-index.tsx'),
+                route('view/*', 'routes/file-browser-view.tsx'),
             ]),
             route(Paths.FORMS, 'routes/forms.tsx'),
             route(Paths.PORTAL, 'routes/portal.tsx'),

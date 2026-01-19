@@ -5,7 +5,8 @@ import {
     useLocation,
     useNavigation,
 } from 'react-router';
-import type { Route } from './+types/bucket-browser';
+import invariant from 'tiny-invariant';
+import type { Route } from './+types/file-browser';
 import { Alert } from '~/components/feedback/Alert';
 import { Badge } from '~/components/data-display/Badge';
 import {
@@ -18,7 +19,6 @@ import {
 } from '~/components/data-display/Table';
 import { Container } from '~/components/layout/Container';
 import { listObjects } from '~/lib/s3.server';
-import invariant from 'tiny-invariant';
 
 function formatBytes(bytes: number) {
     if (bytes === 0) return '0 B';
@@ -53,43 +53,29 @@ function ContentSection({
     );
 }
 
-function ContentBlock({
-    title,
-    description,
-}: {
-    title: string;
-    description: string;
-}) {
-    return (
-        <div className="col-span-12 md:col-span-6 flex flex-col gap-2">
-            <h3 className="text-xl font-semibold text-base-content">{title}</h3>
-            <p className="text-base-content/70">{description}</p>
-        </div>
-    );
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
     const items = await listObjects({ maxKeys: 500 });
     invariant(items, 'Failed to list S3 objects');
 
-    return data({ items });
+    return data({
+        items,
+        env: { AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL },
+    });
 }
 
-export default function BucketBrowserRoute({
-    loaderData,
-}: Route.ComponentProps) {
+export default function FileBrowserRoute({ loaderData }: Route.ComponentProps) {
     const location = useLocation();
     const navigation = useNavigation();
     const isNavigating = navigation.state !== 'idle';
 
     return (
         <>
-            <title>Bucket Browser | Iridium</title>
+            <title>File Browser | Iridium</title>
             <meta
                 name="description"
                 content="Browse Railway S3 bucket objects with presigned links."
             />
-            <ContentSection heading="Bucket Browser">
+            <ContentSection heading="File Browser">
                 <div className="col-span-12 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
                     <div className="lg:col-span-5 flex flex-col gap-3">
                         <div className="flex flex-wrap items-center gap-3">
@@ -128,7 +114,7 @@ export default function BucketBrowserRoute({
                                     </TableHead>
                                     <TableBody>
                                         {loaderData?.items.map((item) => {
-                                            const viewPath = `/bucket-browser/view/${encodeURIComponent(
+                                            const viewPath = `/files/view/${encodeURIComponent(
                                                 item.key,
                                             )}`;
                                             const isActiveRow =
