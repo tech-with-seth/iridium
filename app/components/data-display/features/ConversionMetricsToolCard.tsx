@@ -19,7 +19,7 @@ export function ConversionMetricsToolCard({
     return (
         <Card
             variant="border"
-            className="bg-base-100 border-base-200"
+            className="bg-base-100 border-base-200 rounded-field my-2"
             title={
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-3">
@@ -47,19 +47,25 @@ export function ConversionMetricsToolCard({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Checkouts</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Checkouts
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {output.checkouts.toLocaleString()}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Succeeded</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Succeeded
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {output.succeededCheckouts.toLocaleString()}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3 sm:col-span-2">
-                        <div className="stat-title text-xs sm:text-sm">Orders</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Orders
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl">
                             {output.orders.toLocaleString()}
                         </div>

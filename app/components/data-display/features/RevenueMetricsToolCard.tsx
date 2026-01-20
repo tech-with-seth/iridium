@@ -33,7 +33,7 @@ export function RevenueMetricsToolCard({
     return (
         <Card
             variant="border"
-            className="bg-base-100 border-base-200"
+            className="bg-base-100 border-base-200 rounded-field my-2"
             title={
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-3">

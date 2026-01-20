@@ -19,7 +19,7 @@ export function UserAnalyticsToolCard({
     return (
         <Card
             variant="border"
-            className="bg-base-100 border-base-200"
+            className="bg-base-100 border-base-200 rounded-field my-2"
             title={
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-3">
@@ -41,13 +41,17 @@ export function UserAnalyticsToolCard({
                 {/* Overview Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Total Users</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Total Users
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {overview.totalUsers}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">New Users</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            New Users
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-secondary">
                             {overview.newUsersInRange}
                         </div>
@@ -66,7 +70,9 @@ export function UserAnalyticsToolCard({
                         )}
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Active Users</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Active Users
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {overview.activeUsers}
                         </div>
@@ -75,7 +81,9 @@ export function UserAnalyticsToolCard({
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Banned Users</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Banned Users
+                        </div>
                         <div
                             className={`stat-value text-2xl sm:text-3xl lg:text-4xl ${overview.bannedUsers > 0 ? 'text-warning' : ''}`}
                         >
@@ -106,7 +114,8 @@ export function UserAnalyticsToolCard({
                                     {roleDistribution.userCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {roleDistribution.userPercentage.toFixed(1)}%
+                                    {roleDistribution.userPercentage.toFixed(1)}
+                                    %
                                 </div>
                             </div>
                         </div>
@@ -121,7 +130,10 @@ export function UserAnalyticsToolCard({
                                     {roleDistribution.editorCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {roleDistribution.editorPercentage.toFixed(1)}%
+                                    {roleDistribution.editorPercentage.toFixed(
+                                        1,
+                                    )}
+                                    %
                                 </div>
                             </div>
                         </div>
@@ -136,7 +148,10 @@ export function UserAnalyticsToolCard({
                                     {roleDistribution.adminCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {roleDistribution.adminPercentage.toFixed(1)}%
+                                    {roleDistribution.adminPercentage.toFixed(
+                                        1,
+                                    )}
+                                    %
                                 </div>
                             </div>
                         </div>

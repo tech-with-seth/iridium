@@ -16,7 +16,7 @@ export function EngagementMetricsToolCard({
     return (
         <Card
             variant="border"
-            className="bg-base-100 border-base-200"
+            className="bg-base-100 border-base-200 rounded-field my-2"
             title={
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-3">
@@ -38,19 +38,25 @@ export function EngagementMetricsToolCard({
                 {/* Overview Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Threads</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Threads
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary">
                             {overview.totalThreads}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Messages</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Messages
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-secondary">
                             {overview.totalMessages}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Active Users</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Active Users
+                        </div>
                         <div className="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent">
                             {topUsers.length > 0
                                 ? topUsers.length
@@ -64,19 +70,25 @@ export function EngagementMetricsToolCard({
                 {/* Averages */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Msgs/Thread</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Msgs/Thread
+                        </div>
                         <div className="stat-value text-xl sm:text-2xl lg:text-3xl">
                             {averages.messagesPerThread.toFixed(1)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Threads/User</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Threads/User
+                        </div>
                         <div className="stat-value text-xl sm:text-2xl lg:text-3xl">
                             {averages.threadsPerUser.toFixed(1)}
                         </div>
                     </div>
                     <div className="stat bg-base-200 rounded-box p-3">
-                        <div className="stat-title text-xs sm:text-sm">Msgs/User</div>
+                        <div className="stat-title text-xs sm:text-sm">
+                            Msgs/User
+                        </div>
                         <div className="stat-value text-xl sm:text-2xl lg:text-3xl">
                             {averages.messagesPerUser.toFixed(1)}
                         </div>
@@ -100,13 +112,19 @@ export function EngagementMetricsToolCard({
                                     {overview.userMessagesCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {distribution.userMessagePercentage.toFixed(1)}%
+                                    {distribution.userMessagePercentage.toFixed(
+                                        1,
+                                    )}
+                                    %
                                 </div>
                             </div>
                         </div>
                         <div className="flex flex-col items-center gap-2">
                             <DonutProgress
-                                value={distribution.assistantMessagePercentage / 100}
+                                value={
+                                    distribution.assistantMessagePercentage /
+                                    100
+                                }
                                 label="Assistant"
                                 size={80}
                             />
@@ -115,13 +133,18 @@ export function EngagementMetricsToolCard({
                                     {overview.assistantMessagesCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {distribution.assistantMessagePercentage.toFixed(1)}%
+                                    {distribution.assistantMessagePercentage.toFixed(
+                                        1,
+                                    )}
+                                    %
                                 </div>
                             </div>
                         </div>
                         <div className="flex flex-col items-center gap-2">
                             <DonutProgress
-                                value={distribution.systemMessagePercentage / 100}
+                                value={
+                                    distribution.systemMessagePercentage / 100
+                                }
                                 label="System"
                                 size={80}
                             />
@@ -130,7 +153,10 @@ export function EngagementMetricsToolCard({
                                     {overview.systemMessagesCount}
                                 </div>
                                 <div className="opacity-70">
-                                    {distribution.systemMessagePercentage.toFixed(1)}%
+                                    {distribution.systemMessagePercentage.toFixed(
+                                        1,
+                                    )}
+                                    %
                                 </div>
                             </div>
                         </div>
@@ -166,7 +192,8 @@ export function EngagementMetricsToolCard({
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <div className="font-semibold text-sm">
-                                                            {user.userName || 'Anonymous'}
+                                                            {user.userName ||
+                                                                'Anonymous'}
                                                         </div>
                                                         <div className="text-xs opacity-70">
                                                             {user.userEmail}
