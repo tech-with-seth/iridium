@@ -130,6 +130,14 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                                     Design
                                                 </NavLink>
                                             </NavbarMenuItem>
+                                            <NavbarMenuItem>
+                                                <NavLink
+                                                    to="/forms"
+                                                    className={navLinkClassName}
+                                                >
+                                                    Forms
+                                                </NavLink>
+                                            </NavbarMenuItem>
                                         </>
                                     )}
                                 </>
