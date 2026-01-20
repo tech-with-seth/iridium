@@ -6,6 +6,7 @@ import z from 'zod';
 import type {
     EngagementMetricsOutput,
     MoneyAmount,
+    PostHogAnalyticsOutput,
     RevenueTrendOutput,
     UserAnalyticsOutput,
 } from '~/lib/chat-tools.types';
@@ -14,6 +15,7 @@ import {
     getEngagementMetrics,
     getUserAnalytics,
 } from '~/models/analytics.server';
+import { getPostHogAnalyticsSummary } from '~/models/posthog-analytics.server';
 import { Role } from '~/generated/prisma/client';
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -424,6 +426,56 @@ export const chatTools = {
                 },
                 topUsers: metricsData.topUsers,
                 trend,
+            };
+
+            return output;
+        },
+    }),
+    // ========================================================================
+    // PostHog Analytics
+    // ========================================================================
+    getPostHogAnalytics: tool({
+        description:
+            'Get PostHog analytics including total events, unique users, pageviews, top events by frequency, and daily event trends. Use this when the user asks about site analytics, event tracking, PostHog metrics, or wants to see analytics data.',
+        inputSchema: z.object({
+            startDate: z
+                .string()
+                .regex(ISO_DATE_REGEX, 'Expected YYYY-MM-DD')
+                .optional()
+                .describe('Start date in YYYY-MM-DD format. Defaults to 30 days ago.'),
+            endDate: z
+                .string()
+                .regex(ISO_DATE_REGEX, 'Expected YYYY-MM-DD')
+                .optional()
+                .describe('End date in YYYY-MM-DD format. Defaults to today.'),
+        }),
+        execute: async ({ startDate, endDate }) => {
+            // Resolve date range (30 days default)
+            const defaultEndDate = new Date();
+            const defaultStartDate = new Date();
+            defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+
+            const startISO = startDate ?? toISODate(defaultStartDate);
+            const endISO = endDate ?? toISODate(defaultEndDate);
+
+            // Call model layer function
+            const analyticsData = await getPostHogAnalyticsSummary({
+                startDate: startISO,
+                endDate: endISO,
+            });
+
+            const output: PostHogAnalyticsOutput = {
+                dateRange: {
+                    startDate: startISO,
+                    endDate: endISO,
+                },
+                overview: {
+                    totalEvents: analyticsData.totalEvents,
+                    uniqueUsers: analyticsData.uniqueUsers,
+                    pageviews: analyticsData.pageviews,
+                },
+                topEvents: analyticsData.topEvents,
+                trend: analyticsData.trend,
             };
 
             return output;

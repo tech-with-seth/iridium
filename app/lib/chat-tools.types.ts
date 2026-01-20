@@ -134,3 +134,28 @@ export interface EngagementMetricsOutput {
         messages: number; // Messages sent on this day
     }>;
 }
+
+// ============================================================================
+// PostHog Analytics
+// ============================================================================
+
+export interface PostHogAnalyticsOutput {
+    dateRange: {
+        startDate: string; // YYYY-MM-DD
+        endDate: string; // YYYY-MM-DD
+    };
+    overview: {
+        totalEvents: number;
+        uniqueUsers: number;
+        pageviews: number;
+    };
+    topEvents: Array<{
+        event: string;
+        count: number;
+    }>;
+    trend: Array<{
+        date: string; // YYYY-MM-DD
+        events: number;
+        pageviews: number;
+    }>;
+}
