@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Review code for Iridium pattern compliance - route types, Prisma imports, form validation, CVA components, model layer usage
-tools: ['search', 'usages', 'codebase']
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 model: Claude Sonnet 4
 handoffs:
   - label: Fix Issues

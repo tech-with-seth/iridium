@@ -1,4 +1,4 @@
-import { useOutletContext } from 'react-router';
+import { useNavigation } from 'react-router';
 import type { Route } from './+types/file-browser-view';
 import { Alert } from '~/components/feedback/Alert';
 import { createSignedDownloadUrl } from '~/lib/s3.server';
@@ -22,7 +22,7 @@ function isPreviewableInline(key: string) {
     return ['pdf'].includes(extension ?? '');
 }
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
     const encodedKey = params['*'];
     if (!encodedKey) {
         throw new Response('Missing object key', { status: 400 });
@@ -37,19 +37,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return { key, signedUrl };
 }
 
-export default function BucketBrowserViewRoute({
+export default function FileBrowserViewRoute({
     loaderData,
 }: Route.ComponentProps) {
-    const { key, signedUrl } = loaderData;
-    const showImage = isImageKey(key);
-    const showInline = isPreviewableInline(key);
-    const { isNavigating } = useOutletContext<{ isNavigating: boolean }>();
+    const showImage = isImageKey(loaderData.key);
+    const showInline = isPreviewableInline(loaderData.key);
+    const navigation = useNavigation();
+    const isNavigating = navigation.state === 'loading';
 
     return (
         <div className="flex h-full flex-col gap-4 rounded-box bg-base-200 p-4">
             <div className="flex flex-col gap-2">
                 <h3 className="text-xl font-semibold">Preview</h3>
-                <p className="text-xs text-base-content/70 break-all">{key}</p>
+                <p className="text-xs text-base-content/70 break-all">
+                    {loaderData.key}
+                </p>
                 <p className="text-sm text-base-content/70">
                     Presigned link expires in 15 minutes.
                 </p>
@@ -61,16 +63,16 @@ export default function BucketBrowserViewRoute({
             ) : showImage ? (
                 <div className="overflow-hidden rounded-box bg-base-100 p-8">
                     <img
-                        src={signedUrl}
-                        alt={key}
+                        src={loaderData.signedUrl}
+                        alt={loaderData.key}
                         className="w-full max-h-[420px] object-contain"
                     />
                 </div>
             ) : showInline ? (
                 <div className="overflow-hidden rounded-box bg-base-100">
                     <iframe
-                        src={signedUrl}
-                        title={key}
+                        src={loaderData.signedUrl}
+                        title={loaderData.key}
                         className="h-[420px] w-full"
                     />
                 </div>
@@ -81,7 +83,7 @@ export default function BucketBrowserViewRoute({
                 </Alert>
             )}
             <a
-                href={signedUrl}
+                href={loaderData.signedUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="link link-primary"

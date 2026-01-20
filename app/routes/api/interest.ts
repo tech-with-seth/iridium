@@ -3,9 +3,9 @@ import { data } from 'react-router';
 import { validateFormData } from '~/lib/form-validation.server';
 import { interestFormSchema, type InterestFormData } from '~/lib/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { prisma } from '~/db.server';
 import { Prisma } from '~/generated/prisma/client';
 import { getPostHogClient } from '~/lib/posthog';
+import { createInterestSignup } from '~/models/interest.server';
 import {
     sendInterestListConfirmationEmail,
     sendAdminInterestListNotification,
@@ -42,13 +42,7 @@ export async function action({ request }: Route.ActionArgs) {
         }
 
         // Create interest list signup
-        await prisma.interestListSignup.create({
-            data: {
-                email: validatedData!.email,
-                inquiryType: validatedData!.inquiryType,
-                note: validatedData!.note || null,
-            },
-        });
+        await createInterestSignup(validatedData!);
 
         // Send confirmation email to user
         try {

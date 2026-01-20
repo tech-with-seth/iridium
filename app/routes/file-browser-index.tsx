@@ -1,9 +1,10 @@
-import { useOutletContext } from 'react-router';
+import { useNavigation, useOutletContext } from 'react-router';
 import type { Route } from './+types/file-browser-index';
 import { Alert } from '~/components/feedback/Alert';
 
-export default function BucketBrowserIndexRoute(_: Route.ComponentProps) {
-    const { isNavigating } = useOutletContext<{ isNavigating: boolean }>();
+export default function FileBrowserIndexRoute(_: Route.ComponentProps) {
+    const navigation = useNavigation();
+    const isNavigating = navigation.state !== 'idle';
 
     return (
         <div className="flex h-full flex-col">

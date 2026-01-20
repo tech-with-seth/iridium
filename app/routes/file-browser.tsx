@@ -3,7 +3,8 @@ import {
     NavLink,
     Outlet,
     useLocation,
-    useNavigation,
+    type NavLinkProps,
+    type NavLinkRenderProps,
 } from 'react-router';
 import invariant from 'tiny-invariant';
 import type { Route } from './+types/file-browser';
@@ -19,6 +20,7 @@ import {
 } from '~/components/data-display/Table';
 import { Container } from '~/components/layout/Container';
 import { listObjects } from '~/lib/s3.server';
+import { EyeIcon } from 'lucide-react';
 
 function formatBytes(bytes: number) {
     if (bytes === 0) return '0 B';
@@ -63,10 +65,34 @@ export async function loader() {
     });
 }
 
+const FileLink = ({ to }: { to: string }) => {
+    const navLinkClassName = ({ isActive, isPending }: NavLinkRenderProps) =>
+        isActive
+            ? 'link link-primary font-semibold'
+            : isPending
+              ? 'link link-primary'
+              : undefined;
+
+    return (
+        <NavLink to={to} className={navLinkClassName}>
+            {({ isActive, isPending }) =>
+                isActive ? (
+                    <>
+                        <EyeIcon className="inline h-4 w-4" />
+                        <span>Viewing</span>
+                    </>
+                ) : isPending ? (
+                    'Loading...'
+                ) : (
+                    'View'
+                )
+            }
+        </NavLink>
+    );
+};
+
 export default function FileBrowserRoute({ loaderData }: Route.ComponentProps) {
     const location = useLocation();
-    const navigation = useNavigation();
-    const isNavigating = navigation.state !== 'idle';
 
     return (
         <>
@@ -144,22 +170,9 @@ export default function FileBrowserRoute({ loaderData }: Route.ComponentProps) {
                                                             : '—'}
                                                     </TableCell>
                                                     <TableCell className="align-top">
-                                                        <NavLink
+                                                        <FileLink
                                                             to={viewPath}
-                                                            className={({
-                                                                isActive,
-                                                            }) =>
-                                                                isActive
-                                                                    ? 'link link-primary font-semibold'
-                                                                    : 'link link-primary'
-                                                            }
-                                                        >
-                                                            {({ isActive }) =>
-                                                                isActive
-                                                                    ? 'Viewing ✓'
-                                                                    : 'View'
-                                                            }
-                                                        </NavLink>
+                                                        />
                                                     </TableCell>
                                                 </TableRow>
                                             );
@@ -171,7 +184,7 @@ export default function FileBrowserRoute({ loaderData }: Route.ComponentProps) {
                     </div>
                     <div className="lg:col-span-4 h-full">
                         <div className="flex h-full flex-col">
-                            <Outlet context={{ isNavigating }} />
+                            <Outlet />
                         </div>
                     </div>
                 </div>

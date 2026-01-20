@@ -114,18 +114,26 @@ export function Header({ handleOpenDrawer, className }: HeaderProps) {
                                                     Dashboard
                                                 </NavLink>
                                             </NavbarMenuItem>
+                                            <NavbarMenuItem>
+                                                <NavLink
+                                                    to="/files"
+                                                    className={navLinkClassName}
+                                                >
+                                                    Files
+                                                </NavLink>
+                                            </NavbarMenuItem>
+                                            <NavbarMenuItem>
+                                                <NavLink
+                                                    to="/design"
+                                                    className={navLinkClassName}
+                                                >
+                                                    Design
+                                                </NavLink>
+                                            </NavbarMenuItem>
                                         </>
                                     )}
                                 </>
                             )}
-                            <NavbarMenuItem>
-                                <NavLink
-                                    to="/files"
-                                    className={navLinkClassName}
-                                >
-                                    Files
-                                </NavLink>
-                            </NavbarMenuItem>
                             <NavbarMenuItem>
                                 <NavLink to={Paths.PORTAL}>Portal</NavLink>
                             </NavbarMenuItem>
