@@ -163,18 +163,16 @@ export default function LandingPage() {
                 content="Stop rebuilding boilerplate. Iridium gives you auth, database patterns, and AI—so you can focus on what makes your product unique."
             />
             {alertExperimentActive && (
-                <div>
-                    <Container className="px-4">
-                        <Alert status="warning" className="mb-4">
-                            <p>
-                                This is an experimental variant of this alert
-                                message. PostHog feature flags let us test
-                                different UI variations with real users to find
-                                what works best!
-                            </p>
-                        </Alert>
-                    </Container>
-                </div>
+                <Container className="px-4">
+                    <Alert status="warning" className="mb-4">
+                        <p>
+                            This is an experimental variant of this alert
+                            message. PostHog feature flags let us test different
+                            UI variations with real users to find what works
+                            best!
+                        </p>
+                    </Alert>
+                </Container>
             )}
             <Container className="px-4">
                 <div

@@ -6,7 +6,6 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useNavigate,
 } from 'react-router';
 import { FileQuestionIcon } from 'lucide-react';
 
@@ -16,7 +15,6 @@ import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';
 import { PHProvider } from './components/providers/PostHogProvider';
 import { themeCookie } from './lib/cookies.server';
-import { useDrawer } from './hooks/useDrawer';
 import { useRootData } from './hooks/useRootData';
 import type { Route } from './+types/root';
 import { getProductDetails } from './models/polar.server';
