@@ -31,6 +31,7 @@ import type {
     ConversionMetricsOutput,
     EngagementMetricsOutput,
     MoneyAmount,
+    PostHogAnalyticsOutput,
     ProductMetricsOutput,
     RevenueMetricsOutput,
     UserAnalyticsOutput,
@@ -40,6 +41,7 @@ import { ProductMetricsToolCard } from '~/components/data-display/features/Produ
 import { RevenueMetricsToolCard } from '~/components/data-display/features/RevenueMetricsToolCard';
 import { UserAnalyticsToolCard } from '~/components/data-display/features/UserAnalyticsToolCard';
 import { EngagementMetricsToolCard } from '~/components/data-display/features/EngagementMetricsToolCard';
+import { PostHogAnalyticsToolCard } from '~/components/data-display/features/PostHogAnalyticsToolCard';
 
 type ToolState =
     | 'input-streaming'
@@ -221,6 +223,23 @@ function isEngagementMetricsOutput(
         isRecord(value.averages) &&
         isRecord(value.distribution) &&
         Array.isArray(value.topUsers) &&
+        Array.isArray(value.trend)
+    );
+}
+
+function isPostHogAnalyticsOutput(
+    value: unknown,
+): value is PostHogAnalyticsOutput {
+    if (!isRecord(value)) return false;
+    return (
+        isRecord(value.dateRange) &&
+        typeof value.dateRange.startDate === 'string' &&
+        typeof value.dateRange.endDate === 'string' &&
+        isRecord(value.overview) &&
+        typeof value.overview.totalEvents === 'number' &&
+        typeof value.overview.uniqueUsers === 'number' &&
+        typeof value.overview.pageviews === 'number' &&
+        Array.isArray(value.topEvents) &&
         Array.isArray(value.trend)
     );
 }
@@ -482,6 +501,10 @@ export default function ThreadRoute({
             label: 'Most active users',
             text: 'Who are my most active users this month? Use getEngagementMetrics and summarize the top users by message and thread activity.',
         },
+        {
+            label: 'PostHog analytics (30 days)',
+            text: 'Show me PostHog analytics for the last 30 days. Use the getPostHogAnalytics tool and highlight total events, unique users, pageviews, and top events.',
+        },
     ];
 
     return (
@@ -702,6 +725,33 @@ export default function ThreadRoute({
                                                             isUser={isUser}
                                                         >
                                                             <EngagementMetricsToolCard
+                                                                output={
+                                                                    tool.output
+                                                                }
+                                                            />
+                                                        </MessagePartBubble>
+                                                    );
+                                                }
+
+                                                if (
+                                                    tool.toolName ===
+                                                        'getPostHogAnalytics' &&
+                                                    tool.state ===
+                                                        'output-available' &&
+                                                    isPostHogAnalyticsOutput(
+                                                        tool.output,
+                                                    )
+                                                ) {
+                                                    return (
+                                                        <MessagePartBubble
+                                                            key={`${message.id}-${partIndex}`}
+                                                            placement={
+                                                                placement
+                                                            }
+                                                            color={color}
+                                                            isUser={isUser}
+                                                        >
+                                                            <PostHogAnalyticsToolCard
                                                                 output={
                                                                     tool.output
                                                                 }

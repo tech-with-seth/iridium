@@ -1,5 +1,7 @@
 export { ConversionMetricsToolCard } from './ConversionMetricsToolCard';
 export { EngagementMetricsToolCard } from './EngagementMetricsToolCard';
+export { PostHogAnalyticsToolCard } from './PostHogAnalyticsToolCard';
+export { PostHogTrendChart } from './PostHogTrendChart';
 export { ProductMetricsToolCard } from './ProductMetricsToolCard';
 export { RevenueMetricsToolCard } from './RevenueMetricsToolCard';
 export { RevenueTrendChart } from './RevenueTrendChart';
