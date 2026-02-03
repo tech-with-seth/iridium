@@ -139,8 +139,8 @@ export default function LandingPage() {
         [data?.allFlags],
     );
 
-    const introCopyControl = `Skip the 40+ hours of integration work and start building what makes your product unique. Iridium handles authentication, database patterns, and component architecture—so you can focus on features your users actually care about.`;
-    const introCopyVariant = `Tired of decision fatigue? Iridium makes the hard choices for you—React Router 7, Prisma patterns, type-safe validation—so you can ship your MVP without second-guessing your stack. Build with confidence from day one.`;
+    const introCopyControl = `Your first paying customer could be using your product by next Monday. Iridium ships with authentication, payments, AI chat, and production-ready patterns—everything you need to launch, pre-built and working.`;
+    const introCopyVariant = `Every week you spend rebuilding auth and database patterns is a week your competitors are shipping features. Iridium handles the solved problems so you can focus on what makes your product worth paying for.`;
 
     const GitHubCta = () => (
         <a
@@ -150,17 +150,17 @@ export default function LandingPage() {
             className="btn btn-accent btn-lg"
         >
             <GitHubLogo className="w-5 h-5 fill-current" />
-            Start Building Your SaaS
+            Clone and Launch Today
             <ArrowRightIcon />
         </a>
     );
 
     return (
         <>
-            <title>Iridium - Ship Your SaaS Faster</title>
+            <title>Iridium - From Idea to Launch in a Weekend</title>
             <meta
                 name="description"
-                content="Stop rebuilding boilerplate. Iridium gives you auth, database patterns, and AI—so you can focus on what makes your product unique."
+                content="Skip months of setup. Auth, payments, database, and AI—production-ready so you ship what makes your product different, not what every SaaS needs."
             />
             {alertExperimentActive && (
                 <Container className="px-4">
@@ -192,7 +192,7 @@ export default function LandingPage() {
                     <div className="col-span-12 lg:col-span-6 flex flex-col justify-center p-8">
                         <div>
                             <h1 className="text-5xl font-bold mb-8 text-base-content">
-                                Ship Your SaaS, Not Boilerplate
+                                From Idea to Launch in a Weekend
                             </h1>
                             <p className="text-lg mb-12">
                                 {homePageIntroCopyExperimentActive

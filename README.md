@@ -5,7 +5,7 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Iridium is a **small, opinionated starter** for building auth-protected React Router 7 apps with a clean UI kit and a minimal feature set. It ships with email/password auth (plus social OAuth), a threaded AI chat dashboard, and design/form demos so you can start from a working app instead of an empty shell.
+**From idea to launch in a weekend.** Iridium is a production-ready React Router 7 starter with auth, payments, AI chat, and a clean UI system already working. Skip months of setup and ship what makes your product different.
 
 ## Instant deploy
 
