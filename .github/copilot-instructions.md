@@ -22,7 +22,7 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 - ❌ Multi-tenancy/organizations
 - ❌ E-commerce/shop flows (beyond the Polar demo routes)
 
-**📋 See detailed instruction files in `.github/instructions/` for specific patterns (32 guides):**
+**📋 See detailed instruction files in `.github/instructions/` for specific patterns (27 guides):**
 
 - `react-router.instructions.md` - **Critical React Router 7 patterns (READ THIS FIRST)**
 - `form-validation.instructions.md` - Hybrid client+server validation
@@ -33,30 +33,50 @@ This is a **small, opinionated starter** for React Router 7 apps with **BetterAu
 
 ## AI Skills Library
 
-The `.github/skills/` directory contains 20 specialized skills for common development tasks:
+The `.github/skills/` directory contains specialized skills for common development tasks:
 
-| Skill | Purpose |
-|-------|---------|
-| `create-component` | CVA + DaisyUI components |
-| `create-route` | React Router 7 routes |
-| `create-crud-api` | API endpoints with validation |
-| `create-form` | Hybrid validated forms |
-| `create-ai-tool` | AI chat tools with Vercel AI SDK |
-| `create-model` | Prisma model layer functions |
-| `add-auth` | BetterAuth route protection |
-| `add-rbac` | Role-based access control |
-| `create-unit-test` | Vitest unit tests |
-| `create-e2e-test` | Playwright E2E tests |
-| `add-docs` | JSDoc and inline documentation |
-| `refactor-code` | Code simplification and cleanup |
-| `add-error-boundary` | Error handling for routes |
-| `create-email` | React Email + Resend templates |
-| `add-feature-flag` | PostHog feature flags |
-| `add-billing` | Polar subscriptions/payments |
-| `add-chart` | visx data visualizations |
-| `add-caching` | Client-side SWR caching |
-| `add-seo` | Meta tags, Open Graph, JSON-LD |
-| `ship` | Railway deployment & debugging |
+### 🚨 React Router Framework Mode (Critical)
+
+| Skill                         | Purpose                                                               |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `react-router-framework-mode` | **Loaders, actions, forms, navigation, pending UI, error boundaries** |
+
+This skill provides comprehensive React Router 7 patterns including:
+
+- Data loading with `loader`/`clientLoader`
+- Mutations with `action`/`clientAction` and `useFetcher`
+- Forms: use `<Form method="get">` for search, `useFetcher` for inline mutations
+- Pending/optimistic UI states
+- Error boundaries and route module exports
+
+**Load this skill when working with any React Router data flow or form handling.**
+
+### Other Skills
+
+### Other Skills
+
+| Skill                | Purpose                          |
+| -------------------- | -------------------------------- |
+| `create-component`   | CVA + DaisyUI components         |
+| `create-route`       | React Router 7 routes            |
+| `create-crud-api`    | API endpoints with validation    |
+| `create-form`        | Hybrid validated forms           |
+| `create-ai-tool`     | AI chat tools with Vercel AI SDK |
+| `create-model`       | Prisma model layer functions     |
+| `add-auth`           | BetterAuth route protection      |
+| `add-rbac`           | Role-based access control        |
+| `create-unit-test`   | Vitest unit tests                |
+| `create-e2e-test`    | Playwright E2E tests             |
+| `add-docs`           | JSDoc and inline documentation   |
+| `refactor-code`      | Code simplification and cleanup  |
+| `add-error-boundary` | Error handling for routes        |
+| `create-email`       | React Email + Resend templates   |
+| `add-feature-flag`   | PostHog feature flags            |
+| `add-billing`        | Polar subscriptions/payments     |
+| `add-chart`          | visx data visualizations         |
+| `add-caching`        | Client-side SWR caching          |
+| `add-seo`            | Meta tags, Open Graph, JSON-LD   |
+| `ship`               | Railway deployment & debugging   |
 
 ## Ralph Automation (Optional)
 
@@ -68,11 +88,13 @@ Ralph is an autonomous loop for iterating on PRDs with Claude Code.
 - Data files: `plans/prd.json`, `plans/progress.txt`
 
 Run it with:
+
 ```bash
 ./plans/ralph.sh [max_iterations]
 ```
 
 The loop invokes:
+
 ```bash
 claude --dangerously-skip-permissions --model opus
 ```
@@ -220,11 +242,25 @@ npm run test          # Vitest unit tests
 npm run e2e           # Playwright E2E tests
 npx prisma generate   # Regenerate Prisma client (after schema changes)
 npx prisma migrate dev --name <description> # Apply database migrations
+
+# Deployment (Railway)
+npm run validate:env  # Validate env vars against .env.example (use --railway for Railway check)
+npm run predeploy     # typecheck → build → test (pre-deploy validation)
+npm run deploy        # predeploy + railway up (one-command deploy)
 ```
 
 > ⚠️ **Seed Warning**: `npm run seed` is for initializing fresh databases only (local dev, new staging instances, or after deliberate reset). Never run on production—production data should evolve through the app itself.
 
 > Tip: the repo ships with VS Code tasks (`.vscode/tasks.json`) for Prisma and Railway helpers plus Polar/GitHub scripts so you can run them via **Run Task…**.
+
+### Health Check Endpoint
+
+A health check endpoint is available at `/api/health` for Railway monitoring:
+
+```bash
+curl http://localhost:5173/api/health
+# {"status":"healthy","timestamp":"...","version":"1.0.0","database":"connected"}
+```
 
 ### Adding New Features
 
@@ -480,11 +516,11 @@ import type { Route } from './+types/dashboard';
 
 // Auth helpers
 import {
-  getUserFromSession,
-  requireAdmin,
-  requireEditor,
-  requireRole,
-  requireUser,
+    getUserFromSession,
+    requireAdmin,
+    requireEditor,
+    requireRole,
+    requireUser,
 } from '~/lib/session.server';
 import { authClient } from '~/lib/auth-client';
 
@@ -539,6 +575,7 @@ import { signInSchema, signUpSchema } from '~/lib/validations';
 - **Auth not working?** → Check middleware in layout routes
 - **Styles not applying?** → Verify `cx()` usage and DaisyUI classes
 - **Database errors?** → Check Prisma client import from `~/db.server`
+- **Deployment failing?** → Run `npm run validate:env --railway` to check Railway env vars
 
 ### Performance Notes
 

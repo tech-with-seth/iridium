@@ -62,6 +62,11 @@ npx prisma generate                          # Regenerate Prisma client
 npx prisma migrate dev --name <description>  # Create and apply migration
 npx prisma migrate deploy                    # Production migrations
 npx prisma studio                            # Open database GUI
+
+# Deployment (Railway)
+npm run validate:env     # Validate env vars against .env.example
+npm run predeploy        # typecheck → build → test (pre-deploy checks)
+npm run deploy           # predeploy + railway up (one-command deploy)
 ```
 
 > Seed data is intended for initializing fresh databases (local dev, new staging instances, or after a deliberate reset). Do not run `npm run seed` as part of every deploy—production data should evolve through the app itself.
@@ -88,7 +93,25 @@ npx prisma studio                            # Open database GUI
 - `prisma.instructions.md` - Database patterns
 - `zod.instructions.md` - Schema validation
 
-**See [Additional Resources](#additional-resources) section below for complete list of 32 guides.**
+**See [Additional Resources](#additional-resources) section below for complete list of 27 guides.**
+
+### 🚨 React Router Framework Mode Skill (Critical)
+
+For comprehensive React Router 7 patterns beyond basic routing, use the `react-router-framework-mode` skill:
+
+```
+.github/skills/react-router-framework-mode/SKILL.md
+```
+
+This skill covers:
+
+- Data loading with `loader`/`clientLoader`
+- Mutations with `action`/`clientAction` and `useFetcher`
+- Forms: use `<Form method="get">` for search, `useFetcher` for inline mutations
+- Pending/optimistic UI states
+- Error boundaries and route module exports (`meta` uses `loaderData`, not deprecated `data`)
+
+**Load this skill when working with any React Router data flow or form handling.**
 
 ## Ralph Automation (Optional)
 
@@ -439,6 +462,9 @@ The repo ships with predefined VS Code tasks in `.vscode/tasks.json` so common w
 
 - `prisma:generate`, `prisma:migrate`, `prisma:studio`
 - `railway:migrate`, `railway:seed`, `railway:shell`
+- `railway:deploy` (runs predeploy checks + deploys to Railway)
+- `railway:validate-env` (validates Railway env vars against .env.example)
+- `railway:logs` (streams live logs from Railway deployment)
 - Polar maintenance scripts (`Archive all products`, `Delete all customers`, `Get all customers`, `Reset database & Polar`)
 - GitHub helpers (`Create GitHub pull request`, `Create GitHub issue`, `List GitHub issues`)
 - `Promote DEV to MAIN` (fast-forward merge helper)
@@ -767,7 +793,19 @@ const { messages, sendMessage, status, stop } = useChat({
 ## Deployment
 
 ```bash
-# Build production assets
+# One-command deploy (recommended)
+npm run deploy           # Runs predeploy checks + railway up
+
+# Or step-by-step:
+npm run validate:env     # Validate environment variables first
+npm run predeploy        # typecheck → build → test
+railway up               # Deploy to Railway
+
+# Health check endpoint
+curl https://your-app.railway.app/api/health
+# Returns: {"status":"healthy","timestamp":"...","version":"1.0.0","database":"connected"}
+
+# Build production assets (manual)
 npm run build
 
 # Start production server
@@ -880,7 +918,7 @@ ADMIN_EMAIL
 
 ## AI Skills Library
 
-The `.github/skills/` directory contains 20 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
+The `.github/skills/` directory contains specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
 
 ### Core Development Skills
 

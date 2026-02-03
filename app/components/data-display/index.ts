@@ -12,8 +12,5 @@ export { Table } from './Table';
 export { Timeline } from './Timeline';
 
 // Feature-specific components
-export { ConversionMetricsToolCard } from './features/ConversionMetricsToolCard';
-export { ProductMetricsToolCard } from './features/ProductMetricsToolCard';
 export { RevenueMetricsToolCard } from './features/RevenueMetricsToolCard';
-export { RevenueTrendChart } from './features/RevenueTrendChart';
-export { RevenueTrendToolCard } from './features/RevenueTrendToolCard';
+export { UserAnalyticsToolCard } from './features/UserAnalyticsToolCard';

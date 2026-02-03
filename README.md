@@ -90,6 +90,9 @@ See `.env.example` for the full list.
 - `npm run build` — production build
 - `npm run test` — Vitest unit tests
 - `npm run e2e` — Playwright suite
+- `npm run validate:env` — validate env vars (use `--railway` for Railway check)
+- `npm run predeploy` — typecheck → build → test
+- `npm run deploy` — one-command Railway deploy
 
 ## Project structure (trimmed)
 

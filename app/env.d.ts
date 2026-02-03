@@ -6,8 +6,6 @@ interface ImportMetaEnv {
     readonly VITE_POSTHOG_API_KEY?: string;
     readonly VITE_POSTHOG_API_HOST?: string;
     readonly VITE_POSTHOG_UI_HOST?: string;
-    readonly VITE_POSTHOG_HOST?: string;
-    readonly VITE_POSTHOG_PROJECT_ID?: string;
 
     // Built-in Vite constants
     readonly MODE: string;
@@ -43,8 +41,6 @@ declare namespace NodeJS {
         VITE_POSTHOG_API_KEY?: string;
         VITE_POSTHOG_API_HOST?: string;
         VITE_POSTHOG_UI_HOST?: string;
-        VITE_POSTHOG_HOST?: string;
-        VITE_POSTHOG_PROJECT_ID?: string;
         POSTHOG_API_KEY?: string;
         POSTHOG_HOST?: string;
         POSTHOG_PROJECT_ID?: string;

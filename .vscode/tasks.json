@@ -88,6 +88,48 @@
             }
         },
         {
+            "label": "railway:deploy",
+            "type": "shell",
+            "command": "npm run deploy",
+            "detail": "Validates (typecheck + build + test) then deploys to Railway.",
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "focus": true,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "railway:validate-env",
+            "type": "shell",
+            "command": "npm run validate:env -- --railway",
+            "detail": "Validates Railway environment variables are set correctly.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true,
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "railway:logs",
+            "type": "shell",
+            "command": "railway logs",
+            "detail": "Stream live deployment logs from Railway.",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "Promote DEV to MAIN",
             "type": "shell",
             "command": "git switch main && git merge --ff-only dev && git push origin main && git switch dev",
@@ -143,49 +185,6 @@
                 "panel": "dedicated",
                 "clear": true,
                 "focus": true,
-                "showReuseMessage": false
-            }
-        },
-        {
-            "label": "Archive all products",
-            "type": "shell",
-            "command": "tsx scripts/archive-all-products.ts",
-            "detail": "Archives all products in Polar.sh",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "silent",
-                "panel": "dedicated",
-                "clear": true,
-                "close": true,
-                "showReuseMessage": false
-            }
-        },
-        {
-            "label": "Delete all customers",
-            "type": "shell",
-            "command": "tsx scripts/delete-all-customers.ts",
-            "detail": "Deletes all customers in Polar.sh",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "clear": true,
-                "close": true,
-                "focus": false,
-                "showReuseMessage": false
-            }
-        },
-        {
-            "label": "Get all customers",
-            "type": "shell",
-            "command": "tsx scripts/get-all-customers.ts",
-            "detail": "Gets all customers in Polar.sh",
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "silent",
-                "panel": "dedicated",
-                "clear": true,
-                "close": true,
                 "showReuseMessage": false
             }
         },

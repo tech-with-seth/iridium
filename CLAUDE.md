@@ -51,6 +51,11 @@ npm run e2e:ui           # Playwright UI mode
 npm run e2e:headed       # E2E with browser visible
 npm run e2e:debug        # Debug E2E tests
 
+# Deployment (Railway)
+npm run validate:env     # Validate env vars (local or --railway)
+npm run predeploy        # typecheck → build → test (pre-deploy checks)
+npm run deploy           # predeploy + railway up (one-command deploy)
+
 # Formatting
 npm run format           # Run Prettier
 ```
@@ -74,6 +79,22 @@ npm run format           # Run Prettier
 ## AI Skills Library
 
 The `.github/skills/` directory contains 16 specialized skills that VS Code Copilot and Claude Code use automatically when relevant tasks are detected.
+
+### 🚨 React Router Framework Mode (Critical)
+
+| Skill | Purpose | Triggered By |
+|-------|---------|--------------|
+| `react-router-framework-mode` | **Loaders, actions, forms, navigation, pending UI, error boundaries** | Routes, data loading, mutations, `<Form>`, `useFetcher` |
+
+This skill provides comprehensive React Router 7 patterns including:
+
+- Data loading with `loader`/`clientLoader`
+- Mutations with `action`/`clientAction` and `useFetcher`
+- Forms (use `<Form method="get">` for search, `useFetcher` for inline mutations)
+- Pending/optimistic UI states
+- Error boundaries and route module exports
+
+**Load this skill when working with any React Router data flow or form handling.**
 
 ### Core Development Skills
 
@@ -128,11 +149,13 @@ Ralph is a lightweight autonomous loop for working through PRDs using Claude Cod
 - PRD + progress files are `plans/prd.json` and `plans/progress.txt`
 
 Run it with:
+
 ```bash
 ./plans/ralph.sh [max_iterations]
 ```
 
 The loop invokes:
+
 ```bash
 claude --dangerously-skip-permissions --model opus
 ```
@@ -524,6 +547,17 @@ export async function action({ request }: Route.ActionArgs) {
 ```
 
 See `.github/instructions/crud-pattern.instructions.md` for complete CRUD patterns.
+
+### 12. Health Check Endpoint
+
+A health check endpoint exists at `/api/health` for Railway and monitoring:
+
+```bash
+curl http://localhost:5173/api/health
+# Returns: {"status":"healthy","timestamp":"...","version":"1.0.0","database":"connected"}
+```
+
+The endpoint pings the database and returns `degraded` status if the connection fails.
 
 ## Key Integrations
 

@@ -3,7 +3,7 @@ import { PostHog } from 'posthog-node';
 let postHogInstance: PostHog | null = null;
 
 const hasPostHogConfig = Boolean(
-    process.env.POSTHOG_API_KEY && process.env.VITE_POSTHOG_HOST,
+    process.env.POSTHOG_API_KEY && process.env.POSTHOG_HOST,
 );
 
 export function isPostHogEnabled() {

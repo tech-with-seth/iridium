@@ -29,7 +29,10 @@
         "e2e:ui": "playwright test --ui",
         "e2e:headed": "playwright test --headed",
         "e2e:debug": "playwright test --debug",
-        "e2e:report": "playwright show-report"
+        "e2e:report": "playwright show-report",
+        "validate:env": "tsx scripts/validate-env.ts",
+        "predeploy": "npm run typecheck && npm run build && npm run test:run",
+        "deploy": "npm run predeploy && railway up"
     },
     "dependencies": {
         "@ai-sdk/openai": "^2.0.58",

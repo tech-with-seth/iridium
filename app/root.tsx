@@ -9,7 +9,7 @@ import {
 } from 'react-router';
 import { FileQuestionIcon } from 'lucide-react';
 
-import { getFeatureFlags } from './models/feature-flags.server';
+import { getFeatureFlags } from './models/posthog.server';
 import { getFeatureFlagsForUser } from './models/posthog.server';
 import { getUserFromSession } from './lib/session.server';
 import { getUserRole } from './models/user.server';

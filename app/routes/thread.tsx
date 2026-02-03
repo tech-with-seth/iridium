@@ -25,23 +25,13 @@ import { getPostHogClient } from '~/lib/posthog';
 import { getUserFromSession } from '~/lib/session.server';
 import { getThreadById } from '~/models/thread.server';
 import invariant from 'tiny-invariant';
-import type { RevenueTrendOutput } from '~/lib/chat-tools.types';
-import { RevenueTrendToolCard } from '~/components/data-display/features/RevenueTrendToolCard';
 import type {
-    ConversionMetricsOutput,
-    EngagementMetricsOutput,
     MoneyAmount,
-    PostHogAnalyticsOutput,
-    ProductMetricsOutput,
     RevenueMetricsOutput,
     UserAnalyticsOutput,
 } from '~/lib/chat-tools.types';
-import { ConversionMetricsToolCard } from '~/components/data-display/features/ConversionMetricsToolCard';
-import { ProductMetricsToolCard } from '~/components/data-display/features/ProductMetricsToolCard';
 import { RevenueMetricsToolCard } from '~/components/data-display/features/RevenueMetricsToolCard';
 import { UserAnalyticsToolCard } from '~/components/data-display/features/UserAnalyticsToolCard';
-import { EngagementMetricsToolCard } from '~/components/data-display/features/EngagementMetricsToolCard';
-import { PostHogAnalyticsToolCard } from '~/components/data-display/features/PostHogAnalyticsToolCard';
 
 type ToolState =
     | 'input-streaming'
@@ -111,38 +101,6 @@ function normalizeToolPart(part: unknown): NormalizedToolPart | null {
     return null;
 }
 
-function isRevenueTrendOutput(value: unknown): value is RevenueTrendOutput {
-    if (!isRecord(value)) return false;
-    if (typeof value.startDate !== 'string') return false;
-    if (typeof value.endDate !== 'string') return false;
-    if (
-        value.interval !== 'day' &&
-        value.interval !== 'month' &&
-        value.interval !== 'year'
-    ) {
-        return false;
-    }
-    if (!Array.isArray(value.points)) return false;
-    return value.points.every((p) => {
-        if (!isRecord(p)) return false;
-        if (typeof p.date !== 'string') return false;
-        if (!isRecord(p.revenue) || !isRecord(p.netRevenue)) return false;
-        if (
-            typeof p.revenue.cents !== 'number' ||
-            typeof p.revenue.dollars !== 'number'
-        ) {
-            return false;
-        }
-        if (
-            typeof p.netRevenue.cents !== 'number' ||
-            typeof p.netRevenue.dollars !== 'number'
-        ) {
-            return false;
-        }
-        return typeof p.orders === 'number';
-    });
-}
-
 function isMoneyAmount(value: unknown): value is MoneyAmount {
     if (!isRecord(value)) return false;
     return typeof value.cents === 'number' && typeof value.dollars === 'number';
@@ -164,33 +122,6 @@ function isRevenueMetricsOutput(value: unknown): value is RevenueMetricsOutput {
     );
 }
 
-function isProductMetricsOutput(value: unknown): value is ProductMetricsOutput {
-    if (!isRecord(value)) return false;
-    return (
-        typeof value.startDate === 'string' &&
-        typeof value.endDate === 'string' &&
-        typeof value.oneTimeProducts === 'number' &&
-        isMoneyAmount(value.oneTimeProductsRevenue) &&
-        isMoneyAmount(value.oneTimeProductsNetRevenue) &&
-        isMoneyAmount(value.averageRevenuePerUser) &&
-        typeof value.activeUsersByEvent === 'number'
-    );
-}
-
-function isConversionMetricsOutput(
-    value: unknown,
-): value is ConversionMetricsOutput {
-    if (!isRecord(value)) return false;
-    return (
-        typeof value.startDate === 'string' &&
-        typeof value.endDate === 'string' &&
-        typeof value.checkouts === 'number' &&
-        typeof value.succeededCheckouts === 'number' &&
-        typeof value.checkoutConversion === 'number' &&
-        typeof value.orders === 'number'
-    );
-}
-
 function isUserAnalyticsOutput(value: unknown): value is UserAnalyticsOutput {
     if (!isRecord(value)) return false;
     return (
@@ -205,41 +136,6 @@ function isUserAnalyticsOutput(value: unknown): value is UserAnalyticsOutput {
         isRecord(value.growth) &&
         isRecord(value.roleDistribution) &&
         isRecord(value.accountHealth) &&
-        Array.isArray(value.trend)
-    );
-}
-
-function isEngagementMetricsOutput(
-    value: unknown,
-): value is EngagementMetricsOutput {
-    if (!isRecord(value)) return false;
-    return (
-        isRecord(value.dateRange) &&
-        typeof value.dateRange.startDate === 'string' &&
-        typeof value.dateRange.endDate === 'string' &&
-        isRecord(value.overview) &&
-        typeof value.overview.totalThreads === 'number' &&
-        typeof value.overview.totalMessages === 'number' &&
-        isRecord(value.averages) &&
-        isRecord(value.distribution) &&
-        Array.isArray(value.topUsers) &&
-        Array.isArray(value.trend)
-    );
-}
-
-function isPostHogAnalyticsOutput(
-    value: unknown,
-): value is PostHogAnalyticsOutput {
-    if (!isRecord(value)) return false;
-    return (
-        isRecord(value.dateRange) &&
-        typeof value.dateRange.startDate === 'string' &&
-        typeof value.dateRange.endDate === 'string' &&
-        isRecord(value.overview) &&
-        typeof value.overview.totalEvents === 'number' &&
-        typeof value.overview.uniqueUsers === 'number' &&
-        typeof value.overview.pageviews === 'number' &&
-        Array.isArray(value.topEvents) &&
         Array.isArray(value.trend)
     );
 }
@@ -470,20 +366,8 @@ export default function ThreadRoute({
 
     const presentQuestions = [
         {
-            label: 'Revenue trend (last 3 months)',
-            text: 'Show my revenue trend for the last 3 months. Use the getRevenueTrend tool and summarize the key changes.',
-        },
-        {
             label: 'Revenue overview (this month)',
             text: 'Give me a revenue overview for this month. Use getRevenueMetrics and call out revenue, net revenue, orders, AOV, and gross margin.',
-        },
-        {
-            label: 'Product sales (last 90 days)',
-            text: 'Analyze digital product sales for the last 90 days. Use getProductMetrics and summarize units sold and revenue vs net revenue.',
-        },
-        {
-            label: 'Checkout conversion (last 30 days)',
-            text: 'How is my checkout conversion doing over the last 30 days? Use getConversionMetrics and summarize checkouts, succeeded checkouts, and conversion rate.',
         },
         {
             label: 'User growth (30 days)',
@@ -492,18 +376,6 @@ export default function ThreadRoute({
         {
             label: 'User analytics overview',
             text: "What's my current user analytics and role distribution? Use getUserAnalytics and summarize the user base breakdown and account health.",
-        },
-        {
-            label: 'Chat engagement (30 days)',
-            text: 'Show me chat engagement metrics for the last 30 days. Use the getEngagementMetrics tool and highlight thread activity, message volume, and user engagement patterns.',
-        },
-        {
-            label: 'Most active users',
-            text: 'Who are my most active users this month? Use getEngagementMetrics and summarize the top users by message and thread activity.',
-        },
-        {
-            label: 'PostHog analytics (30 days)',
-            text: 'Show me PostHog analytics for the last 30 days. Use the getPostHogAnalytics tool and highlight total events, unique users, pageviews, and top events.',
         },
     ];
 
@@ -600,87 +472,6 @@ export default function ThreadRoute({
 
                                                 if (
                                                     tool.toolName ===
-                                                        'getProductMetrics' &&
-                                                    tool.state ===
-                                                        'output-available' &&
-                                                    isProductMetricsOutput(
-                                                        tool.output,
-                                                    )
-                                                ) {
-                                                    return (
-                                                        <MessagePartBubble
-                                                            key={`${message.id}-${partIndex}`}
-                                                            placement={
-                                                                placement
-                                                            }
-                                                            color={color}
-                                                            isUser={isUser}
-                                                        >
-                                                            <ProductMetricsToolCard
-                                                                output={
-                                                                    tool.output
-                                                                }
-                                                            />
-                                                        </MessagePartBubble>
-                                                    );
-                                                }
-
-                                                if (
-                                                    tool.toolName ===
-                                                        'getConversionMetrics' &&
-                                                    tool.state ===
-                                                        'output-available' &&
-                                                    isConversionMetricsOutput(
-                                                        tool.output,
-                                                    )
-                                                ) {
-                                                    return (
-                                                        <MessagePartBubble
-                                                            key={`${message.id}-${partIndex}`}
-                                                            placement={
-                                                                placement
-                                                            }
-                                                            color={color}
-                                                            isUser={isUser}
-                                                        >
-                                                            <ConversionMetricsToolCard
-                                                                output={
-                                                                    tool.output
-                                                                }
-                                                            />
-                                                        </MessagePartBubble>
-                                                    );
-                                                }
-
-                                                if (
-                                                    tool.toolName ===
-                                                        'getRevenueTrend' &&
-                                                    tool.state ===
-                                                        'output-available' &&
-                                                    isRevenueTrendOutput(
-                                                        tool.output,
-                                                    )
-                                                ) {
-                                                    return (
-                                                        <MessagePartBubble
-                                                            key={`${message.id}-${partIndex}`}
-                                                            placement={
-                                                                placement
-                                                            }
-                                                            color={color}
-                                                            isUser={isUser}
-                                                        >
-                                                            <RevenueTrendToolCard
-                                                                output={
-                                                                    tool.output
-                                                                }
-                                                            />
-                                                        </MessagePartBubble>
-                                                    );
-                                                }
-
-                                                if (
-                                                    tool.toolName ===
                                                         'getUserAnalytics' &&
                                                     tool.state ===
                                                         'output-available' &&
@@ -698,60 +489,6 @@ export default function ThreadRoute({
                                                             isUser={isUser}
                                                         >
                                                             <UserAnalyticsToolCard
-                                                                output={
-                                                                    tool.output
-                                                                }
-                                                            />
-                                                        </MessagePartBubble>
-                                                    );
-                                                }
-
-                                                if (
-                                                    tool.toolName ===
-                                                        'getEngagementMetrics' &&
-                                                    tool.state ===
-                                                        'output-available' &&
-                                                    isEngagementMetricsOutput(
-                                                        tool.output,
-                                                    )
-                                                ) {
-                                                    return (
-                                                        <MessagePartBubble
-                                                            key={`${message.id}-${partIndex}`}
-                                                            placement={
-                                                                placement
-                                                            }
-                                                            color={color}
-                                                            isUser={isUser}
-                                                        >
-                                                            <EngagementMetricsToolCard
-                                                                output={
-                                                                    tool.output
-                                                                }
-                                                            />
-                                                        </MessagePartBubble>
-                                                    );
-                                                }
-
-                                                if (
-                                                    tool.toolName ===
-                                                        'getPostHogAnalytics' &&
-                                                    tool.state ===
-                                                        'output-available' &&
-                                                    isPostHogAnalyticsOutput(
-                                                        tool.output,
-                                                    )
-                                                ) {
-                                                    return (
-                                                        <MessagePartBubble
-                                                            key={`${message.id}-${partIndex}`}
-                                                            placement={
-                                                                placement
-                                                            }
-                                                            color={color}
-                                                            isUser={isUser}
-                                                        >
-                                                            <PostHogAnalyticsToolCard
                                                                 output={
                                                                     tool.output
                                                                 }

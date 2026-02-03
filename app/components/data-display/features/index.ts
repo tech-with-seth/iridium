@@ -1,9 +1,13 @@
-export { ConversionMetricsToolCard } from './ConversionMetricsToolCard';
-export { EngagementMetricsToolCard } from './EngagementMetricsToolCard';
-export { PostHogAnalyticsToolCard } from './PostHogAnalyticsToolCard';
-export { PostHogTrendChart } from './PostHogTrendChart';
-export { ProductMetricsToolCard } from './ProductMetricsToolCard';
+/**
+ * AI Chat Tool Card Components
+ *
+ * These components render structured data returned by AI chat tools.
+ * Two demo implementations are included:
+ *
+ * - RevenueMetricsToolCard: Displays Polar billing metrics
+ * - UserAnalyticsToolCard: Displays database user analytics
+ *
+ * Add more tool cards as you build additional AI tools.
+ */
 export { RevenueMetricsToolCard } from './RevenueMetricsToolCard';
-export { RevenueTrendChart } from './RevenueTrendChart';
-export { RevenueTrendToolCard } from './RevenueTrendToolCard';
 export { UserAnalyticsToolCard } from './UserAnalyticsToolCard';

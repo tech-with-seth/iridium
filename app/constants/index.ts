@@ -10,6 +10,7 @@ export enum Paths {
     FEATURE_FLAGS = '/feature-flags',
     FILE_BROWSER = '/files',
     FORMS = '/forms',
+    HEALTH = '/health',
     HOME = '/',
     INTEREST = '/interest',
     POLAR = '/polar',
