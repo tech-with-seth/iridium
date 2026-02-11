@@ -1,5 +1,5 @@
 ---
-applyTo: 'app/components/**/*.tsx'
+applyTo: 'app/cva.config.ts,app/components/**/*.tsx'
 ---
 
 # Component Patterns
@@ -8,13 +8,72 @@ This document defines the canonical patterns for building UI components in Iridi
 
 ## Quick Reference
 
-| Pattern | Example | Key Features |
-|---------|---------|--------------|
-| Action Component | `Button.tsx` | Loading state, variant/status/size |
-| Form Input | `TextInput.tsx` | Label, error, helperText, required |
-| Data Display | `Badge.tsx`, `Card.tsx` | Read-only, semantic variants |
-| Feedback | `Alert.tsx`, `Loading.tsx` | Status-based styling |
-| Layout | `Container.tsx` | Structural, minimal variants |
+| Pattern          | Example                    | Key Features                       |
+| ---------------- | -------------------------- | ---------------------------------- |
+| Action Component | `Button.tsx`               | Loading state, variant/status/size |
+| Form Input       | `TextInput.tsx`            | Label, error, helperText, required |
+| Data Display     | `Badge.tsx`, `Card.tsx`    | Read-only, semantic variants       |
+| Feedback         | `Alert.tsx`, `Loading.tsx` | Status-based styling               |
+| Layout           | `Container.tsx`            | Structural, minimal variants       |
+
+## CVA Reference
+
+### Configuration (`app/cva.config.ts`)
+
+```typescript
+import { defineConfig } from 'cva';
+import { twMerge } from 'tailwind-merge';
+
+export const { cva, cx, compose } = defineConfig({
+    hooks: {
+        onComplete: (className) => twMerge(className),
+    },
+});
+```
+
+**Always import from `~/cva.config`, never directly from `cva` package.**
+
+### Core Utilities
+
+**`cva()`** — Define variant configurations:
+
+```typescript
+export const buttonVariants = cva({
+    base: 'btn', // Always applied
+    variants: {
+        // Conditional classes
+        variant: { outline: 'btn-outline', ghost: 'btn-ghost' },
+        status: { primary: 'btn-primary', error: 'btn-error' },
+        size: { sm: 'btn-sm', md: 'btn-md', lg: 'btn-lg' },
+        active: { true: 'btn-active' }, // Boolean variant
+    },
+    defaultVariants: { status: 'primary', size: 'md' },
+    compoundVariants: [
+        // Multi-condition classes
+        { variant: 'outline', status: 'error', class: 'border-2' },
+    ],
+});
+```
+
+**`cx()`** — Merge classNames (replaces `cn`/`clsx`):
+
+```typescript
+cx(buttonVariants({ size, status }), className); // className last for overrides
+cx('btn', isActive && 'btn-active', className); // Filters falsy values
+```
+
+**`compose()`** — Combine multiple CVA configs into one.
+
+**`VariantProps<typeof variants>`** — Extract TypeScript types from CVA config.
+
+### Rules
+
+- Always `import { cva, cx } from '~/cva.config'` — never from `cva` package
+- Always `import type { VariantProps } from 'cva'`
+- Put user's `className` prop **last** in `cx()` for proper overrides
+- Use `cx()` not `cn()` or `clsx()`
+- Use boolean variants (`{ true: 'class' }`) for toggles
+- Use `defaultVariants` for common defaults
 
 ## Core Architecture
 
@@ -35,7 +94,7 @@ All components follow the **CVA + DaisyUI** pattern:
 
 The `Button` component is the canonical reference for action components.
 
-```typescript
+````typescript
 // app/components/actions/Button.tsx
 import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
@@ -149,7 +208,7 @@ export function Button({
         </button>
     );
 }
-```
+````
 
 ### Key Features
 
@@ -163,7 +222,7 @@ export function Button({
 
 Form components add label, error, and helper text support.
 
-```typescript
+````typescript
 // app/components/data-input/TextInput.tsx
 import type { VariantProps } from 'cva';
 import { cva, cx } from '~/cva.config';
@@ -276,18 +335,18 @@ export function TextInput({
         </label>
     );
 }
-```
+````
 
 ### Form Component Requirements
 
-| Feature | Implementation |
-|---------|----------------|
-| Label | Optional `label` prop with required indicator (`*`) |
-| Error state | `error` prop overrides color to `error` |
-| Helper text | Shows when no error present |
-| Required indicator | Red asterisk next to label |
-| Disabled state | Native `disabled` attribute |
-| Attribute conflicts | Use `Omit<>` for `size`, `color` |
+| Feature             | Implementation                                      |
+| ------------------- | --------------------------------------------------- |
+| Label               | Optional `label` prop with required indicator (`*`) |
+| Error state         | `error` prop overrides color to `error`             |
+| Helper text         | Shows when no error present                         |
+| Required indicator  | Red asterisk next to label                          |
+| Disabled state      | Native `disabled` attribute                         |
+| Attribute conflicts | Use `Omit<>` for `size`, `color`                    |
 
 ## 3. Data Display Pattern (Badge)
 
@@ -472,12 +531,12 @@ export function Container({
 
 ### Standard Variant Names
 
-| Category | Values | Use Case |
-|----------|--------|----------|
-| `variant` | outline, dash, soft, ghost, link | Visual style |
-| `status` | neutral, primary, secondary, accent, info, success, warning, error | Semantic meaning |
-| `color` | Same as status | Alternative name for inputs |
-| `size` | xs, sm, md, lg, xl | Component size |
+| Category  | Values                                                             | Use Case                    |
+| --------- | ------------------------------------------------------------------ | --------------------------- |
+| `variant` | outline, dash, soft, ghost, link                                   | Visual style                |
+| `status`  | neutral, primary, secondary, accent, info, success, warning, error | Semantic meaning            |
+| `color`   | Same as status                                                     | Alternative name for inputs |
+| `size`    | xs, sm, md, lg, xl                                                 | Component size              |
 
 ### Boolean Modifiers
 
@@ -502,7 +561,7 @@ Every exported component must have JSDoc with:
 2. **@example**: At least one usage example
 3. **@see**: Link to DaisyUI documentation
 
-```typescript
+````typescript
 /**
  * Primary UI button component with multiple variants, sizes, and states.
  *
@@ -513,7 +572,7 @@ Every exported component must have JSDoc with:
  *
  * @see {@link https://daisyui.com/components/button/ DaisyUI Button Documentation}
  */
-```
+````
 
 ## Component Directory Structure
 
@@ -554,7 +613,7 @@ import { cva, cx } from '~/cva.config';
 import type { VariantProps } from 'cva';
 
 // ❌ NEVER import from 'cva' package directly
-import { cva } from 'cva';  // WRONG!
+import { cva } from 'cva'; // WRONG!
 ```
 
 ## Testing Components
@@ -603,16 +662,16 @@ describe('Button', () => {
 
 ## Anti-Patterns
 
-| Anti-Pattern | Correct Approach |
-|--------------|------------------|
-| `cn()` for class merging | Use `cx()` from `~/cva.config` |
-| Import from `'cva'` package | Import from `~/cva.config` |
-| Custom CSS over DaisyUI | Use DaisyUI classes |
-| Missing TypeScript types | Extend HTML attributes + VariantProps |
-| Hardcoded styles | Use CVA variants |
-| Missing JSDoc | Add description, example, @see link |
-| Using `div` for buttons | Use semantic `<button>` element |
-| Forgetting `type="button"` | Default to `"button"` (not `"submit"`) |
+| Anti-Pattern                | Correct Approach                       |
+| --------------------------- | -------------------------------------- |
+| `cn()` for class merging    | Use `cx()` from `~/cva.config`         |
+| Import from `'cva'` package | Import from `~/cva.config`             |
+| Custom CSS over DaisyUI     | Use DaisyUI classes                    |
+| Missing TypeScript types    | Extend HTML attributes + VariantProps  |
+| Hardcoded styles            | Use CVA variants                       |
+| Missing JSDoc               | Add description, example, @see link    |
+| Using `div` for buttons     | Use semantic `<button>` element        |
+| Forgetting `type="button"`  | Default to `"button"` (not `"submit"`) |
 
 ## Creating New Components
 
@@ -628,7 +687,6 @@ describe('Button', () => {
 
 ## Further Reading
 
-- [CVA Instructions](./cva.instructions.md) - Detailed CVA patterns
 - [DaisyUI Instructions](./daisyui.instructions.md) - Component library reference
 - [DaisyUI Documentation](https://daisyui.com/components/)
 - [Component README](../../app/components/README.md) - Project component docs

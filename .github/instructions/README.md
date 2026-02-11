@@ -37,10 +37,6 @@ Content here...
 | File | Purpose |
 |------|---------|
 | `git-workflow.instructions.md` | Git branching and merge strategy |
-| `vertical-slice.instructions.md` | Vertical slice architecture |
-| `horizontal-slice.instructions.md` | Horizontal slice architecture |
-| `pure-functions.instructions.md` | Pure function patterns |
-| `voice.instructions.md` | Voice and tone guidelines |
 
 ### Framework-Specific
 
@@ -49,10 +45,7 @@ Content here...
 | `react-router.instructions.md` | `app/routes/**/*` | React Router 7 patterns |
 | `prisma.instructions.md` | `prisma/**/*`, `app/models/**/*` | Prisma ORM patterns |
 | `better-auth.instructions.md` | `app/lib/auth*`, `app/lib/session*` | Authentication patterns |
-| `cva.instructions.md` | `app/components/**/*` | CVA component variants |
 | `daisyui.instructions.md` | `**` (always) | DaisyUI 5 components |
-| `zod.instructions.md` | `app/lib/validations*` | Zod validation patterns |
-| `react-hook-form.instructions.md` | `app/lib/form*` | Form handling patterns |
 
 ### Pattern-Specific
 
@@ -60,8 +53,7 @@ Content here...
 |------|------------|---------|
 | `form-validation.instructions.md` | `app/lib/validations*`, `app/lib/form*` | Hybrid form validation |
 | `crud-pattern.instructions.md` | `app/routes/api/**/*`, `app/models/**/*` | CRUD operations |
-| `component-patterns.instructions.md` | `app/components/**/*` | UI component patterns |
-| `error-boundaries.instructions.md` | `app/routes/**/*.tsx` | Error handling |
+| `component-patterns.instructions.md` | `app/components/**/*` | UI component patterns (CVA + DaisyUI) |
 | `role-based-access-control.instructions.md` | `app/lib/session*`, `app/middleware/**/*` | RBAC patterns |
 | `seo.instructions.md` | `app/routes/**/*.tsx` | SEO meta tags |
 
@@ -69,12 +61,10 @@ Content here...
 
 | File | Applies To | Purpose |
 |------|------------|---------|
-| `posthog.instructions.md` | `app/lib/posthog*`, `app/models/analytics*` | Analytics integration |
-| `feature-flags.instructions.md` | `app/models/feature-flags*` | Feature flag patterns |
+| `posthog.instructions.md` | `app/lib/posthog*`, `app/models/analytics*` | Analytics, feature flags, error tracking |
 | `resend.instructions.md` | `app/emails/**/*`, `app/models/email*` | Email integration |
 | `polar.instructions.md` | `app/models/polar*`, `app/routes/api/webhooks/**/*` | Billing integration |
 | `ai-tool-calling.instructions.md` | `app/lib/ai*`, `app/routes/api/chat*` | AI tool calling |
-| `charting.instructions.md` | `app/components/charts/**/*` | Data visualization |
 | `client-side-caching.instructions.md` | `app/lib/cache*` | Caching strategies |
 
 ### Testing
@@ -90,7 +80,6 @@ Content here...
 |------|------------|---------|
 | `railway-deployment.instructions.md` | `railway.json`, `Dockerfile` | Deployment patterns |
 | `env.instructions.md` | `.env*`, `vite.config.ts` | Environment variables |
-| `error-tracking.instructions.md` | `app/lib/error*` | Error monitoring |
 
 ### Special
 
@@ -107,6 +96,7 @@ Content here...
 | **Prompts** | Multi-step workflows | User-invoked via `@workspace /promptName` |
 
 **Hierarchy:**
+
 - **Instructions** are the source of truth (comprehensive documentation)
 - **Skills** reference instructions for quick guidance
 - **Prompts** orchestrate multiple instructions into workflows
@@ -119,6 +109,7 @@ Content here...
 4. Update this README
 
 **Guidelines:**
+
 - Instructions are reference docs, not step-by-step tutorials
 - Include examples, anti-patterns, and troubleshooting
 - Use descriptive headings for easy navigation
