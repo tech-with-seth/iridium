@@ -5,29 +5,27 @@
             "id": "posthog-api-key",
             "description": "PostHog Personal API Key",
             "password": true
+        },
+        {
+            "type": "promptString",
+            "id": "context7-api-key",
+            "description": "Context7 API Key",
+            "password": true
         }
     ],
     "servers": {
-        "React Router Docs": {
-            "type": "sse",
-            "url": "https://gitmcp.io/remix-run/react-router"
-        },
         "context7": {
             "type": "stdio",
             "command": "npx",
-            "args": ["-y", "@upstash/context7-mcp@latest"]
-        },
-        "daisyUI": {
-            "type": "sse",
-            "url": "https://gitmcp.io/saadeghi/daisyui"
-        },
-        "Railway": {
-            "type": "stdio",
-            "command": "npx",
-            "args": ["-y", "@railway/mcp-server"]
+            "args": [
+                "-y",
+                "@upstash/context7-mcp",
+                "--api-key",
+                "${input:context7-api-key}"
+            ]
         },
         "PostHog": {
-            "type": "sse",
+            "type": "http",
             "url": "https://mcp.posthog.com/sse",
             "headers": {
                 "Authorization": "Bearer ${input:posthog-api-key}"
@@ -37,18 +35,6 @@
             "type": "stdio",
             "command": "npx",
             "args": ["@playwright/mcp@latest"]
-        },
-        "Prisma (Local)": {
-            "command": "npx",
-            "args": ["-y", "prisma", "mcp"]
-        },
-        "BetterAuth": {
-            "type": "sse",
-            "url": "https://gitmcp.io/better-auth/better-auth"
-        },
-        "Vercel AI SDK": {
-            "type": "sse",
-            "url": "https://gitmcp.io/vercel/ai"
         }
     }
 }
