@@ -77,7 +77,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                 name="intent"
                                 value="new-thread"
                             />
-                            <button className="btn btn-accent mb-4">
+                            <button className="btn btn-accent mb-4 w-full">
                                 + New Thread
                             </button>
                         </Form>

@@ -84,6 +84,7 @@ export const UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   role: 'role',
+  bio: 'bio',
   banned: 'banned',
   banReason: 'banReason',
   banExpires: 'banExpires'
