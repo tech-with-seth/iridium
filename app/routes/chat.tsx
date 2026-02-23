@@ -101,7 +101,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                         </button>
                     </Form>
                 </div>
-                <div className="grid min-h-0 grow grid-cols-1 gap-4 md:grid-cols-12">
+                <div className="grid min-h-0 grow grid-cols-1 grid-rows-[auto_1fr] gap-4 md:grid-cols-12 md:grid-rows-none">
                     <div className="col-span-1 overflow-y-auto md:col-span-5 lg:col-span-4">
                         <nav aria-label="Conversations">
                             <ul className="flex flex-col gap-4">
