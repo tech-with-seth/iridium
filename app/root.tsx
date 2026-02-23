@@ -1,25 +1,30 @@
 import {
-    data,
     isRouteErrorResponse,
+    Link,
     Links,
     Meta,
+    NavLink,
     Outlet,
     Scripts,
     ScrollRestoration,
 } from 'react-router';
-import { FileQuestionIcon } from 'lucide-react';
-
-import { getFeatureFlags } from './models/posthog.server';
-import { getFeatureFlagsForUser } from './models/posthog.server';
-import { getUserFromSession } from './lib/session.server';
-import { getUserRole } from './models/user.server';
-import { PHProvider } from './components/providers/PostHogProvider';
-import { themeCookie } from './lib/cookies.server';
-import { useRootData } from './hooks/useRootData';
+import {
+    FormIcon,
+    HomeIcon,
+    LockIcon,
+    MessageSquareIcon,
+    PentagonIcon,
+    UserCircle2Icon,
+} from 'lucide-react';
 import type { Route } from './+types/root';
-import { getProductDetails } from './models/polar.server';
+import { Container } from './components/Container';
+import { Card } from './components/Card';
+import { navLinkClassName } from './shared';
 
 import './app.css';
+import { Drawer } from './components/Drawer';
+import { Turnstile } from './components/Turnstile';
+import { useReducer } from 'react';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -30,61 +35,13 @@ export const links: Route.LinksFunction = () => [
     },
     {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:ital,wght@0,100..900;1,100..900&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap',
     },
 ];
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await getUserFromSession(request);
-
-    const roleObj = user ? await getUserRole(user?.id) : null;
-    const role = roleObj?.role || null;
-
-    const allFlagsResponse = await getFeatureFlags();
-    const allFlags = allFlagsResponse.results;
-
-    const userFlags = await getFeatureFlagsForUser(request);
-
-    const cookieHeader = request.headers.get('Cookie');
-    const cookie = (await themeCookie.parse(cookieHeader)) || {};
-    const theme = cookie.theme || process.env.DEFAULT_THEME || 'light';
-
-    const product =
-        (await getProductDetails(process.env.POLAR_PRODUCT_ID)) || null;
-
-    return {
-        allFlags,
-        product,
-        role,
-        theme,
-        user,
-        userFlags,
-    };
-}
-
-export async function action({ request }: Route.ActionArgs) {
-    const cookieHeader = request.headers.get('Cookie');
-    const cookie = (await themeCookie.parse(cookieHeader)) || {};
-
-    return data(null, {
-        headers: {
-            'Set-Cookie': await themeCookie.serialize({
-                ...cookie,
-                theme: (await request.formData()).get('theme') as string,
-            }),
-        },
-    });
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
-    const data = useRootData();
-
     return (
-        <html
-            lang="en"
-            className="min-h-screen bg-base-300"
-            data-theme={data?.theme || process.env.DEFAULT_THEME || 'light'}
-        >
+        <html lang="en" className="h-full">
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -94,19 +51,107 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body className="min-h-screen">
-                <PHProvider>
-                    {children}
-                    <ScrollRestoration />
-                    <Scripts />
-                </PHProvider>
+            <body className="h-full">
+                {children}
+                <ScrollRestoration />
+                <Scripts />
             </body>
         </html>
     );
 }
 
 export default function App() {
-    return <Outlet />;
+    const [isDrawerOpen, toggleDrawer] = useReducer((s) => !s, false);
+
+    return (
+        <Drawer
+            className="min-h-screen"
+            contents={<Turnstile />}
+            drawerContentClassName="flex flex-col"
+            handleClose={toggleDrawer}
+            id="main-drawer"
+            isOpen={isDrawerOpen}
+            right
+        >
+            <header className="mb-4">
+                <nav className="bg-base-300 py-4">
+                    <Container className="flex items-center justify-between">
+                        <ul className="flex gap-4 px-4">
+                            <li>
+                                <Link to="/" className="flex gap-2">
+                                    <PentagonIcon className="h-6 w-6" />
+                                    <strong className="font-bold">
+                                        Iridium
+                                    </strong>
+                                </Link>
+                            </li>
+                        </ul>
+                        <ul className="flex gap-4 px-4">
+                            <li>
+                                <Link to="/profile" className="flex gap-2">
+                                    <UserCircle2Icon className="h-6 w-6" />
+                                    <strong className="font-bold">
+                                        Profile
+                                    </strong>
+                                </Link>
+                            </li>
+                            <li>
+                                <button
+                                    className="flex gap-2"
+                                    onClick={toggleDrawer}
+                                >
+                                    <LockIcon className="h-6 w-6" />
+                                    <strong className="font-bold">Login</strong>
+                                </button>
+                            </li>
+                        </ul>
+                    </Container>
+                </nav>
+            </header>
+            <main className="grow">
+                <Container className="grid h-full grid-cols-12 gap-4">
+                    <Card className="col-span-3">
+                        <ul className="flex flex-col gap-4 p-4">
+                            <li>
+                                <NavLink to="/" className={navLinkClassName}>
+                                    <HomeIcon className="h-6 w-6" />
+                                    Home
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/chat"
+                                    className={navLinkClassName}
+                                >
+                                    <MessageSquareIcon className="h-6 w-6" />
+                                    Chat
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/form"
+                                    className={navLinkClassName}
+                                >
+                                    <FormIcon className="h-6 w-6" />
+                                    Form
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </Card>
+                    <Card className="col-span-9">
+                        <Outlet />
+                    </Card>
+                </Container>
+            </main>
+            <footer className="bg-base-300 mt-4 py-4">
+                <Container>
+                    <p className="text-base-content">
+                        Iridium is so hot right now
+                    </p>
+                </Container>
+            </footer>
+        </Drawer>
+    );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -126,14 +171,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     }
 
     return (
-        <main className="pt-16 p-4 container mx-auto">
-            <div className="mb-8">
-                <FileQuestionIcon className="h-12 w-12 text-zinc-400" />
-            </div>
-            <h1 className="text-6xl font-bold">{message}</h1>
+        <main className="container mx-auto p-4 pt-16">
+            <h1>{message}</h1>
             <p>{details}</p>
             {stack && (
-                <pre className="w-full p-4 overflow-x-auto">
+                <pre className="w-full overflow-x-auto p-4">
                     <code>{stack}</code>
                 </pre>
             )}

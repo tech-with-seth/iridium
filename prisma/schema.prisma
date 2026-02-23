@@ -1,6 +1,6 @@
 generator client {
     provider = "prisma-client"
-    output   = "../app/generated/prisma"
+    output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,48 +8,47 @@ datasource db {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    id            String    @id
     name          String
-    email         String    @unique
+    email         String
     emailVerified Boolean   @default(false)
     image         String?
-    role          Role      @default(USER)
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    role          String?
     banned        Boolean?  @default(false)
     banReason     String?
     banExpires    DateTime?
-    accounts      Account[]
-    messages      Message[]
     sessions      Session[]
-    threads       Thread[]
+    accounts      Account[]
 
+    @@unique([email])
     @@map("user")
 }
 
 model Session {
-    id             String   @id @default(cuid())
+    id             String   @id
+    expiresAt      DateTime
+    token          String
     createdAt      DateTime @default(now())
     updatedAt      DateTime @updatedAt
-    expiresAt      DateTime
-    token          String   @unique
     ipAddress      String?
     userAgent      String?
     userId         String
-    impersonatedBy String?
     user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    impersonatedBy String?
 
+    @@unique([token])
     @@index([userId])
     @@map("session")
 }
 
 model Account {
-    id                    String    @id @default(cuid())
-    createdAt             DateTime  @default(now())
-    updatedAt             DateTime  @updatedAt
+    id                    String    @id
     accountId             String
     providerId            String
     userId                String
+    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     accessToken           String?
     refreshToken          String?
     idToken               String?
@@ -57,68 +56,21 @@ model Account {
     refreshTokenExpiresAt DateTime?
     scope                 String?
     password              String?
-    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt             DateTime  @default(now())
+    updatedAt             DateTime  @updatedAt
 
     @@index([userId])
     @@map("account")
 }
 
 model Verification {
-    id         String   @id @default(cuid())
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    id         String   @id
     identifier String
     value      String
     expiresAt  DateTime
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
     @@index([identifier])
     @@map("verification")
-}
-
-model InterestListSignup {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    email       String   @unique
-    inquiryType String   @default("general")
-    note        String?
-
-    @@index([email])
-    @@map("interest_list_signup")
-}
-
-model Thread {
-    id          String    @id @default(cuid())
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    createdById String
-    title       String?
-    messages    Message[]
-    createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
-
-    @@map("thread")
-}
-
-model Message {
-    id        String      @id @default(cuid())
-    role      MessageRole
-    content   String
-    createdAt DateTime    @default(now())
-    userId    String?
-    threadId  String?
-    thread    Thread?     @relation(fields: [threadId], references: [id])
-    user      User?       @relation(fields: [userId], references: [id])
-
-    @@map("message")
-}
-
-enum Role {
-    USER
-    EDITOR
-    ADMIN
-}
-
-enum MessageRole {
-    USER
-    ASSISTANT
-    SYSTEM
 }
