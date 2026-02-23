@@ -6,6 +6,7 @@ import { createThread, getAllThreadsByUserId } from '~/models/thread.server';
 import { getUserFromSession } from '~/models/session.server';
 import invariant from 'tiny-invariant';
 import { Form, NavLink, Outlet, redirect } from 'react-router';
+import { PlusCircleIcon } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
@@ -68,19 +69,20 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
             <title>Chat | Iridium</title>
             <meta name="description" content="This is the chat page" />
             <Container className="flex h-full flex-col gap-4 p-4">
-                <h1 className="mb-4 text-4xl font-bold">Chat</h1>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="mb-4 text-4xl font-bold">Chat</h1>
+                    </div>
+                    <Form method="POST">
+                        <input type="hidden" name="intent" value="new-thread" />
+                        <button className="btn btn-accent" type="submit">
+                            <PlusCircleIcon className="mr-2 h-6 w-6" />
+                            New Thread
+                        </button>
+                    </Form>
+                </div>
                 <div className="grid min-h-0 grow grid-cols-12 gap-4">
                     <div className="col-span-4 overflow-y-auto">
-                        <Form method="POST">
-                            <input
-                                type="hidden"
-                                name="intent"
-                                value="new-thread"
-                            />
-                            <button className="btn btn-accent mb-4 w-full">
-                                + New Thread
-                            </button>
-                        </Form>
                         <ul className="flex flex-col gap-4">
                             {loaderData.threads &&
                             loaderData.threads.length > 0 ? (

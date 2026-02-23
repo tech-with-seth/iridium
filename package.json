@@ -13,6 +13,7 @@
     "dependencies": {
         "@ai-sdk/openai": "^3.0.30",
         "@ai-sdk/react": "^3.0.99",
+        "@hookform/resolvers": "^5.2.2",
         "@json-render/core": "^0.8.0",
         "@json-render/react": "^0.8.0",
         "@prisma/adapter-pg": "^7.4.1",

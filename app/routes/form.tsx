@@ -1,6 +1,11 @@
-import { Container } from '~/components/Container';
 import type { Route } from './+types/form';
 import { CircleXIcon } from 'lucide-react';
+import { useFetcher } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
@@ -13,14 +18,31 @@ export async function loader() {
 export async function action() {
     return {
         formError: 'This is a fake error message for demonstration purposes.',
-        fieldError: {
-            name: 'Name is required',
-            email: 'Email is required',
-        },
     };
 }
 
-export default function FormRoute({ actionData }: Route.ComponentProps) {
+const formSchema = z.object({
+    name: z.string().min(1, { message: 'Name is required' }),
+    email: z.email({ message: 'Enter a valid email address' }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export default function FormRoute() {
+    const fetcher = useFetcher<typeof action>();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+    });
+
+    const onSubmit = (_data: FormValues) => {
+        fetcher.submit({}, { method: 'post' });
+    };
+
     return (
         <>
             <title>Form | Iridium</title>
@@ -30,13 +52,13 @@ export default function FormRoute({ actionData }: Route.ComponentProps) {
             />
             <Container className="p-4">
                 <h1 className="mb-8 text-4xl font-bold">Form</h1>
-                {actionData?.formError && (
+                {fetcher.data?.formError && (
                     <div role="alert" className="alert alert-error mb-4">
                         <CircleXIcon className="h-6 w-6" />
-                        <span>{actionData.formError}</span>
+                        <span>{fetcher.data.formError}</span>
                     </div>
                 )}
-                <form method="POST" className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <fieldset className="fieldset">
                         <legend className="fieldset-legend">
                             What is your first name?
@@ -45,10 +67,11 @@ export default function FormRoute({ actionData }: Route.ComponentProps) {
                             type="text"
                             className="input"
                             placeholder="Your name"
+                            {...register('name')}
                         />
-                        {actionData?.fieldError?.name && (
+                        {errors.name && (
                             <p className="label text-error italic">
-                                {actionData.fieldError.name}
+                                {errors.name.message}
                             </p>
                         )}
                     </fieldset>
@@ -60,14 +83,19 @@ export default function FormRoute({ actionData }: Route.ComponentProps) {
                             type="email"
                             className="input"
                             placeholder="name@example.com"
+                            {...register('email')}
                         />
-                        {actionData?.fieldError?.email && (
+                        {errors.email && (
                             <p className="label text-error italic">
-                                {actionData.fieldError.email}
+                                {errors.email.message}
                             </p>
                         )}
                     </fieldset>
-                    <button className="btn btn-primary" type="submit">
+                    <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={fetcher.state !== 'idle'}
+                    >
                         Submit
                     </button>
                 </form>

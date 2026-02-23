@@ -1,54 +1,63 @@
-import { useReducer, useState } from 'react';
-import { Form, useNavigate } from 'react-router';
+import { useReducer } from 'react';
+import { useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { authClient } from '~/lib/auth.client';
+
+const formSchema = z.object({
+    name: z.string().optional(),
+    email: z.email({ message: 'Enter a valid email address' }),
+    password: z
+        .string()
+        .min(8, { message: 'Password must be at least 8 characters' }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function Turnstile() {
     const navigate = useNavigate();
     const [isSignIn, toggleSignIn] = useReducer((s) => !s, true);
 
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+    });
 
-    const signIn = async () => {
-        await authClient.signIn.email(
-            {
-                email,
-                password,
-            },
-            {
-                onRequest: (ctx) => {
-                    // show loading state
-                },
-                onSuccess: (ctx) => {
-                    navigate('/profile');
-                },
-                onError: (ctx) => {
-                    alert(ctx.error);
-                },
-            },
-        );
-    };
+    const onSubmit = async (data: FormValues) => {
+        if (!isSignIn && !data.name?.trim()) {
+            setError('name', { message: 'Name is required' });
+            return;
+        }
 
-    const signUp = async () => {
-        await authClient.signUp.email(
-            {
-                email,
-                password,
-                name,
-            },
-            {
-                onRequest: (ctx) => {
-                    // show loading state
+        const callbackURL = `${window.location.origin}/profile`;
+
+        if (isSignIn) {
+            await authClient.signIn.email(
+                { email: data.email, password: data.password, callbackURL },
+                {
+                    onSuccess: () => navigate('/profile'),
+                    onError: (ctx) => alert(ctx.error),
                 },
-                onSuccess: (ctx) => {
-                    navigate('/profile');
+            );
+        } else {
+            await authClient.signUp.email(
+                {
+                    email: data.email,
+                    password: data.password,
+                    name: data.name!,
+                    callbackURL,
                 },
-                onError: (ctx) => {
-                    alert(ctx.error);
+                {
+                    onSuccess: () => navigate('/profile'),
+                    onError: (ctx) => alert(ctx.error),
                 },
-            },
-        );
+            );
+        }
     };
 
     return (
@@ -82,8 +91,8 @@ export function Turnstile() {
                             onChange={toggleSignIn}
                         />
                     </div>
-                    <Form
-                        onSubmit={isSignIn ? signIn : signUp}
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4"
                     >
                         {!isSignIn && (
@@ -95,9 +104,13 @@ export function Turnstile() {
                                     type="text"
                                     className="input"
                                     placeholder="Your name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    {...register('name')}
                                 />
+                                {errors.name && (
+                                    <p className="text-error text-sm">
+                                        {errors.name.message}
+                                    </p>
+                                )}
                             </fieldset>
                         )}
                         <fieldset className="fieldset">
@@ -108,9 +121,13 @@ export function Turnstile() {
                                 type="email"
                                 className="input"
                                 placeholder="name@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                {...register('email')}
                             />
+                            {errors.email && (
+                                <p className="text-error text-sm">
+                                    {errors.email.message}
+                                </p>
+                            )}
                         </fieldset>
                         <fieldset className="fieldset">
                             <legend className="fieldset-legend">
@@ -120,14 +137,28 @@ export function Turnstile() {
                                 type="password"
                                 className="input"
                                 placeholder="Your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                {...register('password')}
                             />
+                            {errors.password && (
+                                <p className="text-error text-sm">
+                                    {errors.password.message}
+                                </p>
+                            )}
                         </fieldset>
-                        <button className="btn btn-accent" type="submit">
-                            {isSignIn ? 'Login' : 'Register'}
+                        <button
+                            className="btn btn-accent"
+                            type="submit"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <span className="loading loading-spinner loading-sm" />
+                            ) : isSignIn ? (
+                                'Login'
+                            ) : (
+                                'Register'
+                            )}
                         </button>
-                    </Form>
+                    </form>
                 </div>
             </div>
         </>
