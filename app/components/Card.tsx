@@ -34,7 +34,7 @@ export function Card({
 }: PropsWithChildren<CardProps>) {
     return (
         <div className={cx(cardVariants({ bordererd, variant, className }))}>
-            <div className="card-body">
+            <div className="card-body min-h-0">
                 {title && <h2 className="card-title">{title}</h2>}
                 {children}
             </div>

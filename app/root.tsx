@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useReducer, type JSX } from 'react';
 import {
     Form,
     isRouteErrorResponse,
@@ -51,7 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className="min-h-screen">
+        <html lang="en" className="h-full">
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -61,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body className="min-h-screen">
+            <body className="h-full overflow-hidden">
                 {children}
                 <ScrollRestoration />
                 <Scripts />
@@ -70,20 +70,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
+function ConditionalWrapper({
+    condition,
+    wrapper,
+    children,
+}: {
+    condition: boolean;
+    wrapper: (children: React.ReactNode) => JSX.Element;
+    children: React.ReactNode;
+}) {
+    return condition ? wrapper(children) : children;
+}
+
 export default function App({ loaderData }: Route.ComponentProps) {
     const [isDrawerOpen, toggleDrawer] = useReducer((s) => !s, false);
 
     return (
         <Drawer
-            className="min-h-screen"
+            className="h-full"
             contents={<>Stuff</>}
-            drawerContentClassName="flex flex-col"
+            drawerContentClassName="flex h-full flex-col overflow-hidden"
             handleClose={toggleDrawer}
             id="main-drawer"
             isOpen={isDrawerOpen}
             right
         >
-            <header className="mb-4">
+            <header className="shrink-0 mb-4">
                 <nav className="bg-base-300 py-4">
                     <Container className="flex items-center justify-between">
                         <ul className="flex gap-4 px-4">
@@ -137,7 +149,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                     </Container>
                 </nav>
             </header>
-            <main className="grow">
+            <main className="min-h-0 grow overflow-hidden">
                 <Container className="grid h-full grid-cols-12 gap-4">
                     <Card className="col-span-3">
                         <ul className="flex flex-col gap-4 p-4">
@@ -180,12 +192,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
                             )}
                         </ul>
                     </Card>
-                    <Card className="col-span-9">
+                    <Card className="col-span-9 overflow-hidden">
                         <Outlet />
                     </Card>
                 </Container>
             </main>
-            <footer className="bg-base-300 mt-4 py-4">
+            <footer className="bg-base-300 shrink-0 mt-4 py-4">
                 <Container>
                     <p className="text-base-content">
                         Iridium is so hot right now

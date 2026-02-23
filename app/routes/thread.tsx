@@ -65,35 +65,39 @@ export default function ThreadRoute({
             )}
             <div
                 ref={messageRef}
-                className="rounded-box bg-base-100 flex grow flex-col justify-end gap-4 p-4"
+                className="rounded-box bg-base-100 flex min-h-0 grow flex-col gap-4 overflow-y-auto p-4"
             >
+                {/* Spacer pushes messages to the bottom. Using justify-end with
+                   overflow-y-auto causes upward overflow that is unreachable
+                   by scrolling, so we use a grow spacer instead. */}
+                <div className="grow" />
                 {messages.length > 0 ? (
-                    messages.map((message) => (
-                        <ChatBubble
-                            key={message.id}
-                            variant={
-                                message.role === 'user' ? 'primary' : 'default'
-                            }
-                            placement={
-                                message.role === 'user' ? 'end' : 'start'
-                            }
-                        >
-                            {(() => {
-                                const text = message.parts
-                                    .filter((part) => part.type === 'text')
-                                    .map((part) =>
-                                        'text' in part ? part.text : '',
-                                    )
-                                    .join('');
-                                return (
-                                    text ||
-                                    (message.role === 'assistant' ? (
-                                        <LoaderCircleIcon className="h-5 w-5 animate-spin" />
-                                    ) : null)
-                                );
-                            })()}
-                        </ChatBubble>
-                    ))
+                    messages.map((message) => {
+                        const text = message.parts
+                            .filter(
+                                (part) =>
+                                    part.type === 'text' && 'text' in part,
+                            )
+                            .map((part) => part.text)
+                            .join('');
+                        const isUser = message.role === 'user';
+
+                        const content =
+                            text ||
+                            (!isUser ? (
+                                <LoaderCircleIcon className="h-5 w-5 animate-spin" />
+                            ) : null);
+
+                        return (
+                            <ChatBubble
+                                key={message.id}
+                                variant={isUser ? 'primary' : 'default'}
+                                placement={isUser ? 'end' : 'start'}
+                            >
+                                {content}
+                            </ChatBubble>
+                        );
+                    })
                 ) : (
                     <div className="text-center text-gray-500">
                         No messages yet

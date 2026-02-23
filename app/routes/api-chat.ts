@@ -67,7 +67,7 @@ export async function action({ request }: Route.ActionArgs) {
         return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const model = openAIClient('gpt-5-mini');
+    const model = openAIClient('gpt-4o-mini');
     const thread = await getThreadById(threadId);
 
     if (messages.length > 3 && (thread?.title === 'Untitled' || !thread)) {

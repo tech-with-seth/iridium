@@ -1,5 +1,3 @@
-import { SendHorizonalIcon } from 'lucide-react';
-import { ChatBubble } from '~/components/ChatBubble';
 import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
 import { listItemClassName, navLinkClassName } from '~/shared';
@@ -71,8 +69,8 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
             <meta name="description" content="This is the chat page" />
             <Container className="flex h-full flex-col gap-4 p-4">
                 <h1 className="mb-4 text-4xl font-bold">Chat</h1>
-                <div className="grid grow grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid min-h-0 grow grid-cols-12 gap-4">
+                    <div className="col-span-4 overflow-y-auto">
                         <Form method="POST">
                             <input
                                 type="hidden"
@@ -103,7 +101,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                             )}
                         </ul>
                     </div>
-                    <div className="col-span-8 flex flex-col gap-4">
+                    <div className="col-span-8 flex min-h-0 flex-col gap-4 overflow-hidden">
                         <Outlet />
                     </div>
                 </div>
