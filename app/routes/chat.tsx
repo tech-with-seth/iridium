@@ -2,11 +2,16 @@ import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
 import { listItemClassName, navLinkClassName } from '~/shared';
 import type { Route } from './+types/chat';
-import { createThread, getAllThreadsByUserId } from '~/models/thread.server';
+import {
+    createThread,
+    deleteThread,
+    getAllThreadsByUserId,
+    getThreadById,
+} from '~/models/thread.server';
 import { getUserFromSession } from '~/models/session.server';
 import invariant from 'tiny-invariant';
 import { Form, NavLink, Outlet, redirect } from 'react-router';
-import { PlusCircleIcon } from 'lucide-react';
+import { PlusCircleIcon, Trash2Icon } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
@@ -38,6 +43,18 @@ export async function action({ request }: Route.ActionArgs) {
             } catch (error) {
                 throw new Response('Failed to create thread', { status: 500 });
             }
+        }
+
+        if (intent === 'delete-thread') {
+            const threadId = String(form.get('threadId'));
+            const thread = await getThreadById(threadId);
+
+            invariant(thread, 'Thread not found');
+            invariant(thread.createdById === user.id, 'Unauthorized');
+
+            await deleteThread(threadId);
+
+            return redirect('/chat');
         }
     }
 
@@ -91,13 +108,40 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                 {loaderData.threads &&
                                 loaderData.threads.length > 0 ? (
                                     loaderData.threads.map((thread) => (
-                                        <li key={thread.id}>
+                                        <li
+                                            key={thread.id}
+                                            className="group relative"
+                                        >
                                             <NavLink
                                                 to={thread.id}
                                                 className={navLinkClassName}
                                             >
-                                                {getThreadLabel(thread)}
+                                                <span className="truncate pr-6">
+                                                    {getThreadLabel(thread)}
+                                                </span>
                                             </NavLink>
+                                            <Form
+                                                method="POST"
+                                                className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="intent"
+                                                    value="delete-thread"
+                                                />
+                                                <input
+                                                    type="hidden"
+                                                    name="threadId"
+                                                    value={thread.id}
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    aria-label="Delete thread"
+                                                    className="btn btn-ghost btn-xs text-error"
+                                                >
+                                                    <Trash2Icon className="h-4 w-4" />
+                                                </button>
+                                            </Form>
                                         </li>
                                     ))
                                 ) : (

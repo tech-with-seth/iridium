@@ -97,7 +97,7 @@ model Message {
     createdAt DateTime    @default(now())
     userId    String?
     threadId  String?
-    thread    Thread?     @relation(fields: [threadId], references: [id])
+    thread    Thread?     @relation(fields: [threadId], references: [id], onDelete: Cascade)
     user      User?       @relation(fields: [userId], references: [id])
 
     @@map("message")
