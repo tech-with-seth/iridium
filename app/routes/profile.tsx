@@ -16,22 +16,36 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function ProfileRoute({ loaderData }: Route.ComponentProps) {
+    const isAdmin = loaderData.user.role === 'ADMIN';
+
     return (
         <>
             <title>Profile</title>
             <meta name="description" content="Welcome to your profile page!" />
             <Container className="p-4">
                 <h1 className="mb-8 text-4xl font-bold">Profile</h1>
-                <ul className="space-y-4">
+                <ul className="mb-8 space-y-4">
                     <li>
                         <div className="badge badge-neutral">
-                            {loaderData.user.role}
+                            {isAdmin && '⭐️'} {loaderData.user.role}
                         </div>
                     </li>
                     <li>
                         <strong>Email:</strong> {loaderData.user.email}
                     </li>
                 </ul>
+                {isAdmin && (
+                    <>
+                        <hr className="my-4" />
+                        <p>
+                            With great power comes great responsibility. As an
+                            admin, you have the ability to manage users, oversee
+                            content, and ensure that our community remains a
+                            safe and welcoming space for everyone. Please use
+                            your powers wisely!
+                        </p>
+                    </>
+                )}
             </Container>
         </>
     );

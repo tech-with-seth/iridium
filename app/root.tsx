@@ -70,16 +70,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-function ConditionalWrapper({
-    condition,
-    wrapper,
-    children,
-}: {
-    condition: boolean;
-    wrapper: (children: React.ReactNode) => JSX.Element;
-    children: React.ReactNode;
-}) {
-    return condition ? wrapper(children) : children;
+function DrawerContent() {
+    return <section>asdf</section>;
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
@@ -88,14 +80,14 @@ export default function App({ loaderData }: Route.ComponentProps) {
     return (
         <Drawer
             className="h-full"
-            contents={<>Stuff</>}
+            contents={<DrawerContent />}
             drawerContentClassName="flex h-full flex-col overflow-hidden"
             handleClose={toggleDrawer}
             id="main-drawer"
             isOpen={isDrawerOpen}
             right
         >
-            <header className="shrink-0 mb-4">
+            <header className="mb-4 shrink-0">
                 <nav className="bg-base-300 py-4">
                     <Container className="flex items-center justify-between">
                         <ul className="flex gap-4 px-4">
@@ -197,7 +189,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                     </Card>
                 </Container>
             </main>
-            <footer className="bg-base-300 shrink-0 mt-4 py-4">
+            <footer className="bg-base-300 mt-4 shrink-0 py-4">
                 <Container>
                     <p className="text-base-content">
                         Iridium is so hot right now
