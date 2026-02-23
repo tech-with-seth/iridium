@@ -22,6 +22,7 @@ export const chatBubbleVariants = cva({
             primary: 'chat-bubble-primary',
             secondary: 'chat-bubble-secondary',
             accent: 'chat-bubble-accent',
+            default: '',
         },
     },
     defaultVariants: {

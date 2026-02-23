@@ -15,5 +15,8 @@ export default [
     ]),
     route('/form', 'routes/form.tsx'),
     route('/profile', 'routes/profile.tsx'),
-    ...prefix('/api', [route('/auth/*', 'routes/api-auth.ts')]),
+    ...prefix('/api', [
+        route('/auth/*', 'routes/api-auth.ts'),
+        route('/chat', 'routes/api-chat.ts'),
+    ]),
 ] satisfies RouteConfig;

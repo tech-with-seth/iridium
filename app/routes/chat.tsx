@@ -2,7 +2,7 @@ import { SendHorizonalIcon } from 'lucide-react';
 import { ChatBubble } from '~/components/ChatBubble';
 import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
-import { listItemClassName } from '~/shared';
+import { listItemClassName, navLinkClassName } from '~/shared';
 import type { Route } from './+types/chat';
 import { createThread, getAllThreadsByUserId } from '~/models/thread.server';
 import { getUserFromSession } from '~/models/session.server';
@@ -45,6 +45,25 @@ export async function action({ request }: Route.ActionArgs) {
     return null;
 }
 
+function getThreadLabel(thread: {
+    title?: string | null;
+    messages: { content: string }[];
+}): string {
+    if (thread.title && thread.title !== 'Untitled') return thread.title;
+
+    try {
+        const parts = JSON.parse(thread.messages[0]?.content ?? '[]');
+        const text = parts
+            .filter((p: { type: string }) => p.type === 'text')
+            .map((p: { text: string }) => p.text)
+            .join('');
+
+        return text.slice(0, 30) || 'New Thread';
+    } catch {
+        return 'New Thread';
+    }
+}
+
 export default function ChatRoute({ loaderData }: Route.ComponentProps) {
     return (
         <>
@@ -68,18 +87,12 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                             {loaderData.threads &&
                             loaderData.threads.length > 0 ? (
                                 loaderData.threads.map((thread) => (
-                                    <li
-                                        key={thread.id}
-                                        className={listItemClassName}
-                                    >
+                                    <li key={thread.id}>
                                         <NavLink
                                             to={thread.id}
-                                            className="flex gap-2"
+                                            className={navLinkClassName}
                                         >
-                                            {thread.messages[0]?.content.slice(
-                                                0,
-                                                30,
-                                            ) || 'New Thread'}
+                                            {getThreadLabel(thread)}
                                         </NavLink>
                                     </li>
                                 ))
