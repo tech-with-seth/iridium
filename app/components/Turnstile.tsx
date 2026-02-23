@@ -1,9 +1,10 @@
 import { useReducer, useState } from 'react';
-import { Form } from 'react-router';
+import { Form, useNavigate } from 'react-router';
 import { authClient } from '~/lib/auth.client';
 
 export function Turnstile() {
-    const [isSignIn, toggleSignIn] = useReducer((s) => !s, false);
+    const navigate = useNavigate();
+    const [isSignIn, toggleSignIn] = useReducer((s) => !s, true);
 
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -20,7 +21,7 @@ export function Turnstile() {
                     // show loading state
                 },
                 onSuccess: (ctx) => {
-                    // redirect to home
+                    navigate('/profile');
                 },
                 onError: (ctx) => {
                     alert(ctx.error);
@@ -41,7 +42,7 @@ export function Turnstile() {
                     // show loading state
                 },
                 onSuccess: (ctx) => {
-                    // redirect to home
+                    navigate('/profile');
                 },
                 onError: (ctx) => {
                     alert(ctx.error);
@@ -64,21 +65,20 @@ export function Turnstile() {
             <div className="p-4">
                 <h2 className="mb-8 text-3xl font-bold">Authenticate</h2>
                 <div>
-                    <div className="tabs tabs-box mb-4">
+                    <div className="join mb-4">
                         <input
+                            className="join-item btn"
                             type="radio"
-                            name="sign-in-tabs"
-                            className="tab"
+                            name="loginOptions"
                             aria-label="Login"
-                            checked={isSignIn}
                             onChange={toggleSignIn}
+                            defaultChecked
                         />
                         <input
+                            className="join-item btn"
                             type="radio"
-                            name="sign-in-tabs"
-                            className="tab"
+                            name="loginOptions"
                             aria-label="Register"
-                            checked={!isSignIn}
                             onChange={toggleSignIn}
                         />
                     </div>

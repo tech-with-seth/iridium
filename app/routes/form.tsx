@@ -1,7 +1,11 @@
 import { Container } from '~/components/Container';
 import type { Route } from './+types/form';
 import { CircleXIcon } from 'lucide-react';
+import { authMiddleware } from '~/middleware/auth';
 
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+// Force server round-trip so auth middleware runs on client-side navigations
 export async function loader() {
     return null;
 }

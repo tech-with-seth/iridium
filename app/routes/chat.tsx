@@ -1,17 +1,51 @@
 import { SendHorizonalIcon } from 'lucide-react';
 import { ChatBubble } from '~/components/ChatBubble';
 import { Container } from '~/components/Container';
+import { authMiddleware } from '~/middleware/auth';
 import { listItemClassName } from '~/shared';
+import type { Route } from './+types/chat';
+import { createThread, getAllThreadsByUserId } from '~/models/thread.server';
+import { getUserFromSession } from '~/models/session.server';
+import invariant from 'tiny-invariant';
+import { Form, NavLink, Outlet, redirect } from 'react-router';
 
-export async function loader() {
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await getUserFromSession(request);
+    invariant(user, 'User could not be found in session');
+
+    const threads = await getAllThreadsByUserId(user.id);
+    invariant(threads, 'Threads could not be found for user');
+
+    return {
+        threads,
+    };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+    const user = await getUserFromSession(request);
+    invariant(user, 'User could not be found in session');
+
+    const form = await request.formData();
+    const intent = String(form.get('intent'));
+
+    if (request.method === 'POST') {
+        if (intent === 'new-thread') {
+            try {
+                const thread = await createThread(user.id);
+
+                return redirect(thread?.id);
+            } catch (error) {
+                throw new Response('Failed to create thread', { status: 500 });
+            }
+        }
+    }
+
     return null;
 }
 
-export async function action() {
-    return null;
-}
-
-export default function ChatRoute() {
+export default function ChatRoute({ loaderData }: Route.ComponentProps) {
     return (
         <>
             <title>Chat | Iridium</title>
@@ -20,34 +54,44 @@ export default function ChatRoute() {
                 <h1 className="mb-4 text-4xl font-bold">Chat</h1>
                 <div className="grid grow grid-cols-12 gap-4">
                     <div className="col-span-4">
+                        <Form method="POST">
+                            <input
+                                type="hidden"
+                                name="intent"
+                                value="new-thread"
+                            />
+                            <button className="btn btn-accent mb-4">
+                                + New Thread
+                            </button>
+                        </Form>
                         <ul className="flex flex-col gap-4">
-                            <li className={listItemClassName}>
-                                <strong>General</strong>
-                            </li>
-                            <li className={listItemClassName}>
-                                <strong>Random</strong>
-                            </li>
-                            <li className={listItemClassName}>
-                                <strong>Help</strong>
-                            </li>
+                            {loaderData.threads &&
+                            loaderData.threads.length > 0 ? (
+                                loaderData.threads.map((thread) => (
+                                    <li
+                                        key={thread.id}
+                                        className={listItemClassName}
+                                    >
+                                        <NavLink
+                                            to={thread.id}
+                                            className="flex gap-2"
+                                        >
+                                            {thread.messages[0]?.content.slice(
+                                                0,
+                                                30,
+                                            ) || 'New Thread'}
+                                        </NavLink>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className={listItemClassName}>
+                                    No threads found
+                                </li>
+                            )}
                         </ul>
                     </div>
                     <div className="col-span-8 flex flex-col gap-4">
-                        <div className="flex justify-end grow flex-col gap-4 rounded-box bg-base-100 p-4">
-                            <ChatBubble variant="accent">asdf</ChatBubble>
-                            <ChatBubble variant="accent">asdf</ChatBubble>
-                            <ChatBubble placement='end'>asdf</ChatBubble>
-                        </div>
-                        <div className="rounded-box border-base-300 bg-base-100 flex items-center gap-2 border p-2">
-                            <input
-                                type="text"
-                                className="input rounded-field grow"
-                                placeholder="Your message here..."
-                            />
-                            <button className="btn btn-secondary">
-                                <SendHorizonalIcon className="h-6 w-6" /> Send
-                            </button>
-                        </div>
+                        <Outlet />
                     </div>
                 </div>
             </Container>

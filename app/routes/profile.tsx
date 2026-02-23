@@ -1,17 +1,37 @@
+import invariant from 'tiny-invariant';
 import { Container } from '~/components/Container';
+import type { Route } from './+types/profile';
+import { getUserFromSession } from '~/models/session.server';
+import { authMiddleware } from '~/middleware/auth';
 
-export async function loader() {}
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function action() {}
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await getUserFromSession(request);
+    invariant(user, 'User could not be found in session');
 
-export default function ProfileRoute() {
+    return {
+        user,
+    };
+}
+
+export default function ProfileRoute({ loaderData }: Route.ComponentProps) {
     return (
         <>
             <title>Profile</title>
             <meta name="description" content="Welcome to your profile page!" />
             <Container className="p-4">
                 <h1 className="mb-8 text-4xl font-bold">Profile</h1>
-                <p>Good bean juice make me go fast</p>
+                <ul className="space-y-4">
+                    <li>
+                        <div className="badge badge-neutral">
+                            {loaderData.user.role}
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Email:</strong> {loaderData.user.email}
+                    </li>
+                </ul>
             </Container>
         </>
     );

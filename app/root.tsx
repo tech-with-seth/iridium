@@ -1,4 +1,6 @@
+import { useReducer } from 'react';
 import {
+    Form,
     isRouteErrorResponse,
     Link,
     Links,
@@ -12,19 +14,19 @@ import {
     FormIcon,
     HomeIcon,
     LockIcon,
+    LogOutIcon,
     MessageSquareIcon,
     PentagonIcon,
     UserCircle2Icon,
 } from 'lucide-react';
+import { getUserFromSession } from '~/models/session.server';
 import type { Route } from './+types/root';
 import { Container } from './components/Container';
 import { Card } from './components/Card';
 import { navLinkClassName } from './shared';
+import { Drawer } from './components/Drawer';
 
 import './app.css';
-import { Drawer } from './components/Drawer';
-import { Turnstile } from './components/Turnstile';
-import { useReducer } from 'react';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -39,9 +41,17 @@ export const links: Route.LinksFunction = () => [
     },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+    const user = await getUserFromSession(request);
+
+    return {
+        isAuthenticated: Boolean(user),
+    };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className="h-full">
+        <html lang="en" className="min-h-screen">
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -51,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body className="h-full">
+            <body className="min-h-screen">
                 {children}
                 <ScrollRestoration />
                 <Scripts />
@@ -60,13 +70,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
     const [isDrawerOpen, toggleDrawer] = useReducer((s) => !s, false);
 
     return (
         <Drawer
             className="min-h-screen"
-            contents={<Turnstile />}
+            contents={<>Stuff</>}
             drawerContentClassName="flex flex-col"
             handleClose={toggleDrawer}
             id="main-drawer"
@@ -87,23 +97,42 @@ export default function App() {
                             </li>
                         </ul>
                         <ul className="flex gap-4 px-4">
-                            <li>
-                                <Link to="/profile" className="flex gap-2">
-                                    <UserCircle2Icon className="h-6 w-6" />
-                                    <strong className="font-bold">
-                                        Profile
-                                    </strong>
-                                </Link>
-                            </li>
-                            <li>
-                                <button
-                                    className="flex gap-2"
-                                    onClick={toggleDrawer}
-                                >
-                                    <LockIcon className="h-6 w-6" />
-                                    <strong className="font-bold">Login</strong>
-                                </button>
-                            </li>
+                            {loaderData.isAuthenticated && (
+                                <>
+                                    <li>
+                                        <Form
+                                            method="POST"
+                                            action="/logout"
+                                            className="flex gap-2"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="intent"
+                                                value="logout"
+                                            />
+                                            <button
+                                                type="submit"
+                                                className="flex gap-2"
+                                            >
+                                                <LogOutIcon className="h-6 w-6" />
+                                                <strong className="font-bold">
+                                                    Logout
+                                                </strong>
+                                            </button>
+                                        </Form>
+                                    </li>
+                                </>
+                            )}
+                            {!loaderData.isAuthenticated && (
+                                <li>
+                                    <Link to="/login" className="flex gap-2">
+                                        <LockIcon className="h-6 w-6" />
+                                        <strong className="font-bold">
+                                            Login
+                                        </strong>
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </Container>
                 </nav>
@@ -118,24 +147,37 @@ export default function App() {
                                     Home
                                 </NavLink>
                             </li>
-                            <li>
-                                <NavLink
-                                    to="/chat"
-                                    className={navLinkClassName}
-                                >
-                                    <MessageSquareIcon className="h-6 w-6" />
-                                    Chat
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/form"
-                                    className={navLinkClassName}
-                                >
-                                    <FormIcon className="h-6 w-6" />
-                                    Form
-                                </NavLink>
-                            </li>
+                            {loaderData.isAuthenticated && (
+                                <>
+                                    <li>
+                                        <NavLink
+                                            to="/profile"
+                                            className={navLinkClassName}
+                                        >
+                                            <UserCircle2Icon className="h-6 w-6" />
+                                            Profile
+                                        </NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            to="/chat"
+                                            className={navLinkClassName}
+                                        >
+                                            <MessageSquareIcon className="h-6 w-6" />
+                                            Chat
+                                        </NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            to="/form"
+                                            className={navLinkClassName}
+                                        >
+                                            <FormIcon className="h-6 w-6" />
+                                            Form
+                                        </NavLink>
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </Card>
                     <Card className="col-span-9">
