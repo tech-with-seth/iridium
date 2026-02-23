@@ -15,6 +15,7 @@ import {
     HomeIcon,
     LockIcon,
     LogOutIcon,
+    MenuIcon,
     MessageSquareIcon,
     PentagonIcon,
     UserCircle2Icon,
@@ -23,7 +24,8 @@ import { getUserFromSession } from '~/models/session.server';
 import type { Route } from './+types/root';
 import { Container } from './components/Container';
 import { Card } from './components/Card';
-import { navLinkClassName } from './shared';
+import { cx } from 'cva.config';
+import { listItemClassName, navLinkClassName } from './shared';
 import { Drawer } from './components/Drawer';
 
 import './app.css';
@@ -70,8 +72,107 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-function DrawerContent() {
-    return <section>asdf</section>;
+function DrawerContent({
+    isAuthenticated,
+    onClose,
+}: {
+    isAuthenticated: boolean;
+    onClose: () => void;
+}) {
+    return (
+        <nav aria-label="Mobile navigation">
+            <ul className="flex flex-col gap-4">
+                <li>
+                    <NavLink
+                        to="/"
+                        className={navLinkClassName}
+                        onClick={onClose}
+                    >
+                        <HomeIcon aria-hidden="true" className="h-6 w-6" />
+                        Home
+                    </NavLink>
+                </li>
+                {isAuthenticated && (
+                    <>
+                        <li>
+                            <NavLink
+                                to="/profile"
+                                className={navLinkClassName}
+                                onClick={onClose}
+                            >
+                                <UserCircle2Icon
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                />
+                                Profile
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/chat"
+                                className={navLinkClassName}
+                                onClick={onClose}
+                            >
+                                <MessageSquareIcon
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                />
+                                Chat
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/form"
+                                className={navLinkClassName}
+                                onClick={onClose}
+                            >
+                                <FormIcon
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                />
+                                Form
+                            </NavLink>
+                        </li>
+                        <li>
+                            <Form
+                                method="POST"
+                                action="/logout"
+                                onSubmit={onClose}
+                            >
+                                <input
+                                    type="hidden"
+                                    name="intent"
+                                    value="logout"
+                                />
+                                <button
+                                    type="submit"
+                                    className={cx(listItemClassName, 'w-full')}
+                                >
+                                    <LogOutIcon
+                                        aria-hidden="true"
+                                        className="h-6 w-6"
+                                    />
+                                    Logout
+                                </button>
+                            </Form>
+                        </li>
+                    </>
+                )}
+                {!isAuthenticated && (
+                    <li>
+                        <NavLink
+                            to="/login"
+                            className={navLinkClassName}
+                            onClick={onClose}
+                        >
+                            <LockIcon aria-hidden="true" className="h-6 w-6" />
+                            Login
+                        </NavLink>
+                    </li>
+                )}
+            </ul>
+        </nav>
+    );
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
@@ -80,7 +181,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
     return (
         <Drawer
             className="h-full"
-            contents={<DrawerContent />}
+            contents={
+                <DrawerContent
+                    isAuthenticated={loaderData.isAuthenticated}
+                    onClose={toggleDrawer}
+                />
+            }
             drawerContentClassName="flex h-full flex-col overflow-hidden"
             handleClose={toggleDrawer}
             id="main-drawer"
@@ -94,7 +200,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
                 Skip to main content
             </a>
             <header className="mb-4 shrink-0">
-                <nav aria-label="Site" className="bg-base-300 py-4">
+                <nav
+                    aria-label="Site"
+                    className="bg-neutral text-neutral-content py-4"
+                >
                     <Container className="flex items-center justify-between">
                         <ul className="flex gap-4 px-4">
                             <li>
@@ -109,7 +218,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                 </Link>
                             </li>
                         </ul>
-                        <ul className="flex gap-4 px-4">
+                        <ul className="hidden gap-4 px-4 md:flex">
                             {loaderData.isAuthenticated && (
                                 <>
                                     <li>
@@ -153,6 +262,16 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                 </li>
                             )}
                         </ul>
+                        <button
+                            type="button"
+                            className="btn btn-ghost mx-4 px-2 md:hidden"
+                            onClick={toggleDrawer}
+                            aria-label="Open navigation menu"
+                            aria-expanded={isDrawerOpen}
+                            aria-controls="main-drawer"
+                        >
+                            <MenuIcon aria-hidden="true" className="h-6 w-6" />
+                        </button>
                     </Container>
                 </nav>
             </header>
@@ -161,8 +280,8 @@ export default function App({ loaderData }: Route.ComponentProps) {
                 tabIndex={-1}
                 className="min-h-0 grow overflow-hidden"
             >
-                <Container className="grid h-full grid-cols-12 gap-4">
-                    <Card className="col-span-3">
+                <Container className="grid h-full grid-cols-1 gap-4 md:grid-cols-12">
+                    <Card className="hidden md:col-span-4 md:block lg:col-span-3">
                         <nav aria-label="Main navigation">
                             <ul className="flex flex-col gap-4 p-4">
                                 <li>
@@ -220,13 +339,13 @@ export default function App({ loaderData }: Route.ComponentProps) {
                             </ul>
                         </nav>
                     </Card>
-                    <Card className="col-span-9 overflow-hidden">
+                    <Card className="col-span-1 overflow-hidden md:col-span-8 lg:col-span-9">
                         <Outlet />
                     </Card>
                 </Container>
             </main>
             <footer className="bg-base-300 mt-4 shrink-0 py-4">
-                <Container>
+                <Container className="px-4">
                     <p className="text-base-content">
                         Iridium is so hot right now
                     </p>

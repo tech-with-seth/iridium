@@ -1,7 +1,7 @@
 ---
 description: 'Mobile-first and responsive design expert. Use when auditing, implementing, or fixing responsive layouts, Tailwind breakpoints, touch targets, overflow issues, viewport sizing, or any mobile UX problem. Trigger phrases: mobile, responsive, breakpoint, sm:, md:, viewport, overflow, touch, scroll, tablet, phone.'
 name: 'Responsive Expert'
-tools: ['read', 'edit', 'search']
+tools: [execute, read, edit, search]
 handoffs:
     - label: Refine Tailwind Classes
       agent: tailwind

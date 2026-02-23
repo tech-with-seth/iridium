@@ -34,18 +34,6 @@ export default function ProfileRoute({ loaderData }: Route.ComponentProps) {
                         <strong>Email:</strong> {loaderData.user.email}
                     </li>
                 </ul>
-                {isAdmin && (
-                    <>
-                        <hr className="my-4" />
-                        <p>
-                            With great power comes great responsibility. As an
-                            admin, you have the ability to manage users, oversee
-                            content, and ensure that our community remains a
-                            safe and welcoming space for everyone. Please use
-                            your powers wisely!
-                        </p>
-                    </>
-                )}
             </Container>
         </>
     );
