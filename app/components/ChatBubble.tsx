@@ -40,8 +40,13 @@ export function ChatBubble({
     placement,
     variant,
 }: PropsWithChildren<ChatBubbleProps>) {
+    const senderLabel = placement === 'end' ? 'You' : 'Assistant';
+
     return (
-        <div className={cx(chatBubbleContainerVariants({ placement }))}>
+        <div
+            aria-label={senderLabel}
+            className={cx(chatBubbleContainerVariants({ placement }))}
+        >
             <div
                 className={cx(
                     chatBubbleVariants({

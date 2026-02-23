@@ -76,32 +76,37 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                     <Form method="POST">
                         <input type="hidden" name="intent" value="new-thread" />
                         <button className="btn btn-accent" type="submit">
-                            <PlusCircleIcon className="mr-2 h-6 w-6" />
+                            <PlusCircleIcon
+                                aria-hidden="true"
+                                className="mr-2 h-6 w-6"
+                            />
                             New Thread
                         </button>
                     </Form>
                 </div>
                 <div className="grid min-h-0 grow grid-cols-12 gap-4">
                     <div className="col-span-4 overflow-y-auto">
-                        <ul className="flex flex-col gap-4">
-                            {loaderData.threads &&
-                            loaderData.threads.length > 0 ? (
-                                loaderData.threads.map((thread) => (
-                                    <li key={thread.id}>
-                                        <NavLink
-                                            to={thread.id}
-                                            className={navLinkClassName}
-                                        >
-                                            {getThreadLabel(thread)}
-                                        </NavLink>
+                        <nav aria-label="Conversations">
+                            <ul className="flex flex-col gap-4">
+                                {loaderData.threads &&
+                                loaderData.threads.length > 0 ? (
+                                    loaderData.threads.map((thread) => (
+                                        <li key={thread.id}>
+                                            <NavLink
+                                                to={thread.id}
+                                                className={navLinkClassName}
+                                            >
+                                                {getThreadLabel(thread)}
+                                            </NavLink>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li className={listItemClassName}>
+                                        No threads found
                                     </li>
-                                ))
-                            ) : (
-                                <li className={listItemClassName}>
-                                    No threads found
-                                </li>
-                            )}
-                        </ul>
+                                )}
+                            </ul>
+                        </nav>
                     </div>
                     <div className="col-span-8 flex min-h-0 flex-col gap-4 overflow-hidden">
                         <Outlet />

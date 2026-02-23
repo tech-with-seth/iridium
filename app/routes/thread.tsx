@@ -59,12 +59,14 @@ export default function ThreadRoute({
         <>
             {error && (
                 <div role="alert" className="alert alert-error">
-                    <CircleXIcon className="h-6 w-6" />
+                    <CircleXIcon aria-hidden="true" className="h-6 w-6" />
                     <span>{error.message}</span>
                 </div>
             )}
             <div
                 ref={messageRef}
+                aria-live="polite"
+                aria-busy={status === 'streaming'}
                 className="rounded-box bg-base-100 flex min-h-0 grow flex-col gap-4 overflow-y-auto p-4"
             >
                 {/* Spacer pushes messages to the bottom. Using justify-end with
@@ -85,7 +87,15 @@ export default function ThreadRoute({
                         const content =
                             text ||
                             (!isUser ? (
-                                <LoaderCircleIcon className="h-5 w-5 animate-spin" />
+                                <span
+                                    role="status"
+                                    aria-label="Loading response"
+                                >
+                                    <LoaderCircleIcon
+                                        aria-hidden="true"
+                                        className="h-5 w-5 animate-spin"
+                                    />
+                                </span>
                             ) : null);
 
                         return (
@@ -106,7 +116,9 @@ export default function ThreadRoute({
             </div>
             <div className="rounded-box border-base-300 bg-base-100 flex items-center gap-2 border p-2">
                 <input
+                    id="chat-message-input"
                     type="text"
+                    aria-label="Message"
                     className="input rounded-field grow"
                     placeholder="Your message here..."
                     value={chatInput}
@@ -124,7 +136,8 @@ export default function ThreadRoute({
                     onClick={stop}
                     disabled={status !== 'streaming'}
                 >
-                    <StopCircleIcon className="h-6 w-6" /> Stop
+                    <StopCircleIcon aria-hidden="true" className="h-6 w-6" />{' '}
+                    Stop
                 </button>
                 <button
                     className="btn btn-secondary"
@@ -134,7 +147,8 @@ export default function ThreadRoute({
                     }}
                     disabled={status === 'streaming'}
                 >
-                    <SendHorizonalIcon className="h-6 w-6" /> Send
+                    <SendHorizonalIcon aria-hidden="true" className="h-6 w-6" />{' '}
+                    Send
                 </button>
             </div>
         </>
@@ -148,7 +162,7 @@ export function ErrorBoundary() {
         return (
             <>
                 <div role="alert" className="alert alert-error">
-                    <CircleXIcon className="h-6 w-6" />
+                    <CircleXIcon aria-hidden="true" className="h-6 w-6" />
                     <span>
                         {error.status} {error.statusText}
                     </span>

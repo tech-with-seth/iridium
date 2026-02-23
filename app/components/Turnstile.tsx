@@ -104,10 +104,16 @@ export function Turnstile() {
                                     type="text"
                                     className="input"
                                     placeholder="Your name"
+                                    aria-describedby={
+                                        errors.name ? 'name-error' : undefined
+                                    }
                                     {...register('name')}
                                 />
                                 {errors.name && (
-                                    <p className="text-error text-sm">
+                                    <p
+                                        id="name-error"
+                                        className="text-error text-sm"
+                                    >
                                         {errors.name.message}
                                     </p>
                                 )}
@@ -121,10 +127,16 @@ export function Turnstile() {
                                 type="email"
                                 className="input"
                                 placeholder="name@example.com"
+                                aria-describedby={
+                                    errors.email ? 'email-error' : undefined
+                                }
                                 {...register('email')}
                             />
                             {errors.email && (
-                                <p className="text-error text-sm">
+                                <p
+                                    id="email-error"
+                                    className="text-error text-sm"
+                                >
                                     {errors.email.message}
                                 </p>
                             )}
@@ -137,10 +149,18 @@ export function Turnstile() {
                                 type="password"
                                 className="input"
                                 placeholder="Your password"
+                                aria-describedby={
+                                    errors.password
+                                        ? 'password-error'
+                                        : undefined
+                                }
                                 {...register('password')}
                             />
                             {errors.password && (
-                                <p className="text-error text-sm">
+                                <p
+                                    id="password-error"
+                                    className="text-error text-sm"
+                                >
                                     {errors.password.message}
                                 </p>
                             )}
@@ -151,7 +171,11 @@ export function Turnstile() {
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
-                                <span className="loading loading-spinner loading-sm" />
+                                <span
+                                    role="status"
+                                    aria-label="Loading"
+                                    className="loading loading-spinner loading-sm"
+                                />
                             ) : isSignIn ? (
                                 'Login'
                             ) : (

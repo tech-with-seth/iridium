@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { cva, cx } from 'cva.config';
 
 export const drawerVariants = cva({
@@ -57,6 +57,41 @@ export function Drawer({
     right,
     size,
 }: PropsWithChildren<DrawerProps>) {
+    const triggerRef = useRef<HTMLElement | null>(null);
+    const drawerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            // Save the element that triggered the open so we can return focus on close
+            triggerRef.current = document.activeElement as HTMLElement;
+            // Move focus into the drawer panel
+            const firstFocusable =
+                drawerRef.current?.querySelector<HTMLElement>(
+                    'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+                );
+            firstFocusable?.focus();
+        } else {
+            // Return focus to the trigger element when drawer closes
+            triggerRef.current?.focus();
+            triggerRef.current = null;
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleClose();
+            }
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [isOpen, handleClose]);
+
     return (
         <div className={cx(drawerVariants({ right }), className)}>
             <input
@@ -76,7 +111,10 @@ export function Drawer({
                     className="drawer-overlay"
                     onClick={handleClose}
                 ></label>
-                <div className={cx(drawerMenuVariants({ size }))}>
+                <div
+                    ref={drawerRef}
+                    className={cx(drawerMenuVariants({ size }))}
+                >
                     {contents}
                 </div>
             </div>

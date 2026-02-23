@@ -54,7 +54,7 @@ export default function FormRoute() {
                 <h1 className="mb-8 text-4xl font-bold">Form</h1>
                 {fetcher.data?.formError && (
                     <div role="alert" className="alert alert-error mb-4">
-                        <CircleXIcon className="h-6 w-6" />
+                        <CircleXIcon aria-hidden="true" className="h-6 w-6" />
                         <span>{fetcher.data.formError}</span>
                     </div>
                 )}
@@ -67,10 +67,16 @@ export default function FormRoute() {
                             type="text"
                             className="input"
                             placeholder="Your name"
+                            aria-describedby={
+                                errors.name ? 'name-error' : undefined
+                            }
                             {...register('name')}
                         />
                         {errors.name && (
-                            <p className="label text-error italic">
+                            <p
+                                id="name-error"
+                                className="label text-error italic"
+                            >
                                 {errors.name.message}
                             </p>
                         )}
@@ -83,10 +89,16 @@ export default function FormRoute() {
                             type="email"
                             className="input"
                             placeholder="name@example.com"
+                            aria-describedby={
+                                errors.email ? 'email-error' : undefined
+                            }
                             {...register('email')}
                         />
                         {errors.email && (
-                            <p className="label text-error italic">
+                            <p
+                                id="email-error"
+                                className="label text-error italic"
+                            >
                                 {errors.email.message}
                             </p>
                         )}

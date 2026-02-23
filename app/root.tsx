@@ -87,13 +87,22 @@ export default function App({ loaderData }: Route.ComponentProps) {
             isOpen={isDrawerOpen}
             right
         >
+            <a
+                href="#main-content"
+                className="focus:bg-base-100 focus:text-base-content sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded focus:px-4 focus:py-2 focus:outline"
+            >
+                Skip to main content
+            </a>
             <header className="mb-4 shrink-0">
-                <nav className="bg-base-300 py-4">
+                <nav aria-label="Site" className="bg-base-300 py-4">
                     <Container className="flex items-center justify-between">
                         <ul className="flex gap-4 px-4">
                             <li>
                                 <Link to="/" className="flex gap-2">
-                                    <PentagonIcon className="h-6 w-6" />
+                                    <PentagonIcon
+                                        aria-hidden="true"
+                                        className="h-6 w-6"
+                                    />
                                     <strong className="font-bold">
                                         Iridium
                                     </strong>
@@ -118,7 +127,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                                 type="submit"
                                                 className="flex gap-2"
                                             >
-                                                <LogOutIcon className="h-6 w-6" />
+                                                <LogOutIcon
+                                                    aria-hidden="true"
+                                                    className="h-6 w-6"
+                                                />
                                                 <strong className="font-bold">
                                                     Logout
                                                 </strong>
@@ -130,7 +142,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
                             {!loaderData.isAuthenticated && (
                                 <li>
                                     <Link to="/login" className="flex gap-2">
-                                        <LockIcon className="h-6 w-6" />
+                                        <LockIcon
+                                            aria-hidden="true"
+                                            className="h-6 w-6"
+                                        />
                                         <strong className="font-bold">
                                             Login
                                         </strong>
@@ -141,48 +156,69 @@ export default function App({ loaderData }: Route.ComponentProps) {
                     </Container>
                 </nav>
             </header>
-            <main className="min-h-0 grow overflow-hidden">
+            <main
+                id="main-content"
+                tabIndex={-1}
+                className="min-h-0 grow overflow-hidden"
+            >
                 <Container className="grid h-full grid-cols-12 gap-4">
                     <Card className="col-span-3">
-                        <ul className="flex flex-col gap-4 p-4">
-                            <li>
-                                <NavLink to="/" className={navLinkClassName}>
-                                    <HomeIcon className="h-6 w-6" />
-                                    Home
-                                </NavLink>
-                            </li>
-                            {loaderData.isAuthenticated && (
-                                <>
-                                    <li>
-                                        <NavLink
-                                            to="/profile"
-                                            className={navLinkClassName}
-                                        >
-                                            <UserCircle2Icon className="h-6 w-6" />
-                                            Profile
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink
-                                            to="/chat"
-                                            className={navLinkClassName}
-                                        >
-                                            <MessageSquareIcon className="h-6 w-6" />
-                                            Chat
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink
-                                            to="/form"
-                                            className={navLinkClassName}
-                                        >
-                                            <FormIcon className="h-6 w-6" />
-                                            Form
-                                        </NavLink>
-                                    </li>
-                                </>
-                            )}
-                        </ul>
+                        <nav aria-label="Main navigation">
+                            <ul className="flex flex-col gap-4 p-4">
+                                <li>
+                                    <NavLink
+                                        to="/"
+                                        className={navLinkClassName}
+                                    >
+                                        <HomeIcon
+                                            aria-hidden="true"
+                                            className="h-6 w-6"
+                                        />
+                                        Home
+                                    </NavLink>
+                                </li>
+                                {loaderData.isAuthenticated && (
+                                    <>
+                                        <li>
+                                            <NavLink
+                                                to="/profile"
+                                                className={navLinkClassName}
+                                            >
+                                                <UserCircle2Icon
+                                                    aria-hidden="true"
+                                                    className="h-6 w-6"
+                                                />
+                                                Profile
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink
+                                                to="/chat"
+                                                className={navLinkClassName}
+                                            >
+                                                <MessageSquareIcon
+                                                    aria-hidden="true"
+                                                    className="h-6 w-6"
+                                                />
+                                                Chat
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink
+                                                to="/form"
+                                                className={navLinkClassName}
+                                            >
+                                                <FormIcon
+                                                    aria-hidden="true"
+                                                    className="h-6 w-6"
+                                                />
+                                                Form
+                                            </NavLink>
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        </nav>
                     </Card>
                     <Card className="col-span-9 overflow-hidden">
                         <Outlet />
@@ -217,7 +253,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     }
 
     return (
-        <main className="container mx-auto p-4 pt-16">
+        <main role="alert" className="container mx-auto p-4 pt-16">
             <h1>{message}</h1>
             <p>{details}</p>
             {stack && (
