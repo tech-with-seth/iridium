@@ -1,5 +1,6 @@
-import { useReducer } from 'react';
+import { useReducer, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { CircleXIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function Turnstile() {
     const navigate = useNavigate();
     const [isSignIn, toggleSignIn] = useReducer((s) => !s, true);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const {
         register,
@@ -29,6 +31,8 @@ export function Turnstile() {
     });
 
     const onSubmit = async (data: FormValues) => {
+        setFormError(null);
+
         if (!isSignIn && !data.name?.trim()) {
             setError('name', { message: 'Name is required' });
             return;
@@ -41,7 +45,8 @@ export function Turnstile() {
                 { email: data.email, password: data.password, callbackURL },
                 {
                     onSuccess: () => navigate('/profile'),
-                    onError: (ctx) => alert(ctx.error),
+                    onError: (ctx) =>
+                        setFormError(ctx.error.message ?? 'Sign in failed.'),
                 },
             );
         } else {
@@ -54,7 +59,10 @@ export function Turnstile() {
                 },
                 {
                     onSuccess: () => navigate('/profile'),
-                    onError: (ctx) => alert(ctx.error),
+                    onError: (ctx) =>
+                        setFormError(
+                            ctx.error.message ?? 'Registration failed.',
+                        ),
                 },
             );
         }
@@ -73,6 +81,12 @@ export function Turnstile() {
             />
             <div className="p-4">
                 <h2 className="mb-8 text-3xl font-bold">Authenticate</h2>
+                {formError && (
+                    <div role="alert" className="alert alert-error mb-4">
+                        <CircleXIcon aria-hidden="true" className="h-6 w-6" />
+                        <span>{formError}</span>
+                    </div>
+                )}
                 <div>
                     <div className="join mb-4">
                         <input
