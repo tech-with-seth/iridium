@@ -8,6 +8,6 @@
 }
 
 @plugin 'daisyui' {
-    themes: emerald --default;
+    themes: light --default;
     /* dark --prefersdark */
 }

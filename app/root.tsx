@@ -24,7 +24,6 @@ import { getUserFromSession } from '~/models/session.server';
 import type { Route } from './+types/root';
 import { Container } from './components/Container';
 import { Card } from './components/Card';
-import { cx } from 'cva.config';
 import { listItemClassName, navLinkClassName } from './shared';
 import { Drawer } from './components/Drawer';
 
@@ -138,20 +137,21 @@ function DrawerContent({
                                 method="POST"
                                 action="/logout"
                                 onSubmit={onClose}
+                                className={listItemClassName}
                             >
                                 <input
                                     type="hidden"
                                     name="intent"
                                     value="logout"
                                 />
+                                <LogOutIcon
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                />
                                 <button
                                     type="submit"
-                                    className={cx(listItemClassName, 'w-full')}
+                                    className="cursor-pointer"
                                 >
-                                    <LogOutIcon
-                                        aria-hidden="true"
-                                        className="h-6 w-6"
-                                    />
                                     Logout
                                 </button>
                             </Form>
@@ -347,7 +347,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
             <footer className="bg-base-300 mt-4 shrink-0 py-4">
                 <Container className="px-4">
                     <p className="text-base-content">
-                        Iridium is so hot right now
+                        Iridium. Go build. Be bold.
                     </p>
                 </Container>
             </footer>
