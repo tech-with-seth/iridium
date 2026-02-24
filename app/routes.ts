@@ -15,6 +15,7 @@ export default [
     ]),
     route('/form', 'routes/form.tsx'),
     route('/profile', 'routes/profile.tsx'),
+    route('/healthcheck', 'routes/healthcheck.ts'),
     ...prefix('/api', [
         route('/auth/*', 'routes/api-auth.ts'),
         route('/chat', 'routes/api-chat.ts'),
