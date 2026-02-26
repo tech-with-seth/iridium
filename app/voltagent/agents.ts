@@ -1,5 +1,6 @@
 import { Agent, Memory, createTool } from '@voltagent/core';
 import { PostgreSQLMemoryAdapter } from '@voltagent/postgres';
+import invariant from 'tiny-invariant';
 import { z } from 'zod';
 
 import type { Note } from '~/generated/prisma/client';
@@ -43,8 +44,10 @@ const createNoteTool = createTool({
     }),
     execute: async (args, options) => {
         const userId = options?.userId;
-        if (!userId) throw new Error('User not authenticated');
+        invariant(userId, 'User not authenticated');
+
         const note = await createNote({ ...args, userId });
+
         return serializeNote(note);
     },
 });
@@ -56,8 +59,10 @@ const listNotesTool = createTool({
     parameters: z.object({}),
     execute: async (_args, options) => {
         const userId = options?.userId;
-        if (!userId) throw new Error('User not authenticated');
+        invariant(userId, 'User not authenticated');
+
         const notes = await getNotesByUserId(userId);
+
         return { notes: notes.map(serializeNote) };
     },
 });
@@ -73,8 +78,10 @@ const searchNotesTool = createTool({
     }),
     execute: async (args, options) => {
         const userId = options?.userId;
-        if (!userId) throw new Error('User not authenticated');
+        invariant(userId, 'User not authenticated');
+
         const notes = await searchNotes({ userId, query: args.query });
+
         return { notes: notes.map(serializeNote) };
     },
 });
