@@ -74,7 +74,9 @@ function getThreadLabel(thread: {
             .map((p: { text: string }) => p.text)
             .join('');
 
-        return text.slice(0, 30) || 'New Thread';
+        return text.length > 30
+            ? `${text.slice(0, 30)}...`
+            : text || 'New Thread';
     } catch {
         return 'New Thread';
     }

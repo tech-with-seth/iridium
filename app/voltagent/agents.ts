@@ -52,7 +52,7 @@ const createNoteTool = createTool({
 const listNotesTool = createTool({
     name: 'list_notes',
     description:
-        "List all notes for the current user. Use when the user wants to see their notes.",
+        'List all notes for the current user. Use when the user wants to see their notes.',
     parameters: z.object({}),
     execute: async (_args, options) => {
         const userId = options?.userId;
@@ -69,9 +69,7 @@ const searchNotesTool = createTool({
     parameters: z.object({
         query: z
             .string()
-            .describe(
-                'Search term to match against note titles and content',
-            ),
+            .describe('Search term to match against note titles and content'),
     }),
     execute: async (args, options) => {
         const userId = options?.userId;
