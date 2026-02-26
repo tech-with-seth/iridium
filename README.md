@@ -48,6 +48,7 @@ DATABASE_URL="postgresql://..."
 OPENAI_API_KEY="sk-..."
 BETTER_AUTH_BASE_URL="http://localhost:5173"
 VITE_BETTER_AUTH_BASE_URL="http://localhost:5173"
+STRIPE_SECRET_KEY="sk_test_..."
 ```
 
 ### Database
@@ -87,13 +88,14 @@ prisma/
 
 ## Agent Tools
 
-The AI assistant (defined in `app/voltagent/agents.ts`) has three tools:
+The AI assistant (defined in `app/voltagent/agents.ts`) has four tools:
 
 | Tool | Description |
 | ------ | ------------- |
 | `create_note` | Saves a note with a title and content for the user |
 | `list_notes` | Lists all of the user's saved notes |
 | `search_notes` | Searches notes by keyword across titles and content |
+| `create_stripe_payment_link` | Creates a Stripe payment link for a one-time purchase |
 
 Tool invocations are rendered inline in the chat via `NoteToolPart`. Notes are browsable at `/notes`.
 
@@ -102,6 +104,7 @@ To add your own tools, follow the pattern in `agents.ts` — define a `createToo
 ## Troubleshooting
 
 - Chat/tool-calling duplicate provider item IDs (`fc_*`): see [`docs/chat-tool-calling.md`](docs/chat-tool-calling.md)
+- Stripe payment-link integration details and troubleshooting: see [`docs/stripe-integration.md`](docs/stripe-integration.md)
 
 ## Building for Production
 

@@ -6,7 +6,8 @@ export function Markdown({ children }: { children: string }) {
             components={{
                 // Open links in new tab
                 a: ({ children, href, ...props }) => (
-                    <a
+                    <a  
+                        className='link'
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
