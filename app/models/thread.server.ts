@@ -74,6 +74,7 @@ export async function saveChat({
                 content,
             },
             create: {
+                id: msg.id,
                 role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
                 content,
                 threadId: thread.id,

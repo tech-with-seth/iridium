@@ -18,6 +18,7 @@ import {
     MenuIcon,
     MessageSquareIcon,
     PentagonIcon,
+    StickyNoteIcon,
     UserCircle2Icon,
 } from 'lucide-react';
 import { getUserFromSession } from '~/models/session.server';
@@ -117,6 +118,19 @@ function DrawerContent({
                                     className="h-6 w-6"
                                 />
                                 Chat
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/notes"
+                                className={navLinkClassName}
+                                onClick={onClose}
+                            >
+                                <StickyNoteIcon
+                                    aria-hidden="true"
+                                    className="h-6 w-6"
+                                />
+                                Notes
                             </NavLink>
                         </li>
                         <li>
@@ -320,6 +334,18 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                                     className="h-6 w-6"
                                                 />
                                                 Chat
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink
+                                                to="/notes"
+                                                className={navLinkClassName}
+                                            >
+                                                <StickyNoteIcon
+                                                    aria-hidden="true"
+                                                    className="h-6 w-6"
+                                                />
+                                                Notes
                                             </NavLink>
                                         </li>
                                         <li>

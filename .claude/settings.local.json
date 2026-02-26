@@ -5,7 +5,8 @@
       "Bash(agent-browser open:*)",
       "Bash(agent-browser wait:*)",
       "Bash(agent-browser screenshot:*)",
-      "Bash(agent-browser eval:*)"
+      "Bash(agent-browser eval:*)",
+      "Bash(bunx prisma migrate dev --name add-note-model)"
     ]
   }
 }

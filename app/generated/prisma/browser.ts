@@ -47,3 +47,8 @@ export type Thread = Prisma.ThreadModel
  * 
  */
 export type Message = Prisma.MessageModel
+/**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel

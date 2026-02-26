@@ -24,6 +24,7 @@ model User {
     accounts      Account[]
     threads       Thread[]
     messages      Message[]
+    notes         Note[]
 
     @@unique([email])
     @@map("user")
@@ -113,4 +114,17 @@ enum MessageRole {
     USER
     ASSISTANT
     SYSTEM
+}
+
+model Note {
+    id        String   @id @default(cuid())
+    title     String
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@map("note")
 }

@@ -7,6 +7,8 @@
         'Noto Color Emoji';
 }
 
+@plugin '@tailwindcss/typography';
+
 @plugin 'daisyui' {
     themes: light --default;
     /* dark --prefersdark */
