@@ -365,7 +365,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                             </ul>
                         </nav>
                     </Card>
-                    <Card className="col-span-1 overflow-hidden md:col-span-8 lg:col-span-9">
+                    <Card className="col-span-1 min-h-0 overflow-y-auto md:col-span-8 lg:col-span-9">
                         <Outlet />
                     </Card>
                 </Container>
