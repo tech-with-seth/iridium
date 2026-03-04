@@ -15,8 +15,10 @@ import { Markdown } from '~/components/Markdown';
 import { NoteToolPart } from '~/components/NoteToolPart';
 import type { Route } from './+types/thread';
 import { getThreadById } from '~/models/thread.server';
+import { authMiddleware } from '~/middleware/auth';
+import { getUserFromSession } from '~/models/session.server';
 import invariant from 'tiny-invariant';
-import { isRouteErrorResponse, useRouteError } from 'react-router';
+import { data, isRouteErrorResponse, useRouteError } from 'react-router';
 import { useEffect, useRef, useState } from 'react';
 
 const transport = new DefaultChatTransport({
@@ -24,9 +26,18 @@ const transport = new DefaultChatTransport({
     credentials: 'include',
 });
 
-export async function loader({ params }: Route.LoaderArgs) {
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+    const user = await getUserFromSession(request);
+    invariant(user, 'User could not be found in session');
+
     const thread = await getThreadById(params.threadId);
     invariant(thread, 'Thread could not be found');
+
+    if (thread.createdById !== user.id) {
+        throw data('Forbidden', { status: 403 });
+    }
 
     const messages: UIMessage[] = thread.messages.map((msg) => ({
         id: msg.id,
@@ -47,7 +58,9 @@ interface ToolPart {
     state: string;
 }
 
-function isToolPart(part: { type: string }): part is ToolPart & { type: string } {
+function isToolPart(part: {
+    type: string;
+}): part is ToolPart & { type: string } {
     return part.type.startsWith('tool-') || part.type === 'dynamic-tool';
 }
 
@@ -152,8 +165,8 @@ export default function ThreadRoute({
                             .map((part) => part.text)
                             .join('');
 
-                        const toolParts = message.parts.filter(
-                            (part) => isToolPart(part),
+                        const toolParts = message.parts.filter((part) =>
+                            isToolPart(part),
                         ) as unknown as ToolPart[];
 
                         const content = (
@@ -170,7 +183,14 @@ export default function ThreadRoute({
                                             output={
                                                 part.state ===
                                                 'output-available'
-                                                    ? (part as unknown as { output: Record<string, unknown> }).output
+                                                    ? (
+                                                          part as unknown as {
+                                                              output: Record<
+                                                                  string,
+                                                                  unknown
+                                                              >;
+                                                          }
+                                                      ).output
                                                     : undefined
                                             }
                                         />
@@ -233,9 +253,7 @@ export default function ThreadRoute({
                 <button
                     className="btn btn-default"
                     onClick={stop}
-                    disabled={
-                        status !== 'streaming' && status !== 'submitted'
-                    }
+                    disabled={status !== 'streaming' && status !== 'submitted'}
                 >
                     <StopCircleIcon aria-hidden="true" className="h-6 w-6" />{' '}
                     Stop
