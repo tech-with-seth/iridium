@@ -163,7 +163,7 @@ export default function ThreadRoute({
                                     part.type === 'text' && 'text' in part,
                             )
                             .map((part) => part.text)
-                            .join('');
+                            .join('\n\n');
 
                         const toolParts = message.parts.filter((part) =>
                             isToolPart(part),
