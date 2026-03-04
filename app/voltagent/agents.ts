@@ -87,11 +87,11 @@ const searchNotesTool = createTool({
 });
 
 export const agent = new Agent({
-    name: 'Iridium',
+    name: 'Iris',
     instructions:
         'You are a helpful assistant. You can create, list, and search notes.',
 
-    model: 'openai/gpt-4o-mini',
+    model: 'anthropic/claude-3-haiku-20240307',
     tools: [createNoteTool, listNotesTool, searchNotesTool],
     memory,
 });
