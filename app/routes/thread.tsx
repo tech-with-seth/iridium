@@ -26,6 +26,33 @@ const transport = new DefaultChatTransport({
     credentials: 'include',
 });
 
+const PRESET_MESSAGES = [
+    {
+        label: 'Summarize',
+        value: 'Summarize our conversation so far as a concise bullet-point list.',
+    },
+    {
+        label: 'Explain',
+        value: 'Explain your last response in simpler terms and include a concrete real-world example.',
+    },
+    {
+        label: 'Pros & Cons',
+        value: 'Give me a structured pros and cons list for the main topic we have been discussing.',
+    },
+    {
+        label: 'Next Steps',
+        value: 'Based on everything we have discussed, what are the most important next steps I should take?',
+    },
+    {
+        label: 'My Notes',
+        value: 'List all of my saved notes and give me a brief summary of what each one contains.',
+    },
+    {
+        label: 'Save Note',
+        value: 'Create a note capturing the key insights and action items from our conversation so far.',
+    },
+];
+
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -233,39 +260,63 @@ export default function ThreadRoute({
                     </div>
                 )}
             </div>
-            <div className="rounded-box border-base-300 bg-base-100 flex items-center gap-2 border p-2">
-                <input
-                    id="chat-message-input"
-                    type="text"
-                    aria-label="Message"
-                    className="input rounded-field grow"
-                    placeholder="Your message here..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
+            <div className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap gap-1.5 px-1">
+                    {PRESET_MESSAGES.map(({ label, value }) => (
+                        <button
+                            key={label}
+                            type="button"
+                            className="btn btn-content rounded-box btn-xs"
+                            onClick={() => sendMessage({ text: value })}
+                            disabled={status !== 'ready'}
+                            title={value}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+                <div className="rounded-box border-base-300 bg-base-100 flex items-center gap-2 border p-2">
+                    <input
+                        id="chat-message-input"
+                        type="text"
+                        aria-label="Message"
+                        className="input rounded-field grow"
+                        placeholder="Your message here..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                        disabled={status !== 'ready'}
+                    />
+                    <button
+                        className="btn btn-default"
+                        onClick={stop}
+                        disabled={
+                            status !== 'streaming' && status !== 'submitted'
                         }
-                    }}
-                    disabled={status !== 'ready'}
-                />
-                <button
-                    className="btn btn-default"
-                    onClick={stop}
-                    disabled={status !== 'streaming' && status !== 'submitted'}
-                >
-                    <StopCircleIcon aria-hidden="true" className="h-6 w-6" />{' '}
-                    Stop
-                </button>
-                <button
-                    className="btn btn-secondary"
-                    onClick={handleSend}
-                    disabled={status !== 'ready'}
-                >
-                    <SendHorizonalIcon aria-hidden="true" className="h-6 w-6" />{' '}
-                    Send
-                </button>
+                    >
+                        <StopCircleIcon
+                            aria-hidden="true"
+                            className="h-6 w-6"
+                        />{' '}
+                        Stop
+                    </button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={handleSend}
+                        disabled={status !== 'ready'}
+                    >
+                        <SendHorizonalIcon
+                            aria-hidden="true"
+                            className="h-6 w-6"
+                        />{' '}
+                        Send
+                    </button>
+                </div>
             </div>
         </>
     );
