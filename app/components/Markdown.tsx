@@ -28,17 +28,25 @@ export function Markdown({ children }: { children: string }) {
                         {children}
                     </code>
                 ),
-                a: ({ children, href, ...props }) => (
-                    <a
-                        className="link"
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        {...props}
-                    >
-                        {children}
-                    </a>
-                ),
+                a: ({ children, href, ...props }) => {
+                    const isSafe =
+                        href &&
+                        /^https?:\/\//i.test(href);
+
+                    return isSafe ? (
+                        <a
+                            className="link"
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            {...props}
+                        >
+                            {children}
+                        </a>
+                    ) : (
+                        <span>{children}</span>
+                    );
+                },
                 hr: () => <hr className="border-base-content/20 my-4" />,
             }}
         >
