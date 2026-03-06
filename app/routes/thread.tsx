@@ -245,7 +245,10 @@ export default function ThreadRoute({
                                 )}
                                 {!textContent &&
                                     toolParts.length === 0 &&
-                                    !isUser && (
+                                    !isUser &&
+                                    status !== 'ready' &&
+                                    message ===
+                                        messages[messages.length - 1] && (
                                         <span
                                             role="status"
                                             aria-label="Loading response"
