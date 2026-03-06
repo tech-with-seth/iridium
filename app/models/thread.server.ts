@@ -27,6 +27,7 @@ export function getAllThreadsByUserId(userId: string) {
         include: {
             messages: {
                 orderBy: { createdAt: 'asc' },
+                take: 1,
             },
         },
         orderBy: { createdAt: 'desc' },
