@@ -2,6 +2,7 @@ import { createTool } from '@voltagent/core';
 import invariant from 'tiny-invariant';
 import z from 'zod';
 import type { Note } from '~/generated/prisma/browser';
+import { rateLimit } from '~/lib/rate-limit.server';
 import {
     createNote,
     getNotesByUserId,
@@ -22,12 +23,28 @@ export const createNoteTool = createTool({
     description:
         'Create a new note for the user. Use when the user asks to save, remember, or jot down something.',
     parameters: z.object({
-        title: z.string().describe('A short title for the note'),
-        content: z.string().describe('The body content of the note'),
+        title: z
+            .string()
+            .max(200, 'Title must be 200 characters or fewer')
+            .describe('A short title for the note'),
+        content: z
+            .string()
+            .max(10_000, 'Content must be 10,000 characters or fewer')
+            .describe('The body content of the note'),
     }),
     execute: async (args, options) => {
         const userId = options?.userId;
         invariant(userId, 'User not authenticated');
+
+        const { success } = rateLimit({
+            key: `note-create:${userId}`,
+            maxRequests: 10,
+            windowMs: 3_600_000, // 1 hour
+        });
+
+        if (!success) {
+            return { error: 'Rate limit exceeded. Try again later.' };
+        }
 
         const note = await createNote({ ...args, userId });
 
@@ -57,6 +74,7 @@ export const searchNotesTool = createTool({
     parameters: z.object({
         query: z
             .string()
+            .max(500, 'Search query must be 500 characters or fewer')
             .describe('Search term to match against note titles and content'),
     }),
     execute: async (args, options) => {

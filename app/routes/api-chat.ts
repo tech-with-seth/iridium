@@ -92,12 +92,12 @@ export async function action({ request }: Route.ActionArgs) {
                 `Generate a concise, descriptive title (max 6 words) for this conversation. The title should capture the main topic or question being discussed.\n\nConversation:\n${conversationContext}\n\nGenerate only the title, no quotes or extra text.`,
             );
 
-            const title = titleResult.text
+            const title = (titleResult?.text ?? '')
                 .trim()
                 .replace(/^["']|["']$/g, '')
                 .slice(0, 100);
 
-            if (thread) {
+            if (thread && title) {
                 await updateThreadTitle(threadId, title);
             }
         } catch {
@@ -145,8 +145,8 @@ export async function action({ request }: Route.ActionArgs) {
                     threadId,
                     userId: user.id,
                 });
-            } catch {
-                throw new Response('Failed to save chat', { status: 500 });
+            } catch (error) {
+                console.error('Failed to save chat:', error);
             }
         },
     });

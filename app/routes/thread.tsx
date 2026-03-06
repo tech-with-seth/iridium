@@ -66,13 +66,26 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         throw data('Forbidden', { status: 403 });
     }
 
-    const messages: UIMessage[] = thread.messages.map((msg) => ({
-        id: msg.id,
-        role: msg.role === 'USER' ? ('user' as const) : ('assistant' as const),
-        content: '',
-        parts: JSON.parse(msg.content),
-        createdAt: msg.createdAt,
-    }));
+    const messages: UIMessage[] = thread.messages.flatMap((msg) => {
+        let parts: UIMessage['parts'];
+        try {
+            parts = JSON.parse(msg.content);
+        } catch {
+            parts = [{ type: 'text' as const, text: msg.content }];
+        }
+
+        if (!Array.isArray(parts)) {
+            parts = [{ type: 'text' as const, text: msg.content }];
+        }
+
+        return {
+            id: msg.id,
+            role: msg.role === 'USER' ? ('user' as const) : ('assistant' as const),
+            content: '',
+            parts,
+            createdAt: msg.createdAt,
+        };
+    });
 
     return {
         thread: { ...thread, messages },

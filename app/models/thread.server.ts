@@ -61,15 +61,15 @@ export async function saveChat({
         throw new Error('Forbidden: thread does not belong to user');
     }
 
-    await prisma.thread.upsert({
-        where: { id: threadId },
-        update: {},
-        create: { id: threadId, createdById: userId, title: 'Untitled' },
-    });
+    const existingIds = new Set(thread.messages.map((m) => m.id));
 
-    const lastTwoMessages = messages.slice(-2);
+    // Always save the last 2 (latest exchange) plus any unsaved earlier messages.
+    const messagesToSave = messages.filter(
+        (msg, i) =>
+            i >= messages.length - 2 || !existingIds.has(msg.id),
+    );
 
-    for (const msg of lastTwoMessages) {
+    for (const msg of messagesToSave) {
         const content = JSON.stringify(msg.parts);
 
         await prisma.message.upsert({
