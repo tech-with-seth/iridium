@@ -1,5 +1,8 @@
 import prisma from '~/lib/prisma';
 
+const MAX_TITLE_LENGTH = 200;
+const MAX_CONTENT_LENGTH = 10_000;
+
 export function createNote({
     title,
     content,
@@ -10,7 +13,11 @@ export function createNote({
     userId: string;
 }) {
     return prisma.note.create({
-        data: { title, content, userId },
+        data: {
+            title: title.slice(0, MAX_TITLE_LENGTH),
+            content: content.slice(0, MAX_CONTENT_LENGTH),
+            userId,
+        },
     });
 }
 

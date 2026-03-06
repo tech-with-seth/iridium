@@ -12,17 +12,17 @@ import { agent, memory } from '~/voltagent';
 import type { Route } from './+types/chat';
 
 const uiMessagePartSchema = z.object({
-    type: z.string(),
+    type: z.string().max(50),
 });
 
 const uiMessageSchema = z.object({
-    id: z.string(),
+    id: z.string().max(128),
     role: z.enum(['system', 'user', 'assistant']),
-    parts: z.array(uiMessagePartSchema.passthrough()),
+    parts: z.array(uiMessagePartSchema.passthrough()).max(100),
 });
 
 const chatRequestSchema = z.object({
-    id: z.string().min(1),
+    id: z.string().min(1).max(128),
     messages: z.array(uiMessageSchema.passthrough()).max(500),
 });
 
