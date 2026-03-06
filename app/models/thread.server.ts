@@ -57,6 +57,10 @@ export async function saveChat({
 
     if (!thread) throw new Error('Thread not found');
 
+    if (thread.createdById !== userId) {
+        throw new Error('Forbidden: thread does not belong to user');
+    }
+
     await prisma.thread.upsert({
         where: { id: threadId },
         update: {},

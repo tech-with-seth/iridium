@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai';
 import z from 'zod';
 
+import { rateLimit } from '~/lib/rate-limit.server';
 import { getUserFromSession } from '~/models/session.server';
 import {
     getThreadById,
@@ -10,10 +11,20 @@ import {
 import { agent, memory } from '~/voltagent';
 import type { Route } from './+types/chat';
 
-interface UIMessagesRequestJson {
-    messages: UIMessage[];
-    id: string;
-}
+const uiMessagePartSchema = z.object({
+    type: z.string(),
+});
+
+const uiMessageSchema = z.object({
+    id: z.string(),
+    role: z.enum(['system', 'user', 'assistant']),
+    parts: z.array(uiMessagePartSchema.passthrough()),
+});
+
+const chatRequestSchema = z.object({
+    id: z.string().min(1),
+    messages: z.array(uiMessageSchema.passthrough()).max(500),
+});
 
 function isDuplicateOpenAIItemError(error: unknown): boolean {
     if (!(error instanceof Error)) return false;
@@ -25,14 +36,9 @@ export async function action({ request }: Route.ActionArgs) {
         return Response.json({ error: 'Method not allowed' }, { status: 405 });
     }
 
-    let parsed: UIMessagesRequestJson;
+    let parsed: z.infer<typeof chatRequestSchema>;
     try {
-        parsed = z
-            .object({
-                id: z.string().min(1),
-                messages: z.array(z.unknown()),
-            })
-            .parse(await request.json()) as UIMessagesRequestJson;
+        parsed = chatRequestSchema.parse(await request.json());
     } catch {
         return Response.json(
             { error: 'Invalid request body' },
@@ -40,14 +46,32 @@ export async function action({ request }: Route.ActionArgs) {
         );
     }
 
-    const { messages, id: threadId } = parsed;
+    const { messages: validatedMessages, id: threadId } = parsed;
+    const messages = validatedMessages as UIMessage[];
     const user = await getUserFromSession(request);
 
     if (!user) {
         return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { success: withinLimit } = rateLimit({
+        key: `chat:${user.id}`,
+        maxRequests: 20,
+        windowMs: 60_000,
+    });
+
+    if (!withinLimit) {
+        return Response.json(
+            { error: 'Too many requests. Please wait a moment.' },
+            { status: 429 },
+        );
+    }
+
     const thread = await getThreadById(threadId);
+
+    if (thread && thread.createdById !== user.id) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     // Auto-generate thread title after a few messages
     if (messages.length > 3 && (thread?.title === 'Untitled' || !thread)) {
