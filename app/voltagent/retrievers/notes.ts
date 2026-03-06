@@ -20,10 +20,17 @@ export class NotesRetriever extends BaseRetriever {
         const { userId } = options;
         if (!userId) return '';
 
-        const query =
-            typeof input === 'string'
-                ? input
-                : String((input.at(-1) as { content?: string })?.content ?? '');
+        let query: string;
+        if (typeof input === 'string') {
+            query = input;
+        } else {
+            const lastMessage = input.at(-1);
+            query = String(
+                (lastMessage && 'content' in lastMessage
+                    ? lastMessage.content
+                    : '') ?? '',
+            );
+        }
 
         if (!query.trim()) return '';
 

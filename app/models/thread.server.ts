@@ -11,22 +11,13 @@ export function createThread(createdById: string) {
     });
 }
 
-export function getAllThreads() {
-    return prisma.thread.findMany({
-        include: {
-            messages: {
-                orderBy: { createdAt: 'asc' },
-            },
-        },
-    });
-}
-
 export function getAllThreadsByUserId(userId: string) {
     return prisma.thread.findMany({
         where: { createdById: userId },
         include: {
             messages: {
                 orderBy: { createdAt: 'asc' },
+                take: 1,
             },
         },
         orderBy: { createdAt: 'desc' },

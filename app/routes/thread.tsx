@@ -92,10 +92,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     };
 }
 
+type ToolPartState = 'input-available' | 'input-streaming' | 'output-available';
+
 interface ToolPart {
     toolCallId: string;
     toolName: string;
-    state: string;
+    state: ToolPartState;
 }
 
 function isToolPart(part: {

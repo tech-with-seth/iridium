@@ -101,6 +101,7 @@ model Message {
     thread    Thread?     @relation(fields: [threadId], references: [id], onDelete: Cascade)
     user      User?       @relation(fields: [userId], references: [id])
 
+    @@index([threadId, createdAt])
     @@map("message")
 }
 
