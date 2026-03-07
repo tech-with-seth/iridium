@@ -1,5 +1,10 @@
 {
     "servers": {
+        "railway": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@railway/mcp-server"]
+        },
         "voltagent": {
             "command": "npx",
             "args": ["-y", "@voltagent/docs-mcp"],
