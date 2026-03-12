@@ -7,7 +7,7 @@ Full-stack AI chat app built with React Router v7, Better Auth, Prisma, and Verc
 - **Framework**: React Router v7 (SSR, `v8_middleware` future flag)
 - **Auth**: Better Auth with Prisma adapter, admin plugin (roles: USER, EDITOR, ADMIN)
 - **Database**: PostgreSQL via Prisma (schema at `prisma/schema.prisma`, client generated to `app/generated/prisma/`)
-- **AI**: Vercel AI SDK (`ai`, `@ai-sdk/openai`, `@ai-sdk/react`) — model: `gpt-4o-mini`
+- **AI**: Vercel AI SDK (`ai`, `@ai-sdk/react`), VoltAgent — model: `anthropic/claude-3-haiku-20240307`
 - **Styling**: Tailwind CSS v4 + DaisyUI v5, CVA with tailwind-merge
 - **Runtime**: Bun (local dev), Node 20 Alpine (Docker/prod)
 - **Validation**: Zod

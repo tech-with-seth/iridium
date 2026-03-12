@@ -21,7 +21,7 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 | UI | React 19, Tailwind CSS v4, DaisyUI v5 |
 | Database | PostgreSQL via Prisma ORM |
 | Auth | Better Auth |
-| AI | VoltAgent, Vercel AI SDK, OpenAI gpt-4o-mini |
+| AI | VoltAgent, Vercel AI SDK, Anthropic Claude |
 | Validation | Zod, React Hook Form |
 | Runtime | Bun (dev), Node 20 Alpine (production) |
 
@@ -31,7 +31,7 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 
 - [Bun](https://bun.sh/) installed
 - PostgreSQL database (local or hosted, e.g. [Railway](https://railway.com))
-- OpenAI API key
+- Anthropic API key
 
 ### Installation
 
@@ -101,7 +101,7 @@ To add your own tools, follow the pattern in `agents.ts` — define a `createToo
 
 ## Troubleshooting
 
-- Chat/tool-calling duplicate provider item IDs (`fc_*`): see [`docs/chat-tool-calling.md`](docs/chat-tool-calling.md)
+- Chat/tool-calling duplicate provider item IDs (`fc_*`): see [docs/chat-tool-calling.md](docs/chat-tool-calling.md)
 
 ## Building for Production
 

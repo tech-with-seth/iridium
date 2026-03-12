@@ -26,7 +26,7 @@ const chatRequestSchema = z.object({
     messages: z.array(uiMessageSchema.passthrough()).max(500),
 });
 
-function isDuplicateOpenAIItemError(error: unknown): boolean {
+function isDuplicateItemError(error: unknown): boolean {
     if (!(error instanceof Error)) return false;
     return /Duplicate item found with id/i.test(error.message);
 }
@@ -125,7 +125,7 @@ export async function action({ request }: Route.ActionArgs) {
             conversationId: threadId,
         });
     } catch (error) {
-        if (!isDuplicateOpenAIItemError(error)) throw error;
+        if (!isDuplicateItemError(error)) throw error;
 
         // Self-heal corrupted/stale provider item references in conversation memory.
         await memory.clearMessages(user.id, threadId);

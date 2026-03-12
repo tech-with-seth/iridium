@@ -1,14 +1,14 @@
 # Chat Tool-Calling Troubleshooting
 
-## Duplicate OpenAI item ID (`fc_*`) error
+## Duplicate provider item ID (`fc_*`) error
 
 ### Symptom
 
-`AI_APICallError: Duplicate item found with id fc_...` from the OpenAI Responses API.
+`AI_APICallError: Duplicate item found with id fc_...` from the provider API.
 
 ### Why this happens
 
-This occurs when a request payload contains duplicate provider item references in `input` (often from prior tool-call history/memory replay).
+This occurs when a request payload contains duplicate provider item references (often from prior tool-call history/memory replay).
 
 In this app, repeated tool-driven prompts in the same conversation (for example multiple `create_note` requests) can surface the issue if stale provider item IDs are replayed.
 
