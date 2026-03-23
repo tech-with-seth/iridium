@@ -1,36 +1,27 @@
-import { expect, test } from '@playwright/test';
-
-const TEST_USER = {
-    email: 'alice@iridium.dev',
-    password: 'password123',
-};
-
-async function login(
-    page: import('@playwright/test').Page,
-    email = TEST_USER.email,
-    password = TEST_USER.password,
-) {
-    await page.goto('/login');
-    await page.getByPlaceholder('name@example.com').fill(email);
-    await page.getByPlaceholder('Your password').fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await expect(
-        page.getByRole('heading', { name: 'Profile' }),
-    ).toBeVisible();
-}
+import { test, expect, TEST_USER } from './fixtures';
 
 test.describe('Login', () => {
     test('logs in with valid credentials and redirects to profile', async ({
         page,
     }) => {
-        await login(page);
+        await page.goto('/login');
+        await page
+            .getByPlaceholder('name@example.com')
+            .fill(TEST_USER.email);
+        await page
+            .getByPlaceholder('Your password')
+            .fill(TEST_USER.password);
+        await page.getByRole('button', { name: 'Login' }).click();
+
         await expect(page).toHaveURL(/\/profile/);
         await expect(page.getByText(TEST_USER.email)).toBeVisible();
     });
 
     test('shows error for invalid credentials', async ({ page }) => {
         await page.goto('/login');
-        await page.getByPlaceholder('name@example.com').fill(TEST_USER.email);
+        await page
+            .getByPlaceholder('name@example.com')
+            .fill(TEST_USER.email);
         await page
             .getByPlaceholder('Your password')
             .fill('wrongpassword');
@@ -125,9 +116,8 @@ test.describe('Registration', () => {
 });
 
 test.describe('Logout', () => {
-    test('logs out and redirects to login', async ({ page }) => {
-        await login(page);
-
+    test('logs out and redirects to login', async ({ authedPage: page }) => {
+        await page.goto('/');
         await page.getByRole('button', { name: 'Logout' }).click();
         await expect(
             page.getByRole('heading', { name: 'Authenticate' }),
@@ -151,8 +141,9 @@ test.describe('Auth-conditional navigation', () => {
         ).toBeVisible();
     });
 
-    test('shows logout button when authenticated', async ({ page }) => {
-        await login(page);
+    test('shows logout button when authenticated', async ({
+        authedPage: page,
+    }) => {
         await page.goto('/');
         await expect(
             page.getByRole('button', { name: 'Logout' }),
