@@ -3,27 +3,27 @@
   "workspaces": {
     "": {
       "dependencies": {
-        "@ai-sdk/react": "^3.0.99",
+        "@ai-sdk/react": "^3.0.136",
         "@hookform/resolvers": "^5.2.2",
         "@json-render/core": "^0.8.0",
         "@json-render/react": "^0.8.0",
-        "@prisma/adapter-pg": "^7.4.1",
-        "@prisma/client": "^7.4.1",
+        "@prisma/adapter-pg": "^7.5.0",
+        "@prisma/client": "^7.5.0",
         "@react-router/node": "7.12.0",
         "@react-router/serve": "7.12.0",
         "@tailwindcss/typography": "^0.5.19",
-        "@voltagent/core": "^2.6.1",
+        "@voltagent/core": "^2.6.12",
         "@voltagent/postgres": "^2.1.2",
-        "ai": "^6.0.97",
-        "better-auth": "^1.4.18",
+        "ai": "^6.0.134",
+        "better-auth": "^1.5.6",
         "cva": "^1.0.0-beta.4",
         "dotenv": "^17.3.1",
-        "isbot": "^5.1.31",
+        "isbot": "^5.1.36",
         "lucide-react": "^0.575.0",
-        "pg": "^8.18.0",
+        "pg": "^8.20.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
-        "react-hook-form": "^7.71.2",
+        "react-hook-form": "^7.72.0",
         "react-markdown": "^10.1.0",
         "react-router": "7.12.0",
         "tailwind-merge": "^3.5.0",
@@ -32,20 +32,21 @@
         "zod": "^4.3.6",
       },
       "devDependencies": {
+        "@playwright/test": "^1.58.2",
         "@react-router/dev": "7.12.0",
-        "@tailwindcss/vite": "^4.1.13",
-        "@types/node": "^22",
-        "@types/pg": "^8.16.0",
-        "@types/react": "^19.2.7",
+        "@tailwindcss/vite": "^4.2.2",
+        "@types/node": "^22.19.15",
+        "@types/pg": "^8.20.0",
+        "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "daisyui": "^5.5.19",
         "prettier": "^3.8.1",
         "prettier-plugin-tailwindcss": "^0.7.2",
-        "prisma": "^7.4.1",
-        "tailwindcss": "^4.1.13",
+        "prisma": "^7.5.0",
+        "tailwindcss": "^4.2.2",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.2",
-        "vite": "^7.1.7",
+        "typescript": "^5.9.3",
+        "vite": "^7.3.1",
         "vite-tsconfig-paths": "^5.1.4",
       },
     },
@@ -320,6 +321,8 @@
     "@opentelemetry/semantic-conventions": ["@opentelemetry/semantic-conventions@1.40.0", "", {}, "sha512-cifvXDhcqMwwTlTK04GBNeIe7yyo28Mfby85QXFe1Yk8nmi36Ab/5UQwptOx84SsoGNRg+EVSjwzfSZMy6pmlw=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
+
+    "@playwright/test": ["@playwright/test@1.58.2", "", { "dependencies": { "playwright": "1.58.2" }, "bin": { "playwright": "cli.js" } }, "sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA=="],
 
     "@prisma/adapter-pg": ["@prisma/adapter-pg@7.5.0", "", { "dependencies": { "@prisma/driver-adapter-utils": "7.5.0", "@types/pg": "8.11.11", "pg": "^8.16.3", "postgres-array": "3.0.4" } }, "sha512-EJx7OLULahcC3IjJgdx2qRDNCT+ToY2v66UkeETMCLhNOTgqVzRzYvOEphY7Zp0eHyzfkC33Edd/qqeadf9R4A=="],
 
@@ -1199,6 +1202,10 @@
 
     "pkg-types": ["pkg-types@2.3.0", "", { "dependencies": { "confbox": "^0.2.2", "exsolve": "^1.0.7", "pathe": "^2.0.3" } }, "sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig=="],
 
+    "playwright": ["playwright@1.58.2", "", { "dependencies": { "playwright-core": "1.58.2" }, "optionalDependencies": { "fsevents": "2.3.2" }, "bin": { "playwright": "cli.js" } }, "sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A=="],
+
+    "playwright-core": ["playwright-core@1.58.2", "", { "bin": { "playwright-core": "cli.js" } }, "sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg=="],
+
     "postcss": ["postcss@8.5.6", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
 
     "postcss-selector-parser": ["postcss-selector-parser@6.0.10", "", { "dependencies": { "cssesc": "^3.0.0", "util-deprecate": "^1.0.2" } }, "sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w=="],
@@ -1688,6 +1695,8 @@
     "pg-types/postgres-array": ["postgres-array@2.0.0", "", {}, "sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA=="],
 
     "pkg-types/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
+
+    "playwright/fsevents": ["fsevents@2.3.2", "", { "os": "darwin" }, "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="],
 
     "proper-lockfile/signal-exit": ["signal-exit@3.0.7", "", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
 

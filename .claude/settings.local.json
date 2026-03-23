@@ -8,7 +8,10 @@
       "Bash(agent-browser eval:*)",
       "Bash(bunx prisma migrate dev --name add-note-model)",
       "Bash(bun update:*)",
-      "Bash(find /Users/seth/repositories/iridium/.claude -o -name .cursorrules -o -name .github/copilot*)"
+      "Bash(find /Users/seth/repositories/iridium/.claude -o -name .cursorrules -o -name .github/copilot*)",
+      "Bash(grep -r useNavigation /Users/seth/repositories/iridium/app --include=*.tsx --include=*.ts)",
+      "Bash(grep -r \"loading\\\\|progress\" /Users/seth/repositories/iridium/node_modules/daisyui/components/*.css)",
+      "Bash(bun run:*)"
     ]
   }
 }

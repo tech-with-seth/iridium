@@ -8,6 +8,7 @@
         "seed": "bunx --bun prisma db seed",
         "start": "react-router-serve ./build/server/index.js",
         "studio": "bunx --bun prisma studio",
+        "test": "playwright test",
         "typecheck": "react-router typegen && tsc"
     },
     "dependencies": {
@@ -40,6 +41,7 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@playwright/test": "^1.58.2",
         "@react-router/dev": "7.12.0",
         "@tailwindcss/vite": "^4.2.2",
         "@types/node": "^22.19.15",
