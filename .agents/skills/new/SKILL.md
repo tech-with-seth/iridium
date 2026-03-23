@@ -142,6 +142,7 @@ Only use this section when NO project is linked (directly or via parent).
 ### Check User's Projects
 
 The output can be large. Run in a subagent and extract only:
+
 - Project `id` and `name`
 - Workspace `id` and `name`
 
@@ -258,10 +259,10 @@ Reference [monorepo.md](references/monorepo.md) for monorepo patterns.
 
 - Do NOT set root directory
 - Set custom build/start commands to filter the package:
-  - pnpm: `pnpm --filter <package> build`
-  - npm: `npm run build --workspace=packages/<package>`
-  - yarn: `yarn workspace <package> build`
-  - Turborepo: `turbo run build --filter=<package>`
+    - pnpm: `pnpm --filter <package> build`
+    - npm: `npm run build --workspace=packages/<package>`
+    - yarn: `yarn workspace <package> build`
+    - Turborepo: `turbo run build --filter=<package>`
 - Set watch paths to prevent unnecessary rebuilds
 
 See [monorepo.md](references/monorepo.md) for detailed patterns.
@@ -321,6 +322,7 @@ npm create astro@latest
 For adding databases (Postgres, Redis, MySQL, MongoDB), use the `database` skill.
 
 The `database` skill handles:
+
 - Creating database services
 - Connection variable references
 - Wiring services to databases

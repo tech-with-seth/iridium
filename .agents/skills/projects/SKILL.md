@@ -83,32 +83,36 @@ SCRIPT
 
 ### ProjectUpdateInput Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | String | Project name |
-| `description` | String | Project description |
-| `isPublic` | Boolean | Make project public/private |
-| `prDeploys` | Boolean | Enable/disable PR deploys |
+| Field               | Type    | Description                                |
+| ------------------- | ------- | ------------------------------------------ |
+| `name`              | String  | Project name                               |
+| `description`       | String  | Project description                        |
+| `isPublic`          | Boolean | Make project public/private                |
+| `prDeploys`         | Boolean | Enable/disable PR deploys                  |
 | `botPrEnvironments` | Boolean | Enable Dependabot/Renovate PR environments |
 
 ### Examples
 
 **Rename project:**
+
 ```bash
 scripts/railway-api.sh '<mutation>' '{"id": "uuid", "input": {"name": "new-name"}}'
 ```
 
 **Enable PR deploys:**
+
 ```bash
 scripts/railway-api.sh '<mutation>' '{"id": "uuid", "input": {"prDeploys": true}}'
 ```
 
 **Make project public:**
+
 ```bash
 scripts/railway-api.sh '<mutation>' '{"id": "uuid", "input": {"isPublic": true}}'
 ```
 
 **Multiple fields:**
+
 ```bash
 scripts/railway-api.sh '<mutation>' '{"id": "uuid", "input": {"name": "new-name", "prDeploys": true}}'
 ```
@@ -122,21 +126,25 @@ scripts/railway-api.sh '<mutation>' '{"id": "uuid", "input": {"name": "new-name"
 ## Error Handling
 
 ### Not Authenticated
+
 ```
 Not authenticated. Run `railway login` first.
 ```
 
 ### No Projects
+
 ```
 No projects found. Create one with `railway init`.
 ```
 
 ### Permission Denied
+
 ```
 You don't have permission to modify this project. Check your Railway role.
 ```
 
 ### Project Not Found
+
 ```
 Project "foo" not found. Run `railway list` to see available projects.
 ```

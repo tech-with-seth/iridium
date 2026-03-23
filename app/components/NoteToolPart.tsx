@@ -66,14 +66,17 @@ export function NoteToolPart({ toolName, state, output }: NoteToolPartProps) {
                 (toolName === 'list_notes' || toolName === 'search_notes') &&
                 output && (
                     <ul className="mt-1 space-y-1">
-                        {(
-                            (output.notes as NoteOutput[] | undefined) ?? []
-                        ).map((note) => (
-                            <li key={note.id} className="text-xs opacity-80">
-                                <strong>{note.title}</strong> &mdash;{' '}
-                                {note.content.slice(0, 80)}
-                            </li>
-                        ))}
+                        {((output.notes as NoteOutput[] | undefined) ?? []).map(
+                            (note) => (
+                                <li
+                                    key={note.id}
+                                    className="text-xs opacity-80"
+                                >
+                                    <strong>{note.title}</strong> &mdash;{' '}
+                                    {note.content.slice(0, 80)}
+                                </li>
+                            ),
+                        )}
                     </ul>
                 )}
         </div>

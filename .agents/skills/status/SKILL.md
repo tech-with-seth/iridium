@@ -18,6 +18,7 @@ Check the current Railway project status for this directory.
 ## When NOT to Use
 
 Use the `environment` skill instead when user wants:
+
 - Detailed service configuration (builder type, dockerfile path, build command, root directory)
 - Deploy config (start command, restart policy, healthchecks, predeploy command)
 - Service source (repo, branch, image)
@@ -27,11 +28,13 @@ Use the `environment` skill instead when user wants:
 ## Check Status
 
 Run:
+
 ```bash
 railway status --json
 ```
 
 First verify CLI is installed:
+
 ```bash
 command -v railway
 ```
@@ -39,27 +42,35 @@ command -v railway
 ## Handling Errors
 
 ### CLI Not Installed
+
 If `command -v railway` fails:
 
 > Railway CLI is not installed. Install with:
+>
 > ```
 > npm install -g @railway/cli
 > ```
+>
 > or
+>
 > ```
 > brew install railway
 > ```
+>
 > Then authenticate: `railway login`
 
 ### Not Authenticated
+
 If `railway whoami` fails:
 
 > Not logged in to Railway. Run:
+>
 > ```
 > railway login
 > ```
 
 ### No Project Linked
+
 If status returns "No linked project":
 
 > No Railway project linked to this directory.
@@ -70,6 +81,7 @@ If status returns "No linked project":
 ## Presenting Status
 
 Parse the JSON and present:
+
 - **Project**: name and workspace
 - **Environment**: current environment (production, staging, etc.)
 - **Services**: list with deployment status
@@ -77,6 +89,7 @@ Parse the JSON and present:
 - **Domains**: any configured domains
 
 Example output format:
+
 ```
 Project: my-app (workspace: my-team)
 Environment: production

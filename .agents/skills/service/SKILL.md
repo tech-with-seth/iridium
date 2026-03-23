@@ -31,6 +31,7 @@ railway status --json
 ```
 
 Extract:
+
 - `project.id` - for creating the service
 - `environment.id` - for staging the instance config
 
@@ -38,23 +39,23 @@ Extract:
 
 ```graphql
 mutation serviceCreate($input: ServiceCreateInput!) {
-  serviceCreate(input: $input) {
-    id
-    name
-  }
+    serviceCreate(input: $input) {
+        id
+        name
+    }
 }
 ```
 
 ### ServiceCreateInput Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `projectId` | String! | Project ID (required) |
-| `name` | String | Service name (auto-generated if omitted) |
-| `source.image` | String | Docker image (e.g., `nginx:latest`) |
-| `source.repo` | String | GitHub repo (e.g., `user/repo`) |
-| `branch` | String | Git branch for repo source |
-| `environmentId` | String | If set and is a fork, only creates in that env |
+| Field           | Type    | Description                                    |
+| --------------- | ------- | ---------------------------------------------- |
+| `projectId`     | String! | Project ID (required)                          |
+| `name`          | String  | Service name (auto-generated if omitted)       |
+| `source.image`  | String  | Docker image (e.g., `nginx:latest`)            |
+| `source.repo`   | String  | GitHub repo (e.g., `user/repo`)                |
+| `branch`        | String  | Git branch for repo source                     |
+| `environmentId` | String  | If set and is a fork, only creates in that env |
 
 ### Example: Create empty service
 
@@ -85,6 +86,7 @@ SCRIPT
 **Do NOT use serviceCreate with source.repo** - use staged changes API instead.
 
 Flow:
+
 1. Create empty service: `serviceCreate(input: {projectId: "...", name: "my-service"})`
 2. Use `environment` skill to configure source via staged changes API
 3. Apply to trigger deployment
@@ -95,15 +97,15 @@ Use `environment` skill to configure the service instance:
 
 ```json
 {
-  "services": {
-    "<serviceId>": {
-      "isCreated": true,
-      "source": { "image": "nginx:latest" },
-      "variables": {
-        "PORT": { "value": "8080" }
-      }
+    "services": {
+        "<serviceId>": {
+            "isCreated": true,
+            "source": { "image": "nginx:latest" },
+            "variables": {
+                "PORT": { "value": "8080" }
+            }
+        }
     }
-  }
 }
 ```
 
@@ -130,6 +132,7 @@ railway deployment list --json --limit 5
 ### Present Status
 
 Show:
+
 - **Service**: name and current status
 - **Latest Deployment**: status (SUCCESS, FAILED, DEPLOYING, CRASHED, etc.)
 - **Deployed At**: when the current deployment went live
@@ -137,14 +140,14 @@ Show:
 
 ### Deployment Statuses
 
-| Status | Meaning |
-|--------|---------|
-| SUCCESS | Deployed and running |
-| FAILED | Build or deploy failed |
-| DEPLOYING | Currently deploying |
-| BUILDING | Build in progress |
-| CRASHED | Runtime crash |
-| REMOVED | Deployment removed |
+| Status    | Meaning                |
+| --------- | ---------------------- |
+| SUCCESS   | Deployed and running   |
+| FAILED    | Build or deploy failed |
+| DEPLOYING | Currently deploying    |
+| BUILDING  | Build in progress      |
+| CRASHED   | Runtime crash          |
+| REMOVED   | Deployment removed     |
 
 ## Update Service
 
@@ -174,11 +177,11 @@ SCRIPT
 
 Icons can be image URLs or animated GIFs.
 
-| Type | Example |
-|------|---------|
-| Image URL | `"icon": "https://example.com/logo.png"` |
-| Animated GIF | `"icon": "https://example.com/animated.gif"` |
-| Devicons | `"icon": "https://devicons.railway.app/github"` |
+| Type         | Example                                         |
+| ------------ | ----------------------------------------------- |
+| Image URL    | `"icon": "https://example.com/logo.png"`        |
+| Animated GIF | `"icon": "https://example.com/animated.gif"`    |
+| Devicons     | `"icon": "https://devicons.railway.app/github"` |
 
 **Railway Devicons:** Query `https://devicons.railway.app/{query}` for common developer icons (e.g., `github`, `postgres`, `redis`, `nodejs`). Browse all at https://devicons.railway.app
 
@@ -194,9 +197,9 @@ SCRIPT
 
 ### ServiceUpdateInput Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | String | Service name |
+| Field  | Type   | Description                                  |
+| ------ | ------ | -------------------------------------------- |
+| `name` | String | Service name                                 |
 | `icon` | String | Emoji or image URL (including animated GIFs) |
 
 ## Link Service
@@ -225,25 +228,31 @@ railway service link <service-name>
 ## Error Handling
 
 ### No Service Linked
+
 ```
 No service linked. Run `railway service link` to link a service.
 ```
 
 ### No Deployments
+
 ```
 Service exists but has no deployments yet. Deploy with `railway up`.
 ```
 
 ### Service Not Found
+
 ```
 Service "foo" not found. Check available services with `railway status`.
 ```
 
 ### Project Not Found
+
 User may not be in a linked project. Check `railway status`.
 
 ### Permission Denied
+
 User needs at least DEVELOPER role to create services.
 
 ### Invalid Image
+
 Docker image must be accessible (public or with registry credentials).

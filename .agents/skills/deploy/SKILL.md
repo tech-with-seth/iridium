@@ -24,6 +24,7 @@ railway up --detach -m "Add user authentication endpoint"
 ```
 
 Good commit messages:
+
 - Describe what changed: "Fix memory leak in worker process"
 - Reference tickets/issues: "Implement feature #123"
 - Be concise but meaningful: "Update deps and fix build warnings"
@@ -31,6 +32,7 @@ Good commit messages:
 ## Modes
 
 ### Detach Mode (default)
+
 Starts deploy and returns immediately. Use for most deploys.
 
 ```bash
@@ -38,6 +40,7 @@ railway up --detach -m "Deploy description here"
 ```
 
 ### CI Mode
+
 Streams build logs until complete. Use when user wants to watch the build or needs to debug issues.
 
 ```bash
@@ -45,6 +48,7 @@ railway up --ci -m "Deploy description here"
 ```
 
 **When to use CI mode:**
+
 - User says "deploy and watch", "deploy and fix issues"
 - User is debugging build failures
 - User wants to see build output
@@ -69,15 +73,15 @@ Requires both `--project` and `--environment` flags.
 
 ## CLI Options
 
-| Flag | Description |
-|------|-------------|
-| `-m, --message <MSG>` | Commit message describing the deploy (always use this) |
-| `-d, --detach` | Don't attach to logs (default) |
-| `-c, --ci` | Stream build logs, exit when done |
-| `-s, --service <NAME>` | Target service (defaults to linked) |
-| `-e, --environment <NAME>` | Target environment (defaults to linked) |
-| `-p, --project <ID>` | Target project (requires --environment) |
-| `[PATH]` | Path to deploy (defaults to current directory) |
+| Flag                       | Description                                            |
+| -------------------------- | ------------------------------------------------------ |
+| `-m, --message <MSG>`      | Commit message describing the deploy (always use this) |
+| `-d, --detach`             | Don't attach to logs (default)                         |
+| `-c, --ci`                 | Stream build logs, exit when done                      |
+| `-s, --service <NAME>`     | Target service (defaults to linked)                    |
+| `-e, --environment <NAME>` | Target environment (defaults to linked)                |
+| `-p, --project <ID>`       | Target project (requires --environment)                |
+| `[PATH]`                   | Path to deploy (defaults to current directory)         |
 
 ## Directory Linking
 
@@ -88,12 +92,15 @@ For subdirectory deployments, prefer setting `rootDirectory` via the environment
 ## After Deploy
 
 ### Detach mode
+
 ```
 Deploying to <service>...
 ```
+
 Use `deployment` skill to check build status (with `--lines` flag).
 
 ### CI mode
+
 Build logs stream inline. If build fails, the error will be in the output.
 
 **Do NOT run `railway logs --build` after CI mode** - the logs already streamed. If you need
@@ -109,20 +116,24 @@ more context, use `deployment` skill with `--lines` flag (never stream).
 ## Error Handling
 
 ### No Project Linked
+
 ```
 No Railway project linked. Run `railway link` first.
 ```
 
 ### No Service Linked
+
 ```
 No service linked. Use --service flag or run `railway service` to select one.
 ```
 
 ### Build Failure (CI mode)
+
 The build logs already streamed - analyze them directly from the `railway up --ci` output.
 Do NOT run `railway logs` after CI mode (it streams forever without `--lines`).
 
 Common issues:
+
 - Missing dependencies → check package.json/requirements.txt
 - Build command wrong → use environment skill to fix
 - Dockerfile issues → check dockerfile path

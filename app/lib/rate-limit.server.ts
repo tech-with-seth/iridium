@@ -29,7 +29,11 @@ function startCleanup(windowMs: number) {
     }, CLEANUP_INTERVAL_MS);
 
     // Allow the process to exit without waiting for this timer.
-    if (cleanupTimer && typeof cleanupTimer === 'object' && 'unref' in cleanupTimer) {
+    if (
+        cleanupTimer &&
+        typeof cleanupTimer === 'object' &&
+        'unref' in cleanupTimer
+    ) {
         cleanupTimer.unref();
     }
 }

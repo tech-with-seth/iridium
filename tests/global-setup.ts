@@ -5,8 +5,7 @@ const TEST_USERS = [
 ];
 
 export default async function globalSetup(config: FullConfig) {
-    const baseURL =
-        config.projects[0]?.use?.baseURL ?? 'http://localhost:5173';
+    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:5173';
 
     for (const user of TEST_USERS) {
         const res = await fetch(`${baseURL}/api/auth/sign-up/email`, {

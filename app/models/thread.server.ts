@@ -56,8 +56,7 @@ export async function saveChat({
 
     // Always save the last 2 (latest exchange) plus any unsaved earlier messages.
     const messagesToSave = messages.filter(
-        (msg, i) =>
-            i >= messages.length - 2 || !existingIds.has(msg.id),
+        (msg, i) => i >= messages.length - 2 || !existingIds.has(msg.id),
     );
 
     for (const msg of messagesToSave) {

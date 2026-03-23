@@ -28,41 +28,45 @@ Apply changes via CLI: `echo '<json>' | railway environment edit --json`
 ## Service Config
 
 ### Source
-| Field | Type | Description |
-|-------|------|-------------|
-| `image` | string | Docker image (e.g., `nginx:latest`) |
-| `repo` | string | Git repository URL |
-| `branch` | string | Git branch to deploy |
-| `commitSha` | string | Specific commit SHA |
-| `rootDirectory` | string | Root directory (monorepos) |
-| `checkSuites` | boolean | Wait for GitHub check suites |
+
+| Field              | Type                       | Description                          |
+| ------------------ | -------------------------- | ------------------------------------ |
+| `image`            | string                     | Docker image (e.g., `nginx:latest`)  |
+| `repo`             | string                     | Git repository URL                   |
+| `branch`           | string                     | Git branch to deploy                 |
+| `commitSha`        | string                     | Specific commit SHA                  |
+| `rootDirectory`    | string                     | Root directory (monorepos)           |
+| `checkSuites`      | boolean                    | Wait for GitHub check suites         |
 | `autoUpdates.type` | disabled \| patch \| minor | Auto-update policy for Docker images |
 
 ### Build
-| Field | Type | Description |
-|-------|------|-------------|
-| `builder` | NIXPACKS \| DOCKERFILE \| RAILPACK | Build system |
-| `buildCommand` | string | Command for Nixpacks builds |
-| `dockerfilePath` | string | Path to Dockerfile |
-| `watchPatterns` | string[] | Patterns to trigger deploys |
-| `nixpacksConfigPath` | string | Path to nixpacks config |
+
+| Field                | Type                               | Description                 |
+| -------------------- | ---------------------------------- | --------------------------- |
+| `builder`            | NIXPACKS \| DOCKERFILE \| RAILPACK | Build system                |
+| `buildCommand`       | string                             | Command for Nixpacks builds |
+| `dockerfilePath`     | string                             | Path to Dockerfile          |
+| `watchPatterns`      | string[]                           | Patterns to trigger deploys |
+| `nixpacksConfigPath` | string                             | Path to nixpacks config     |
 
 ### Deploy
-| Field | Type | Description |
-|-------|------|-------------|
-| `startCommand` | string | Container start command |
-| `multiRegionConfig` | object | Region → replica config. See [Multi-Region Config](#multi-region-config). |
-| `healthcheckPath` | string | Health check endpoint |
-| `healthcheckTimeout` | number | Seconds to wait for health |
-| `restartPolicyType` | ON_FAILURE \| ALWAYS \| NEVER | Restart behavior |
-| `restartPolicyMaxRetries` | number | Max restart attempts |
-| `cronSchedule` | string | Cron schedule for cron jobs |
-| `sleepApplication` | boolean | Sleep when inactive |
+
+| Field                     | Type                          | Description                                                               |
+| ------------------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| `startCommand`            | string                        | Container start command                                                   |
+| `multiRegionConfig`       | object                        | Region → replica config. See [Multi-Region Config](#multi-region-config). |
+| `healthcheckPath`         | string                        | Health check endpoint                                                     |
+| `healthcheckTimeout`      | number                        | Seconds to wait for health                                                |
+| `restartPolicyType`       | ON_FAILURE \| ALWAYS \| NEVER | Restart behavior                                                          |
+| `restartPolicyMaxRetries` | number                        | Max restart attempts                                                      |
+| `cronSchedule`            | string                        | Cron schedule for cron jobs                                               |
+| `sleepApplication`        | boolean                       | Sleep when inactive                                                       |
 
 ### Variables
-| Field | Type | Description |
-|-------|------|-------------|
-| `value` | string | Variable value |
+
+| Field        | Type    | Description       |
+| ------------ | ------- | ----------------- |
+| `value`      | string  | Variable value    |
 | `isOptional` | boolean | Allow empty value |
 
 Set to `null` to delete a variable.
@@ -70,10 +74,11 @@ Set to `null` to delete a variable.
 For variable references, see [variables.md](variables.md).
 
 ### Lifecycle
-| Field | Type | Description |
-|-------|------|-------------|
+
+| Field       | Type    | Description                        |
+| ----------- | ------- | ---------------------------------- |
 | `isDeleted` | boolean | Mark for deletion (requires ADMIN) |
-| `isCreated` | boolean | Mark as newly created |
+| `isCreated` | boolean | Mark as newly created              |
 
 ## Multi-Region Config
 
@@ -81,21 +86,21 @@ Controls replica count per region. Structure: region name → `{ numReplicas }` 
 
 ```json
 {
-  "multiRegionConfig": {
-    "us-west2": { "numReplicas": 3 },
-    "europe-west4-drams3a": { "numReplicas": 2 }
-  }
+    "multiRegionConfig": {
+        "us-west2": { "numReplicas": 3 },
+        "europe-west4-drams3a": { "numReplicas": 2 }
+    }
 }
 ```
 
 ### Available Regions
 
-| Name | Location | Aliases |
-|------|----------|---------|
-| `us-west2` | US West (California) | "us west", "california" |
-| `us-east4-eqdc4a` | US East (Virginia) | "us east", "virginia" |
-| `europe-west4-drams3a` | EU West (Amsterdam) | "europe", "eu", "amsterdam" |
-| `asia-southeast1-eqsg3a` | Southeast Asia (Singapore) | "asia", "singapore" |
+| Name                     | Location                   | Aliases                     |
+| ------------------------ | -------------------------- | --------------------------- |
+| `us-west2`               | US West (California)       | "us west", "california"     |
+| `us-east4-eqdc4a`        | US East (Virginia)         | "us east", "virginia"       |
+| `europe-west4-drams3a`   | EU West (Amsterdam)        | "europe", "eu", "amsterdam" |
+| `asia-southeast1-eqsg3a` | Southeast Asia (Singapore) | "asia", "singapore"         |
 
 ### Interpreting User Requests
 
@@ -109,75 +114,134 @@ Controls replica count per region. Structure: region name → `{ numReplicas }` 
 ## Common Operations
 
 ### Set Build Command
+
 ```json
-{ "services": { "<serviceId>": { "build": { "buildCommand": "npm run build" } } } }
+{
+    "services": {
+        "<serviceId>": { "build": { "buildCommand": "npm run build" } }
+    }
+}
 ```
 
 ### Set Start Command
+
 ```json
-{ "services": { "<serviceId>": { "deploy": { "startCommand": "node server.js" } } } }
+{
+    "services": {
+        "<serviceId>": { "deploy": { "startCommand": "node server.js" } }
+    }
+}
 ```
 
 ### Set Replicas
+
 ```json
-{ "services": { "<serviceId>": { "deploy": { "multiRegionConfig": { "us-west2": { "numReplicas": 3 } } } } } }
+{
+    "services": {
+        "<serviceId>": {
+            "deploy": {
+                "multiRegionConfig": { "us-west2": { "numReplicas": 3 } }
+            }
+        }
+    }
+}
 ```
 
 ### Add Variables
+
 ```json
-{ "services": { "<serviceId>": { "variables": { "API_KEY": { "value": "xxx" } } } } }
+{
+    "services": {
+        "<serviceId>": { "variables": { "API_KEY": { "value": "xxx" } } }
+    }
+}
 ```
 
 ### Delete Variable
+
 ```json
 { "services": { "<serviceId>": { "variables": { "OLD_VAR": null } } } }
 ```
+
 Via CLI: `echo '{"services":{"<serviceId>":{"variables":{"OLD_VAR":null}}}}' | railway environment edit --json`
 
 ### Add Shared Variable
+
 ```json
 { "sharedVariables": { "DATABASE_URL": { "value": "postgres://..." } } }
 ```
 
 ### Change Docker Image
+
 ```json
 { "services": { "<serviceId>": { "source": { "image": "nginx:latest" } } } }
 ```
 
 ### Connect GitHub Repo
+
 ```json
-{ "services": { "<serviceId>": { "source": { "repo": "owner/repo", "branch": "main" } } } }
+{
+    "services": {
+        "<serviceId>": { "source": { "repo": "owner/repo", "branch": "main" } }
+    }
+}
 ```
 
 ### Change Git Branch
+
 ```json
 { "services": { "<serviceId>": { "source": { "branch": "develop" } } } }
 ```
 
 ### Set Health Check
+
 ```json
-{ "services": { "<serviceId>": { "deploy": { "healthcheckPath": "/health", "healthcheckTimeout": 30 } } } }
+{
+    "services": {
+        "<serviceId>": {
+            "deploy": { "healthcheckPath": "/health", "healthcheckTimeout": 30 }
+        }
+    }
+}
 ```
 
 ### Change Builder
+
 ```json
-{ "services": { "<serviceId>": { "build": { "builder": "DOCKERFILE", "dockerfilePath": "./Dockerfile" } } } }
+{
+    "services": {
+        "<serviceId>": {
+            "build": {
+                "builder": "DOCKERFILE",
+                "dockerfilePath": "./Dockerfile"
+            }
+        }
+    }
+}
 ```
 
 ### Delete Service
+
 ```json
 { "services": { "<serviceId>": { "isDeleted": true } } }
 ```
+
 Via CLI: `echo '{"services":{"<serviceId>":{"isDeleted":true}}}' | railway environment edit --json`
 
 ### Delete Volume
+
 ```json
 { "volumes": { "<volumeId>": { "isDeleted": true } } }
 ```
 
 ### New Service Instance
+
 ```json
-{ "services": { "<serviceId>": { "isCreated": true, "source": { "image": "nginx" } } } }
+{
+    "services": {
+        "<serviceId>": { "isCreated": true, "source": { "image": "nginx" } }
+    }
+}
 ```
 
 **Note:** `isCreated: true` is required for new service instances.

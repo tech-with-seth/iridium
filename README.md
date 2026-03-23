@@ -15,15 +15,15 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 
 ## Tech Stack
 
-| Layer | Technology |
-| ------- | ----------- |
-| Framework | React Router v7 (SSR, config-based routing) |
-| UI | React 19, Tailwind CSS v4, DaisyUI v5 |
-| Database | PostgreSQL via Prisma ORM |
-| Auth | Better Auth |
-| AI | VoltAgent, Vercel AI SDK, Anthropic Claude |
-| Validation | Zod, React Hook Form |
-| Runtime | Bun (dev), Node 20 Alpine (production) |
+| Layer      | Technology                                  |
+| ---------- | ------------------------------------------- |
+| Framework  | React Router v7 (SSR, config-based routing) |
+| UI         | React 19, Tailwind CSS v4, DaisyUI v5       |
+| Database   | PostgreSQL via Prisma ORM                   |
+| Auth       | Better Auth                                 |
+| AI         | VoltAgent, Vercel AI SDK, Anthropic Claude  |
+| Validation | Zod, React Hook Form                        |
+| Runtime    | Bun (dev), Node 20 Alpine (production)      |
 
 ## Getting Started
 
@@ -89,10 +89,10 @@ prisma/
 
 The AI assistant (defined in `app/voltagent/agents.ts`) has three tools:
 
-| Tool | Description |
-| ------ | ------------- |
-| `create_note` | Saves a note with a title and content for the user |
-| `list_notes` | Lists all of the user's saved notes |
+| Tool           | Description                                         |
+| -------------- | --------------------------------------------------- |
+| `create_note`  | Saves a note with a title and content for the user  |
+| `list_notes`   | Lists all of the user's saved notes                 |
 | `search_notes` | Searches notes by keyword across titles and content |
 
 Tool invocations are rendered inline in the chat via `NoteToolPart`. Notes are browsable at `/notes`.
@@ -120,14 +120,14 @@ Deployable to Railway, Fly.io, AWS ECS, Google Cloud Run, or any Docker-compatib
 
 ## Routes
 
-| Route | Description |
-|-------|-------------|
-| `/` | Home — overview of what Iridium includes |
-| `/login` | Sign in or create an account |
-| `/chat` | AI chat with thread sidebar |
-| `/notes` | Browse saved notes |
-| `/profile` | User profile and role |
-| `/form` | Form validation example |
-| `/api/chat` | Chat API endpoint |
-| `/api/auth/*` | Auth API endpoints |
-| `/healthcheck` | Health status |
+| Route          | Description                              |
+| -------------- | ---------------------------------------- |
+| `/`            | Home — overview of what Iridium includes |
+| `/login`       | Sign in or create an account             |
+| `/chat`        | AI chat with thread sidebar              |
+| `/notes`       | Browse saved notes                       |
+| `/profile`     | User profile and role                    |
+| `/form`        | Form validation example                  |
+| `/api/chat`    | Chat API endpoint                        |
+| `/api/auth/*`  | Auth API endpoints                       |
+| `/healthcheck` | Health status                            |

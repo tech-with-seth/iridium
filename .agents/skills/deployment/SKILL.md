@@ -88,11 +88,13 @@ Formats: relative (`30s`, `5m`, `2h`, `1d`, `1w`) or ISO 8601 timestamps.
 ### Logs from Specific Deployment
 
 Deploy logs:
+
 ```bash
 railway logs <deployment-id> --lines 100 --json
 ```
 
 Build logs:
+
 ```bash
 railway logs --build <deployment-id> --lines 100 --json
 ```
@@ -110,6 +112,7 @@ railway redeploy --service <name> -y
 ```
 
 The `-y` flag skips confirmation. Useful when:
+
 - Config changed via environment skill
 - Need to restart without new code
 - Previous deploy succeeded but service misbehaving
@@ -145,54 +148,55 @@ This is what users mean when they say "remove deploy", "take down", or "stop the
 
 ### deployment list
 
-| Flag | Description |
-|------|-------------|
-| `-s, --service <NAME>` | Service name or ID |
-| `-e, --environment <NAME>` | Environment name or ID |
-| `--limit <N>` | Max deployments (default 20, max 1000) |
-| `--json` | JSON output |
+| Flag                       | Description                            |
+| -------------------------- | -------------------------------------- |
+| `-s, --service <NAME>`     | Service name or ID                     |
+| `-e, --environment <NAME>` | Environment name or ID                 |
+| `--limit <N>`              | Max deployments (default 20, max 1000) |
+| `--json`                   | JSON output                            |
 
 ### logs
 
-| Flag | Description |
-|------|-------------|
-| `-s, --service <NAME>` | Service name or ID |
-| `-e, --environment <NAME>` | Environment name or ID |
-| `-d, --deployment` | Show deploy logs (default, boolean flag) |
-| `-b, --build` | Show build logs (boolean flag) |
-| `-n, --lines <N>` | Number of lines (required) |
-| `-f, --filter <QUERY>` | Filter using query syntax |
-| `--since <TIME>` | Start time (relative or ISO 8601) |
-| `--until <TIME>` | End time (relative or ISO 8601) |
-| `--latest` | Most recent deployment (even if failed) |
-| `--json` | JSON output |
-| `[DEPLOYMENT_ID]` | Specific deployment (optional) |
+| Flag                       | Description                              |
+| -------------------------- | ---------------------------------------- |
+| `-s, --service <NAME>`     | Service name or ID                       |
+| `-e, --environment <NAME>` | Environment name or ID                   |
+| `-d, --deployment`         | Show deploy logs (default, boolean flag) |
+| `-b, --build`              | Show build logs (boolean flag)           |
+| `-n, --lines <N>`          | Number of lines (required)               |
+| `-f, --filter <QUERY>`     | Filter using query syntax                |
+| `--since <TIME>`           | Start time (relative or ISO 8601)        |
+| `--until <TIME>`           | End time (relative or ISO 8601)          |
+| `--latest`                 | Most recent deployment (even if failed)  |
+| `--json`                   | JSON output                              |
+| `[DEPLOYMENT_ID]`          | Specific deployment (optional)           |
 
 ### redeploy
 
-| Flag | Description |
-|------|-------------|
+| Flag                   | Description        |
+| ---------------------- | ------------------ |
 | `-s, --service <NAME>` | Service name or ID |
-| `-y, --yes` | Skip confirmation |
+| `-y, --yes`            | Skip confirmation  |
 
 ### restart
 
-| Flag | Description |
-|------|-------------|
+| Flag                   | Description        |
+| ---------------------- | ------------------ |
 | `-s, --service <NAME>` | Service name or ID |
-| `-y, --yes` | Skip confirmation |
+| `-y, --yes`            | Skip confirmation  |
 
 ### down
 
-| Flag | Description |
-|------|-------------|
-| `-s, --service <NAME>` | Service name or ID |
+| Flag                       | Description            |
+| -------------------------- | ---------------------- |
+| `-s, --service <NAME>`     | Service name or ID     |
 | `-e, --environment <NAME>` | Environment name or ID |
-| `-y, --yes` | Skip confirmation |
+| `-y, --yes`                | Skip confirmation      |
 
 ## Presenting Logs
 
 When showing logs:
+
 - Include timestamps
 - Highlight errors and warnings
 - For build failures: show error and suggest fixes
@@ -209,14 +213,17 @@ When showing logs:
 ## Error Handling
 
 ### No Service Linked
+
 ```
 No service linked. Run `railway service` to select one.
 ```
 
 ### No Deployments Found
+
 ```
 No deployments found. Deploy first with `railway up`.
 ```
 
 ### No Logs Found
+
 Deployment may be too old (log retention limits) or service hasn't produced output.

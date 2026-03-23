@@ -50,8 +50,8 @@ export default function Home() {
                     </li>
                     <li>
                         A browsable Notes page where users can see everything
-                        the agent has saved for them, completing the
-                        tool-to-UI vertical slice.
+                        the agent has saved for them, completing the tool-to-UI
+                        vertical slice.
                     </li>
                     <li>
                         Working memory powered by VoltAgent and PostgreSQL. The

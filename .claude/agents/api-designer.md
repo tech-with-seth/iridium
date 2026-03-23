@@ -69,7 +69,10 @@ export async function action({ request }: Route.ActionArgs) {
     try {
         parsed = requestSchema.parse(await request.json());
     } catch {
-        return Response.json({ error: 'Invalid request body' }, { status: 400 });
+        return Response.json(
+            { error: 'Invalid request body' },
+            { status: 400 },
+        );
     }
 
     // Auth check
@@ -159,7 +162,10 @@ export async function action({ request }: Route.ActionArgs) {
     try {
         parsed = schema.parse(await request.json());
     } catch {
-        return Response.json({ error: 'Invalid request body' }, { status: 400 });
+        return Response.json(
+            { error: 'Invalid request body' },
+            { status: 400 },
+        );
     }
     // ...
 }
@@ -245,9 +251,9 @@ if (user.role !== 'ADMIN') {
 import { rateLimit } from '~/lib/rate-limit.server';
 
 const { success } = rateLimit({
-    key: `action-name:${user.id}`,  // Scope to user + action
-    maxRequests: 20,                 // Max requests in window
-    windowMs: 60_000,                // Window in ms
+    key: `action-name:${user.id}`, // Scope to user + action
+    maxRequests: 20, // Max requests in window
+    windowMs: 60_000, // Window in ms
 });
 
 if (!success) {

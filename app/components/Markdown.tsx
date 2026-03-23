@@ -29,9 +29,7 @@ export function Markdown({ children }: { children: string }) {
                     </code>
                 ),
                 a: ({ children, href, ...props }) => {
-                    const isSafe =
-                        href &&
-                        /^https?:\/\//i.test(href);
+                    const isSafe = href && /^https?:\/\//i.test(href);
 
                     return isSafe ? (
                         <a

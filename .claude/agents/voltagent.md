@@ -33,7 +33,7 @@ z.object({
     name: z.string().optional(),
     preferences: z.array(z.string()).optional(),
     topics: z.array(z.string()).optional(),
-})
+});
 ```
 
 ## Tool Pattern
@@ -85,7 +85,11 @@ export const myTool = createTool({
 Retrievers follow `app/voltagent/retrievers/notes.ts`:
 
 ```ts
-import { BaseRetriever, type BaseMessage, type RetrieveOptions } from '@voltagent/core';
+import {
+    BaseRetriever,
+    type BaseMessage,
+    type RetrieveOptions,
+} from '@voltagent/core';
 
 export class MyRetriever extends BaseRetriever {
     constructor() {
@@ -95,7 +99,10 @@ export class MyRetriever extends BaseRetriever {
         });
     }
 
-    async retrieve(input: string | BaseMessage[], options: RetrieveOptions): Promise<string> {
+    async retrieve(
+        input: string | BaseMessage[],
+        options: RetrieveOptions,
+    ): Promise<string> {
         const { userId } = options;
         if (!userId) return '';
 
@@ -105,7 +112,11 @@ export class MyRetriever extends BaseRetriever {
             query = input;
         } else {
             const lastMessage = input.at(-1);
-            query = String((lastMessage && 'content' in lastMessage ? lastMessage.content : '') ?? '');
+            query = String(
+                (lastMessage && 'content' in lastMessage
+                    ? lastMessage.content
+                    : '') ?? '',
+            );
         }
         if (!query.trim()) return '';
 
@@ -138,8 +149,9 @@ const memory = new Memory({
     }),
     workingMemory: {
         enabled: true,
-        scope: 'user',        // persists across conversations for the same user
-        schema: z.object({    // Zod schema for structured working memory
+        scope: 'user', // persists across conversations for the same user
+        schema: z.object({
+            // Zod schema for structured working memory
             // fields here
         }),
     },

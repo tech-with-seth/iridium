@@ -1,90 +1,90 @@
 {
-  "version": 1,
-  "skills": {
-    "agent-browser": {
-      "source": "vercel-labs/agent-browser",
-      "sourceType": "github",
-      "computedHash": "35478d4b0a33b3f98e22b7b4f3fe2d2919ebe72a6ca24b3a7175a9b17cc2788d"
-    },
-    "ai-sdk": {
-      "source": "vercel/ai",
-      "sourceType": "github",
-      "computedHash": "58ce68f628890c3925aea2b5435a649251ac182057541045c68fc19a27aaa0ec"
-    },
-    "better-auth-best-practices": {
-      "source": "better-auth/skills",
-      "sourceType": "github",
-      "computedHash": "a24359053259e55a75972cab4bf0b0e37e1393bac5f3756ec2e3a7b4b3778d2a"
-    },
-    "create-voltagent": {
-      "source": "VoltAgent/skills",
-      "sourceType": "github",
-      "computedHash": "fd2fc9877afada74de4387c95d74ae7c0ee90723d8f78c2e16730272b5c6a29c"
-    },
-    "database": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "85759876da4bc29e150835761d5af0609cdb0ca0bbae0a7f54abe2b20b5fcb42"
-    },
-    "deploy": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "82c4085815984ac96c18f71b612ff6680c9bd8f456dc2382b36eaf75fe27f0be"
-    },
-    "deployment": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "4509247f63d402683cd073ecb87df0c89fae5e480b1c26bc0ed0a8418f87726d"
-    },
-    "email-and-password-best-practices": {
-      "source": "better-auth/skills",
-      "sourceType": "github",
-      "computedHash": "9105cc29a462e8d07da45bbdbc90c3a60be3ba32fbd9d99d49944f5b971f8f96"
-    },
-    "frontend-design": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
-    },
-    "new": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "624f0bad501a653594059d1ae11c47a6cf7eb4ac2310ba7d8a12dd0ca42229c5"
-    },
-    "projects": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "757c68338bacd41030bd69d0b43b32a431ad448955f9d7f3ad35b1aaa4af1747"
-    },
-    "railway-docs": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "6846e1c39d0bcb6d4fd37b7a42e316f5dabf6472d927e0495a44afd2f4ff5c3d"
-    },
-    "react-router-framework-mode": {
-      "source": "remix-run/agent-skills",
-      "sourceType": "github",
-      "computedHash": "26c5bdac2f686c47eb4c4b48b6cb52401cde1dc833e6d26408ddfb22ea83c5ca"
-    },
-    "service": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "5bf99547ead32b21ddbc940bf93c1173bccc08533b25c49ce0fb407a54c463d3"
-    },
-    "status": {
-      "source": "railwayapp/railway-skills",
-      "sourceType": "github",
-      "computedHash": "a93ddca762369d6635051e87982cd95970ca49ef206214e46629e96ed8ac6da9"
-    },
-    "voltagent-best-practices": {
-      "source": "VoltAgent/skills",
-      "sourceType": "github",
-      "computedHash": "bae60c5ed59943c3641a6be41c29497e34a2355cbee05985fba465b92263ea53"
-    },
-    "voltagent-docs-bundle": {
-      "source": "VoltAgent/skills",
-      "sourceType": "github",
-      "computedHash": "6e59f523ae46b69571cda2d68f72de4e770824c1eee5025288a13f6dd36ebee3"
+    "version": 1,
+    "skills": {
+        "agent-browser": {
+            "source": "vercel-labs/agent-browser",
+            "sourceType": "github",
+            "computedHash": "35478d4b0a33b3f98e22b7b4f3fe2d2919ebe72a6ca24b3a7175a9b17cc2788d"
+        },
+        "ai-sdk": {
+            "source": "vercel/ai",
+            "sourceType": "github",
+            "computedHash": "58ce68f628890c3925aea2b5435a649251ac182057541045c68fc19a27aaa0ec"
+        },
+        "better-auth-best-practices": {
+            "source": "better-auth/skills",
+            "sourceType": "github",
+            "computedHash": "a24359053259e55a75972cab4bf0b0e37e1393bac5f3756ec2e3a7b4b3778d2a"
+        },
+        "create-voltagent": {
+            "source": "VoltAgent/skills",
+            "sourceType": "github",
+            "computedHash": "fd2fc9877afada74de4387c95d74ae7c0ee90723d8f78c2e16730272b5c6a29c"
+        },
+        "database": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "85759876da4bc29e150835761d5af0609cdb0ca0bbae0a7f54abe2b20b5fcb42"
+        },
+        "deploy": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "82c4085815984ac96c18f71b612ff6680c9bd8f456dc2382b36eaf75fe27f0be"
+        },
+        "deployment": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "4509247f63d402683cd073ecb87df0c89fae5e480b1c26bc0ed0a8418f87726d"
+        },
+        "email-and-password-best-practices": {
+            "source": "better-auth/skills",
+            "sourceType": "github",
+            "computedHash": "9105cc29a462e8d07da45bbdbc90c3a60be3ba32fbd9d99d49944f5b971f8f96"
+        },
+        "frontend-design": {
+            "source": "anthropics/skills",
+            "sourceType": "github",
+            "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+        },
+        "new": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "624f0bad501a653594059d1ae11c47a6cf7eb4ac2310ba7d8a12dd0ca42229c5"
+        },
+        "projects": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "757c68338bacd41030bd69d0b43b32a431ad448955f9d7f3ad35b1aaa4af1747"
+        },
+        "railway-docs": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "6846e1c39d0bcb6d4fd37b7a42e316f5dabf6472d927e0495a44afd2f4ff5c3d"
+        },
+        "react-router-framework-mode": {
+            "source": "remix-run/agent-skills",
+            "sourceType": "github",
+            "computedHash": "26c5bdac2f686c47eb4c4b48b6cb52401cde1dc833e6d26408ddfb22ea83c5ca"
+        },
+        "service": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "5bf99547ead32b21ddbc940bf93c1173bccc08533b25c49ce0fb407a54c463d3"
+        },
+        "status": {
+            "source": "railwayapp/railway-skills",
+            "sourceType": "github",
+            "computedHash": "a93ddca762369d6635051e87982cd95970ca49ef206214e46629e96ed8ac6da9"
+        },
+        "voltagent-best-practices": {
+            "source": "VoltAgent/skills",
+            "sourceType": "github",
+            "computedHash": "bae60c5ed59943c3641a6be41c29497e34a2355cbee05985fba465b92263ea53"
+        },
+        "voltagent-docs-bundle": {
+            "source": "VoltAgent/skills",
+            "sourceType": "github",
+            "computedHash": "6e59f523ae46b69571cda2d68f72de4e770824c1eee5025288a13f6dd36ebee3"
+        }
     }
-  }
 }

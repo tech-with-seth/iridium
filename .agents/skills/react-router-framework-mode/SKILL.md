@@ -72,10 +72,10 @@ These are the most important patterns to follow. Load the relevant reference for
 
 ```tsx
 const fetcher = useFetcher();
-const optimistic = fetcher.formData?.get("favorite") === "true" ?? isFavorite;
+const optimistic = fetcher.formData?.get('favorite') === 'true' ?? isFavorite;
 
 <fetcher.Form method="post" action={`/favorites/${id}`}>
-  <button>{optimistic ? "★" : "☆"}</button>
+    <button>{optimistic ? '★' : '☆'}</button>
 </fetcher.Form>;
 ```
 
@@ -88,13 +88,13 @@ See `references/actions.md` for complete patterns.
 ```tsx
 // app/root.tsx - add navigation, footer, providers here
 export default function App() {
-  return (
-    <div>
-      <nav>...</nav>
-      <Outlet />
-      <footer>...</footer>
-    </div>
-  );
+    return (
+        <div>
+            <nav>...</nav>
+            <Outlet />
+            <footer>...</footer>
+        </div>
+    );
 }
 ```
 

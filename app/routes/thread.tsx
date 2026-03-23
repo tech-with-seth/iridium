@@ -80,7 +80,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
         return {
             id: msg.id,
-            role: msg.role === 'USER' ? ('user' as const) : ('assistant' as const),
+            role:
+                msg.role === 'USER'
+                    ? ('user' as const)
+                    : ('assistant' as const),
             content: '',
             parts,
             createdAt: msg.createdAt,

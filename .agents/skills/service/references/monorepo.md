@@ -4,9 +4,9 @@ Railway supports two types of monorepo deployments with different configuration 
 
 ## Key Decision: Root Directory vs Custom Commands
 
-| Approach | When to Use | What Happens |
-|----------|-------------|--------------|
-| **Root Directory** | Isolated apps (no shared code) | Only that directory's code is available |
+| Approach            | When to Use                               | What Happens                               |
+| ------------------- | ----------------------------------------- | ------------------------------------------ |
+| **Root Directory**  | Isolated apps (no shared code)            | Only that directory's code is available    |
 | **Custom Commands** | Shared monorepos (TypeScript, workspaces) | Full repo available, filter at build/start |
 
 **Critical:** Setting root directory means code outside that directory is NOT available during build. For monorepos with shared packages, use custom commands instead.
@@ -27,6 +27,7 @@ Apps are completely independent - no shared code between directories.
 ### Configuration
 
 Set **Root Directory** for each service:
+
 - Frontend service: `/frontend`
 - Backend service: `/backend`
 
@@ -63,30 +64,35 @@ Apps share code from common packages or the root.
 Do NOT set root directory. Instead, use custom build and start commands:
 
 **pnpm:**
+
 ```
 Build: pnpm --filter backend build
 Start: pnpm --filter backend start
 ```
 
 **npm workspaces:**
+
 ```
 Build: npm run build --workspace=packages/backend
 Start: npm run start --workspace=packages/backend
 ```
 
 **yarn workspaces:**
+
 ```
 Build: yarn workspace backend build
 Start: yarn workspace backend start
 ```
 
 **bun:**
+
 ```
 Build: bun run --filter backend build
 Start: bun run --filter backend start
 ```
 
 **Turborepo:**
+
 ```
 Build: turbo run build --filter=backend
 Start: turbo run start --filter=backend
@@ -106,16 +112,17 @@ Prevent changes in one package from triggering rebuilds of other services.
 
 Set watch paths for each service to only rebuild when relevant files change:
 
-| Service | Watch Paths |
-|---------|-------------|
+| Service  | Watch Paths                                    |
+| -------- | ---------------------------------------------- |
 | frontend | `/packages/frontend/**`, `/packages/shared/**` |
-| backend | `/packages/backend/**`, `/packages/shared/**` |
+| backend  | `/packages/backend/**`, `/packages/shared/**`  |
 
 Include shared packages in watch paths if the service depends on them.
 
 ### Pattern Format
 
 Uses gitignore-style patterns:
+
 ```
 /packages/backend/**     # All files in backend
 /packages/shared/**      # All files in shared (if depends on it)
@@ -129,10 +136,12 @@ Uses gitignore-style patterns:
 Two separate apps, no shared code.
 
 **Frontend service:**
+
 - Root Directory: `/frontend`
 - No custom commands needed (Railpack auto-detects)
 
 **Backend service:**
+
 - Root Directory: `/backend`
 - No custom commands needed
 
@@ -141,12 +150,14 @@ Two separate apps, no shared code.
 Frontend and backend share a `@myapp/shared` package.
 
 **Frontend service:**
+
 - Root Directory: (leave empty)
 - Build Command: `pnpm --filter frontend build`
 - Start Command: `pnpm --filter frontend start`
 - Watch Paths: `/packages/frontend/**`, `/packages/shared/**`
 
 **Backend service:**
+
 - Root Directory: (leave empty)
 - Build Command: `pnpm --filter backend build`
 - Start Command: `pnpm --filter backend start`
@@ -155,12 +166,14 @@ Frontend and backend share a `@myapp/shared` package.
 ### Shared: Turborepo
 
 **Frontend service:**
+
 - Root Directory: (leave empty)
 - Build Command: `turbo run build --filter=frontend`
 - Start Command: `turbo run start --filter=frontend`
 - Watch Paths: `/apps/frontend/**`, `/packages/**`
 
 **Backend service:**
+
 - Root Directory: (leave empty)
 - Build Command: `turbo run build --filter=backend`
 - Start Command: `turbo run start --filter=backend`
@@ -171,12 +184,15 @@ Frontend and backend share a `@myapp/shared` package.
 ### Using Root Directory for Shared Monorepos
 
 **Wrong:**
+
 ```
 Root Directory: /packages/backend
 ```
+
 This breaks builds because `@myapp/shared` isn't available.
 
 **Right:**
+
 ```
 Root Directory: (empty)
 Build Command: pnpm --filter backend build
@@ -192,6 +208,7 @@ Always set watch paths for monorepos to avoid unnecessary builds.
 ### Missing Shared Packages in Watch Paths
 
 If `backend` imports from `shared`, include both in watch paths:
+
 ```
 /packages/backend/**
 /packages/shared/**
@@ -204,11 +221,13 @@ Otherwise changes to `shared` won't trigger backend rebuilds.
 Check for these indicators:
 
 **Isolated monorepo:**
+
 - Separate package.json in each directory
 - No workspace config in root package.json
 - No imports between directories
 
 **Shared monorepo:**
+
 - Root package.json with `workspaces` field
 - `pnpm-workspace.yaml` exists
 - Packages import from each other (`@myapp/shared`)
