@@ -2,7 +2,7 @@ import { redirect } from 'react-router';
 import type { Route } from './+types/logout';
 import { auth } from '~/lib/auth.server';
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader(_: Route.LoaderArgs) {
     return redirect('/login');
 }
 

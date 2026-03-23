@@ -95,6 +95,7 @@ export function Turnstile() {
                             name="loginOptions"
                             aria-label="Login"
                             onChange={toggleSignIn}
+                            disabled={isSubmitting}
                             defaultChecked
                         />
                         <input
@@ -103,6 +104,7 @@ export function Turnstile() {
                             name="loginOptions"
                             aria-label="Register"
                             onChange={toggleSignIn}
+                            disabled={isSubmitting}
                         />
                     </div>
                     <form
@@ -110,7 +112,10 @@ export function Turnstile() {
                         className="space-y-4"
                     >
                         {!isSignIn && (
-                            <fieldset className="fieldset">
+                            <fieldset
+                                className="fieldset"
+                                disabled={isSubmitting}
+                            >
                                 <legend className="fieldset-legend">
                                     Name
                                 </legend>
@@ -133,7 +138,7 @@ export function Turnstile() {
                                 )}
                             </fieldset>
                         )}
-                        <fieldset className="fieldset">
+                        <fieldset className="fieldset" disabled={isSubmitting}>
                             <legend className="fieldset-legend">
                                 Email address
                             </legend>
@@ -155,7 +160,7 @@ export function Turnstile() {
                                 </p>
                             )}
                         </fieldset>
-                        <fieldset className="fieldset">
+                        <fieldset className="fieldset" disabled={isSubmitting}>
                             <legend className="fieldset-legend">
                                 Password
                             </legend>

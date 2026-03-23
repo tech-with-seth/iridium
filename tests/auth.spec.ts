@@ -5,12 +5,8 @@ test.describe('Login', () => {
         page,
     }) => {
         await page.goto('/login');
-        await page
-            .getByPlaceholder('name@example.com')
-            .fill(TEST_USER.email);
-        await page
-            .getByPlaceholder('Your password')
-            .fill(TEST_USER.password);
+        await page.getByPlaceholder('name@example.com').fill(TEST_USER.email);
+        await page.getByPlaceholder('Your password').fill(TEST_USER.password);
         await page.getByRole('button', { name: 'Login' }).click();
 
         await expect(page).toHaveURL(/\/profile/);
@@ -19,12 +15,8 @@ test.describe('Login', () => {
 
     test('shows error for invalid credentials', async ({ page }) => {
         await page.goto('/login');
-        await page
-            .getByPlaceholder('name@example.com')
-            .fill(TEST_USER.email);
-        await page
-            .getByPlaceholder('Your password')
-            .fill('wrongpassword');
+        await page.getByPlaceholder('name@example.com').fill(TEST_USER.email);
+        await page.getByPlaceholder('Your password').fill('wrongpassword');
         await page.getByRole('button', { name: 'Login' }).click();
         await expect(page.getByRole('alert')).toBeVisible();
         await expect(page.getByRole('alert')).toContainText(
@@ -45,9 +37,7 @@ test.describe('Login', () => {
 
     test('validates short password', async ({ page }) => {
         await page.goto('/login');
-        await page
-            .getByPlaceholder('name@example.com')
-            .fill('test@test.com');
+        await page.getByPlaceholder('name@example.com').fill('test@test.com');
         await page.getByPlaceholder('Your password').fill('short');
         await page.getByRole('button', { name: 'Login' }).click();
         await expect(
@@ -57,13 +47,9 @@ test.describe('Login', () => {
 });
 
 test.describe('Registration', () => {
-    test('switches to register mode and shows name field', async ({
-        page,
-    }) => {
+    test('switches to register mode and shows name field', async ({ page }) => {
         await page.goto('/login');
-        await expect(
-            page.getByPlaceholder('Your name'),
-        ).not.toBeVisible();
+        await expect(page.getByPlaceholder('Your name')).not.toBeVisible();
         await page.getByRole('radio', { name: 'Register' }).check();
         await expect(page.getByPlaceholder('Your name')).toBeVisible();
         await expect(
@@ -74,17 +60,13 @@ test.describe('Registration', () => {
     test('requires name when registering', async ({ page }) => {
         await page.goto('/login');
         await page.getByRole('radio', { name: 'Register' }).check();
-        await page
-            .getByPlaceholder('name@example.com')
-            .fill('new@test.com');
+        await page.getByPlaceholder('name@example.com').fill('new@test.com');
         await page.getByPlaceholder('Your password').fill('password123');
         await page.getByRole('button', { name: 'Register' }).click();
         await expect(page.getByText('Name is required')).toBeVisible();
     });
 
-    test('registers a new user and redirects to profile', async ({
-        page,
-    }) => {
+    test('registers a new user and redirects to profile', async ({ page }) => {
         const unique = `e2e-${Date.now()}@test.com`;
         await page.goto('/login');
         await page.getByRole('radio', { name: 'Register' }).check();
@@ -104,9 +86,7 @@ test.describe('Registration', () => {
         await page.goto('/login');
         await page.getByRole('radio', { name: 'Register' }).check();
         await page.getByPlaceholder('Your name').fill('Alice Dup');
-        await page
-            .getByPlaceholder('name@example.com')
-            .fill(TEST_USER.email);
+        await page.getByPlaceholder('name@example.com').fill(TEST_USER.email);
         await page.getByPlaceholder('Your password').fill('password123');
         await page.getByRole('button', { name: 'Register' }).click();
         await expect(page.getByRole('alert')).toBeVisible({
@@ -136,9 +116,7 @@ test.describe('Logout', () => {
 test.describe('Auth-conditional navigation', () => {
     test('shows login link when unauthenticated', async ({ page }) => {
         await page.goto('/');
-        await expect(
-            page.getByRole('link', { name: 'Login' }),
-        ).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
     });
 
     test('shows logout button when authenticated', async ({

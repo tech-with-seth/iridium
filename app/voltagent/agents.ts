@@ -3,10 +3,11 @@ import { PostgreSQLMemoryAdapter } from '@voltagent/postgres';
 import { z } from 'zod';
 import { createNoteTool, listNotesTool, searchNotesTool } from './tools/notes';
 import { NotesRetriever } from './retrievers/notes';
+import { env } from '~/lib/env.server';
 
 export const memory = new Memory({
     storage: new PostgreSQLMemoryAdapter({
-        connection: process.env.DATABASE_URL!,
+        connection: env.DATABASE_URL,
     }),
     workingMemory: {
         enabled: true,

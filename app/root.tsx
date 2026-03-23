@@ -1,4 +1,10 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import {
+    startTransition,
+    useEffect,
+    useReducer,
+    useRef,
+    useState,
+} from 'react';
 import {
     Form,
     isRouteErrorResponse,
@@ -198,7 +204,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
     useEffect(() => {
         if (navigationState !== 'idle') {
-            setShowLoading(true);
+            startTransition(() => setShowLoading(true));
             minDisplayUntil.current = Date.now() + 700;
         } else {
             const remaining = minDisplayUntil.current - Date.now();
@@ -209,7 +215,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
                 );
                 return () => clearTimeout(timeout);
             }
-            setShowLoading(false);
+            startTransition(() => setShowLoading(false));
         }
     }, [navigationState]);
 

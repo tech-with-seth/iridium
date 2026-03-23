@@ -118,9 +118,7 @@ test.describe('Chat', () => {
         await page.getByRole('button', { name: 'Send' }).click();
 
         // Both deltas should be concatenated
-        await expect(
-            page.getByText('first chunk second chunk'),
-        ).toBeVisible();
+        await expect(page.getByText('first chunk second chunk')).toBeVisible();
     });
 
     test('thread appears in the sidebar after creation', async ({
@@ -163,6 +161,11 @@ test.describe('Chat', () => {
         await firstThread
             .getByRole('button', { name: 'Delete thread' })
             .click();
+
+        // Confirm deletion in the dialog
+        const dialog = page.getByRole('dialog');
+        await expect(dialog).toBeVisible();
+        await dialog.getByRole('button', { name: 'Delete' }).click();
 
         // Should redirect to /chat and have one fewer thread
         await expect(page).toHaveURL(/\/chat$/);

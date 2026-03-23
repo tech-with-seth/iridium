@@ -5,11 +5,20 @@
     "scripts": {
         "build": "react-router build",
         "dev": "react-router dev",
-        "seed": "bunx --bun prisma db seed",
         "start": "react-router-serve ./build/server/index.js",
-        "studio": "bunx --bun prisma studio",
+        "typecheck": "react-router typegen && tsc",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "validate": "bun run typecheck && bun run lint && bun run format:check",
         "test": "playwright test",
-        "typecheck": "react-router typegen && tsc"
+        "db:generate": "bunx --bun prisma generate",
+        "db:migrate": "bunx --bun prisma migrate dev",
+        "db:push": "bunx --bun prisma db push",
+        "db:reset": "bunx --bun prisma migrate reset",
+        "db:seed": "bunx --bun prisma db seed",
+        "db:studio": "bunx --bun prisma studio",
+        "db:fresh": "bun run db:reset -- --force && bun run db:seed"
     },
     "dependencies": {
         "@ai-sdk/react": "^3.0.136",
@@ -41,6 +50,7 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@playwright/test": "^1.58.2",
         "@react-router/dev": "7.12.0",
         "@tailwindcss/vite": "^4.2.2",
@@ -49,12 +59,15 @@
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "daisyui": "^5.5.19",
+        "eslint": "^10.1.0",
+        "eslint-plugin-react-hooks": "^7.0.1",
         "prettier": "^3.8.1",
         "prettier-plugin-tailwindcss": "^0.7.2",
         "prisma": "^7.5.0",
         "tailwindcss": "^4.2.2",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
+        "typescript-eslint": "^8.57.1",
         "vite": "^7.3.1",
         "vite-tsconfig-paths": "^5.1.4"
     }

@@ -6,18 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Iridium is a full-stack AI chat application built with React Router v7 (SSR), Better Auth, Prisma/PostgreSQL, and Vercel AI SDK with VoltAgent.
 
-## Build & Dev Commands
+## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `bun install` | Install dependencies |
-| `bun run dev` | Start dev server (port 5173) |
-| `bun run build` | Production build |
-| `bun run typecheck` | Generate route types + run tsc |
-| `bun run seed` | Seed database with test users |
-| `bun run studio` | Open Prisma Studio GUI |
+| Command                | Purpose                              |
+| ---------------------- | ------------------------------------ |
+| `bun run dev`          | Start dev server (port 5173)         |
+| `bun run build`        | Production build                     |
+| `bun run typecheck`    | Generate route types + run tsc       |
+| `bun run lint`         | ESLint check                         |
+| `bun run format`       | Prettier write                       |
+| `bun run format:check` | Prettier check (no write)            |
+| `bun run validate`     | typecheck + lint + format:check      |
+| `bun run test`         | Run all Playwright E2E tests         |
+| `bun run db:migrate`   | Run Prisma migrations                |
+| `bun run db:seed`      | Seed database with test users        |
+| `bun run db:fresh`     | Reset DB + migrate + seed (one shot) |
+| `bun run db:studio`    | Open Prisma Studio GUI               |
+| `bun run db:push`      | Push schema without migration        |
+| `bun run db:generate`  | Regenerate Prisma client             |
+
+Run a single Playwright test: `bunx playwright test tests/auth.spec.ts --project=chromium`
 
 Prisma CLI: always use `bunx --bun prisma <command>` (not `npx`).
+
+## Local Setup
+
+```sh
+cp .env.example .env        # fill in BETTER_AUTH_SECRET and ANTHROPIC_API_KEY
+docker compose -f docker-compose.dev.yml up -d   # starts Postgres
+bun install
+bun run db:migrate
+bun run dev
+```
+
+Environment variables are validated at startup by `app/lib/env.server.ts` — missing or invalid vars produce clear error messages.
 
 ## Tech Stack
 
@@ -70,6 +92,14 @@ Agent tools are defined in `app/voltagent/tools/` (e.g., `create_note`, `list_no
 
 In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/min) and note creation (10/hour). Single-instance only — needs Redis for distributed setups.
 
+### Environment Validation
+
+`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`) with Zod at startup. Import `env` from this module instead of reading `process.env` directly in server code.
+
+### Testing
+
+Playwright E2E tests in `tests/`. Auth setup project runs first and saves `storageState` to `test-results/.auth/user.json` — all browser projects reuse this so tests don't re-login. Test fixtures in `tests/fixtures.ts` export `test` (with `authedPage` fixture), `expect`, and `TEST_USER`. Chat tests mock `/api/chat` with canned SSE responses (no AI service needed).
+
 ## Conventions
 
 ### Imports
@@ -93,7 +123,7 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Context & Shared Styles
 
-- `app/context.ts` — `userContext` via React Router's `createContext<User | null>`
+- `app/context.ts` — `userContext` via React Router's `createContext<SessionUser | null>`
 - `app/shared.ts` — shared className helpers (`listItemClassName`, `navLinkClassName`)
 
 ### Layout
@@ -102,4 +132,4 @@ Root layout in `app/root.tsx`: header nav → 3/9 grid (sidebar + content) → f
 
 ### Formatting
 
-Prettier with: 80 char width, 4-space tabs, single quotes, semicolons, tailwindcss plugin for class sorting.
+Prettier with: 80 char width, 4-space indentation, single quotes, semicolons, tailwindcss plugin for class sorting. ESLint with typescript-eslint and react-hooks plugin.

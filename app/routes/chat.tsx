@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
 import { listItemClassName, navLinkClassName } from '~/shared';
@@ -10,8 +11,8 @@ import {
 } from '~/models/thread.server';
 import { getUserFromSession } from '~/models/session.server';
 import invariant from 'tiny-invariant';
-import { Form, NavLink, Outlet, redirect } from 'react-router';
-import { PlusCircleIcon, Trash2Icon } from 'lucide-react';
+import { Form, NavLink, Outlet, redirect, useNavigation } from 'react-router';
+import { LoaderCircleIcon, PlusCircleIcon, Trash2Icon } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
@@ -40,7 +41,7 @@ export async function action({ request }: Route.ActionArgs) {
                 const thread = await createThread(user.id);
 
                 return redirect(thread?.id);
-            } catch (error) {
+            } catch {
                 throw new Response('Failed to create thread', { status: 500 });
             }
         }
@@ -83,6 +84,28 @@ function getThreadLabel(thread: {
 }
 
 export default function ChatRoute({ loaderData }: Route.ComponentProps) {
+    const navigation = useNavigation();
+    const dialogRef = useRef<HTMLDialogElement>(null);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+    const formData = navigation.formData;
+    const intent = formData?.get('intent');
+    const isCreating = navigation.state !== 'idle' && intent === 'new-thread';
+    const deletingThreadId =
+        navigation.state !== 'idle' && intent === 'delete-thread'
+            ? String(formData?.get('threadId'))
+            : null;
+
+    function openDeleteDialog(threadId: string) {
+        setPendingDeleteId(threadId);
+        dialogRef.current?.showModal();
+    }
+
+    function closeDeleteDialog() {
+        dialogRef.current?.close();
+        setPendingDeleteId(null);
+    }
+
     return (
         <>
             <title>Chat | Iridium</title>
@@ -94,11 +117,22 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                     </div>
                     <Form method="POST">
                         <input type="hidden" name="intent" value="new-thread" />
-                        <button className="btn btn-accent" type="submit">
-                            <PlusCircleIcon
-                                aria-hidden="true"
-                                className="mr-2 h-6 w-6"
-                            />
+                        <button
+                            className="btn btn-accent"
+                            type="submit"
+                            disabled={isCreating}
+                        >
+                            {isCreating ? (
+                                <LoaderCircleIcon
+                                    aria-hidden="true"
+                                    className="mr-2 h-6 w-6 animate-spin"
+                                />
+                            ) : (
+                                <PlusCircleIcon
+                                    aria-hidden="true"
+                                    className="mr-2 h-6 w-6"
+                                />
+                            )}
                             New Thread
                         </button>
                     </Form>
@@ -122,28 +156,25 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                                     {getThreadLabel(thread)}
                                                 </span>
                                             </NavLink>
-                                            <Form
-                                                method="POST"
-                                                className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                                            <button
+                                                type="button"
+                                                aria-label="Delete thread"
+                                                className="btn btn-ghost btn-xs text-error absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                                                disabled={
+                                                    deletingThreadId ===
+                                                    thread.id
+                                                }
+                                                onClick={() =>
+                                                    openDeleteDialog(thread.id)
+                                                }
                                             >
-                                                <input
-                                                    type="hidden"
-                                                    name="intent"
-                                                    value="delete-thread"
-                                                />
-                                                <input
-                                                    type="hidden"
-                                                    name="threadId"
-                                                    value={thread.id}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    aria-label="Delete thread"
-                                                    className="btn btn-ghost btn-xs text-error"
-                                                >
+                                                {deletingThreadId ===
+                                                thread.id ? (
+                                                    <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+                                                ) : (
                                                     <Trash2Icon className="h-4 w-4" />
-                                                </button>
-                                            </Form>
+                                                )}
+                                            </button>
                                         </li>
                                     ))
                                 ) : (
@@ -159,6 +190,47 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                     </div>
                 </div>
             </Container>
+
+            <dialog
+                ref={dialogRef}
+                className="modal"
+                onClose={() => setPendingDeleteId(null)}
+            >
+                <div className="modal-box">
+                    <h3 className="text-lg font-bold">Delete thread</h3>
+                    <p className="py-4">
+                        This will permanently delete this conversation and all
+                        its messages. This cannot be undone.
+                    </p>
+                    <div className="modal-action">
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={closeDeleteDialog}
+                        >
+                            Cancel
+                        </button>
+                        <Form method="POST" onSubmit={closeDeleteDialog}>
+                            <input
+                                type="hidden"
+                                name="intent"
+                                value="delete-thread"
+                            />
+                            <input
+                                type="hidden"
+                                name="threadId"
+                                value={pendingDeleteId ?? ''}
+                            />
+                            <button type="submit" className="btn btn-error">
+                                Delete
+                            </button>
+                        </Form>
+                    </div>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button type="submit">close</button>
+                </form>
+            </dialog>
         </>
     );
 }
