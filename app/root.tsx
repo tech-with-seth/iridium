@@ -1,4 +1,4 @@
-import { useReducer, type JSX } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import {
     Form,
     isRouteErrorResponse,
@@ -9,6 +9,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
+    useNavigation,
 } from 'react-router';
 import {
     FormIcon,
@@ -191,6 +192,26 @@ function DrawerContent({
 
 export default function App({ loaderData }: Route.ComponentProps) {
     const [isDrawerOpen, toggleDrawer] = useReducer((s) => !s, false);
+    const navigationState = useNavigation().state;
+    const [showLoading, setShowLoading] = useState(false);
+    const minDisplayUntil = useRef(0);
+
+    useEffect(() => {
+        if (navigationState !== 'idle') {
+            setShowLoading(true);
+            minDisplayUntil.current = Date.now() + 700;
+        } else {
+            const remaining = minDisplayUntil.current - Date.now();
+            if (remaining > 0) {
+                const timeout = setTimeout(
+                    () => setShowLoading(false),
+                    remaining,
+                );
+                return () => clearTimeout(timeout);
+            }
+            setShowLoading(false);
+        }
+    }, [navigationState]);
 
     return (
         <Drawer
@@ -232,6 +253,14 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                 </Link>
                             </li>
                         </ul>
+                        <div>
+                            <span
+                                role="status"
+                                aria-label="Loading"
+                                className={`loading loading-dots transition-opacity duration-300 ${showLoading ? 'opacity-100' : 'opacity-0'}`}
+                                aria-hidden={!showLoading}
+                            />
+                        </div>
                         <ul className="hidden gap-4 px-4 md:flex">
                             {loaderData.isAuthenticated && (
                                 <>
