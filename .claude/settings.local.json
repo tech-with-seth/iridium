@@ -6,7 +6,9 @@
       "Bash(agent-browser wait:*)",
       "Bash(agent-browser screenshot:*)",
       "Bash(agent-browser eval:*)",
-      "Bash(bunx prisma migrate dev --name add-note-model)"
+      "Bash(bunx prisma migrate dev --name add-note-model)",
+      "Bash(bun update:*)",
+      "Bash(find /Users/seth/repositories/iridium/.claude -o -name .cursorrules -o -name .github/copilot*)"
     ]
   }
 }
