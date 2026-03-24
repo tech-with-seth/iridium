@@ -28,7 +28,7 @@ export default function NotesRoute({ loaderData }: Route.ComponentProps) {
                 name="description"
                 content="View and manage your saved notes."
             />
-            <div className="h-full overflow-y-auto">
+            <div className="min-h-0 grow overflow-y-auto">
                 <Container className="p-4">
                     <h1 className="mb-8 text-4xl font-bold">Notes</h1>
                     {notes.length > 0 ? (

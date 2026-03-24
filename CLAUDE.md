@@ -17,7 +17,9 @@ Iridium is a full-stack AI chat application built with React Router v7 (SSR), Be
 | `bun run format`       | Prettier write                       |
 | `bun run format:check` | Prettier check (no write)            |
 | `bun run validate`     | typecheck + lint + format:check      |
-| `bun run test`         | Run all Playwright E2E tests         |
+| `bun run test`         | Run Vitest unit tests                |
+| `bun run test:watch`   | Run Vitest in watch mode             |
+| `bun run test:e2e`     | Run all Playwright E2E tests         |
 | `bun run db:migrate`   | Run Prisma migrations                |
 | `bun run db:seed`      | Seed database with test users        |
 | `bun run db:fresh`     | Reset DB + migrate + seed (one shot) |
@@ -86,7 +88,7 @@ Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrapper
 4. `UIMessage.parts` are serialized as JSON string in the `content` DB column
 5. On completion, `saveChat()` upserts messages to the database
 
-Agent tools are defined in `app/voltagent/tools/` (e.g., `create_note`, `list_notes`, `search_notes`).
+Agent tools are defined in `app/voltagent/tools/` (e.g., `create_note`, `list_notes`, `search_notes`, `render_card`). The `render_card` tool demonstrates VoltAgent's tool-driven generative UI pattern -- the agent returns structured data and `CardToolPart` renders it as a rich visual card.
 
 ### Rate Limiting
 
@@ -98,7 +100,9 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Testing
 
-Playwright E2E tests in `tests/`. Auth setup project runs first and saves `storageState` to `test-results/.auth/user.json` — all browser projects reuse this so tests don't re-login. Test fixtures in `tests/fixtures.ts` export `test` (with `authedPage` fixture), `expect`, and `TEST_USER`. Chat tests mock `/api/chat` with canned SSE responses (no AI service needed).
+**Unit tests** use Vitest (`bun run test`). Test files live alongside source files as `*.test.ts`. Modules that import server-side dependencies (auth, Prisma) need `vi.mock()` to avoid env validation side effects.
+
+**E2E tests** use Playwright (`bun run test:e2e`) in `tests/`. Auth setup project runs first and saves `storageState` to `test-results/.auth/user.json` -- all browser projects reuse this so tests don't re-login. Test fixtures in `tests/fixtures.ts` export `test` (with `authedPage` fixture), `expect`, and `TEST_USER`. Chat tests mock `/api/chat` with canned SSE responses (no AI service needed).
 
 ## Conventions
 

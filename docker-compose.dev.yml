@@ -15,5 +15,22 @@ services:
             timeout: 3s
             retries: 5
 
+    postgres-voltagent:
+        image: postgres:16-alpine
+        ports:
+            - '5433:5432'
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: voltagent
+        volumes:
+            - pgdata_voltagent:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            interval: 5s
+            timeout: 3s
+            retries: 5
+
 volumes:
     pgdata:
+    pgdata_voltagent:

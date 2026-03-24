@@ -1,13 +1,14 @@
 import { Agent, Memory } from '@voltagent/core';
 import { PostgreSQLMemoryAdapter } from '@voltagent/postgres';
 import { z } from 'zod';
+import { renderCardTool } from './tools/cards';
 import { createNoteTool, listNotesTool, searchNotesTool } from './tools/notes';
 import { NotesRetriever } from './retrievers/notes';
 import { env } from '~/lib/env.server';
 
 export const memory = new Memory({
     storage: new PostgreSQLMemoryAdapter({
-        connection: env.DATABASE_URL,
+        connection: env.VOLTAGENT_DATABASE_URL,
     }),
     workingMemory: {
         enabled: true,
@@ -27,7 +28,7 @@ export const agent = new Agent({
     instructions:
         'Your name is Iris. You are a helpful assistant. You can create, list, and search notes.',
     model: 'anthropic/claude-3-haiku-20240307',
-    tools: [createNoteTool, listNotesTool, searchNotesTool],
+    tools: [createNoteTool, listNotesTool, searchNotesTool, renderCardTool],
     retriever: notesRetriever,
     memory,
 });

@@ -26,7 +26,16 @@
             "Bash(find /Users/seth/repositories/iridium/.prettier* -type f)",
             "Bash(grep -E \"\\\\.\\(tsx?|ts\\)$\")",
             "Bash(grep -r 'export const middleware' /Users/seth/repositories/iridium/app/routes/*.tsx)",
-            "Bash(grep -r ErrorBoundary /Users/seth/repositories/iridium/app/routes/*.tsx)"
+            "Bash(grep -r ErrorBoundary /Users/seth/repositories/iridium/app/routes/*.tsx)",
+            "Bash(railway whoami:*)",
+            "Read(//Users/seth/.railway/**)",
+            "Read(//Users/seth/.config/railway/**)",
+            "mcp__linear__list_issues",
+            "mcp__linear__get_issue",
+            "mcp__linear__save_issue",
+            "Skill(railway:database)",
+            "mcp__linear__list_teams",
+            "Bash(bun add:*)"
         ]
     }
 }

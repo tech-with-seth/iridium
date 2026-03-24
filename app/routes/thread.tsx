@@ -10,9 +10,11 @@ import {
     WrenchIcon,
     XIcon,
 } from 'lucide-react';
+import { CardToolPart } from '~/components/CardToolPart';
 import { ChatBubble } from '~/components/ChatBubble';
 import { Markdown } from '~/components/Markdown';
 import { NoteToolPart } from '~/components/NoteToolPart';
+import type { CardData } from '~/voltagent/tools/cards';
 import type { Route } from './+types/thread';
 import { getThreadById } from '~/models/thread.server';
 import { authMiddleware } from '~/middleware/auth';
@@ -219,33 +221,49 @@ export default function ThreadRoute({
                                 {textContent && (
                                     <Markdown>{textContent}</Markdown>
                                 )}
-                                {toolParts.map((part) =>
-                                    NOTE_TOOLS.has(part.toolName) ? (
-                                        <NoteToolPart
-                                            key={part.toolCallId}
-                                            toolName={part.toolName}
-                                            state={part.state}
-                                            output={
-                                                part.state ===
-                                                'output-available'
-                                                    ? (
-                                                          part as unknown as {
-                                                              output: Record<
-                                                                  string,
-                                                                  unknown
-                                                              >;
-                                                          }
-                                                      ).output
-                                                    : undefined
-                                            }
-                                        />
-                                    ) : (
+                                {toolParts.map((part) => {
+                                    const output =
+                                        part.state === 'output-available'
+                                            ? (
+                                                  part as unknown as {
+                                                      output: Record<
+                                                          string,
+                                                          unknown
+                                                      >;
+                                                  }
+                                              ).output
+                                            : undefined;
+
+                                    if (NOTE_TOOLS.has(part.toolName)) {
+                                        return (
+                                            <NoteToolPart
+                                                key={part.toolCallId}
+                                                toolName={part.toolName}
+                                                state={part.state}
+                                                output={output}
+                                            />
+                                        );
+                                    }
+
+                                    if (part.toolName === 'render_card') {
+                                        return (
+                                            <CardToolPart
+                                                key={part.toolCallId}
+                                                state={part.state}
+                                                output={
+                                                    output as unknown as CardData
+                                                }
+                                            />
+                                        );
+                                    }
+
+                                    return (
                                         <ToolPartFallback
                                             key={part.toolCallId}
                                             part={part}
                                         />
-                                    ),
-                                )}
+                                    );
+                                })}
                                 {!textContent &&
                                     toolParts.length === 0 &&
                                     !isUser &&

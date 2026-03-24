@@ -327,9 +327,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
             <main
                 id="main-content"
                 tabIndex={-1}
-                className="min-h-0 grow overflow-hidden"
+                className="flex min-h-0 grow flex-col overflow-hidden"
             >
-                <Container className="grid h-full grid-cols-1 gap-4 md:grid-cols-12">
+                <Container className="grid min-h-0 grow grid-cols-1 gap-4 md:grid-cols-12">
                     <Card className="hidden md:col-span-4 md:block lg:col-span-3">
                         <nav aria-label="Main navigation">
                             <ul className="flex flex-col gap-4 p-4">

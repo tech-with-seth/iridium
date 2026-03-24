@@ -8,6 +8,7 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 - **Role-based access control** — USER, EDITOR, and ADMIN roles baked into the schema and session helpers
 - **AI chat** — Conversational interface powered by VoltAgent and the Vercel AI SDK. Messages persist to PostgreSQL and are organized into threads
 - **Agent tools** — The AI assistant can create, list, and search notes on behalf of the user, with tool invocations rendered inline in the chat
+- **Generative UI** — The `render_card` tool lets the agent produce rich visual cards (info, steps, pros/cons) inline in the chat, demonstrating VoltAgent's tool-driven approach to generative UI
 - **Notes** — A browsable notes page at `/notes` showing all notes saved by the agent, demonstrating the full tool-to-UI vertical slice
 - **Working memory** — VoltAgent remembers user preferences and context across conversations via PostgreSQL-backed working memory
 - **Form validation** — Client and server-side validation using Zod and React Hook Form with a working example
@@ -87,17 +88,75 @@ prisma/
 
 ## Agent Tools
 
-The AI assistant (defined in `app/voltagent/agents.ts`) has three tools:
+The AI assistant (defined in `app/voltagent/agents.ts`) has four tools:
 
-| Tool           | Description                                         |
-| -------------- | --------------------------------------------------- |
-| `create_note`  | Saves a note with a title and content for the user  |
-| `list_notes`   | Lists all of the user's saved notes                 |
-| `search_notes` | Searches notes by keyword across titles and content |
+| Tool           | Description                                                            |
+| -------------- | ---------------------------------------------------------------------- |
+| `create_note`  | Saves a note with a title and content for the user                     |
+| `list_notes`   | Lists all of the user's saved notes                                    |
+| `search_notes` | Searches notes by keyword across titles and content                    |
+| `render_card`  | Renders a rich visual card inline in the chat (info, steps, pros/cons) |
 
-Tool invocations are rendered inline in the chat via `NoteToolPart`. Notes are browsable at `/notes`.
+Note tools are rendered via `NoteToolPart`; card tools are rendered via `CardToolPart`. Notes are browsable at `/notes`.
 
-To add your own tools, follow the pattern in `agents.ts` — define a `createTool()` with a Zod schema, implement the `execute` function, add it to the agent's `tools` array, and create a UI component for it.
+### Generative UI (Tool-Driven)
+
+VoltAgent does not support true generative UI (the model streaming arbitrary React components at runtime). Instead, it uses a tool-driven pattern: the agent calls a tool with structured data, and a predefined React component renders it.
+
+The `render_card` tool demonstrates this pattern with three card variants:
+
+- **info** -- key facts or summaries with optional bullet points
+- **steps** -- numbered step-by-step guides
+- **pros_cons** -- side-by-side comparison with pros and cons
+
+Try these prompts to trigger card rendering:
+
+- "Compare React and Vue as a pros and cons card"
+- "Give me a step-by-step guide to deploying on Railway"
+- "Summarize what VoltAgent is as an info card"
+
+The pattern is extensible: define a new variant in the Zod schema (`app/voltagent/tools/cards.ts`), add a rendering branch in `CardToolPart` (`app/components/CardToolPart.tsx`), and the agent will use it when appropriate.
+
+### Adding a Custom Tool
+
+1. **Define the server-side tool** in `app/voltagent/tools/` using `createTool()` with a Zod schema for parameters and an `execute` function. Access the user ID via `options?.userId`.
+
+```ts
+// app/voltagent/tools/my-tool.ts
+import { createTool } from '@voltagent/core';
+import { z } from 'zod';
+import invariant from 'tiny-invariant';
+
+export const myTool = createTool({
+    name: 'my_tool',
+    description:
+        'What the tool does — the LLM reads this to decide when to call it.',
+    parameters: z.object({
+        input: z.string().describe('What to pass in'),
+    }),
+    execute: async (args, options) => {
+        const userId = options?.userId;
+        invariant(userId, 'User not authenticated');
+        // ... your logic here
+        return { result: 'done' };
+    },
+});
+```
+
+2. **Register it** in the agent's `tools` array in `app/voltagent/agents.ts`:
+
+```ts
+import { myTool } from './tools/my-tool';
+
+export const agent = new Agent({
+    // ...
+    tools: [createNoteTool, listNotesTool, searchNotesTool, myTool],
+});
+```
+
+3. **Create a UI component** for the tool part (see `app/components/NoteToolPart.tsx` for reference). The component receives `toolName`, `state` (`'input-available'`, `'input-streaming'`, or `'output-available'`), and `output`.
+
+4. **Render it in the chat** by adding your tool name to the rendering logic in `app/routes/thread.tsx`. Add a check alongside the existing `NOTE_TOOLS` set, or expand it if appropriate.
 
 ## Troubleshooting
 
