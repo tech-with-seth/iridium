@@ -12,7 +12,9 @@ FROM oven/bun:1-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-RUN bunx --bun prisma generate && bun run build
+# prisma generate only reads the schema -- no DB connection needed.
+# Provide a placeholder so prisma.config.ts can resolve env('DATABASE_URL').
+RUN DATABASE_URL="postgresql://x:x@localhost:5432/x" bunx --bun prisma generate && bun run build
 
 FROM node:20-alpine
 COPY ./package.json /app/
