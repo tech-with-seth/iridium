@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Container } from '~/components/Container';
 import { authMiddleware } from '~/middleware/auth';
+import { rateLimit } from '~/lib/rate-limit.server';
 import { listItemClassName, navLinkClassName } from '~/shared';
 import type { Route } from './+types/chat';
 import {
@@ -37,6 +38,19 @@ export async function action({ request }: Route.ActionArgs) {
 
     if (request.method === 'POST') {
         if (intent === 'new-thread') {
+            const { success } = rateLimit({
+                key: `thread-create:${user.id}`,
+                maxRequests: 30,
+                windowMs: 60_000,
+            });
+
+            if (!success) {
+                throw new Response(
+                    'Too many threads created. Please wait a moment.',
+                    { status: 429 },
+                );
+            }
+
             try {
                 const thread = await createThread(user.id);
 
@@ -47,6 +61,18 @@ export async function action({ request }: Route.ActionArgs) {
         }
 
         if (intent === 'delete-thread') {
+            const { success } = rateLimit({
+                key: `thread-delete:${user.id}`,
+                maxRequests: 60,
+                windowMs: 60_000,
+            });
+
+            if (!success) {
+                throw new Response('Too many requests. Please wait a moment.', {
+                    status: 429,
+                });
+            }
+
             const threadId = String(form.get('threadId'));
             const thread = await getThreadById(threadId);
 

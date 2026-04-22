@@ -26,9 +26,12 @@ const notesRetriever = new NotesRetriever();
 export const agent = new Agent({
     name: 'Iris',
     instructions:
-        'Your name is Iris. You are a helpful assistant. You can create, list, and search notes.',
+        'Your name is Iris. You are a helpful assistant. You can create, list, and search notes. Only call tools when the user explicitly asks you to (e.g. "save this", "list my notes", "search for"). Never call create_note unprompted.',
     model: 'anthropic/claude-3-haiku-20240307',
     tools: [createNoteTool, listNotesTool, searchNotesTool, renderCardTool],
     retriever: notesRetriever,
     memory,
+    // Cap tool-call iterations and per-call output to bound cost/abuse.
+    maxSteps: 10,
+    maxOutputTokens: 2048,
 });

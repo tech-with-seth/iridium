@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai';
 import z from 'zod';
 
+import { log } from '~/lib/logger.server';
 import { rateLimit } from '~/lib/rate-limit.server';
 import { getUserFromSession } from '~/models/session.server';
 import {
@@ -54,6 +55,19 @@ export async function action({ request }: Route.ActionArgs) {
         return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Ownership boundary: thread must exist AND belong to the user BEFORE any
+    // tokens are spent or memory is written. Threads are created via the
+    // /chat route action, not implicitly here.
+    const thread = await getThreadById(threadId);
+
+    if (!thread) {
+        return Response.json({ error: 'Thread not found' }, { status: 404 });
+    }
+
+    if (thread.createdById !== user.id) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { success: withinLimit } = rateLimit({
         key: `chat:${user.id}`,
         maxRequests: 20,
@@ -67,14 +81,8 @@ export async function action({ request }: Route.ActionArgs) {
         );
     }
 
-    const thread = await getThreadById(threadId);
-
-    if (thread && thread.createdById !== user.id) {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Auto-generate thread title after a few messages
-    if (messages.length > 3 && (thread?.title === 'Untitled' || !thread)) {
+    // Auto-generate thread title once per thread, after a few messages.
+    if (messages.length > 3 && thread.title === 'Untitled') {
         try {
             const conversationContext = messages
                 .slice(0, 4)
@@ -97,11 +105,14 @@ export async function action({ request }: Route.ActionArgs) {
                 .replace(/^["']|["']$/g, '')
                 .slice(0, 100);
 
-            if (thread && title) {
+            if (title) {
                 await updateThreadTitle(threadId, title);
             }
-        } catch {
-            // Title generation is best-effort
+        } catch (error) {
+            log.exception('title_generation_failed', error, {
+                threadId,
+                userId: user.id,
+            });
         }
     }
 
@@ -128,6 +139,7 @@ export async function action({ request }: Route.ActionArgs) {
         if (!isDuplicateItemError(error)) throw error;
 
         // Self-heal corrupted/stale provider item references in conversation memory.
+        log.warn('chat_memory_self_heal', { threadId, userId: user.id });
         await memory.clearMessages(user.id, threadId);
 
         result = await agent.streamText([latestUserMessage], {
@@ -146,7 +158,11 @@ export async function action({ request }: Route.ActionArgs) {
                     userId: user.id,
                 });
             } catch (error) {
-                console.error('Failed to save chat:', error);
+                log.exception('save_chat_failed', error, {
+                    threadId,
+                    userId: user.id,
+                    messageCount: messages.length,
+                });
             }
         },
     });

@@ -59,23 +59,28 @@ export async function saveChat({
         (msg, i) => i >= messages.length - 2 || !existingIds.has(msg.id),
     );
 
-    for (const msg of messagesToSave) {
-        const content = JSON.stringify(msg.parts);
+    if (messagesToSave.length === 0) return;
 
-        await prisma.message.upsert({
-            where: { id: msg.id },
-            update: {
-                content,
-            },
-            create: {
-                id: msg.id,
-                role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
-                content,
-                threadId: thread.id,
-                userId: msg.role === 'user' ? userId : null,
-            },
-        });
-    }
+    // Wrap upserts in a transaction so a mid-loop failure rolls back partial writes.
+    await prisma.$transaction(
+        messagesToSave.map((msg) => {
+            const content = JSON.stringify(msg.parts);
+
+            return prisma.message.upsert({
+                where: { id: msg.id },
+                update: {
+                    content,
+                },
+                create: {
+                    id: msg.id,
+                    role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
+                    content,
+                    threadId: thread.id,
+                    userId: msg.role === 'user' ? userId : null,
+                },
+            });
+        }),
+    );
 }
 
 export function updateThreadTitle(threadId: string, title: string) {

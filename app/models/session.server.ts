@@ -1,4 +1,5 @@
 import { auth } from '~/lib/auth.server';
+import { log } from '~/lib/logger.server';
 import { Role } from '~/generated/prisma/client';
 
 type UserWithRole = {
@@ -20,7 +21,7 @@ export async function getUserFromSession(request: Request) {
 
         return session?.user ?? null;
     } catch (error) {
-        console.error('Session error:', error);
+        log.exception('session_lookup_failed', error);
 
         return null;
     }
@@ -34,17 +35,6 @@ export async function requireUser(request: Request) {
     }
 
     return user;
-}
-
-export async function requireAnonymous(request: Request) {
-    const user = await getUserFromSession(request);
-
-    if (user) {
-        throw new Response('Already authenticated', {
-            status: 302,
-            headers: { Location: '/dashboard' },
-        });
-    }
 }
 
 export function hasRole(user: { role: Role }, role: Role): boolean {

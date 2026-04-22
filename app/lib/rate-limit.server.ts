@@ -6,11 +6,16 @@
 
 interface RateLimitEntry {
     timestamps: number[];
+    /** Last access timestamp, used for LRU-ish eviction when over key cap. */
+    lastTouched: number;
 }
 
 const store = new Map<string, RateLimitEntry>();
 
 const CLEANUP_INTERVAL_MS = 60_000;
+
+/** Hard cap on the number of distinct keys held in memory. */
+const MAX_KEYS = 50_000;
 
 let cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -38,6 +43,24 @@ function startCleanup(windowMs: number) {
     }
 }
 
+/**
+ * Evict the least-recently-touched entries when the store exceeds MAX_KEYS.
+ * Crude but bounded — prevents adversarial keyspace expansion from blowing
+ * memory. Map iteration order is insertion order, so we sort by lastTouched.
+ */
+function enforceKeyCap() {
+    if (store.size <= MAX_KEYS) return;
+
+    const overage = store.size - MAX_KEYS;
+    const entries = Array.from(store.entries()).sort(
+        (a, b) => a[1].lastTouched - b[1].lastTouched,
+    );
+
+    for (let i = 0; i < overage; i++) {
+        store.delete(entries[i][0]);
+    }
+}
+
 export function rateLimit({
     key,
     maxRequests,
@@ -56,8 +79,11 @@ export function rateLimit({
     let entry = store.get(key);
 
     if (!entry) {
-        entry = { timestamps: [] };
+        entry = { timestamps: [], lastTouched: now };
         store.set(key, entry);
+        enforceKeyCap();
+    } else {
+        entry.lastTouched = now;
     }
 
     // Remove expired timestamps
@@ -69,4 +95,14 @@ export function rateLimit({
 
     entry.timestamps.push(now);
     return { success: true, remaining: maxRequests - entry.timestamps.length };
+}
+
+/** Internal: test-only reset hook. Not exported via public API. */
+export function _resetRateLimitStore() {
+    store.clear();
+}
+
+/** Internal: test-only inspection. */
+export function _getRateLimitStoreSize() {
+    return store.size;
 }
