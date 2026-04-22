@@ -26,6 +26,9 @@ Iridium is a full-stack AI chat application built with React Router v7 (SSR), Be
 | `bun run db:studio`    | Open Prisma Studio GUI               |
 | `bun run db:push`      | Push schema without migration        |
 | `bun run db:generate`  | Regenerate Prisma client             |
+| `bun run docker:up`    | Start both Postgres containers       |
+| `bun run docker:down`  | Stop containers (data preserved)     |
+| `bun run docker:nuke`  | Stop containers and delete volumes   |
 
 Run a single Playwright test: `bunx playwright test tests/auth.spec.ts --project=chromium`
 
@@ -35,13 +38,25 @@ Prisma CLI: always use `bunx --bun prisma <command>` (not `npx`).
 
 ```sh
 cp .env.example .env        # fill in BETTER_AUTH_SECRET and ANTHROPIC_API_KEY
-docker compose -f docker-compose.dev.yml up -d   # starts Postgres
 bun install
-bun run db:migrate
+bun run docker:up           # starts both Postgres containers
+bun run db:migrate          # apply Prisma migrations
+bun run db:seed             # seed demo users
 bun run dev
 ```
 
-Environment variables are validated at startup by `app/lib/env.server.ts` — missing or invalid vars produce clear error messages.
+### Two-Database Setup
+
+The app runs two PostgreSQL instances via `docker-compose.dev.yml`:
+
+| Database    | Port | Env Var                  | Purpose                          |
+| ----------- | ---- | ------------------------ | -------------------------------- |
+| `iridium`   | 5432 | `DATABASE_URL`           | Prisma (app data, auth, threads) |
+| `voltagent` | 5433 | `VOLTAGENT_DATABASE_URL` | VoltAgent memory and state       |
+
+VoltAgent creates its own tables automatically on first connection -- no migration needed.
+
+Environment variables are validated at startup by `app/lib/env.server.ts` -- missing or invalid vars produce clear error messages.
 
 ## Tech Stack
 
@@ -96,7 +111,7 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Environment Validation
 
-`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`) with Zod at startup. Import `env` from this module instead of reading `process.env` directly in server code.
+`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup. Import `env` from this module instead of reading `process.env` directly in server code.
 
 ### Testing
 

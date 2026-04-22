@@ -15,16 +15,32 @@ Full-stack AI chat app built with React Router v7, Better Auth, Prisma, and Verc
 
 ## Build & Dev Commands
 
-| Command             | Purpose                        |
-| ------------------- | ------------------------------ |
-| `bun install`       | Install dependencies           |
-| `bun run dev`       | Start dev server (port 5173)   |
-| `bun run build`     | Production build               |
-| `bun run typecheck` | Generate route types + run tsc |
-| `bun run seed`      | Seed database                  |
-| `bun run studio`    | Open Prisma Studio             |
+| Command               | Purpose                              |
+| --------------------- | ------------------------------------ |
+| `bun install`         | Install dependencies                 |
+| `bun run dev`         | Start dev server (port 5173)         |
+| `bun run build`       | Production build                     |
+| `bun run typecheck`   | Generate route types + run tsc       |
+| `bun run docker:up`   | Start both Postgres containers       |
+| `bun run docker:down` | Stop containers (data preserved)     |
+| `bun run docker:nuke` | Stop containers and delete volumes   |
+| `bun run db:migrate`  | Run Prisma migrations                |
+| `bun run db:seed`     | Seed database with test users        |
+| `bun run db:fresh`    | Reset DB + migrate + seed (one shot) |
+| `bun run db:studio`   | Open Prisma Studio GUI               |
 
 Prisma CLI: always use `bunx --bun prisma <command>`.
+
+### Two-Database Setup
+
+The app runs two PostgreSQL instances via `docker-compose.dev.yml`:
+
+| Database    | Port | Env Var                  | Purpose                          |
+| ----------- | ---- | ------------------------ | -------------------------------- |
+| `iridium`   | 5432 | `DATABASE_URL`           | Prisma (app data, auth, threads) |
+| `voltagent` | 5433 | `VOLTAGENT_DATABASE_URL` | VoltAgent memory and state       |
+
+VoltAgent creates its own tables automatically on first connection -- no migration needed.
 
 ## Architecture
 

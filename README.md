@@ -31,7 +31,7 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 ### Prerequisites
 
 - [Bun](https://bun.sh/) installed
-- PostgreSQL database (local or hosted, e.g. [Railway](https://railway.com))
+- [Docker](https://docs.docker.com/get-docker/) installed (for local PostgreSQL)
 - Anthropic API key
 
 ### Installation
@@ -45,17 +45,37 @@ bun install
 Copy `.env.example` to `.env` and fill in:
 
 ```
-DATABASE_URL="postgresql://..."
-ANTHROPIC_API_KEY="sk-ant-..."
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/iridium"
+VOLTAGENT_DATABASE_URL="postgresql://postgres:postgres@localhost:5433/voltagent"
+BETTER_AUTH_SECRET="<openssl rand -base64 32>"
 BETTER_AUTH_BASE_URL="http://localhost:5173"
 VITE_BETTER_AUTH_BASE_URL="http://localhost:5173"
+ANTHROPIC_API_KEY="sk-ant-..."
 ```
+
+### Two-Database Setup
+
+The app runs two PostgreSQL instances via `docker-compose.dev.yml`:
+
+| Database    | Port | Env Var                  | Purpose                          |
+| ----------- | ---- | ------------------------ | -------------------------------- |
+| `iridium`   | 5432 | `DATABASE_URL`           | Prisma (app data, auth, threads) |
+| `voltagent` | 5433 | `VOLTAGENT_DATABASE_URL` | VoltAgent memory and state       |
+
+VoltAgent creates its own tables automatically on first connection -- no migration needed.
+
+| Command               | Purpose                            |
+| --------------------- | ---------------------------------- |
+| `bun run docker:up`   | Start both Postgres containers     |
+| `bun run docker:down` | Stop containers (data preserved)   |
+| `bun run docker:nuke` | Stop containers and delete volumes |
 
 ### Database
 
 ```bash
-bunx prisma migrate dev   # Apply migrations
-bunx prisma db seed       # Seed with demo users
+bun run docker:up              # Start both Postgres containers
+bun run db:migrate              # Apply migrations
+bun run db:seed                 # Seed with demo users
 ```
 
 ### Development
@@ -143,7 +163,7 @@ export const myTool = createTool({
 });
 ```
 
-2. **Register it** in the agent's `tools` array in `app/voltagent/agents.ts`:
+1. **Register it** in the agent's `tools` array in `app/voltagent/agents.ts`:
 
 ```ts
 import { myTool } from './tools/my-tool';
@@ -154,9 +174,9 @@ export const agent = new Agent({
 });
 ```
 
-3. **Create a UI component** for the tool part (see `app/components/NoteToolPart.tsx` for reference). The component receives `toolName`, `state` (`'input-available'`, `'input-streaming'`, or `'output-available'`), and `output`.
+1. **Create a UI component** for the tool part (see `app/components/NoteToolPart.tsx` for reference). The component receives `toolName`, `state` (`'input-available'`, `'input-streaming'`, or `'output-available'`), and `output`.
 
-4. **Render it in the chat** by adding your tool name to the rendering logic in `app/routes/thread.tsx`. Add a check alongside the existing `NOTE_TOOLS` set, or expand it if appropriate.
+2. **Render it in the chat** by adding your tool name to the rendering logic in `app/routes/thread.tsx`. Add a check alongside the existing `NOTE_TOOLS` set, or expand it if appropriate.
 
 ## Troubleshooting
 
