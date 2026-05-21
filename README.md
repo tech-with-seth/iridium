@@ -181,6 +181,7 @@ export const agent = new Agent({
 ## Troubleshooting
 
 - Chat/tool-calling duplicate provider item IDs (`fc_*`): see [docs/chat-tool-calling.md](docs/chat-tool-calling.md)
+- `ECONNREFUSED 127.0.0.1:5433` on `bun run dev`: the VoltAgent Postgres container isn't running. Make sure Docker Desktop is running (`open -a Docker`), then `bun run docker:up` before `bun run dev`. Port 5433 is the VoltAgent database; 5432 is the Prisma database.
 
 ## Building for Production
 

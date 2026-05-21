@@ -103,19 +103,6 @@ function DrawerContent({
                     <>
                         <li>
                             <NavLink
-                                to="/profile"
-                                className={navLinkClassName}
-                                onClick={onClose}
-                            >
-                                <UserCircle2Icon
-                                    aria-hidden="true"
-                                    className="h-6 w-6"
-                                />
-                                Profile
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
                                 to="/chat"
                                 className={navLinkClassName}
                                 onClick={onClose}
@@ -125,32 +112,6 @@ function DrawerContent({
                                     className="h-6 w-6"
                                 />
                                 Chat
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/notes"
-                                className={navLinkClassName}
-                                onClick={onClose}
-                            >
-                                <StickyNoteIcon
-                                    aria-hidden="true"
-                                    className="h-6 w-6"
-                                />
-                                Notes
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/form"
-                                className={navLinkClassName}
-                                onClick={onClose}
-                            >
-                                <FormIcon
-                                    aria-hidden="true"
-                                    className="h-6 w-6"
-                                />
-                                Form
                             </NavLink>
                         </li>
                         <li>
@@ -349,18 +310,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                     <>
                                         <li>
                                             <NavLink
-                                                to="/profile"
-                                                className={navLinkClassName}
-                                            >
-                                                <UserCircle2Icon
-                                                    aria-hidden="true"
-                                                    className="h-6 w-6"
-                                                />
-                                                Profile
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink
                                                 to="/chat"
                                                 className={navLinkClassName}
                                             >
@@ -369,30 +318,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
                                                     className="h-6 w-6"
                                                 />
                                                 Chat
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink
-                                                to="/notes"
-                                                className={navLinkClassName}
-                                            >
-                                                <StickyNoteIcon
-                                                    aria-hidden="true"
-                                                    className="h-6 w-6"
-                                                />
-                                                Notes
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink
-                                                to="/form"
-                                                className={navLinkClassName}
-                                            >
-                                                <FormIcon
-                                                    aria-hidden="true"
-                                                    className="h-6 w-6"
-                                                />
-                                                Form
                                             </NavLink>
                                         </li>
                                     </>

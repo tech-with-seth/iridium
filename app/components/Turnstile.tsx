@@ -16,6 +16,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+const REDIRECT_PATH = '/dashboard';
+
 export function Turnstile() {
     const navigate = useNavigate();
     const [isSignIn, toggleSignIn] = useReducer((s) => !s, true);
@@ -38,13 +40,13 @@ export function Turnstile() {
             return;
         }
 
-        const callbackURL = `${window.location.origin}/profile`;
+        const callbackURL = `${window.location.origin}${REDIRECT_PATH}`;
 
         if (isSignIn) {
             await authClient.signIn.email(
                 { email: data.email, password: data.password, callbackURL },
                 {
-                    onSuccess: () => navigate('/profile'),
+                    onSuccess: () => navigate(REDIRECT_PATH),
                     onError: (ctx) =>
                         setFormError(ctx.error.message ?? 'Sign in failed.'),
                 },
@@ -58,7 +60,7 @@ export function Turnstile() {
                     callbackURL,
                 },
                 {
-                    onSuccess: () => navigate('/profile'),
+                    onSuccess: () => navigate(REDIRECT_PATH),
                     onError: (ctx) =>
                         setFormError(
                             ctx.error.message ?? 'Registration failed.',
