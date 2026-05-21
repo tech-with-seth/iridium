@@ -14,20 +14,27 @@ const store = new Map<string, RateLimitEntry>();
 
 const CLEANUP_INTERVAL_MS = 60_000;
 
+/**
+ * Idle threshold for cleanup eviction. Why: cleanup runs globally across all
+ * callers, but each caller has its own windowMs. Pruning per-entry timestamps
+ * against any single caller's window would silently shrink the limits of
+ * callers with longer windows (e.g. the 1h note-create limit). Instead,
+ * cleanup only evicts entries idle longer than this threshold; per-window
+ * timestamp filtering happens on demand inside rateLimit().
+ */
+const IDLE_EVICTION_MS = 6 * 60 * 60_000;
+
 /** Hard cap on the number of distinct keys held in memory. */
 const MAX_KEYS = 50_000;
 
 let cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
-function startCleanup(windowMs: number) {
+function startCleanup() {
     if (cleanupTimer) return;
     cleanupTimer = setInterval(() => {
         const now = Date.now();
         for (const [key, entry] of store) {
-            entry.timestamps = entry.timestamps.filter(
-                (t) => now - t < windowMs,
-            );
-            if (entry.timestamps.length === 0) {
+            if (now - entry.lastTouched > IDLE_EVICTION_MS) {
                 store.delete(key);
             }
         }
@@ -73,7 +80,7 @@ export function rateLimit({
     /** Window duration in milliseconds. */
     windowMs: number;
 }): { success: boolean; remaining: number } {
-    startCleanup(windowMs);
+    startCleanup();
 
     const now = Date.now();
     let entry = store.get(key);

@@ -6,6 +6,22 @@ const envSchema = z.object({
         .string()
         .min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
     BETTER_AUTH_BASE_URL: z.url(),
+    /**
+     * Comma-separated list of additional trusted origins for Better Auth.
+     * BETTER_AUTH_BASE_URL is always trusted; use this for preview deploys,
+     * staging hosts, or custom domains served by the same backend.
+     */
+    BETTER_AUTH_TRUSTED_ORIGINS: z
+        .string()
+        .optional()
+        .transform((value) =>
+            value
+                ? value
+                      .split(',')
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                : [],
+        ),
     ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
     VOLTAGENT_DATABASE_URL: z.url({
         message: 'VOLTAGENT_DATABASE_URL must be a valid URL',
