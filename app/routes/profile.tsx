@@ -1,17 +1,16 @@
-import invariant from 'tiny-invariant';
 import { Container } from '~/components/Container';
 import type { Route } from './+types/profile';
-import { getUserFromSession } from '~/models/session.server';
 import { authMiddleware } from '~/middleware/auth';
+import { requireUserFromContext } from '~/context';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await getUserFromSession(request);
-    invariant(user, 'User could not be found in session');
+export async function loader({ context }: Route.LoaderArgs) {
+    const user = requireUserFromContext(context);
+    const role = (user as { role?: string | null }).role ?? 'USER';
 
     return {
-        user,
+        user: { email: user.email, role },
     };
 }
 
@@ -20,7 +19,7 @@ export default function ProfileRoute({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <title>Profile</title>
+            <title>Profile | Iridium</title>
             <meta name="description" content="Welcome to your profile page!" />
             <Container className="p-4">
                 <h1 className="mb-8 text-4xl font-bold">Profile</h1>

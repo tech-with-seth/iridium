@@ -1,18 +1,15 @@
-import invariant from 'tiny-invariant';
 import { Container } from '~/components/Container';
 import { Markdown } from '~/components/Markdown';
 import type { Route } from './+types/notes';
-import { getUserFromSession } from '~/models/session.server';
+import { requireUserFromContext } from '~/context';
 import { getNotesByUserId } from '~/models/note.server';
 import { authMiddleware } from '~/middleware/auth';
 import { FileTextIcon } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await getUserFromSession(request);
-    invariant(user, 'User could not be found in session');
-
+export async function loader({ context }: Route.LoaderArgs) {
+    const user = requireUserFromContext(context);
     const notes = await getNotesByUserId(user.id);
 
     return { notes };

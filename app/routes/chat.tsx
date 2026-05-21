@@ -10,82 +10,79 @@ import {
     getAllThreadsByUserId,
     getThreadById,
 } from '~/models/thread.server';
-import { getUserFromSession } from '~/models/session.server';
-import invariant from 'tiny-invariant';
+import { requireUserFromContext } from '~/context';
 import { Form, NavLink, Outlet, redirect, useNavigation } from 'react-router';
 import { LoaderCircleIcon, PlusCircleIcon, Trash2Icon } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function loader({ request }: Route.LoaderArgs) {
-    const user = await getUserFromSession(request);
-    invariant(user, 'User could not be found in session');
-
+export async function loader({ context }: Route.LoaderArgs) {
+    const user = requireUserFromContext(context);
     const threads = await getAllThreadsByUserId(user.id);
-    invariant(threads, 'Threads could not be found for user');
 
-    return {
-        threads,
-    };
+    return { threads };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-    const user = await getUserFromSession(request);
-    invariant(user, 'User could not be found in session');
+export async function action({ request, context }: Route.ActionArgs) {
+    if (request.method !== 'POST') {
+        throw new Response('Method not allowed', { status: 405 });
+    }
 
+    const user = requireUserFromContext(context);
     const form = await request.formData();
     const intent = String(form.get('intent'));
 
-    if (request.method === 'POST') {
-        if (intent === 'new-thread') {
-            const { success } = rateLimit({
-                key: `thread-create:${user.id}`,
-                maxRequests: 30,
-                windowMs: 60_000,
-            });
+    if (intent === 'new-thread') {
+        const { success } = rateLimit({
+            key: `thread-create:${user.id}`,
+            maxRequests: 30,
+            windowMs: 60_000,
+        });
 
-            if (!success) {
-                throw new Response(
-                    'Too many threads created. Please wait a moment.',
-                    { status: 429 },
-                );
-            }
-
-            try {
-                const thread = await createThread(user.id);
-
-                return redirect(thread?.id);
-            } catch {
-                throw new Response('Failed to create thread', { status: 500 });
-            }
+        if (!success) {
+            throw new Response(
+                'Too many threads created. Please wait a moment.',
+                { status: 429 },
+            );
         }
 
-        if (intent === 'delete-thread') {
-            const { success } = rateLimit({
-                key: `thread-delete:${user.id}`,
-                maxRequests: 60,
-                windowMs: 60_000,
-            });
-
-            if (!success) {
-                throw new Response('Too many requests. Please wait a moment.', {
-                    status: 429,
-                });
-            }
-
-            const threadId = String(form.get('threadId'));
-            const thread = await getThreadById(threadId);
-
-            invariant(thread, 'Thread not found');
-            invariant(thread.createdById === user.id, 'Unauthorized');
-
-            await deleteThread(threadId);
-
-            return redirect('/chat');
+        try {
+            const thread = await createThread(user.id);
+            return redirect(thread.id);
+        } catch {
+            throw new Response('Failed to create thread', { status: 500 });
         }
     }
 
-    return null;
+    if (intent === 'delete-thread') {
+        const { success } = rateLimit({
+            key: `thread-delete:${user.id}`,
+            maxRequests: 60,
+            windowMs: 60_000,
+        });
+
+        if (!success) {
+            throw new Response('Too many requests. Please wait a moment.', {
+                status: 429,
+            });
+        }
+
+        const threadId = String(form.get('threadId'));
+        const thread = await getThreadById(threadId);
+
+        if (!thread) {
+            throw new Response('Thread not found', { status: 404 });
+        }
+        if (thread.createdById !== user.id) {
+            throw new Response('Forbidden', { status: 403 });
+        }
+
+        await deleteThread(threadId);
+
+        return redirect('/chat');
+    }
+
+    throw new Response('Unknown intent', { status: 400 });
 }
 
 function getThreadLabel(thread: {
