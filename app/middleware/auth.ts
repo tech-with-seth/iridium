@@ -1,12 +1,16 @@
-import { redirect } from 'react-router';
-import type { Route } from '../routes/+types/chat';
+import { redirect, type MiddlewareFunction } from 'react-router';
 import { userContext } from '~/context';
 import { getUserFromSession } from '~/models/session.server';
 
-export async function authMiddleware({
+/**
+ * Redirects unauthenticated requests to /login. On success, stashes the
+ * resolved user in `userContext` so loaders/actions can skip a redundant
+ * session lookup via `context.get(userContext)`.
+ */
+export const authMiddleware: MiddlewareFunction<Response> = async ({
     request,
     context,
-}: Parameters<Route.MiddlewareFunction>[0]) {
+}) => {
     const user = await getUserFromSession(request);
 
     if (!user) {
@@ -14,4 +18,4 @@ export async function authMiddleware({
     }
 
     context.set(userContext, user);
-}
+};

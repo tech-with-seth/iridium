@@ -1,4 +1,4 @@
-import { createContext } from 'react-router';
+import { createContext, type RouterContextProvider } from 'react-router';
 import type { auth } from '~/lib/auth.server';
 
 /** The user shape returned by Better Auth's `getSession().user`. */
@@ -7,3 +7,18 @@ export type SessionUser = NonNullable<
 >['user'];
 
 export const userContext = createContext<SessionUser | null>(null);
+
+/**
+ * Pull the authenticated user out of route context. Must be called from a
+ * loader/action that runs *after* `authMiddleware` — that middleware
+ * guarantees a non-null user. Throws if called without the middleware.
+ */
+export function requireUserFromContext(
+    context: Readonly<RouterContextProvider>,
+) {
+    const user = context.get(userContext);
+    if (!user) {
+        throw new Response('Unauthorized', { status: 401 });
+    }
+    return user;
+}

@@ -1,3 +1,4 @@
+import { redirect } from 'react-router';
 import { auth } from '~/lib/auth.server';
 import { log } from '~/lib/logger.server';
 import { Role } from '~/generated/prisma/client';
@@ -37,6 +38,19 @@ export async function requireUser(request: Request) {
     return user;
 }
 
+/**
+ * Redirect already-signed-in users away from anonymous-only pages (login,
+ * signup, reset-password). Throws a redirect on hit so callers can use this
+ * inline as the first line of a loader.
+ */
+export async function requireAnonymous(
+    request: Request,
+    redirectTo = '/profile',
+) {
+    const user = await getUserFromSession(request);
+    if (user) throw redirect(redirectTo);
+}
+
 export function hasRole(user: { role: Role }, role: Role): boolean {
     const roleHierarchy = {
         [Role.USER]: 1,
@@ -53,9 +67,11 @@ export async function requireRole(
 ): Promise<UserWithRole> {
     const user = await requireUser(request);
 
-    // The user object from the database includes the role field
-    // even if TypeScript doesn't know about it from BetterAuth types
-    const userWithRole = user as unknown as UserWithRole;
+    // Better Auth's types omit `role` from the user object even though the
+    // admin plugin populates it. Schema allows null; default to USER so
+    // role-gated routes have a non-null guarantee.
+    const role = ((user as { role?: Role | null }).role ?? Role.USER) as Role;
+    const userWithRole = { ...(user as object), role } as UserWithRole;
 
     if (!allowedRoles.includes(userWithRole.role)) {
         throw new Response('Forbidden', { status: 403 });

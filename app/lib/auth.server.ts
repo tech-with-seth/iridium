@@ -4,14 +4,40 @@ import { admin } from 'better-auth/plugins';
 import prisma from '~/lib/prisma';
 import { env } from '~/lib/env.server';
 
+const isProduction = env.NODE_ENV === 'production';
+
 export const auth = betterAuth({
+    secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_BASE_URL,
+    trustedOrigins: [
+        env.BETTER_AUTH_BASE_URL,
+        ...env.BETTER_AUTH_TRUSTED_ORIGINS,
+    ],
     emailAndPassword: {
         enabled: true,
+        // Better Auth defaults to 8; restating for visibility.
+        minPasswordLength: 8,
+        maxPasswordLength: 128,
+        autoSignIn: true,
     },
     database: prismaAdapter(prisma, {
         provider: 'postgresql',
     }),
+    session: {
+        // Cache the session in a signed cookie so most requests skip the DB
+        // session lookup. Revocations still take effect within cookieCache.maxAge.
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60,
+        },
+    },
+    advanced: {
+        defaultCookieAttributes: {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: isProduction,
+        },
+    },
     plugins: [admin({ defaultRole: 'USER' })],
     // Better Auth's built-in rate limiter. Defaults are off in non-prod;
     // explicitly enable so dev and CI exercise the same limits as prod.
