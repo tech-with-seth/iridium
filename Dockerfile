@@ -17,12 +17,19 @@ WORKDIR /app
 RUN DATABASE_URL="postgresql://x:x@localhost:5432/x" bunx --bun prisma generate && bun run build
 
 FROM node:20-alpine
-COPY ./package.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=development-dependencies-env /app/node_modules/prisma /app/node_modules/prisma
-COPY --from=development-dependencies-env /app/node_modules/@prisma/engines /app/node_modules/@prisma/engines
-COPY --from=build-env /app/build /app/build
-COPY ./prisma /app/prisma
-COPY ./prisma.config.ts /app/prisma.config.ts
+ENV NODE_ENV=production
+RUN apk add --no-cache wget \
+    && addgroup -S app && adduser -S app -G app
 WORKDIR /app
+COPY --chown=app:app ./package.json /app/
+COPY --chown=app:app --from=production-dependencies-env /app/node_modules /app/node_modules
+COPY --chown=app:app --from=development-dependencies-env /app/node_modules/prisma /app/node_modules/prisma
+COPY --chown=app:app --from=development-dependencies-env /app/node_modules/@prisma/engines /app/node_modules/@prisma/engines
+COPY --chown=app:app --from=build-env /app/build /app/build
+COPY --chown=app:app ./prisma /app/prisma
+COPY --chown=app:app ./prisma.config.ts /app/prisma.config.ts
+USER app
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:3000/healthcheck > /dev/null || exit 1
 CMD ["npm", "run", "start"]
