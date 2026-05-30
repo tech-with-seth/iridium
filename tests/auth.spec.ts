@@ -1,7 +1,7 @@
 import { test, expect, TEST_USER } from './fixtures';
 
 test.describe('Login', () => {
-    test('logs in with valid credentials and redirects to profile', async ({
+    test('logs in with valid credentials and redirects to dashboard', async ({
         page,
     }) => {
         await page.goto('/login');
@@ -9,8 +9,8 @@ test.describe('Login', () => {
         await page.getByPlaceholder('Your password').fill(TEST_USER.password);
         await page.getByRole('button', { name: 'Login' }).click();
 
-        await expect(page).toHaveURL(/\/profile/);
-        await expect(page.getByText(TEST_USER.email)).toBeVisible();
+        await expect(page).toHaveURL(/\/dashboard/);
+        await expect(page.getByText('Hello Dashboard!')).toBeVisible();
     });
 
     test('shows error for invalid credentials', async ({ page }) => {
@@ -66,7 +66,9 @@ test.describe('Registration', () => {
         await expect(page.getByText('Name is required')).toBeVisible();
     });
 
-    test('registers a new user and redirects to profile', async ({ page }) => {
+    test('registers a new user and redirects to dashboard', async ({
+        page,
+    }) => {
         const unique = `e2e-${Date.now()}@test.com`;
         await page.goto('/login');
         await page.getByRole('radio', { name: 'Register' }).check();
@@ -74,10 +76,8 @@ test.describe('Registration', () => {
         await page.getByPlaceholder('name@example.com').fill(unique);
         await page.getByPlaceholder('Your password').fill('password123');
         await page.getByRole('button', { name: 'Register' }).click();
-        await expect(
-            page.getByRole('heading', { name: 'Profile' }),
-        ).toBeVisible();
-        await expect(page.getByText(unique)).toBeVisible();
+        await expect(page).toHaveURL(/\/dashboard/);
+        await expect(page.getByText('Hello Dashboard!')).toBeVisible();
     });
 
     test('shows error when registering with existing email', async ({
@@ -108,7 +108,7 @@ test.describe('Logout', () => {
     test('protected pages redirect to login when logged out', async ({
         page,
     }) => {
-        await page.goto('/profile');
+        await page.goto('/dashboard');
         await expect(page).toHaveURL(/\/login/);
     });
 });

@@ -2,15 +2,21 @@ import type { FullConfig } from '@playwright/test';
 
 const TEST_USERS = [
     { name: 'Alice', email: 'alice@iridium.dev', password: 'password123' },
+    { name: 'Bob', email: 'bob@iridium.dev', password: 'password123' },
 ];
 
 export default async function globalSetup(config: FullConfig) {
-    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:5173';
+    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:7778';
 
     for (const user of TEST_USERS) {
         const res = await fetch(`${baseURL}/api/auth/sign-up/email`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                // Better Auth validates the request Origin against its trusted
+                // origins; a server-to-server fetch sends none, so set it.
+                Origin: baseURL,
+            },
             body: JSON.stringify(user),
         });
 
