@@ -29,6 +29,15 @@ const envSchema = z.object({
     NODE_ENV: z
         .enum(['development', 'production', 'test'])
         .default('development'),
+    /**
+     * Disables Better Auth's rate limiter. Intended only for the E2E test
+     * server, which creates many sessions quickly; unset everywhere else so
+     * dev, CI, and prod keep the production limits.
+     */
+    DISABLE_AUTH_RATE_LIMIT: z
+        .enum(['true', 'false'])
+        .optional()
+        .transform((value) => value === 'true'),
 });
 
 function validateEnv() {

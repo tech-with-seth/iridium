@@ -40,9 +40,11 @@ export const auth = betterAuth({
     },
     plugins: [admin({ defaultRole: 'USER' })],
     // Better Auth's built-in rate limiter. Defaults are off in non-prod;
-    // explicitly enable so dev and CI exercise the same limits as prod.
+    // explicitly enable so dev and CI exercise the same limits as prod. The
+    // E2E test server opts out via DISABLE_AUTH_RATE_LIMIT so it can create
+    // many sessions quickly.
     rateLimit: {
-        enabled: true,
+        enabled: !env.DISABLE_AUTH_RATE_LIMIT,
         // 10s sliding window, 100 req/window per IP across all auth endpoints.
         window: 10,
         max: 100,

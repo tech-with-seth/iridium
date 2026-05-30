@@ -1,10 +1,10 @@
-import { test as base, expect } from '@playwright/test';
-import path from 'node:path';
-
-export const STORAGE_STATE = path.join(
-    import.meta.dirname,
-    '../test-results/.auth/user.json',
-);
+import {
+    test as base,
+    expect,
+    type Browser,
+    type BrowserContext,
+    type Page,
+} from '@playwright/test';
 
 export const TEST_USER = {
     name: 'Alice',
@@ -12,17 +12,110 @@ export const TEST_USER = {
     password: 'password123',
 };
 
+/** Second seeded user, used for cross-user authorization tests. */
+export const TEST_USER_BOB = {
+    name: 'Bob',
+    email: 'bob@iridium.dev',
+    password: 'password123',
+};
+
+/** Where the auth form sends users on success. */
+export const REDIRECT_PATH = '/dashboard';
+
+/** Sign in through the login form and wait for the post-login redirect. */
+export async function loginViaUI(
+    page: Page,
+    user: { email: string; password: string } = TEST_USER,
+) {
+    await page.goto('/login');
+    await page.getByPlaceholder('name@example.com').fill(user.email);
+    await page.getByPlaceholder('Your password').fill(user.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForURL(new RegExp(REDIRECT_PATH));
+}
+
+// Monotonic counter so emails minted within the same millisecond by one worker
+// never collide.
+let userSeq = 0;
+
 /**
- * Extend the base test with an `authedPage` fixture that reuses a
- * pre-authenticated storageState so we never re-login per test.
+ * Sign up a brand-new account via the Better Auth API in the given context and
+ * return its credentials. Sign-up auto-signs-in, so the context is left
+ * authenticated (its cookie jar holds the session).
  */
-export const test = base.extend<{
-    authedPage: import('@playwright/test').Page;
-}>({
-    authedPage: async ({ browser }, use) => {
-        const context = await browser.newContext({
-            storageState: STORAGE_STATE,
-        });
+export async function createFreshUser(
+    context: BrowserContext,
+    baseURL: string,
+    tag: string | number = 'x',
+) {
+    const email = `e2e-${tag}-${Date.now()}-${userSeq++}@iridium.test`;
+    const password = 'password123';
+
+    const res = await context.request.post('/api/auth/sign-up/email', {
+        // Better Auth checks the request Origin against its trusted origins.
+        headers: { Origin: baseURL },
+        data: { name: `E2E User ${tag}`, email, password },
+    });
+
+    if (!res.ok()) {
+        throw new Error(
+            `Fresh-user sign-up failed (${res.status()}): ${await res.text()}`,
+        );
+    }
+
+    return { email, password };
+}
+
+/**
+ * Create a fresh browser context already authenticated as a brand-new user.
+ * Caller is responsible for closing the returned context.
+ */
+export async function createAuthedContext(
+    browser: Browser,
+    baseURL: string,
+    tag: string | number = 'x',
+): Promise<BrowserContext> {
+    const context = await browser.newContext({ baseURL });
+    await createFreshUser(context, baseURL, tag);
+    return context;
+}
+
+/**
+ * Create a thread for the user owning `context` and return its id. Uses the
+ * /chat action (the same path the New Thread button hits) and reads the id
+ * from the redirect Location.
+ */
+export async function createThreadViaApi(
+    context: BrowserContext,
+): Promise<string> {
+    const res = await context.request.post('/chat', {
+        form: { intent: 'new-thread' },
+        maxRedirects: 0,
+    });
+
+    const location = res.headers()['location'];
+    if (!location) {
+        throw new Error(
+            `Expected a redirect creating a thread, got ${res.status()}`,
+        );
+    }
+
+    return location.split('/').pop()!;
+}
+
+/**
+ * Extend the base test with an `authedPage` fixture backed by a brand-new user
+ * created per test. Each test therefore starts from a clean slate (zero
+ * threads, zero notes), which keeps parallel runs free of shared-state races.
+ */
+export const test = base.extend<{ authedPage: Page }>({
+    authedPage: async ({ browser }, use, testInfo) => {
+        const baseURL = testInfo.project.use.baseURL;
+        if (!baseURL) throw new Error('baseURL is not configured');
+
+        const context = await browser.newContext({ baseURL });
+        await createFreshUser(context, baseURL, testInfo.workerIndex);
+
         const page = await context.newPage();
         await use(page);
         await context.close();

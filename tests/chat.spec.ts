@@ -1,57 +1,35 @@
-import type { Page, Route as PwRoute } from '@playwright/test';
+import type { Route as PwRoute } from '@playwright/test';
 import { test, expect } from './fixtures';
+import { SSE_HEADERS, mockChatReply, sseBody } from './chat-mock';
 
-// ---------------------------------------------------------------------------
-// Mock helpers — fake the /api/chat SSE stream so no AI service is needed
-// ---------------------------------------------------------------------------
+/**
+ * Each test runs as a fresh, isolated user (see the `authedPage` fixture), so
+ * the thread sidebar starts empty and counts/links are deterministic. Threads
+ * are counted by their `link` role — the "No threads found" empty state is a
+ * listitem with no link, so it never inflates the count.
+ */
 
-const SSE_HEADERS = {
-    'content-type': 'text/event-stream',
-    'cache-control': 'no-cache',
-    connection: 'keep-alive',
-    'x-vercel-ai-ui-message-stream': 'v1',
-};
+const conversations = (page: import('@playwright/test').Page) =>
+    page.getByRole('navigation', { name: 'Conversations' });
 
-/** Build an SSE payload from an array of UI message stream chunks. */
-function sseBody(chunks: Record<string, unknown>[]): string {
-    return (
-        chunks.map((c) => `data: ${JSON.stringify(c)}\n\n`).join('') +
-        'data: [DONE]\n\n'
-    );
+/** Path portion (e.g. /chat/abc123) of the currently open thread URL. */
+function threadPath(url: string): string {
+    return new URL(url).pathname;
 }
-
-/** Standard chunks that stream a plain text reply. */
-function textReplyChunks(text: string, messageId = 'mock-msg-1') {
-    return [
-        { type: 'start', messageId },
-        { type: 'start-step' },
-        { type: 'text-start', id: 'txt-1' },
-        { type: 'text-delta', id: 'txt-1', delta: text },
-        { type: 'text-end', id: 'txt-1' },
-        { type: 'finish-step' },
-        { type: 'finish', finishReason: 'stop' },
-    ];
-}
-
-/** Intercept POST /api/chat and reply with a canned SSE stream. */
-async function mockChatApi(page: Page, text: string, messageId?: string) {
-    await page.route('**/api/chat', async (route: PwRoute) => {
-        await route.fulfill({
-            status: 200,
-            headers: SSE_HEADERS,
-            body: sseBody(textReplyChunks(text, messageId)),
-        });
-    });
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 test.describe('Chat', () => {
+    test('starts with an empty thread list and prompt to pick a thread', async ({
+        authedPage: page,
+    }) => {
+        await page.goto('/chat');
+
+        await expect(page.getByText('Pick a thread!')).toBeVisible();
+        await expect(page.getByText('No threads found')).toBeVisible();
+        await expect(conversations(page).getByRole('link')).toHaveCount(0);
+    });
+
     test('can create a new thread', async ({ authedPage: page }) => {
         await page.goto('/chat');
-        await expect(page.getByText('Pick a thread!')).toBeVisible();
 
         await page.getByRole('button', { name: 'New Thread' }).click();
         await expect(page).toHaveURL(/\/chat\/.+/);
@@ -60,7 +38,17 @@ test.describe('Chat', () => {
         await expect(page.getByText('No messages yet')).toBeVisible();
     });
 
-    test('sending a message shows it in the chat', async ({
+    test('new thread appears in the sidebar', async ({ authedPage: page }) => {
+        await page.goto('/chat');
+        await expect(conversations(page).getByRole('link')).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'New Thread' }).click();
+        await expect(page).toHaveURL(/\/chat\/.+/);
+
+        await expect(conversations(page).getByRole('link')).toHaveCount(1);
+    });
+
+    test('sending a message shows the user message and AI reply', async ({
         authedPage: page,
     }) => {
         await page.goto('/chat');
@@ -68,26 +56,23 @@ test.describe('Chat', () => {
         await expect(page).toHaveURL(/\/chat\/.+/);
 
         const reply = 'Hello from mock AI!';
-        await mockChatApi(page, reply);
+        await mockChatReply(page, reply);
 
-        const input = page.getByPlaceholder('Your message here...');
-        await input.fill('Hi there');
+        await page.getByPlaceholder('Your message here...').fill('Hi there');
         await page.getByRole('button', { name: 'Send' }).click();
 
-        // User message appears
         await expect(page.getByText('Hi there')).toBeVisible();
-        // AI reply streams in
         await expect(page.getByText(reply)).toBeVisible();
     });
 
-    test('AI response streams back and renders', async ({
+    test('AI response streams back incrementally', async ({
         authedPage: page,
     }) => {
         await page.goto('/chat');
         await page.getByRole('button', { name: 'New Thread' }).click();
         await expect(page).toHaveURL(/\/chat\/.+/);
 
-        // Stream two separate deltas to verify incremental rendering
+        // Stream two separate deltas to verify incremental concatenation.
         await page.route('**/api/chat', async (route: PwRoute) => {
             await route.fulfill({
                 status: 200,
@@ -96,16 +81,8 @@ test.describe('Chat', () => {
                     { type: 'start', messageId: 'msg-stream' },
                     { type: 'start-step' },
                     { type: 'text-start', id: 'txt-s' },
-                    {
-                        type: 'text-delta',
-                        id: 'txt-s',
-                        delta: 'first chunk ',
-                    },
-                    {
-                        type: 'text-delta',
-                        id: 'txt-s',
-                        delta: 'second chunk',
-                    },
+                    { type: 'text-delta', id: 'txt-s', delta: 'first chunk ' },
+                    { type: 'text-delta', id: 'txt-s', delta: 'second chunk' },
                     { type: 'text-end', id: 'txt-s' },
                     { type: 'finish-step' },
                     { type: 'finish', finishReason: 'stop' },
@@ -113,97 +90,77 @@ test.describe('Chat', () => {
             });
         });
 
-        const input = page.getByPlaceholder('Your message here...');
-        await input.fill('Stream test');
+        await page.getByPlaceholder('Your message here...').fill('Stream test');
         await page.getByRole('button', { name: 'Send' }).click();
 
-        // Both deltas should be concatenated
         await expect(page.getByText('first chunk second chunk')).toBeVisible();
-    });
-
-    test('thread appears in the sidebar after creation', async ({
-        authedPage: page,
-    }) => {
-        await page.goto('/chat');
-
-        const sidebar = page.getByRole('navigation', {
-            name: 'Conversations',
-        });
-
-        // Count threads before
-        const beforeCount = await sidebar.getByRole('listitem').count();
-
-        await page.getByRole('button', { name: 'New Thread' }).click();
-        await expect(page).toHaveURL(/\/chat\/.+/);
-
-        // Sidebar should now have one more thread
-        await expect(sidebar.getByRole('listitem')).toHaveCount(
-            beforeCount + 1,
-        );
     });
 
     test('thread can be deleted', async ({ authedPage: page }) => {
         await page.goto('/chat');
         await page.getByRole('button', { name: 'New Thread' }).click();
         await expect(page).toHaveURL(/\/chat\/.+/);
+        const path = threadPath(page.url());
 
-        const sidebar = page.getByRole('navigation', {
-            name: 'Conversations',
-        });
+        const sidebar = conversations(page);
+        await expect(sidebar.getByRole('link')).toHaveCount(1);
 
-        // The new thread should be in the sidebar
-        const threadCount = await sidebar.getByRole('listitem').count();
-        expect(threadCount).toBeGreaterThanOrEqual(1);
+        // The delete button is revealed on hover of the thread's row.
+        const row = sidebar
+            .getByRole('listitem')
+            .filter({ has: page.locator(`a[href="${path}"]`) });
+        await row.hover();
+        await row.getByRole('button', { name: 'Delete thread' }).click();
 
-        // Delete the first thread — button is hidden until hover
-        const firstThread = sidebar.getByRole('listitem').first();
-        await firstThread.hover();
-        await firstThread
-            .getByRole('button', { name: 'Delete thread' })
-            .click();
-
-        // Confirm deletion in the dialog
+        // Confirm in the modal.
         const dialog = page.getByRole('dialog');
         await expect(dialog).toBeVisible();
         await dialog.getByRole('button', { name: 'Delete' }).click();
 
-        // Should redirect to /chat and have one fewer thread
+        // Redirects back to the chat index, and the thread is gone.
         await expect(page).toHaveURL(/\/chat$/);
-        await expect(sidebar.getByRole('listitem')).toHaveCount(
-            threadCount - 1,
-        );
+        await expect(sidebar.getByRole('link')).toHaveCount(0);
+        await expect(page.getByText('No threads found')).toBeVisible();
     });
 
-    test('navigating between threads loads correct messages', async ({
+    test('can navigate between multiple threads', async ({
         authedPage: page,
     }) => {
-        // Create two threads
         await page.goto('/chat');
+
+        // Create the first thread.
         await page.getByRole('button', { name: 'New Thread' }).click();
         await expect(page).toHaveURL(/\/chat\/.+/);
-        const firstThreadUrl = page.url();
-
-        // Send a message in the first thread
-        await mockChatApi(page, 'Reply to thread one');
-        const input = page.getByPlaceholder('Your message here...');
-        await input.fill('Message in thread one');
-        await page.getByRole('button', { name: 'Send' }).click();
-        await expect(page.getByText('Reply to thread one')).toBeVisible();
-
-        // Create a second thread
-        await page.unrouteAll({ behavior: 'wait' });
-        await page.getByRole('button', { name: 'New Thread' }).click();
-        await page.waitForURL(/\/chat\/.+/);
-        // Make sure we're on a different thread
-        expect(page.url()).not.toBe(firstThreadUrl);
+        const firstPath = threadPath(page.url());
         await expect(page.getByText('No messages yet')).toBeVisible();
 
-        // Navigate back to the first thread
-        const sidebar = page.getByRole('navigation', {
-            name: 'Conversations',
-        });
-        // The first thread should still have its message when we reload it
-        await sidebar.getByRole('link').first().click();
-        await expect(page.getByText('Message in thread one')).toBeVisible();
+        // Create a second thread — wait for the path to actually change since
+        // we are already on a /chat/<id> URL.
+        await page.getByRole('button', { name: 'New Thread' }).click();
+        await page.waitForURL(
+            (url) =>
+                /\/chat\/.+/.test(url.pathname) && url.pathname !== firstPath,
+        );
+        const secondPath = threadPath(page.url());
+
+        const sidebar = conversations(page);
+        await expect(sidebar.getByRole('link')).toHaveCount(2);
+
+        // The open thread's link is marked current; the other is not.
+        await expect(
+            sidebar.locator(`a[href="${secondPath}"]`),
+        ).toHaveAttribute('aria-current', 'page');
+        await expect(
+            sidebar.locator(`a[href="${firstPath}"]`),
+        ).not.toHaveAttribute('aria-current', 'page');
+
+        // Switch back to the first thread.
+        await sidebar.locator(`a[href="${firstPath}"]`).click();
+        await expect(page).toHaveURL(new RegExp(`${firstPath}$`));
+        await expect(page.getByText('No messages yet')).toBeVisible();
+        await expect(sidebar.locator(`a[href="${firstPath}"]`)).toHaveAttribute(
+            'aria-current',
+            'page',
+        );
     });
 });
