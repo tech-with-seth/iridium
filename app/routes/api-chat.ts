@@ -98,6 +98,9 @@ export async function action({ request }: Route.ActionArgs) {
 
             const titleResult = await agent.generateText(
                 `Generate a concise, descriptive title (max 6 words) for this conversation. The title should capture the main topic or question being discussed.\n\nConversation:\n${conversationContext}\n\nGenerate only the title, no quotes or extra text.`,
+                { allowSystemInMessages: true } as Parameters<
+                    typeof agent.generateText
+                >[1] & { allowSystemInMessages: boolean },
             );
 
             const title = (titleResult?.text ?? '')
@@ -129,12 +132,22 @@ export async function action({ request }: Route.ActionArgs) {
         );
     }
 
+    // VoltAgent always supplies its system prompt as a system-role message in
+    // the messages array (it never uses the AI SDK `system` option). The system
+    // content is our own instructions, so opt out of the AI SDK's
+    // prompt-injection warning. The flag is forwarded to the underlying AI SDK
+    // call but isn't part of VoltAgent's public option type, hence the cast.
+    const streamOptions = {
+        userId: user.id,
+        conversationId: threadId,
+        allowSystemInMessages: true,
+    } as Parameters<typeof agent.streamText>[1] & {
+        allowSystemInMessages: boolean;
+    };
+
     let result;
     try {
-        result = await agent.streamText([latestUserMessage], {
-            userId: user.id,
-            conversationId: threadId,
-        });
+        result = await agent.streamText([latestUserMessage], streamOptions);
     } catch (error) {
         if (!isDuplicateItemError(error)) throw error;
 
@@ -142,10 +155,7 @@ export async function action({ request }: Route.ActionArgs) {
         log.warn('chat_memory_self_heal', { threadId, userId: user.id });
         await memory.clearMessages(user.id, threadId);
 
-        result = await agent.streamText([latestUserMessage], {
-            userId: user.id,
-            conversationId: threadId,
-        });
+        result = await agent.streamText([latestUserMessage], streamOptions);
     }
 
     return result.toUIMessageStreamResponse({

@@ -45,11 +45,15 @@ export const renderCardTool = createTool({
         '- "pros_cons" for balanced evaluations, comparisons, or trade-off analysis',
         'Prefer this over plain text when the structure itself conveys meaning.',
     ].join(' '),
-    parameters: cardSchema,
-    execute: async (args) => {
+    // The card union is wrapped in an object because the Anthropic API
+    // requires a tool's root input schema to be `type: "object"` -- a
+    // discriminated union at the root serializes to `anyOf` with no root
+    // type and is rejected.
+    parameters: z.object({ card: cardSchema }),
+    execute: async ({ card }) => {
         // The tool returns the structured data as-is; the React component
         // on the client renders it. This is VoltAgent's tool-driven
         // approach to generative UI.
-        return args;
+        return card;
     },
 });
