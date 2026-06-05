@@ -99,7 +99,7 @@ app/
 ├── voltagent/           # Agent definition and tools
 │   ├── agents.ts        # Agent config, tool definitions
 │   └── index.ts         # Agent export
-└── root.tsx             # App shell, navigation, layout
+└── root.tsx             # HTML document + bare Outlet (chrome lives in routes/layouts/)
 prisma/
 ├── schema.prisma        # Database schema
 ├── migrations/          # Migration history

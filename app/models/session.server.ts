@@ -45,7 +45,7 @@ export async function requireUser(request: Request) {
  */
 export async function requireAnonymous(
     request: Request,
-    redirectTo = '/profile',
+    redirectTo = '/dashboard',
 ) {
     const user = await getUserFromSession(request);
     if (user) throw redirect(redirectTo);

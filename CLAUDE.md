@@ -149,8 +149,21 @@ Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs
 
 ### Layout
 
-Root layout in `app/root.tsx`: header nav → 3/9 grid (sidebar + content) → footer. Auth-conditional nav items with right-side DaisyUI `Drawer` for mobile.
+`app/root.tsx` is chrome-agnostic: it renders only the HTML document (`Layout`), the auth `loader` (`isAuthenticated`), and a bare `<Outlet/>`. All page chrome lives in per-section layout routes under `app/routes/layouts/`, composed in `routes.ts` via `layout(...)`:
+
+- `layouts/app.tsx` — locked app shell (`h-dvh` grid: header → nav + internal-scroll `main` → footer). Wraps `/dashboard` and `/chat`. Use this shell for app surfaces that should fill the viewport and scroll internally.
+- `layouts/marketing.tsx` — growable document (`min-h-dvh` flex column, footer at content's end). Wraps `/` (landing).
+- `layouts/auth.tsx` — full-bleed, no header/footer. Wraps `/login`.
+
+Shared chrome is extracted into `SiteHeader` and `SiteFooter` (`app/components/`). `SiteHeader` reads auth state via `useRouteLoaderData<typeof rootLoader>('root')` rather than props.
+
+**Definite height matters:** app/auth shells use `h-dvh` (a fixed height) so the `min-h-0` + `overflow-y-auto` chain can scroll children internally. `min-h-screen` is a minimum, not a definite height, and silently breaks internal scrolling once content exceeds the viewport.
 
 ### Formatting
 
 Prettier with: 80 char width, 4-space indentation, single quotes, semicolons, tailwindcss plugin for class sorting. ESLint with typescript-eslint and react-hooks plugin.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->

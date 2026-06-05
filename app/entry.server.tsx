@@ -40,7 +40,7 @@ function setSecurityHeaders(headers: Headers) {
             "base-uri 'self'",
             "frame-ancestors 'none'",
             "form-action 'self'",
-            "img-src 'self' data: blob:",
+            "img-src 'self' data: blob: https://res.cloudinary.com",
             "font-src 'self' https://fonts.gstatic.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             // Inline scripts are required for the React Router runtime bootstrap.

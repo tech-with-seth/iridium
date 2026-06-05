@@ -81,7 +81,7 @@ export function Turnstile() {
                         : 'Create your Iridium account to explore the SaaS starter kit.'
                 }
             />
-            <div className="p-4">
+            <div className="p-8">
                 <h2 className="mb-8 text-3xl font-bold">Authenticate</h2>
                 {formError && (
                     <div role="alert" className="alert alert-error mb-4">
