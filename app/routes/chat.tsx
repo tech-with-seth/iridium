@@ -159,7 +159,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                     </Form>
                 </div>
                 <div className="grid min-h-0 grow grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 md:grid-cols-12 md:grid-rows-1">
-                    <div className="col-span-1 max-h-48 overflow-y-auto md:col-span-5 md:max-h-none lg:col-span-4">
+                    <div className="col-span-1 max-h-48 overflow-y-auto md:col-span-5 md:max-h-none lg:col-span-3">
                         <nav aria-label="Conversations">
                             <ul className="flex flex-col gap-4">
                                 {loaderData.threads &&
@@ -206,7 +206,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                             </ul>
                         </nav>
                     </div>
-                    <div className="col-span-1 flex min-h-0 flex-col gap-4 overflow-hidden md:col-span-7 lg:col-span-8">
+                    <div className="col-span-1 flex min-h-0 flex-col gap-4 overflow-hidden md:col-span-7 lg:col-span-9">
                         <Outlet />
                     </div>
                 </div>

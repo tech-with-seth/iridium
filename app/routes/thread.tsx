@@ -192,7 +192,7 @@ export default function ThreadRoute({
                 ref={messageRef}
                 aria-live="polite"
                 aria-busy={status === 'streaming'}
-                className="rounded-box bg-base-100 flex min-h-0 grow flex-col gap-4 overflow-y-auto p-4"
+                className="rounded-box bg-base-100 border-base-300 flex min-h-0 grow flex-col gap-4 overflow-y-auto border p-4"
             >
                 {/* Spacer pushes messages to the bottom. Using justify-end with
                    overflow-y-auto causes upward overflow that is unreachable

@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 
 export function Header({ children }: PropsWithChildren) {
     return (
-        <header className="navbar bg-black text-neutral-content">
+        <header className="navbar bg-neutral text-neutral-content mb-4">
             {children}
         </header>
     );
