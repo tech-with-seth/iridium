@@ -1,9 +1,10 @@
 name: Triage Loop
 
 # The "heartbeat" of the loop-engineered workflow (see docs/loop/README.md).
-# Runs the `triage` skill on a schedule: it discovers work, records findings in
-# docs/loop/state.md, and files actionable items as `triage`-labeled issues.
-# It does NOT fix anything — execution is a separate stage.
+# Runs the `triage` skill on a schedule: it discovers work and files actionable
+# items as `triage`-labeled GitHub issues — the issue tracker is the loop's
+# memory, so this job writes nothing back to the repo. It does NOT fix anything;
+# execution is a separate stage.
 
 on:
     schedule:
@@ -17,9 +18,9 @@ concurrency:
     cancel-in-progress: false
 
 permissions:
-    contents: write # commit docs/loop/state.md back to the repo
-    issues: write # file actionable findings
-    actions: read # read CI run results
+    contents: read # checkout + git log only; the loop commits nothing
+    issues: write # file actionable findings (the loop's memory)
+    actions: read # read CI run results + prior triage run timestamps
     pull-requests: read
 
 jobs:
@@ -41,11 +42,6 @@ jobs:
 
             - name: Generate Prisma client
               run: bunx --bun prisma generate
-
-            - name: Configure git identity
-              run: |
-                  git config user.name "iridium-triage-bot"
-                  git config user.email "triage-bot@users.noreply.github.com"
 
             - name: Run triage loop
               uses: anthropics/claude-code-action@v1
