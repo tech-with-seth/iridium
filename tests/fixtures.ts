@@ -104,6 +104,25 @@ export async function createThreadViaApi(
 }
 
 /**
+ * Create a note for the user owning `context` via the /notes action.
+ */
+export async function createNoteViaApi(
+    context: BrowserContext,
+    { title, content }: { title: string; content: string },
+): Promise<void> {
+    const res = await context.request.post('/notes', {
+        form: { intent: 'create-note', title, content },
+        maxRedirects: 0,
+    });
+
+    if (res.status() !== 302) {
+        throw new Error(
+            `Expected a redirect creating a note, got ${res.status()}`,
+        );
+    }
+}
+
+/**
  * Extend the base test with an `authedPage` fixture backed by a brand-new user
  * created per test. Each test therefore starts from a clean slate (zero
  * threads, zero notes), which keeps parallel runs free of shared-state races.

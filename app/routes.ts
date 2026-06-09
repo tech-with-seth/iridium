@@ -16,6 +16,7 @@ export default [
     route('/logout', 'routes/logout.tsx'),
     layout('routes/layouts/app.tsx', [
         route('/dashboard', 'routes/dashboard.tsx'),
+        route('/notes', 'routes/notes.tsx'),
         route('/settings', 'routes/settings.tsx'),
         route('/chat', 'routes/chat.tsx', [
             index('routes/chat-index.tsx'),

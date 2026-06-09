@@ -10,7 +10,9 @@ test.describe('Login', () => {
         await page.getByRole('button', { name: 'Login' }).click();
 
         await expect(page).toHaveURL(/\/dashboard/);
-        await expect(page.getByText('Hello Dashboard!')).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /^Hello / }),
+        ).toBeVisible();
     });
 
     test('shows error for invalid credentials', async ({ page }) => {
@@ -77,7 +79,9 @@ test.describe('Registration', () => {
         await page.getByPlaceholder('Your password').fill('password123');
         await page.getByRole('button', { name: 'Register' }).click();
         await expect(page).toHaveURL(/\/dashboard/);
-        await expect(page.getByText('Hello Dashboard!')).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /^Hello / }),
+        ).toBeVisible();
     });
 
     test('shows error when registering with existing email', async ({

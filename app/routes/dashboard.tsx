@@ -1,29 +1,178 @@
+import { Form, Link } from 'react-router';
+import {
+    MessagesSquareIcon,
+    NotebookPenIcon,
+    PlusCircleIcon,
+} from 'lucide-react';
+import { requireUserFromContext } from '~/context';
 import { authMiddleware } from '~/middleware/auth';
-import type { Route } from './+types/dashboard';
-import { Container } from '~/components/Container';
+import {
+    countThreadsByUserId,
+    getAllThreadsByUserId,
+} from '~/models/thread.server';
+import { countNotesByUserId, getNotesByUserId } from '~/models/note.server';
 import { Card } from '~/components/Card';
-
-export async function loader() {}
-
-export async function action() {}
+import { Container } from '~/components/Container';
+import { EmptyState } from '~/components/EmptyState';
+import type { Route } from './+types/dashboard';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export default function DashboardRoute() {
+export async function loader({ context }: Route.LoaderArgs) {
+    const user = requireUserFromContext(context);
+
+    const [threadCount, noteCount, recentThreads, recentNotes] =
+        await Promise.all([
+            countThreadsByUserId(user.id),
+            countNotesByUserId(user.id),
+            getAllThreadsByUserId(user.id, { take: 5 }),
+            getNotesByUserId(user.id, { take: 3 }),
+        ]);
+
+    return {
+        name: user.name,
+        memberSince: user.createdAt,
+        threadCount,
+        noteCount,
+        recentThreads: recentThreads.map((thread) => ({
+            id: thread.id,
+            title: thread.title ?? 'Untitled',
+            createdAt: thread.createdAt,
+        })),
+        recentNotes: recentNotes.map((note) => ({
+            id: note.id,
+            title: note.title,
+            updatedAt: note.updatedAt,
+        })),
+    };
+}
+
+export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
+    const {
+        name,
+        memberSince,
+        threadCount,
+        noteCount,
+        recentThreads,
+        recentNotes,
+    } = loaderData;
+
     return (
         <>
             <title>Dashboard | Iridium</title>
-            <Container className="px-4">
-                <h1 className="mb-8 text-4xl font-bold">Dashboard</h1>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <Card title="Card 1">
-                        <p>This is the content of card 1.</p>
+            <meta
+                name="description"
+                content="Your Iridium activity at a glance."
+            />
+            <Container className="flex flex-col gap-6 p-4">
+                <div>
+                    <h1 className="text-4xl font-bold">Hello {name}!</h1>
+                    <p className="text-base-content/60">
+                        Here is what is happening in your workspace.
+                    </p>
+                </div>
+
+                <div className="stats stats-vertical md:stats-horizontal bg-base-200 shadow">
+                    <div className="stat">
+                        <div className="stat-title">Conversations</div>
+                        <div className="stat-value">{threadCount}</div>
+                    </div>
+                    <div className="stat">
+                        <div className="stat-title">Notes</div>
+                        <div className="stat-value">{noteCount}</div>
+                    </div>
+                    <div className="stat">
+                        <div className="stat-title">Member since</div>
+                        <div className="stat-value text-lg">
+                            {new Date(memberSince).toLocaleDateString()}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    <Form method="POST" action="/chat">
+                        <input type="hidden" name="intent" value="new-thread" />
+                        <button type="submit" className="btn btn-accent">
+                            <PlusCircleIcon
+                                aria-hidden="true"
+                                className="mr-1 h-5 w-5"
+                            />
+                            New Thread
+                        </button>
+                    </Form>
+                    <Link to="/notes?new=1" className="btn">
+                        <NotebookPenIcon
+                            aria-hidden="true"
+                            className="mr-1 h-5 w-5"
+                        />
+                        New Note
+                    </Link>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <Card title="Recent conversations" bordered>
+                        {recentThreads.length === 0 ? (
+                            <EmptyState
+                                icon={MessagesSquareIcon}
+                                title="No conversations yet"
+                                description="Start a thread and chat with the agent."
+                            />
+                        ) : (
+                            <ul className="divide-base-300 divide-y">
+                                {recentThreads.map((thread) => (
+                                    <li key={thread.id}>
+                                        <Link
+                                            to={`/chat/${thread.id}`}
+                                            className="hover:bg-base-200 flex items-center justify-between gap-4 rounded px-2 py-3"
+                                        >
+                                            <span className="truncate">
+                                                {thread.title}
+                                            </span>
+                                            <span className="text-base-content/50 shrink-0 text-xs">
+                                                {new Date(
+                                                    thread.createdAt,
+                                                ).toLocaleDateString()}
+                                            </span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </Card>
-                    <Card title="Card 2">
-                        <p>This is the content of card 2.</p>
-                    </Card>
-                    <Card title="Card 3">
-                        <p>This is the content of card 3.</p>
+
+                    <Card title="Recent notes" bordered>
+                        {recentNotes.length === 0 ? (
+                            <EmptyState
+                                icon={NotebookPenIcon}
+                                title="No notes yet"
+                                description="Create one here or ask the agent to save something."
+                            />
+                        ) : (
+                            <>
+                                <ul className="divide-base-300 divide-y">
+                                    {recentNotes.map((note) => (
+                                        <li
+                                            key={note.id}
+                                            className="flex items-center justify-between gap-4 px-2 py-3"
+                                        >
+                                            <span className="truncate">
+                                                {note.title}
+                                            </span>
+                                            <span className="text-base-content/50 shrink-0 text-xs">
+                                                {new Date(
+                                                    note.updatedAt,
+                                                ).toLocaleDateString()}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="card-actions">
+                                    <Link to="/notes" className="link text-sm">
+                                        View all notes
+                                    </Link>
+                                </div>
+                            </>
+                        )}
                     </Card>
                 </div>
             </Container>

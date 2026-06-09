@@ -19,6 +19,7 @@ export function SiteHeader() {
             ? [
                   { to: '/dashboard', label: 'Dashboard' },
                   { to: '/chat', label: 'Chat' },
+                  { to: '/notes', label: 'Notes' },
                   { to: '/settings', label: 'Settings' },
               ]
             : []),

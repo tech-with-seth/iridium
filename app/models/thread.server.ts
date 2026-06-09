@@ -11,7 +11,10 @@ export function createThread(createdById: string) {
     });
 }
 
-export function getAllThreadsByUserId(userId: string) {
+export function getAllThreadsByUserId(
+    userId: string,
+    { take }: { take?: number } = {},
+) {
     return prisma.thread.findMany({
         where: { createdById: userId, deletedAt: null },
         include: {
@@ -21,6 +24,13 @@ export function getAllThreadsByUserId(userId: string) {
             },
         },
         orderBy: { createdAt: 'desc' },
+        take,
+    });
+}
+
+export function countThreadsByUserId(userId: string) {
+    return prisma.thread.count({
+        where: { createdById: userId, deletedAt: null },
     });
 }
 
