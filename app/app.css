@@ -9,7 +9,13 @@
 
 @plugin '@tailwindcss/typography';
 
+/*
+ * Theme switching: light/dark map to data-theme="emerald"/"night" set by
+ * root.tsx from the theme cookie; "system" omits data-theme so the
+ * --prefersdark theme applies via prefers-color-scheme with zero JS.
+ */
 @plugin 'daisyui' {
-    themes: emerald --default;
-    /* dark --prefersdark */
+    themes:
+        emerald --default,
+        night --prefersdark;
 }

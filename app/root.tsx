@@ -1,12 +1,18 @@
 import {
+    data,
     isRouteErrorResponse,
     Links,
     Meta,
     Outlet,
     Scripts,
     ScrollRestoration,
+    useRouteLoaderData,
 } from 'react-router';
 import { getUserFromSession } from '~/models/session.server';
+import { getTheme } from '~/lib/theme.server';
+import { THEME_NAMES } from '~/lib/theme';
+import { getToast } from '~/lib/toast.server';
+import { Toaster } from '~/components/Toaster';
 import type { Route } from './+types/root';
 
 import './app.css';
@@ -25,16 +31,36 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-    const user = await getUserFromSession(request);
+    const [user, theme, { toast, headers }] = await Promise.all([
+        getUserFromSession(request),
+        getTheme(request),
+        getToast(request),
+    ]);
 
-    return {
-        isAuthenticated: Boolean(user),
-    };
+    return data(
+        {
+            isAuthenticated: Boolean(user),
+            theme,
+            toast,
+        },
+        // Clears the consumed toast flash cookie.
+        { headers },
+    );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+    // useRouteLoaderData (not props): Layout also wraps ErrorBoundary, where
+    // loader data may be unavailable, so it must tolerate undefined.
+    const loaderData = useRouteLoaderData<typeof loader>('root');
+    const theme = loaderData?.theme ?? 'system';
+
     return (
-        <html lang="en" className="h-full">
+        <html
+            lang="en"
+            className="h-full"
+            // "system" omits data-theme: CSS --prefersdark takes over.
+            data-theme={theme === 'system' ? undefined : THEME_NAMES[theme]}
+        >
             <head>
                 <meta charSet="utf-8" />
                 <meta
@@ -53,8 +79,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-export default function App() {
-    return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+    return (
+        <>
+            <Outlet />
+            <Toaster toast={loaderData.toast} />
+        </>
+    );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

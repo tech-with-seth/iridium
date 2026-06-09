@@ -5,7 +5,7 @@ import { SSE_HEADERS, mockChatReply, sseBody } from './chat-mock';
 /**
  * Each test runs as a fresh, isolated user (see the `authedPage` fixture), so
  * the thread sidebar starts empty and counts/links are deterministic. Threads
- * are counted by their `link` role — the "No threads found" empty state is a
+ * are counted by their `link` role — the "No conversations yet" empty state is a
  * listitem with no link, so it never inflates the count.
  */
 
@@ -24,7 +24,7 @@ test.describe('Chat', () => {
         await page.goto('/chat');
 
         await expect(page.getByText('Pick a thread!')).toBeVisible();
-        await expect(page.getByText('No threads found')).toBeVisible();
+        await expect(page.getByText('No conversations yet')).toBeVisible();
         await expect(conversations(page).getByRole('link')).toHaveCount(0);
     });
 
@@ -120,7 +120,7 @@ test.describe('Chat', () => {
         // Redirects back to the chat index, and the thread is gone.
         await expect(page).toHaveURL(/\/chat$/);
         await expect(sidebar.getByRole('link')).toHaveCount(0);
-        await expect(page.getByText('No threads found')).toBeVisible();
+        await expect(page.getByText('No conversations yet')).toBeVisible();
     });
 
     test('can navigate between multiple threads', async ({

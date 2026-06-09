@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Container } from '~/components/Container';
+import { EmptyState } from '~/components/EmptyState';
 import { authMiddleware } from '~/middleware/auth';
 import { rateLimit } from '~/lib/rate-limit.server';
-import { listItemClassName, navLinkClassName } from '~/shared';
+import { navLinkClassName } from '~/shared';
 import type { Route } from './+types/chat';
 import {
     createThread,
@@ -12,7 +13,12 @@ import {
 } from '~/models/thread.server';
 import { requireUserFromContext } from '~/context';
 import { Form, NavLink, Outlet, redirect, useNavigation } from 'react-router';
-import { LoaderCircleIcon, PlusCircleIcon, Trash2Icon } from 'lucide-react';
+import {
+    LoaderCircleIcon,
+    MessagesSquareIcon,
+    PlusCircleIcon,
+    Trash2Icon,
+} from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
@@ -199,8 +205,13 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                         </li>
                                     ))
                                 ) : (
-                                    <li className={listItemClassName}>
-                                        No threads found
+                                    <li>
+                                        <EmptyState
+                                            icon={MessagesSquareIcon}
+                                            title="No conversations yet"
+                                            description='Start one with "New Thread".'
+                                            className="p-4"
+                                        />
                                     </li>
                                 )}
                             </ul>

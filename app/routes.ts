@@ -21,5 +21,6 @@ export default [
     ...prefix('/api', [
         route('/auth/*', 'routes/api-auth.ts'),
         route('/chat', 'routes/api-chat.ts'),
+        route('/theme', 'routes/api-theme.ts'),
     ]),
 ] satisfies RouteConfig;
