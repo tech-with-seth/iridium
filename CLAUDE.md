@@ -63,7 +63,8 @@ Environment variables are validated at startup by `app/lib/env.server.ts` -- mis
 - **Framework**: React Router v7 with SSR and `v8_middleware` future flag
 - **Auth**: Better Auth with Prisma adapter, admin plugin (roles: USER < EDITOR < ADMIN)
 - **Database**: PostgreSQL via Prisma ORM (schema at `prisma/schema.prisma`, generated client at `app/generated/prisma/`)
-- **AI**: Vercel AI SDK (`ai`, `@ai-sdk/react`) + VoltAgent with `anthropic/claude-3-haiku-20240307`
+- **AI**: Vercel AI SDK (`ai`, `@ai-sdk/react`) + VoltAgent. Per-thread model selection against the allowlist in `app/lib/ai-models.ts` (Haiku 4.5 default)
+- **Email**: Resend + react-email behind `app/lib/email.server.ts` (console fallback without `RESEND_API_KEY`)
 - **Styling**: Tailwind CSS v4 + DaisyUI v5, CVA with tailwind-merge
 - **Runtime**: Bun (dev), Node 20 Alpine (Docker/prod)
 - **Validation**: Zod + React Hook Form
@@ -83,9 +84,13 @@ API routes live under `/api` prefix and export only `loader`/`action` (no compon
 
 Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrappers. Functions use the Prisma client directly.
 
-- `thread.server.ts` — thread CRUD + `saveChat` (upserts last 2 messages)
+- `thread.server.ts` — thread CRUD + `saveChat` (upserts last 2 messages), `searchThreads`, `updateThreadModel`, `deleteTrailingAssistantMessages`
+- `note.server.ts` — note CRUD with search, counts, and pagination params
 - `message.server.ts` — `addMessageToThread`
 - `session.server.ts` — `getUserFromSession`, `requireUser`, `requireAnonymous`, `hasRole`, `requireRole`
+- `user.server.ts` — `getUserById`, `updateUserProfile`
+
+**Soft deletes**: `Thread` and `Note` have `deletedAt`; every read in the model layer filters `deletedAt: null` and deletes set the timestamp. The model layer is the only Prisma entry point for these tables — never query them from routes directly.
 
 ### Auth Flow
 
@@ -94,6 +99,7 @@ Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrapper
 - API passthrough: `/api/auth/*` → `auth.handler` in `app/routes/api-auth.ts`
 - Middleware: `app/middleware/auth.ts` checks session, redirects to `/login`, stores user in `userContext`
 - Protect a route: `export const middleware: Route.MiddlewareFunction[] = [authMiddleware]`
+- Account flows: `/forgot-password` + `/reset-password` (token emails via `sendResetPassword`), `/settings` (profile, change password, delete account). Verification emails send on sign-up but sign-in is not gated (`requireEmailVerification` stays off — the E2E fixtures rely on sign-up auto-login)
 
 ### AI Chat Flow
 
@@ -103,7 +109,9 @@ Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrapper
 4. `UIMessage.parts` are serialized as JSON string in the `content` DB column
 5. On completion, `saveChat()` upserts messages to the database
 
-Agent tools are defined in `app/voltagent/tools/` (e.g., `create_note`, `list_notes`, `search_notes`, `render_card`). The `render_card` tool demonstrates VoltAgent's tool-driven generative UI pattern -- the agent returns structured data and `CardToolPart` renders it as a rich visual card.
+Agent tools are defined in `app/voltagent/tools/` (`create_note`, `list_notes`, `search_notes`, `render_card`, `get_weather`, `get_current_datetime`). The `render_card` tool demonstrates VoltAgent's tool-driven generative UI pattern -- the agent returns structured data and `CardToolPart` renders it as a rich visual card.
+
+Per-thread model: `Thread.model` is set via a `set-model` intent in the `/chat` action and flows into the agent's dynamic model callback through the call `context` Map. Regeneration (`useChat().regenerate()`) sends `trigger: 'regenerate-message'`; the server deletes trailing assistant rows, clears VoltAgent conversation memory, and resends trimmed history.
 
 ### Rate Limiting
 
@@ -111,13 +119,13 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Environment Validation
 
-`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup. Import `env` from this module instead of reading `process.env` directly in server code.
+`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
 
 ### Testing
 
 **Unit tests** use Vitest (`bun run test`). Test files live alongside source files as `*.test.ts`. Modules that import server-side dependencies (auth, Prisma) need `vi.mock()` to avoid env validation side effects.
 
-**E2E tests** use Playwright (`bun run test:e2e`) in `tests/`, covering auth, navigation, dashboard, healthcheck, the chat flow, agent tool rendering, chat error UX, the `/api/chat` API boundary, and cross-user thread access control. They run against a dedicated dev server on port `7778` (override with `E2E_PORT`) so they never collide with `bun run dev` on 5173; the `webServer` config also points `BETTER_AUTH_BASE_URL`/`VITE_BETTER_AUTH_BASE_URL` at that port and sets `DISABLE_AUTH_RATE_LIMIT=true` plus a dummy `ANTHROPIC_API_KEY`.
+**E2E tests** use Playwright (`bun run test:e2e`) in `tests/`, covering auth, navigation, dashboard, notes, settings, password reset, theme switching, SEO endpoints, healthcheck, the chat flow, model selection/regeneration, agent tool rendering, chat error UX, the `/api/chat` API boundary, and cross-user thread access control. They run against a dedicated dev server on port `7778` (override with `E2E_PORT`) so they never collide with `bun run dev` on 5173; the `webServer` config also points `BETTER_AUTH_BASE_URL`/`VITE_BETTER_AUTH_BASE_URL` at that port and sets `DISABLE_AUTH_RATE_LIMIT=true`, `E2E_TEST_HOOKS=true` (enables `/api/test-mailbox` for reading reset links), plus a dummy `ANTHROPIC_API_KEY`.
 
 Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs up a brand-new isolated user on demand (so every test starts with zero threads and parallel runs never share state), while a plain `page` stays logged out. `globalSetup` only ensures the seed users (Alice, Bob) exist for tests that log in as them. Fixtures also export `createAuthedContext` and `createThreadViaApi` for multi-user scenarios. Chat tests mock `/api/chat` with canned SSE responses (no AI service needed); tool-rendering tests stream `dynamic-tool` parts via helpers in `tests/chat-mock.ts`.
 
@@ -151,11 +159,11 @@ Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs
 
 `app/root.tsx` is chrome-agnostic: it renders only the HTML document (`Layout`), the auth `loader` (`isAuthenticated`), and a bare `<Outlet/>`. All page chrome lives in per-section layout routes under `app/routes/layouts/`, composed in `routes.ts` via `layout(...)`:
 
-- `layouts/app.tsx` — locked app shell (`h-dvh` grid: header → nav + internal-scroll `main` → footer). Wraps `/dashboard` and `/chat`. Use this shell for app surfaces that should fill the viewport and scroll internally.
+- `layouts/app.tsx` — locked app shell (`h-dvh` grid: header → internal-scroll `main` → footer). Wraps `/dashboard`, `/chat`, `/notes`, `/settings`. Use this shell for app surfaces that should fill the viewport and scroll internally.
 - `layouts/marketing.tsx` — growable document (`min-h-dvh` flex column, footer at content's end). Wraps `/` (landing).
-- `layouts/auth.tsx` — full-bleed, no header/footer. Wraps `/login`.
+- `layouts/auth.tsx` — full-bleed, no header/footer. Wraps `/login`, `/forgot-password`, `/reset-password`.
 
-Shared chrome is extracted into `SiteHeader` and `SiteFooter` (`app/components/`). `SiteHeader` reads auth state via `useRouteLoaderData<typeof rootLoader>('root')` rather than props.
+Shared chrome is extracted into `SiteHeader` and `SiteFooter` (`app/components/`). `SiteHeader` reads auth state via `useRouteLoaderData<typeof rootLoader>('root')` rather than props, and owns the skip link, the labeled Site/Main navs, the theme toggle, and the mobile nav overlay (hamburger with `aria-expanded`). Root also renders the flash `Toaster` and sets `data-theme` on `<html>` from the theme cookie.
 
 **Definite height matters:** app/auth shells use `h-dvh` (a fixed height) so the `min-h-0` + `overflow-y-auto` chain can scroll children internally. `min-h-screen` is a minimum, not a definite height, and silently breaks internal scrolling once content exceeds the viewport.
 

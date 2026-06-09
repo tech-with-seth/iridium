@@ -4,14 +4,17 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 
 ## Features
 
-- **Authentication** — Email/password sign-up and sign-in via Better Auth with secure HTTP-only sessions and automatic refresh
+- **Authentication** — Email/password sign-up and sign-in via Better Auth with secure HTTP-only sessions, password reset, and email verification
+- **Account management** — A `/settings` page with profile editing, password change (revokes other sessions), and account deletion behind a password confirm
+- **Email** — Resend + react-email templates behind a pluggable `sendEmail()`; without an API key, emails render to the console so local dev needs no provider
 - **Role-based access control** — USER, EDITOR, and ADMIN roles baked into the schema and session helpers
-- **AI chat** — Conversational interface powered by VoltAgent and the Vercel AI SDK. Messages persist to PostgreSQL and are organized into threads
-- **Agent tools** — The AI assistant can create, list, and search notes on behalf of the user, with tool invocations rendered inline in the chat
+- **AI chat** — Conversational interface powered by VoltAgent and the Vercel AI SDK. Messages persist to PostgreSQL and are organized into searchable threads with per-thread model selection and response regeneration
+- **Agent tools** — The AI assistant can manage notes, fetch live weather, and report the current time, with tool invocations rendered inline in the chat
 - **Generative UI** — The `render_card` tool lets the agent produce rich visual cards (info, steps, pros/cons) inline in the chat, demonstrating VoltAgent's tool-driven approach to generative UI
-- **Notes** — A browsable notes page at `/notes` showing all notes saved by the agent, demonstrating the full tool-to-UI vertical slice
+- **Notes** — A full CRUD notes page at `/notes` with search and pagination; the agent writes to the same store
 - **Working memory** — VoltAgent remembers user preferences and context across conversations via PostgreSQL-backed working memory
-- **Form validation** — Client and server-side validation using Zod and React Hook Form with a working example
+- **UX patterns** — Light/dark/system theme switching (cookie-based, no flash), flash toast notifications, empty states, reusable form components, offset pagination
+- **Production patterns** — Soft deletes, Zod-validated env, structured logging, rate limiting, SEO (robots/sitemap/OG tags), husky + lint-staged pre-commit hooks
 - **Type-safe end to end** — Prisma generates types from the schema, Zod validates runtime data, React Router 7 types routes and loaders, CVA ensures type-safe component variants
 
 ## Tech Stack
@@ -51,6 +54,10 @@ BETTER_AUTH_SECRET="<openssl rand -base64 32>"
 BETTER_AUTH_BASE_URL="http://localhost:5173"
 VITE_BETTER_AUTH_BASE_URL="http://localhost:5173"
 ANTHROPIC_API_KEY="sk-ant-..."
+
+# Optional: real email sending (otherwise emails log to the console)
+RESEND_API_KEY="re_..."
+EMAIL_FROM="Iridium <onboarding@resend.dev>"
 ```
 
 ### Two-Database Setup
@@ -108,14 +115,16 @@ prisma/
 
 ## Agent Tools
 
-The AI assistant (defined in `app/voltagent/agents.ts`) has four tools:
+The AI assistant (defined in `app/voltagent/agents.ts`) has six tools:
 
-| Tool           | Description                                                            |
-| -------------- | ---------------------------------------------------------------------- |
-| `create_note`  | Saves a note with a title and content for the user                     |
-| `list_notes`   | Lists all of the user's saved notes                                    |
-| `search_notes` | Searches notes by keyword across titles and content                    |
-| `render_card`  | Renders a rich visual card inline in the chat (info, steps, pros/cons) |
+| Tool                   | Description                                                            |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `create_note`          | Saves a note with a title and content for the user                     |
+| `list_notes`           | Lists all of the user's saved notes                                    |
+| `search_notes`         | Searches notes by keyword across titles and content                    |
+| `render_card`          | Renders a rich visual card inline in the chat (info, steps, pros/cons) |
+| `get_weather`          | Current conditions for a location via Open-Meteo (no API key required) |
+| `get_current_datetime` | The current date and time (UTC)                                        |
 
 Note tools are rendered via `NoteToolPart`; card tools are rendered via `CardToolPart`. Notes are browsable at `/notes`.
 
@@ -200,14 +209,24 @@ Deployable to Railway, Fly.io, AWS ECS, Google Cloud Run, or any Docker-compatib
 
 ## Routes
 
-| Route          | Description                              |
-| -------------- | ---------------------------------------- |
-| `/`            | Home — overview of what Iridium includes |
-| `/login`       | Sign in or create an account             |
-| `/chat`        | AI chat with thread sidebar              |
-| `/notes`       | Browse saved notes                       |
-| `/profile`     | User profile and role                    |
-| `/form`        | Form validation example                  |
-| `/api/chat`    | Chat API endpoint                        |
-| `/api/auth/*`  | Auth API endpoints                       |
-| `/healthcheck` | Health status                            |
+| Route              | Description                                    |
+| ------------------ | ---------------------------------------------- |
+| `/`                | Home — overview of what Iridium includes       |
+| `/login`           | Sign in or create an account                   |
+| `/forgot-password` | Request a password reset email                 |
+| `/reset-password`  | Choose a new password from an emailed link     |
+| `/dashboard`       | Stats, quick actions, and recent activity      |
+| `/chat`            | AI chat with searchable thread sidebar         |
+| `/notes`           | Notes CRUD with search and pagination          |
+| `/settings`        | Profile, password change, account deletion     |
+| `/api/chat`        | Chat API endpoint (model picker, regeneration) |
+| `/api/auth/*`      | Auth API endpoints                             |
+| `/api/theme`       | Theme cookie endpoint                          |
+| `/healthcheck`     | Health status                                  |
+| `/robots.txt`      | Robots policy                                  |
+| `/sitemap.xml`     | Sitemap of public routes                       |
+
+## Docs
+
+- [Adding a feature](docs/adding-a-feature.md) — the route → action → model → test walkthrough, using Notes as the worked example
+- [Chat tool-calling troubleshooting](docs/chat-tool-calling.md)

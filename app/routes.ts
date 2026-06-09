@@ -24,6 +24,8 @@ export default [
         ]),
     ]),
     route('/healthcheck', 'routes/healthcheck.ts'),
+    route('/robots.txt', 'routes/robots.ts'),
+    route('/sitemap.xml', 'routes/sitemap.ts'),
     ...prefix('/api', [
         route('/auth/*', 'routes/api-auth.ts'),
         route('/chat', 'routes/api-chat.ts'),

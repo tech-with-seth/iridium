@@ -1,5 +1,6 @@
 import type { Route } from './+types/login';
 import { Turnstile } from '~/components/Turnstile';
+import { OgMeta } from '~/lib/seo';
 import { requireAnonymous } from '~/models/session.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -14,6 +15,10 @@ export default function LoginRoute() {
             <meta
                 name="description"
                 content="Login or sign up to access your account"
+            />
+            <OgMeta
+                title="Login | Iridium"
+                description="Login or sign up to access your Iridium account."
             />
             <div className="grid h-full grid-cols-2">
                 <div className="bg-base-300 flex flex-col items-center justify-center gap-6 p-8">

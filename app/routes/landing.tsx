@@ -9,6 +9,7 @@ import {
 import { Link } from 'react-router';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
+import { OgMeta } from '~/lib/seo';
 
 const FEATURES = [
     {
@@ -65,6 +66,10 @@ export default function LandingPage() {
             <meta
                 name="description"
                 content="Iridium is a full-stack React starter kit with authentication, AI chat, agent tools, and production-ready patterns."
+            />
+            <OgMeta
+                title="Iridium"
+                description="A full-stack starter kit built for shipping AI-powered products."
             />
             <Container className="p-4">
                 <section className="py-12 text-center md:py-20">

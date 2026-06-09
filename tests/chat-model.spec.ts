@@ -43,10 +43,13 @@ test.describe('Message regeneration', () => {
     test('regenerate replaces the last assistant response', async ({
         authedPage: page,
     }) => {
-        const threadId = await createThreadViaApi(page.context());
-
         await mockChatReply(page, 'First answer');
-        await page.goto(`/chat/${threadId}`);
+
+        // Navigate via the UI (not a direct goto) so the page is hydrated
+        // before we interact - a direct load can swallow the Send click.
+        await page.goto('/chat');
+        await page.getByRole('button', { name: 'New Thread' }).click();
+        await expect(page).toHaveURL(/\/chat\/.+/);
 
         await page.getByLabel('Message').fill('Tell me something');
         await page.getByRole('button', { name: 'Send' }).click();
