@@ -2,9 +2,9 @@
 description: Detect Git remote URL for GitHub integration
 ---
 
-
 <!-- Extension: git -->
 <!-- Config: .specify/extensions/git/ -->
+
 # Detect Git Remote URL
 
 Detect the Git remote URL for integration with GitHub services (e.g., issue creation).
@@ -13,9 +13,9 @@ Detect the Git remote URL for integration with GitHub services (e.g., issue crea
 
 - Check if Git is available by running `git rev-parse --is-inside-work-tree 2>/dev/null`
 - If Git is not available, output a warning and return empty:
-  ```
-  [specify] Warning: Git repository not detected; cannot determine remote URL
-  ```
+    ```
+    [specify] Warning: Git repository not detected; cannot determine remote URL
+    ```
 
 ## Execution
 
@@ -34,6 +34,7 @@ Parse the remote URL and determine:
 3. **Is GitHub**: Whether the remote points to a GitHub repository
 
 Supported URL formats:
+
 - HTTPS: `https://github.com/<owner>/<repo>.git`
 - SSH: `git@github.com:<owner>/<repo>.git`
 
@@ -44,5 +45,6 @@ Supported URL formats:
 ## Graceful Degradation
 
 If Git is not installed, the directory is not a Git repository, or no remote is configured:
+
 - Return an empty result
 - Do NOT error — other workflows should continue without Git remote information

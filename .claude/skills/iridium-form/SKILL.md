@@ -11,14 +11,14 @@ Compose validated, accessible forms with React Hook Form + Zod, submit them thro
 
 The form stack in this repo. Match the API for the installed major version:
 
-| Package | Version | Notes |
-|---|---|---|
-| `react-hook-form` | ^7.76 | v7 API: `useForm`, `register`, `handleSubmit`, `setError`, `formState.errors`. |
-| `zod` | ^4.4 | v4 syntax. Use `z.email()` and `z.url()` as standalone formats -- **not** `z.string().email()`. Issues are on `result.error.issues` with `path[]` + `message`. |
-| `@hookform/resolvers` | ^5.2 | Import `zodResolver` from `@hookform/resolvers/zod`. v5 is the pair for RHF 7 + Zod 4. |
-| `react-router` | 7.14 | Framework mode. Import `useFetcher`, `Form`, `redirect`, `data` from `react-router`. Never `react-router-dom`. |
-| `daisyui` | ^5.5 | v5 form classes: `fieldset`, `fieldset-legend`, `input`, `label`, `alert`, `btn`. v5 dropped the v4 `form-control` / `input-bordered` classes -- don't use them. |
-| `lucide-react` | ^1.16 | Project's icon library. Use these for form icons; never heroicons. |
+| Package               | Version | Notes                                                                                                                                                            |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `react-hook-form`     | ^7.76   | v7 API: `useForm`, `register`, `handleSubmit`, `setError`, `formState.errors`.                                                                                   |
+| `zod`                 | ^4.4    | v4 syntax. Use `z.email()` and `z.url()` as standalone formats -- **not** `z.string().email()`. Issues are on `result.error.issues` with `path[]` + `message`.   |
+| `@hookform/resolvers` | ^5.2    | Import `zodResolver` from `@hookform/resolvers/zod`. v5 is the pair for RHF 7 + Zod 4.                                                                           |
+| `react-router`        | 7.14    | Framework mode. Import `useFetcher`, `Form`, `redirect`, `data` from `react-router`. Never `react-router-dom`.                                                   |
+| `daisyui`             | ^5.5    | v5 form classes: `fieldset`, `fieldset-legend`, `input`, `label`, `alert`, `btn`. v5 dropped the v4 `form-control` / `input-bordered` classes -- don't use them. |
+| `lucide-react`        | ^1.16   | Project's icon library. Use these for form icons; never heroicons.                                                                                               |
 
 ## When to apply
 
@@ -67,7 +67,9 @@ export function ExampleForm() {
     // Lift server field errors back into RHF
     useEffect(() => {
         if (!fetcher.data?.fieldErrors) return;
-        for (const [field, message] of Object.entries(fetcher.data.fieldErrors)) {
+        for (const [field, message] of Object.entries(
+            fetcher.data.fieldErrors,
+        )) {
             setError(field as keyof FormValues, { message });
         }
     }, [fetcher.data, setError]);
@@ -101,7 +103,9 @@ export function ExampleForm() {
                         className="input"
                         placeholder="Your name"
                         aria-invalid={errors.name ? true : undefined}
-                        aria-describedby={errors.name ? 'name-error' : undefined}
+                        aria-describedby={
+                            errors.name ? 'name-error' : undefined
+                        }
                         {...register('name')}
                     />
                     {errors.name && (
@@ -141,7 +145,10 @@ export async function action({ request }: Route.ActionArgs) {
         return data(
             {
                 fieldErrors: Object.fromEntries(
-                    parsed.error.issues.map((i) => [String(i.path[0]), i.message]),
+                    parsed.error.issues.map((i) => [
+                        String(i.path[0]),
+                        i.message,
+                    ]),
                 ),
             },
             { status: 400 },
@@ -153,6 +160,7 @@ export async function action({ request }: Route.ActionArgs) {
 ```
 
 Zod v4 notes:
+
 - `z.email()`, `z.url()`, `z.uuid()` are standalone string formats. Don't write `z.string().email()`.
 - `safeParse` returns `{ success, data }` or `{ success, error }` where `error.issues[]` has `{ path, message, code }`.
 - Coerce numbers/dates from JSON with `z.coerce.number()` / `z.coerce.date()` when needed.
@@ -161,12 +169,12 @@ Never trust client validation alone -- always `safeParse` on the server.
 
 ## Submission pattern (pick one)
 
-| Pattern | Use when |
-|---|---|
+| Pattern                                                                                | Use when                                                                                                            |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `useFetcher` + `fetcher.submit(data, { method: 'post', encType: 'application/json' })` | **Default for RHF forms.** RHF owns the submit handler; you want validated JS objects on the server, no navigation. |
-| `<fetcher.Form method="post">` with `name="..."` inputs | Inline mutations without RHF (likes, ratings, toggles). |
-| `<Form method="post">` from `react-router` | Mutations that should redirect on success and don't need RHF. |
-| `<Form method="get">` | Search/filter forms. Auto-syncs to URL `searchParams`. |
+| `<fetcher.Form method="post">` with `name="..."` inputs                                | Inline mutations without RHF (likes, ratings, toggles).                                                             |
+| `<Form method="post">` from `react-router`                                             | Mutations that should redirect on success and don't need RHF.                                                       |
+| `<Form method="get">`                                                                  | Search/filter forms. Auto-syncs to URL `searchParams`.                                                              |
 
 For RHF forms in this project, prefer `useFetcher` + JSON. It keeps client validation, lets you return structured `{ formError, fieldErrors }`, and avoids FormData stringification.
 
