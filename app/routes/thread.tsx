@@ -19,8 +19,14 @@ import type { Route } from './+types/thread';
 import { getThreadById } from '~/models/thread.server';
 import { authMiddleware } from '~/middleware/auth';
 import { requireUserFromContext } from '~/context';
-import { data, isRouteErrorResponse, useRouteError } from 'react-router';
+import {
+    data,
+    isRouteErrorResponse,
+    useFetcher,
+    useRouteError,
+} from 'react-router';
 import { useEffect, useRef, useState } from 'react';
+import { ALLOWED_MODELS, DEFAULT_MODEL_ID } from '~/lib/ai-models';
 
 const transport = new DefaultChatTransport({
     api: '/api/chat',
@@ -131,6 +137,13 @@ export default function ThreadRoute({
 }: Route.ComponentProps) {
     const [chatInput, setChatInput] = useState('');
     const messageRef = useRef<HTMLDivElement>(null);
+    const modelFetcher = useFetcher();
+
+    // Optimistic: show the submitted model while the fetcher is in flight.
+    const currentModel =
+        modelFetcher.formData?.get('model')?.toString() ??
+        loaderData.thread.model ??
+        DEFAULT_MODEL_ID;
 
     const {
         messages,
@@ -163,6 +176,36 @@ export default function ThreadRoute({
 
     return (
         <>
+            <div className="flex items-center justify-end gap-2 px-1">
+                <label
+                    htmlFor="thread-model"
+                    className="text-base-content/60 text-xs"
+                >
+                    Model
+                </label>
+                <select
+                    id="thread-model"
+                    className="select select-sm"
+                    value={currentModel}
+                    disabled={status === 'streaming' || status === 'submitted'}
+                    onChange={(event) =>
+                        modelFetcher.submit(
+                            {
+                                intent: 'set-model',
+                                threadId: params.threadId,
+                                model: event.target.value,
+                            },
+                            { method: 'POST', action: '/chat' },
+                        )
+                    }
+                >
+                    {ALLOWED_MODELS.map((model) => (
+                        <option key={model.id} value={model.id}>
+                            {model.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
             {error && (
                 <div role="alert" className="alert alert-error">
                     <CircleXIcon aria-hidden="true" className="h-6 w-6" />
@@ -281,14 +324,33 @@ export default function ThreadRoute({
                             </>
                         );
 
+                        const isLastMessage =
+                            message === messages[messages.length - 1];
+
                         return (
-                            <ChatBubble
-                                key={message.id}
-                                variant={isUser ? 'primary' : 'default'}
-                                placement={isUser ? 'end' : 'start'}
-                            >
-                                {content}
-                            </ChatBubble>
+                            <div key={message.id}>
+                                <ChatBubble
+                                    variant={isUser ? 'primary' : 'default'}
+                                    placement={isUser ? 'end' : 'start'}
+                                >
+                                    {content}
+                                </ChatBubble>
+                                {!isUser &&
+                                    isLastMessage &&
+                                    status === 'ready' && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-ghost btn-xs mt-1"
+                                            onClick={() => regenerate()}
+                                        >
+                                            <RefreshCwIcon
+                                                aria-hidden="true"
+                                                className="h-3 w-3"
+                                            />
+                                            Regenerate
+                                        </button>
+                                    )}
+                            </div>
                         );
                     })
                 ) : (

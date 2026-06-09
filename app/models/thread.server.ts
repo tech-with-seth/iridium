@@ -101,6 +101,66 @@ export function updateThreadTitle(threadId: string, title: string) {
     });
 }
 
+export function updateThreadModel(threadId: string, model: string) {
+    return prisma.thread.update({
+        where: { id: threadId },
+        data: { model },
+    });
+}
+
+/**
+ * Search a user's threads by title or message content. Message content is a
+ * JSON string of UIMessage parts, so `contains` can false-positive on JSON
+ * keys or tool payloads; acceptable for sidebar search.
+ */
+export function searchThreads(userId: string, query: string) {
+    return prisma.thread.findMany({
+        where: {
+            createdById: userId,
+            deletedAt: null,
+            OR: [
+                { title: { contains: query, mode: 'insensitive' } },
+                {
+                    messages: {
+                        some: {
+                            content: { contains: query, mode: 'insensitive' },
+                        },
+                    },
+                },
+            ],
+        },
+        include: {
+            messages: {
+                orderBy: { createdAt: 'asc' },
+                take: 1,
+            },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+}
+
+/**
+ * Hard-delete assistant messages that follow the thread's last user message.
+ * Used by regeneration: the deleted rows are immediately replaced by the
+ * regenerated response.
+ */
+export async function deleteTrailingAssistantMessages(threadId: string) {
+    const lastUserMessage = await prisma.message.findFirst({
+        where: { threadId, role: 'USER' },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return prisma.message.deleteMany({
+        where: {
+            threadId,
+            role: 'ASSISTANT',
+            ...(lastUserMessage
+                ? { createdAt: { gt: lastUserMessage.createdAt } }
+                : {}),
+        },
+    });
+}
+
 export function deleteThread(threadId: string) {
     // Soft delete: the row (and its messages) stays for recovery/audit, but
     // every read in this module filters deletedAt: null.

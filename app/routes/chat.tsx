@@ -10,23 +10,37 @@ import {
     deleteThread,
     getAllThreadsByUserId,
     getThreadById,
+    searchThreads,
+    updateThreadModel,
 } from '~/models/thread.server';
+import { modelIdSchema } from '~/lib/ai-models';
 import { requireUserFromContext } from '~/context';
-import { Form, NavLink, Outlet, redirect, useNavigation } from 'react-router';
+import {
+    data,
+    Form,
+    NavLink,
+    Outlet,
+    redirect,
+    useNavigation,
+} from 'react-router';
 import {
     LoaderCircleIcon,
     MessagesSquareIcon,
     PlusCircleIcon,
+    SearchIcon,
     Trash2Icon,
 } from 'lucide-react';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
     const user = requireUserFromContext(context);
-    const threads = await getAllThreadsByUserId(user.id);
+    const query = new URL(request.url).searchParams.get('q')?.trim() ?? '';
+    const threads = query
+        ? await searchThreads(user.id, query)
+        : await getAllThreadsByUserId(user.id);
 
-    return { threads };
+    return { threads, query };
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
@@ -58,6 +72,28 @@ export async function action({ request, context }: Route.ActionArgs) {
         } catch {
             throw new Response('Failed to create thread', { status: 500 });
         }
+    }
+
+    if (intent === 'set-model') {
+        const threadId = String(form.get('threadId'));
+        const parsedModel = modelIdSchema.safeParse(form.get('model'));
+
+        if (!parsedModel.success) {
+            throw new Response('Invalid model', { status: 400 });
+        }
+
+        const thread = await getThreadById(threadId);
+
+        if (!thread) {
+            throw new Response('Thread not found', { status: 404 });
+        }
+        if (thread.createdById !== user.id) {
+            throw new Response('Forbidden', { status: 403 });
+        }
+
+        await updateThreadModel(threadId, parsedModel.data);
+
+        return data({ ok: true });
     }
 
     if (intent === 'delete-thread') {
@@ -166,6 +202,21 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                 </div>
                 <div className="grid min-h-0 grow grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 md:grid-cols-12 md:grid-rows-1">
                     <div className="col-span-1 max-h-48 overflow-y-auto md:col-span-5 md:max-h-none lg:col-span-3">
+                        <Form method="GET" role="search" className="mb-3">
+                            <label className="input input-sm flex w-full items-center gap-2">
+                                <SearchIcon
+                                    aria-hidden="true"
+                                    className="h-4 w-4 opacity-60"
+                                />
+                                <input
+                                    type="search"
+                                    name="q"
+                                    placeholder="Search conversations"
+                                    defaultValue={loaderData.query}
+                                    aria-label="Search conversations"
+                                />
+                            </label>
+                        </Form>
                         <nav aria-label="Conversations">
                             <ul className="flex flex-col gap-4">
                                 {loaderData.threads &&
@@ -204,6 +255,15 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                             </button>
                                         </li>
                                     ))
+                                ) : loaderData.query ? (
+                                    <li>
+                                        <EmptyState
+                                            icon={MessagesSquareIcon}
+                                            title="No matches"
+                                            description={`Nothing found for "${loaderData.query}".`}
+                                            className="p-4"
+                                        />
+                                    </li>
                                 ) : (
                                     <li>
                                         <EmptyState

@@ -8,9 +8,12 @@ const { mockPrisma } = vi.hoisted(() => ({
             findMany: vi.fn(),
             findFirst: vi.fn(),
             update: vi.fn(),
+            count: vi.fn(),
         },
         message: {
             upsert: vi.fn(),
+            findFirst: vi.fn(),
+            deleteMany: vi.fn(),
         },
         $transaction: vi.fn(),
     },
@@ -22,11 +25,14 @@ vi.mock('~/lib/prisma', () => ({
 
 import {
     createThread,
+    deleteThread,
+    deleteTrailingAssistantMessages,
     getAllThreadsByUserId,
     getThreadById,
-    updateThreadTitle,
-    deleteThread,
     saveChat,
+    searchThreads,
+    updateThreadModel,
+    updateThreadTitle,
 } from './thread.server';
 
 beforeEach(() => {
@@ -83,6 +89,73 @@ describe('updateThreadTitle', () => {
         expect(mockPrisma.thread.update).toHaveBeenCalledWith({
             where: { id: 't1' },
             data: { title: 'New Title' },
+        });
+    });
+});
+
+describe('updateThreadModel', () => {
+    it('stores the model on the thread', async () => {
+        mockPrisma.thread.update.mockResolvedValue({});
+
+        await updateThreadModel('t1', 'anthropic/claude-sonnet-4-6');
+
+        expect(mockPrisma.thread.update).toHaveBeenCalledWith({
+            where: { id: 't1' },
+            data: { model: 'anthropic/claude-sonnet-4-6' },
+        });
+    });
+});
+
+describe('searchThreads', () => {
+    it('matches title or message content, excluding deleted threads', async () => {
+        mockPrisma.thread.findMany.mockResolvedValue([]);
+
+        await searchThreads('u1', 'tacos');
+
+        const args = mockPrisma.thread.findMany.mock.calls[0][0];
+        expect(args.where.createdById).toBe('u1');
+        expect(args.where.deletedAt).toBeNull();
+        expect(args.where.OR).toEqual([
+            { title: { contains: 'tacos', mode: 'insensitive' } },
+            {
+                messages: {
+                    some: {
+                        content: { contains: 'tacos', mode: 'insensitive' },
+                    },
+                },
+            },
+        ]);
+    });
+});
+
+describe('deleteTrailingAssistantMessages', () => {
+    it('deletes assistant messages newer than the last user message', async () => {
+        const lastUserAt = new Date('2026-01-01T00:00:00Z');
+        mockPrisma.message.findFirst.mockResolvedValue({
+            id: 'mu',
+            createdAt: lastUserAt,
+        });
+        mockPrisma.message.deleteMany.mockResolvedValue({ count: 1 });
+
+        await deleteTrailingAssistantMessages('t1');
+
+        expect(mockPrisma.message.deleteMany).toHaveBeenCalledWith({
+            where: {
+                threadId: 't1',
+                role: 'ASSISTANT',
+                createdAt: { gt: lastUserAt },
+            },
+        });
+    });
+
+    it('deletes all assistant messages when no user message exists', async () => {
+        mockPrisma.message.findFirst.mockResolvedValue(null);
+        mockPrisma.message.deleteMany.mockResolvedValue({ count: 0 });
+
+        await deleteTrailingAssistantMessages('t1');
+
+        expect(mockPrisma.message.deleteMany).toHaveBeenCalledWith({
+            where: { threadId: 't1', role: 'ASSISTANT' },
         });
     });
 });

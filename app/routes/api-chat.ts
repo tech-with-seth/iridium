@@ -1,10 +1,12 @@
 import type { UIMessage } from 'ai';
 import z from 'zod';
 
+import { DEFAULT_MODEL_ID } from '~/lib/ai-models';
 import { log } from '~/lib/logger.server';
 import { rateLimit } from '~/lib/rate-limit.server';
 import { getUserFromSession } from '~/models/session.server';
 import {
+    deleteTrailingAssistantMessages,
     getThreadById,
     saveChat,
     updateThreadTitle,
@@ -25,6 +27,9 @@ const uiMessageSchema = z.object({
 const chatRequestSchema = z.object({
     id: z.string().min(1).max(128),
     messages: z.array(uiMessageSchema.passthrough()).max(500),
+    // Sent by useChat's regenerate(): regenerate the last assistant response.
+    trigger: z.string().max(50).optional(),
+    messageId: z.string().max(128).optional(),
 });
 
 function isDuplicateItemError(error: unknown): boolean {
@@ -132,6 +137,27 @@ export async function action({ request }: Route.ActionArgs) {
         );
     }
 
+    const isRegenerate = parsed.trigger === 'regenerate-message';
+    let inputMessages: UIMessage[] = [latestUserMessage];
+
+    if (isRegenerate) {
+        // Drop the response being regenerated, then clear conversation memory
+        // and resend the trimmed history. Clearing first sidesteps duplicate
+        // provider-item references in memory (the self-heal below remains as
+        // a backstop); resending history restores the model's context.
+        await deleteTrailingAssistantMessages(threadId);
+        await memory.clearMessages(user.id, threadId);
+
+        let lastUserIndex = -1;
+        for (let i = messages.length - 1; i >= 0; i--) {
+            if (messages[i].role === 'user') {
+                lastUserIndex = i;
+                break;
+            }
+        }
+        inputMessages = messages.slice(0, lastUserIndex + 1);
+    }
+
     // VoltAgent always supplies its system prompt as a system-role message in
     // the messages array (it never uses the AI SDK `system` option). The system
     // content is our own instructions, so opt out of the AI SDK's
@@ -140,6 +166,8 @@ export async function action({ request }: Route.ActionArgs) {
     const streamOptions = {
         userId: user.id,
         conversationId: threadId,
+        // The per-thread model is read by the agent's dynamic model callback.
+        context: new Map([['model', thread.model ?? DEFAULT_MODEL_ID]]),
         allowSystemInMessages: true,
     } as Parameters<typeof agent.streamText>[1] & {
         allowSystemInMessages: boolean;
@@ -147,7 +175,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     let result;
     try {
-        result = await agent.streamText([latestUserMessage], streamOptions);
+        result = await agent.streamText(inputMessages, streamOptions);
     } catch (error) {
         if (!isDuplicateItemError(error)) throw error;
 
@@ -155,7 +183,7 @@ export async function action({ request }: Route.ActionArgs) {
         log.warn('chat_memory_self_heal', { threadId, userId: user.id });
         await memory.clearMessages(user.id, threadId);
 
-        result = await agent.streamText([latestUserMessage], streamOptions);
+        result = await agent.streamText(inputMessages, streamOptions);
     }
 
     return result.toUIMessageStreamResponse({

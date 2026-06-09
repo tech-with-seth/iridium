@@ -86,6 +86,8 @@ model Thread {
     deletedAt   DateTime?
     createdById String
     title       String?
+    /// AI model for this thread; null means the application default.
+    model       String?
     messages    Message[]
     createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
