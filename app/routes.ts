@@ -8,10 +8,15 @@ import {
 
 export default [
     layout('routes/layouts/marketing.tsx', [index('routes/landing.tsx')]),
-    layout('routes/layouts/auth.tsx', [route('/login', 'routes/login.tsx')]),
+    layout('routes/layouts/auth.tsx', [
+        route('/login', 'routes/login.tsx'),
+        route('/forgot-password', 'routes/forgot-password.tsx'),
+        route('/reset-password', 'routes/reset-password.tsx'),
+    ]),
     route('/logout', 'routes/logout.tsx'),
     layout('routes/layouts/app.tsx', [
         route('/dashboard', 'routes/dashboard.tsx'),
+        route('/settings', 'routes/settings.tsx'),
         route('/chat', 'routes/chat.tsx', [
             index('routes/chat-index.tsx'),
             route(':threadId', 'routes/thread.tsx'),
@@ -22,5 +27,6 @@ export default [
         route('/auth/*', 'routes/api-auth.ts'),
         route('/chat', 'routes/api-chat.ts'),
         route('/theme', 'routes/api-theme.ts'),
+        route('/test-mailbox', 'routes/api-test-mailbox.ts'),
     ]),
 ] satisfies RouteConfig;

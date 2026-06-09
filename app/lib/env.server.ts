@@ -23,6 +23,12 @@ const envSchema = z.object({
                 : [],
         ),
     ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
+    /**
+     * Optional: when unset, outgoing email is rendered and logged to the
+     * console instead of sent. Set a real key in production.
+     */
+    RESEND_API_KEY: z.string().optional(),
+    EMAIL_FROM: z.string().default('Iridium <onboarding@resend.dev>'),
     VOLTAGENT_DATABASE_URL: z.url({
         message: 'VOLTAGENT_DATABASE_URL must be a valid URL',
     }),
@@ -35,6 +41,14 @@ const envSchema = z.object({
      * dev, CI, and prod keep the production limits.
      */
     DISABLE_AUTH_RATE_LIMIT: z
+        .enum(['true', 'false'])
+        .optional()
+        .transform((value) => value === 'true'),
+    /**
+     * Enables test-only endpoints (e.g. /api/test-mailbox). Intended only
+     * for the E2E test server; never set in production.
+     */
+    E2E_TEST_HOOKS: z
         .enum(['true', 'false'])
         .optional()
         .transform((value) => value === 'true'),

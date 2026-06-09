@@ -1,5 +1,5 @@
 import { useReducer, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -157,23 +157,33 @@ export function Turnstile() {
                                 />
                             )}
                         </Field>
-                        <button
-                            className="btn btn-accent"
-                            type="submit"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <span
-                                    role="status"
-                                    aria-label="Loading"
-                                    className="loading loading-spinner loading-sm"
-                                />
-                            ) : isSignIn ? (
-                                'Login'
-                            ) : (
-                                'Register'
+                        <div className="flex items-center justify-between">
+                            <button
+                                className="btn btn-accent"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <span
+                                        role="status"
+                                        aria-label="Loading"
+                                        className="loading loading-spinner loading-sm"
+                                    />
+                                ) : isSignIn ? (
+                                    'Login'
+                                ) : (
+                                    'Register'
+                                )}
+                            </button>
+                            {isSignIn && (
+                                <Link
+                                    to="/forgot-password"
+                                    className="link text-sm"
+                                >
+                                    Forgot password?
+                                </Link>
                             )}
-                        </button>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -1,8 +1,13 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
+import { createElement } from 'react';
 import prisma from '~/lib/prisma';
 import { env } from '~/lib/env.server';
+import { sendEmail } from '~/lib/email.server';
+import { log } from '~/lib/logger.server';
+import { ResetPasswordEmail } from '~/emails/ResetPasswordEmail';
+import { VerificationEmail } from '~/emails/VerificationEmail';
 
 const isProduction = env.NODE_ENV === 'production';
 
@@ -19,6 +24,52 @@ export const auth = betterAuth({
         minPasswordLength: 8,
         maxPasswordLength: 128,
         autoSignIn: true,
+        sendResetPassword: async ({ user, url }) => {
+            await sendEmail({
+                to: user.email,
+                subject: 'Reset your Iridium password',
+                react: createElement(ResetPasswordEmail, {
+                    name: user.name,
+                    url,
+                }),
+            });
+        },
+    },
+    // Soft verification: a verification email goes out on sign-up, but
+    // unverified users may still sign in. Flip requireEmailVerification to
+    // true to hard-gate (note: the E2E fixtures rely on sign-up auto-login,
+    // so they would need a verification step added first).
+    emailVerification: {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+        sendVerificationEmail: async ({ user, url }) => {
+            await sendEmail({
+                to: user.email,
+                subject: 'Verify your email address',
+                react: createElement(VerificationEmail, {
+                    name: user.name,
+                    url,
+                }),
+            });
+        },
+    },
+    user: {
+        deleteUser: {
+            enabled: true,
+            afterDelete: async (user) => {
+                // Prisma cascades remove the user's rows in the app DB, but
+                // VoltAgent conversation memory lives in a separate store.
+                try {
+                    const { memory } = await import('~/voltagent');
+                    // No conversationId: clears every conversation for the user.
+                    await memory.clearMessages(user.id);
+                } catch (error) {
+                    log.exception('voltagent_memory_cleanup_failed', error, {
+                        userId: user.id,
+                    });
+                }
+            },
+        },
     },
     database: prismaAdapter(prisma, {
         provider: 'postgresql',
@@ -52,7 +103,7 @@ export const auth = betterAuth({
         customRules: {
             '/sign-in/email': { window: 60, max: 10 },
             '/sign-up/email': { window: 60, max: 5 },
-            '/forget-password': { window: 60, max: 5 },
+            '/request-password-reset': { window: 60, max: 5 },
             '/reset-password': { window: 60, max: 5 },
         },
     },

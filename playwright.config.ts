@@ -60,6 +60,8 @@ export default defineConfig({
             // The suite creates a fresh user per test; the prod-tuned auth rate
             // limiter would otherwise reject the rapid sign-ups with 429s.
             DISABLE_AUTH_RATE_LIMIT: 'true',
+            // Exposes /api/test-mailbox so specs can read password-reset links.
+            E2E_TEST_HOOKS: 'true',
         },
     },
 });
