@@ -83,11 +83,13 @@ model Thread {
     id          String    @id @default(cuid())
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
     createdById String
     title       String?
     messages    Message[]
     createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
+    @@index([createdById, deletedAt])
     @@map("thread")
 }
 
@@ -118,14 +120,15 @@ enum MessageRole {
 }
 
 model Note {
-    id        String   @id @default(cuid())
+    id        String    @id @default(cuid())
     title     String
     content   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
     userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
+    @@index([userId, deletedAt])
     @@map("note")
 }

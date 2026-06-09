@@ -220,8 +220,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                 <div className="modal-box">
                     <h3 className="text-lg font-bold">Delete thread</h3>
                     <p className="py-4">
-                        This will permanently delete this conversation and all
-                        its messages. This cannot be undone.
+                        This will delete this conversation and all its messages.
                     </p>
                     <div className="modal-action">
                         <button

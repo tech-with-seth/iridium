@@ -6,9 +6,8 @@ const { mockPrisma } = vi.hoisted(() => ({
         thread: {
             create: vi.fn(),
             findMany: vi.fn(),
-            findUnique: vi.fn(),
+            findFirst: vi.fn(),
             update: vi.fn(),
-            delete: vi.fn(),
         },
         message: {
             upsert: vi.fn(),
@@ -47,13 +46,13 @@ describe('createThread', () => {
 });
 
 describe('getAllThreadsByUserId', () => {
-    it('queries threads desc by createdAt with first message included', async () => {
+    it('queries non-deleted threads desc by createdAt with first message included', async () => {
         mockPrisma.thread.findMany.mockResolvedValue([]);
 
         await getAllThreadsByUserId('user-1');
 
         expect(mockPrisma.thread.findMany).toHaveBeenCalledWith({
-            where: { createdById: 'user-1' },
+            where: { createdById: 'user-1', deletedAt: null },
             include: {
                 messages: { orderBy: { createdAt: 'asc' }, take: 1 },
             },
@@ -63,13 +62,13 @@ describe('getAllThreadsByUserId', () => {
 });
 
 describe('getThreadById', () => {
-    it('queries by id with all messages asc', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue(null);
+    it('queries by id excluding soft-deleted threads', async () => {
+        mockPrisma.thread.findFirst.mockResolvedValue(null);
 
         await getThreadById('t1');
 
-        expect(mockPrisma.thread.findUnique).toHaveBeenCalledWith({
-            where: { id: 't1' },
+        expect(mockPrisma.thread.findFirst).toHaveBeenCalledWith({
+            where: { id: 't1', deletedAt: null },
             include: { messages: { orderBy: { createdAt: 'asc' } } },
         });
     });
@@ -89,13 +88,14 @@ describe('updateThreadTitle', () => {
 });
 
 describe('deleteThread', () => {
-    it('deletes by id', async () => {
-        mockPrisma.thread.delete.mockResolvedValue({});
+    it('soft deletes by setting deletedAt', async () => {
+        mockPrisma.thread.update.mockResolvedValue({});
 
         await deleteThread('t1');
 
-        expect(mockPrisma.thread.delete).toHaveBeenCalledWith({
+        expect(mockPrisma.thread.update).toHaveBeenCalledWith({
             where: { id: 't1' },
+            data: { deletedAt: expect.any(Date) },
         });
     });
 });
@@ -117,7 +117,7 @@ describe('saveChat', () => {
     }
 
     it('throws when thread does not exist', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue(null);
+        mockPrisma.thread.findFirst.mockResolvedValue(null);
 
         await expect(
             saveChat({
@@ -131,7 +131,7 @@ describe('saveChat', () => {
     });
 
     it('throws when thread belongs to another user', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'other-user',
             messages: [],
@@ -149,7 +149,7 @@ describe('saveChat', () => {
     });
 
     it('does nothing when there are no messages to save', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'u1',
             messages: [],
@@ -161,7 +161,7 @@ describe('saveChat', () => {
     });
 
     it('wraps upserts in a single transaction', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'u1',
             messages: [],
@@ -183,7 +183,7 @@ describe('saveChat', () => {
     });
 
     it('rolls back when the transaction rejects', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'u1',
             messages: [],
@@ -200,7 +200,7 @@ describe('saveChat', () => {
     });
 
     it('serializes parts as JSON in upsert payloads', async () => {
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'u1',
             messages: [],
@@ -248,7 +248,7 @@ describe('saveChat', () => {
             } as UIMessage,
         ];
 
-        mockPrisma.thread.findUnique.mockResolvedValue({
+        mockPrisma.thread.findFirst.mockResolvedValue({
             id: 't1',
             createdById: 'u1',
             // 'old1' already exists in DB.

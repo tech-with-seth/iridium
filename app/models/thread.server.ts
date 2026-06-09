@@ -13,7 +13,7 @@ export function createThread(createdById: string) {
 
 export function getAllThreadsByUserId(userId: string) {
     return prisma.thread.findMany({
-        where: { createdById: userId },
+        where: { createdById: userId, deletedAt: null },
         include: {
             messages: {
                 orderBy: { createdAt: 'asc' },
@@ -25,8 +25,9 @@ export function getAllThreadsByUserId(userId: string) {
 }
 
 export function getThreadById(threadId: string) {
-    return prisma.thread.findUnique({
-        where: { id: threadId },
+    // findFirst, not findUnique: soft-deleted threads must behave as missing.
+    return prisma.thread.findFirst({
+        where: { id: threadId, deletedAt: null },
         include: {
             messages: {
                 orderBy: { createdAt: 'asc' },
@@ -91,7 +92,10 @@ export function updateThreadTitle(threadId: string, title: string) {
 }
 
 export function deleteThread(threadId: string) {
-    return prisma.thread.delete({
+    // Soft delete: the row (and its messages) stays for recovery/audit, but
+    // every read in this module filters deletedAt: null.
+    return prisma.thread.update({
         where: { id: threadId },
+        data: { deletedAt: new Date() },
     });
 }

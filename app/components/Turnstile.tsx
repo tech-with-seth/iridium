@@ -1,10 +1,12 @@
 import { useReducer, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { CircleXIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authClient } from '~/lib/auth.client';
+import { Field } from '~/components/forms/Field';
+import { FormAlert } from '~/components/forms/FormAlert';
+import { Input } from '~/components/forms/Input';
 
 const formSchema = z.object({
     name: z.string().optional(),
@@ -83,12 +85,7 @@ export function Turnstile() {
             />
             <div className="p-8">
                 <h2 className="mb-8 text-3xl font-bold">Authenticate</h2>
-                {formError && (
-                    <div role="alert" className="alert alert-error mb-4">
-                        <CircleXIcon aria-hidden="true" className="h-6 w-6" />
-                        <span>{formError}</span>
-                    </div>
-                )}
+                <FormAlert message={formError} className="mb-4" />
                 <div>
                     <div className="join mb-4">
                         <input
@@ -114,78 +111,52 @@ export function Turnstile() {
                         className="space-y-4"
                     >
                         {!isSignIn && (
-                            <fieldset
-                                className="fieldset"
+                            <Field
+                                label="Name"
+                                name="name"
+                                error={errors.name?.message}
                                 disabled={isSubmitting}
                             >
-                                <legend className="fieldset-legend">
-                                    Name
-                                </legend>
-                                <input
-                                    type="text"
-                                    className="input"
-                                    placeholder="Your name"
-                                    aria-describedby={
-                                        errors.name ? 'name-error' : undefined
-                                    }
-                                    {...register('name')}
-                                />
-                                {errors.name && (
-                                    <p
-                                        id="name-error"
-                                        className="text-error text-sm"
-                                    >
-                                        {errors.name.message}
-                                    </p>
+                                {(controlProps) => (
+                                    <Input
+                                        type="text"
+                                        placeholder="Your name"
+                                        {...controlProps}
+                                        {...register('name')}
+                                    />
                                 )}
-                            </fieldset>
+                            </Field>
                         )}
-                        <fieldset className="fieldset" disabled={isSubmitting}>
-                            <legend className="fieldset-legend">
-                                Email address
-                            </legend>
-                            <input
-                                type="email"
-                                className="input"
-                                placeholder="name@example.com"
-                                aria-describedby={
-                                    errors.email ? 'email-error' : undefined
-                                }
-                                {...register('email')}
-                            />
-                            {errors.email && (
-                                <p
-                                    id="email-error"
-                                    className="text-error text-sm"
-                                >
-                                    {errors.email.message}
-                                </p>
+                        <Field
+                            label="Email address"
+                            name="email"
+                            error={errors.email?.message}
+                            disabled={isSubmitting}
+                        >
+                            {(controlProps) => (
+                                <Input
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    {...controlProps}
+                                    {...register('email')}
+                                />
                             )}
-                        </fieldset>
-                        <fieldset className="fieldset" disabled={isSubmitting}>
-                            <legend className="fieldset-legend">
-                                Password
-                            </legend>
-                            <input
-                                type="password"
-                                className="input"
-                                placeholder="Your password"
-                                aria-describedby={
-                                    errors.password
-                                        ? 'password-error'
-                                        : undefined
-                                }
-                                {...register('password')}
-                            />
-                            {errors.password && (
-                                <p
-                                    id="password-error"
-                                    className="text-error text-sm"
-                                >
-                                    {errors.password.message}
-                                </p>
+                        </Field>
+                        <Field
+                            label="Password"
+                            name="password"
+                            error={errors.password?.message}
+                            disabled={isSubmitting}
+                        >
+                            {(controlProps) => (
+                                <Input
+                                    type="password"
+                                    placeholder="Your password"
+                                    {...controlProps}
+                                    {...register('password')}
+                                />
                             )}
-                        </fieldset>
+                        </Field>
                         <button
                             className="btn btn-accent"
                             type="submit"
