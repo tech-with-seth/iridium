@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
+import { adminAc, userAc } from 'better-auth/plugins/admin/access';
 import { createElement } from 'react';
 import prisma from '~/lib/prisma';
 import { env } from '~/lib/env.server';
@@ -89,7 +90,20 @@ export const auth = betterAuth({
             secure: isProduction,
         },
     },
-    plugins: [admin({ defaultRole: 'USER' })],
+    // The plugin's defaults are lowercase ('admin'/'user'); both adminRoles
+    // and the permission map must be re-keyed to our uppercase Role enum or
+    // every admin API call (ban, impersonate, ...) returns FORBIDDEN.
+    plugins: [
+        admin({
+            defaultRole: 'USER',
+            adminRoles: ['ADMIN'],
+            roles: {
+                USER: userAc,
+                EDITOR: userAc,
+                ADMIN: adminAc,
+            },
+        }),
+    ],
     // Better Auth's built-in rate limiter. Defaults are off in non-prod;
     // explicitly enable so dev and CI exercise the same limits as prod. The
     // E2E test server opts out via DISABLE_AUTH_RATE_LIMIT so it can create

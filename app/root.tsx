@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
     data,
     isRouteErrorResponse,
@@ -8,7 +9,7 @@ import {
     ScrollRestoration,
     useRouteLoaderData,
 } from 'react-router';
-import { getUserFromSession } from '~/models/session.server';
+import { getSessionInfo } from '~/models/session.server';
 import { getTheme } from '~/lib/theme.server';
 import { THEME_NAMES } from '~/lib/theme';
 import { getToast } from '~/lib/toast.server';
@@ -31,15 +32,21 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-    const [user, theme, { toast, headers }] = await Promise.all([
-        getUserFromSession(request),
+    const [session, theme, { toast, headers }] = await Promise.all([
+        getSessionInfo(request),
         getTheme(request),
         getToast(request),
     ]);
 
     return data(
         {
-            isAuthenticated: Boolean(user),
+            isAuthenticated: Boolean(session?.user),
+            // Better Auth's types omit role even though the admin plugin
+            // populates it; used to show the Admin nav item.
+            role:
+                (session?.user as { role?: string | null } | undefined)?.role ??
+                null,
+            isImpersonating: Boolean(session?.session.impersonatedBy),
             theme,
             toast,
         },
@@ -80,6 +87,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+    // Hydration beacon: lets E2E tests wait for interactivity before
+    // clicking React-bound controls (html[data-hydrated]).
+    useEffect(() => {
+        document.documentElement.dataset.hydrated = 'true';
+    }, []);
+
     return (
         <>
             <Outlet />

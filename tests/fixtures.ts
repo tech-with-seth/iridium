@@ -22,6 +22,16 @@ export const TEST_USER_BOB = {
 /** Where the auth form sends users on success. */
 export const REDIRECT_PATH = '/dashboard';
 
+/**
+ * Wait for React hydration (html[data-hydrated], set by root.tsx). Required
+ * before interacting with controls whose behavior is attached by React
+ * (fetcher-submitting selects, dialog-opening buttons): before hydration
+ * they accept DOM events but do nothing.
+ */
+export async function waitForHydration(page: Page) {
+    await page.waitForSelector('html[data-hydrated]', { state: 'attached' });
+}
+
 /** Sign in through the login form and wait for the post-login redirect. */
 export async function loginViaUI(
     page: Page,
@@ -101,6 +111,40 @@ export async function createThreadViaApi(
     }
 
     return location.split('/').pop()!;
+}
+
+/**
+ * Sign up a brand-new user and promote them to ADMIN via the test-only
+ * /api/test-role hook. Signs in again afterwards so the session cookie
+ * (which caches the role for up to 5 minutes) reflects the promotion.
+ */
+export async function createFreshAdmin(
+    context: BrowserContext,
+    baseURL: string,
+    tag: string | number = 'x',
+) {
+    const { email, password } = await createFreshUser(
+        context,
+        baseURL,
+        `admin-${tag}`,
+    );
+
+    const promote = await context.request.post('/api/test-role', {
+        form: { email, role: 'ADMIN' },
+    });
+    if (!promote.ok()) {
+        throw new Error(`Admin promotion failed (${promote.status()})`);
+    }
+
+    const signIn = await context.request.post('/api/auth/sign-in/email', {
+        headers: { Origin: baseURL },
+        data: { email, password },
+    });
+    if (!signIn.ok()) {
+        throw new Error(`Admin re-sign-in failed (${signIn.status()})`);
+    }
+
+    return { email, password };
 }
 
 /**

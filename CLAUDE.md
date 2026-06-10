@@ -100,6 +100,7 @@ Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrapper
 - Middleware: `app/middleware/auth.ts` checks session, redirects to `/login`, stores user in `userContext`
 - Protect a route: `export const middleware: Route.MiddlewareFunction[] = [authMiddleware]`
 - Account flows: `/forgot-password` + `/reset-password` (token emails via `sendResetPassword`), `/settings` (profile, change password, delete account). Verification emails send on sign-up but sign-in is not gated (`requireEmailVerification` stays off — the E2E fixtures rely on sign-up auto-login)
+- Admin: `/admin` (requireAdmin) lists users with search/pagination and supports role changes, ban/unban, and impersonation (`/stop-impersonating` ends it; banner renders from SiteHeader). Gotcha: the admin plugin's `adminRoles` AND its `roles` permission map must be re-keyed to the uppercase Role enum or every admin API call returns FORBIDDEN (see `auth.server.ts`)
 
 ### AI Chat Flow
 

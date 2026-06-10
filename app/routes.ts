@@ -14,10 +14,12 @@ export default [
         route('/reset-password', 'routes/reset-password.tsx'),
     ]),
     route('/logout', 'routes/logout.tsx'),
+    route('/stop-impersonating', 'routes/stop-impersonating.tsx'),
     layout('routes/layouts/app.tsx', [
         route('/dashboard', 'routes/dashboard.tsx'),
         route('/notes', 'routes/notes.tsx'),
         route('/settings', 'routes/settings.tsx'),
+        route('/admin', 'routes/admin.tsx'),
         route('/chat', 'routes/chat.tsx', [
             index('routes/chat-index.tsx'),
             route(':threadId', 'routes/thread.tsx'),
@@ -31,5 +33,6 @@ export default [
         route('/chat', 'routes/api-chat.ts'),
         route('/theme', 'routes/api-theme.ts'),
         route('/test-mailbox', 'routes/api-test-mailbox.ts'),
+        route('/test-role', 'routes/api-test-role.ts'),
     ]),
 ] satisfies RouteConfig;

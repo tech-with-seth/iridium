@@ -1,4 +1,4 @@
-import { test, expect, createThreadViaApi } from './fixtures';
+import { test, expect, createThreadViaApi, waitForHydration } from './fixtures';
 import { mockChatReply } from './chat-mock';
 
 test.describe('Per-thread model selection', () => {
@@ -7,14 +7,22 @@ test.describe('Per-thread model selection', () => {
     }) => {
         const threadId = await createThreadViaApi(page.context());
         await page.goto(`/chat/${threadId}`);
+        // The select submits via a React fetcher; wait for hydration.
+        await waitForHydration(page);
 
         const select = page.getByLabel('Model');
         await expect(select).toHaveValue('anthropic/claude-haiku-4-5-20251001');
 
+        // Wait for the set-model fetcher POST to complete before reloading;
+        // a reload mid-flight cancels it and the change is never saved.
+        const saved = page.waitForResponse(
+            (response) =>
+                response.request().method() === 'POST' &&
+                new URL(response.url()).pathname.startsWith('/chat'),
+        );
         await select.selectOption('anthropic/claude-sonnet-4-6');
-        // The fetcher posts to /chat; wait for it to settle before reload.
         await expect(select).toHaveValue('anthropic/claude-sonnet-4-6');
-        await page.waitForLoadState('networkidle');
+        await saved;
 
         await page.reload();
         await expect(page.getByLabel('Model')).toHaveValue(
@@ -50,6 +58,7 @@ test.describe('Message regeneration', () => {
         await page.goto('/chat');
         await page.getByRole('button', { name: 'New Thread' }).click();
         await expect(page).toHaveURL(/\/chat\/.+/);
+        await waitForHydration(page);
 
         await page.getByLabel('Message').fill('Tell me something');
         await page.getByRole('button', { name: 'Send' }).click();

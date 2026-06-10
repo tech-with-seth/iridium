@@ -7,7 +7,7 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 - **Authentication** — Email/password sign-up and sign-in via Better Auth with secure HTTP-only sessions, password reset, and email verification
 - **Account management** — A `/settings` page with profile editing, password change (revokes other sessions), and account deletion behind a password confirm
 - **Email** — Resend + react-email templates behind a pluggable `sendEmail()`; without an API key, emails render to the console so local dev needs no provider
-- **Role-based access control** — USER, EDITOR, and ADMIN roles baked into the schema and session helpers
+- **Role-based access control** — USER, EDITOR, and ADMIN roles baked into the schema and session helpers, with an `/admin` panel for role changes, ban/unban, and user impersonation
 - **AI chat** — Conversational interface powered by VoltAgent and the Vercel AI SDK. Messages persist to PostgreSQL and are organized into searchable threads with per-thread model selection and response regeneration
 - **Agent tools** — The AI assistant can manage notes, fetch live weather, and report the current time, with tool invocations rendered inline in the chat
 - **Generative UI** — The `render_card` tool lets the agent produce rich visual cards (info, steps, pros/cons) inline in the chat, demonstrating VoltAgent's tool-driven approach to generative UI
@@ -232,6 +232,7 @@ Deployable to Railway, Fly.io, AWS ECS, Google Cloud Run, or any Docker-compatib
 | `/chat`            | AI chat with searchable thread sidebar         |
 | `/notes`           | Notes CRUD with search and pagination          |
 | `/settings`        | Profile, password change, account deletion     |
+| `/admin`           | User roles, ban/unban, impersonation           |
 | `/api/chat`        | Chat API endpoint (model picker, regeneration) |
 | `/api/auth/*`      | Auth API endpoints                             |
 | `/api/theme`       | Theme cookie endpoint                          |

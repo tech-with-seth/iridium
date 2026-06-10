@@ -28,6 +28,20 @@ export async function getUserFromSession(request: Request) {
     }
 }
 
+/**
+ * Full session lookup (user + session record) for callers that need more
+ * than the user, e.g. the impersonation state in the root loader.
+ */
+export async function getSessionInfo(request: Request) {
+    try {
+        return await auth.api.getSession({ headers: request.headers });
+    } catch (error) {
+        log.exception('session_lookup_failed', error);
+
+        return null;
+    }
+}
+
 export async function requireUser(request: Request) {
     const user = await getUserFromSession(request);
 

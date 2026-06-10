@@ -5,6 +5,8 @@ const { mockPrisma } = vi.hoisted(() => ({
         user: {
             findUnique: vi.fn(),
             update: vi.fn(),
+            findMany: vi.fn(),
+            count: vi.fn(),
         },
     },
 }));
@@ -13,7 +15,13 @@ vi.mock('~/lib/prisma', () => ({
     default: mockPrisma,
 }));
 
-import { getUserById, updateUserBio } from './user.server';
+import {
+    countUsers,
+    getUserById,
+    listUsers,
+    updateUserBio,
+    updateUserRole,
+} from './user.server';
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -29,6 +37,58 @@ describe('getUserById', () => {
             where: { id: 'u1' },
         });
         expect(result).toEqual({ id: 'u1' });
+    });
+});
+
+describe('listUsers', () => {
+    it('selects safe fields only, newest first', async () => {
+        mockPrisma.user.findMany.mockResolvedValue([]);
+
+        await listUsers({ skip: 0, take: 20 });
+
+        const args = mockPrisma.user.findMany.mock.calls[0][0];
+        expect(args.select).not.toHaveProperty('password');
+        expect(Object.keys(args.select)).toEqual(
+            expect.arrayContaining(['id', 'email', 'role', 'banned']),
+        );
+        expect(args.orderBy).toEqual({ createdAt: 'desc' });
+        expect(args.take).toBe(20);
+    });
+
+    it('searches name and email case-insensitively', async () => {
+        mockPrisma.user.findMany.mockResolvedValue([]);
+
+        await listUsers({ query: 'alice' });
+
+        const args = mockPrisma.user.findMany.mock.calls[0][0];
+        expect(args.where.OR).toEqual([
+            { name: { contains: 'alice', mode: 'insensitive' } },
+            { email: { contains: 'alice', mode: 'insensitive' } },
+        ]);
+    });
+});
+
+describe('countUsers', () => {
+    it('counts with the same search filter', async () => {
+        mockPrisma.user.count.mockResolvedValue(0);
+
+        await countUsers('bob');
+
+        const args = mockPrisma.user.count.mock.calls[0][0];
+        expect(args.where.OR).toHaveLength(2);
+    });
+});
+
+describe('updateUserRole', () => {
+    it('updates the role', async () => {
+        mockPrisma.user.update.mockResolvedValue({});
+
+        await updateUserRole('u1', 'EDITOR');
+
+        expect(mockPrisma.user.update).toHaveBeenCalledWith({
+            where: { id: 'u1' },
+            data: { role: 'EDITOR' },
+        });
     });
 });
 
