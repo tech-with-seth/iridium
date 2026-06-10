@@ -34,7 +34,7 @@ export function ThemeToggle() {
             </div>
             <ul
                 tabIndex={0}
-                className="dropdown-content menu bg-base-200 rounded-box z-50 w-36 p-2 shadow"
+                className="dropdown-content menu bg-base-200 text-base-content rounded-box z-50 w-36 p-2 shadow"
             >
                 {OPTIONS.map(({ value, label, icon: Icon }) => (
                     <li key={value}>
