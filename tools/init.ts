@@ -9,13 +9,14 @@
  * BETTER_AUTH_SECRET, starts the Docker databases, applies migrations,
  * and seeds demo users.
  */
-import { $ } from 'bun';
+import { $, file, sleep, write } from 'bun';
 import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { confirm, input, password } from '@inquirer/prompts';
 
-const root = join(import.meta.dir, '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const nonInteractive = args.includes('--non-interactive');
 
@@ -35,14 +36,11 @@ const projectName = nonInteractive
     : await input({ message: 'Project name', default: defaultName });
 
 const packageJsonPath = join(root, 'package.json');
-const packageJson = await Bun.file(packageJsonPath).json();
+const packageJson = await file(packageJsonPath).json();
 
 if (packageJson.name !== projectName) {
     packageJson.name = projectName;
-    await Bun.write(
-        packageJsonPath,
-        JSON.stringify(packageJson, null, 4) + '\n',
-    );
+    await write(packageJsonPath, JSON.stringify(packageJson, null, 4) + '\n');
     step(`Renamed package to "${projectName}"`);
     console.log(
         '  (App branding lives in app/components and app/routes; rename "Iridium" there when you are ready.)',
@@ -87,7 +85,7 @@ if (writeEnv) {
         ANTHROPIC_API_KEY: anthropicKey || 'sk-ant-REPLACE-ME',
     };
 
-    const example = await Bun.file(envExamplePath).text();
+    const example: string = await file(envExamplePath).text();
     const seen = new Set<string>();
 
     const lines = example.split('\n').map((line) => {
@@ -103,7 +101,7 @@ if (writeEnv) {
         if (!seen.has(key)) lines.push(`${key}="${value}"`);
     }
 
-    await Bun.write(envPath, lines.join('\n').trimEnd() + '\n');
+    await write(envPath, lines.join('\n').trimEnd() + '\n');
     step('Wrote .env with a generated BETTER_AUTH_SECRET');
     if (!anthropicKey) {
         console.log('  Remember to set ANTHROPIC_API_KEY before using chat.');
@@ -129,7 +127,7 @@ for (const service of services) {
             healthy = true;
             break;
         }
-        await Bun.sleep(1_000);
+        await sleep(1_000);
     }
     if (!healthy) {
         console.error(`✗ ${service} did not become healthy in 30s`);
