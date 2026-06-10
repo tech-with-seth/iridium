@@ -37,6 +37,19 @@ A full-stack starter kit for shipping AI-powered products. Clone the repo, confi
 - [Docker](https://docs.docker.com/get-docker/) installed (for local PostgreSQL)
 - Anthropic API key
 
+### Quick start
+
+```bash
+bun install
+bun run setup   # interactive: renames the project, writes .env, starts
+                # Docker, migrates, and seeds demo users in one shot
+bun run dev
+```
+
+`bun run setup` also takes `--non-interactive` (and `--name <project>`) for
+scripted use. Prefer manual control? The steps below do the same thing by
+hand.
+
 ### Installation
 
 ```bash

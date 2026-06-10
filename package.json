@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "setup": "bun tools/init.ts",
         "build": "react-router build",
         "dev": "react-router dev",
         "start": "react-router-serve ./build/server/index.js",
@@ -66,6 +67,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@inquirer/prompts": "^8.5.2",
         "@playwright/test": "^1.60.0",
         "@react-router/dev": "7.14.2",
         "@tailwindcss/vite": "^4.3.0",
