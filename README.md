@@ -71,6 +71,13 @@ ANTHROPIC_API_KEY="sk-ant-..."
 # Optional: real email sending (otherwise emails log to the console)
 RESEND_API_KEY="re_..."
 EMAIL_FROM="Iridium <onboarding@resend.dev>"
+
+# Optional: OAuth login buttons (each renders only when both vars are set).
+# Callback URLs: <BETTER_AUTH_BASE_URL>/api/auth/callback/<provider>
+GITHUB_CLIENT_ID="..."
+GITHUB_CLIENT_SECRET="..."
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
 ```
 
 ### Two-Database Setup
@@ -105,6 +112,29 @@ bun run dev
 ```
 
 The app will be available at `http://localhost:5173`.
+
+### Background Jobs (optional)
+
+Background work runs through [Trigger.dev](https://trigger.dev) when
+configured, and inline otherwise, so nothing is required for local dev.
+Tasks live in `trigger/`:
+
+| Task                    | Trigger              | Purpose                                          |
+| ----------------------- | -------------------- | ------------------------------------------------ |
+| `send-auth-email`       | auth flows           | Password reset + verification emails off-request |
+| `generate-thread-title` | `/api/chat`          | AI thread titles without blocking the chat       |
+| `purge-soft-deleted`    | cron, daily 4:17 UTC | Hard-deletes Threads/Notes soft-deleted 30+ days |
+
+To enable:
+
+1. Create a project at [cloud.trigger.dev](https://cloud.trigger.dev) (or self-host)
+2. Set `TRIGGER_PROJECT_REF` and `TRIGGER_SECRET_KEY` in `.env`
+3. `bun run trigger:dev` alongside `bun run dev` (or `bun run trigger:deploy`)
+
+The deployed worker runs the app's server code, so it needs the same
+required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, etc.) set in the
+Trigger.dev dashboard. Without `TRIGGER_SECRET_KEY`, `app/lib/jobs.server.ts`
+runs the same functions inline and the purge job simply doesn't run.
 
 ## Project Structure
 

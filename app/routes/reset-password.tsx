@@ -1,11 +1,13 @@
-import { data, Form, redirect, useNavigation } from 'react-router';
+import { data, Form, redirect } from 'react-router';
 import { z } from 'zod';
 import { auth } from '~/lib/auth.server';
 import { redirectWithToast } from '~/lib/toast.server';
 import { requireAnonymous } from '~/models/session.server';
+import { Spinner } from '~/components/Spinner';
 import { Field } from '~/components/forms/Field';
 import { FormAlert } from '~/components/forms/FormAlert';
 import { Input } from '~/components/forms/Input';
+import { useIsSubmitting } from '~/hooks';
 import type { Route } from './+types/reset-password';
 
 const schema = z
@@ -77,8 +79,7 @@ export default function ResetPasswordRoute({
     loaderData,
     actionData,
 }: Route.ComponentProps) {
-    const navigation = useNavigation();
-    const isSubmitting = navigation.state !== 'idle';
+    const isSubmitting = useIsSubmitting();
 
     return (
         <>
@@ -142,15 +143,7 @@ export default function ResetPasswordRoute({
                                 type="submit"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? (
-                                    <span
-                                        role="status"
-                                        aria-label="Loading"
-                                        className="loading loading-spinner loading-sm"
-                                    />
-                                ) : (
-                                    'Reset password'
-                                )}
+                                {isSubmitting ? <Spinner /> : 'Reset password'}
                             </button>
                         </Form>
                     </div>

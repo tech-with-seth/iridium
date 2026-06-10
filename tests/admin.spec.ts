@@ -78,6 +78,44 @@ test.describe('Admin panel', () => {
         await adminContext.close();
     });
 
+    test('admin can filter users by role and status', async ({
+        browser,
+    }, testInfo) => {
+        const baseURL = testInfo.project.use.baseURL!;
+        const tag = `filter-${testInfo.workerIndex}`;
+
+        const target = await createTargetUser(browser, baseURL, tag);
+
+        const adminContext = await browser.newContext({ baseURL });
+        await createFreshAdmin(adminContext, baseURL, tag);
+        const page = await adminContext.newPage();
+
+        await page.goto(`/admin?q=${encodeURIComponent(target.email)}`);
+        // The filter selects auto-submit via React; wait for hydration.
+        await waitForHydration(page);
+        await expect(
+            page.getByText(target.email, { exact: true }),
+        ).toBeVisible();
+
+        // The fresh target is not banned, so the banned filter empties the
+        // list (the search query stays applied).
+        await page.getByLabel('Filter by status').selectOption('banned');
+        await expect(page).toHaveURL(/status=banned/);
+        await expect(page.getByText('No users found')).toBeVisible();
+
+        await page.getByLabel('Filter by status').selectOption('active');
+        await expect(
+            page.getByText(target.email, { exact: true }),
+        ).toBeVisible();
+
+        // The target is a USER, so the ADMIN role filter excludes them.
+        await page.getByLabel('Filter by role').selectOption('ADMIN');
+        await expect(page).toHaveURL(/role=ADMIN/);
+        await expect(page.getByText('No users found')).toBeVisible();
+
+        await adminContext.close();
+    });
+
     test('admin can ban and unban a user', async ({ browser }, testInfo) => {
         const baseURL = testInfo.project.use.baseURL!;
         const tag = `ban-${testInfo.workerIndex}`;
@@ -101,7 +139,11 @@ test.describe('Admin panel', () => {
         await dialog.getByRole('button', { name: 'Ban user' }).click();
 
         await expect(page.getByRole('status')).toContainText('User banned');
-        await expect(page.getByText('Banned', { exact: true })).toBeVisible();
+        await expect(
+            page
+                .getByRole('row', { name: target.email })
+                .getByText('Banned', { exact: true }),
+        ).toBeVisible();
 
         // The banned user can no longer sign in.
         const bannedContext = await browser.newContext({ baseURL });

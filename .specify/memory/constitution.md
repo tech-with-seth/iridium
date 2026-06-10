@@ -1,20 +1,17 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (unversioned template) → 1.0.0
-Bump rationale: Initial ratification — template placeholders replaced with
-  concrete, project-derived principles. First adopted version.
+Version change: 1.0.0 → 1.1.0
+Bump rationale: MINOR — added a new principle (VI. Component Authoring Pattern)
+  codifying the component pattern established in app/components/Card.tsx. Principle IV
+  was trimmed to delegate component specifics to VI (no semantic loss).
 
-Modified principles: (all newly defined from template slots)
-  [PRINCIPLE_1] → I. Type Safety & Validation First
-  [PRINCIPLE_2] → II. Server/Client Boundary Discipline
-  [PRINCIPLE_3] → III. Test Coverage (Unit + E2E)
-  [PRINCIPLE_4] → IV. Convention-Driven Architecture
-  [PRINCIPLE_5] → V. Security & Resource Guardrails
+Modified principles:
+  IV. Convention-Driven Architecture — component-specific bullet narrowed to reference
+    Principle VI; general module conventions (~/ alias, named decls, named exports) retained.
 
 Added sections:
-  - Technology Constraints (was [SECTION_2_NAME])
-  - Development Workflow & Quality Gates (was [SECTION_3_NAME])
+  - VI. Component Authoring Pattern (new principle)
 
 Removed sections: none
 
@@ -24,7 +21,13 @@ Templates requiring updates:
   ✅ .specify/templates/spec-template.md — no hardcoded principle references; aligned.
   ✅ .specify/templates/tasks-template.md — task categories are generic; aligned.
 
-Follow-up TODOs: none — ratification date set to first adoption (2026-06-04).
+Follow-up TODOs: none.
+
+--- Prior report (v1.0.0) ---
+Version change: (unversioned template) → 1.0.0
+Bump rationale: Initial ratification — template placeholders replaced with
+  concrete, project-derived principles. First adopted version.
+Ratification date set to first adoption (2026-06-04).
 -->
 
 # Iridium Constitution
@@ -87,8 +90,9 @@ New code MUST follow the established patterns rather than inventing parallel one
   NOT file-system routing. API routes live under `/api` and export only `loader`/`action`.
 - The data-access layer is plain async functions in `app/models/*.server.ts` — no
   classes or ORM wrappers.
-- Components use CVA from `cva.config`, DaisyUI v5 class names, the `~/` import alias,
-  named function declarations, and named exports (no default exports).
+- Code uses the `~/` import alias, named function declarations, and named exports
+  (no default exports); components additionally follow the Component Authoring Pattern
+  (Principle VI).
 - React Router v7 framework-mode patterns are the source of truth for routing, error
   boundaries, and form/action handling.
 
@@ -110,6 +114,31 @@ Protected resources MUST stay protected and finite resources MUST stay bounded.
 
 **Rationale**: This is a multi-user app with an external AI bill attached. An unguarded
 endpoint is both a privacy breach and a cost-amplification vector.
+
+### VI. Component Authoring Pattern
+
+Components MUST follow the single established authoring pattern (reference:
+`app/components/Card.tsx`).
+
+- Variant-driven styling MUST use CVA imported from `cva.config` (the
+  tailwind-merge-integrated wrapper), never the raw `cva` package.
+- The variant config MUST be exported alongside the component (e.g. `cardVariants`) so
+  consumers can reuse the styles.
+- Each component MUST be a named function declaration with a named export — no default
+  exports.
+- Props MUST be typed as `type Props = VariantProps<typeof xxxVariants> & { ... }`: a
+  `type` named `Props`, never an `interface`, never a `XxxProps` name.
+- Components that accept children MUST wrap their props type in `PropsWithChildren`.
+- `className` MUST be threaded into the variants call (e.g.
+  `cardVariants({ ...variants, className })`) so consumer overrides merge correctly via
+  tailwind-merge.
+- Variant values MUST be DaisyUI v5 semantic class names (e.g. `card`, `btn`,
+  `bg-base-200`), not raw color utilities.
+
+**Rationale**: One component shape keeps the UI layer predictable and consumer-overridable.
+Routing every variant through `cva.config` guarantees Tailwind class conflicts resolve the
+same way everywhere, and exporting the variant config lets sibling components compose
+styles without copy-paste.
 
 ## Technology Constraints
 
@@ -150,4 +179,4 @@ principle wins or the principle is amended — code does not silently diverge.
 - **Runtime guidance**: `CLAUDE.md` and `.claude/rules/*.md` provide day-to-day
   development guidance consistent with these principles.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-04 | **Last Amended**: 2026-06-04
+**Version**: 1.1.0 | **Ratified**: 2026-06-04 | **Last Amended**: 2026-06-07

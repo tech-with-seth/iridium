@@ -8,27 +8,29 @@ Iridium is a full-stack AI chat application built with React Router v7 (SSR), Be
 
 ## Commands
 
-| Command                | Purpose                              |
-| ---------------------- | ------------------------------------ |
-| `bun run dev`          | Start dev server (port 5173)         |
-| `bun run build`        | Production build                     |
-| `bun run typecheck`    | Generate route types + run tsc       |
-| `bun run lint`         | ESLint check                         |
-| `bun run format`       | Prettier write                       |
-| `bun run format:check` | Prettier check (no write)            |
-| `bun run validate`     | typecheck + lint + format:check      |
-| `bun run test`         | Run Vitest unit tests                |
-| `bun run test:watch`   | Run Vitest in watch mode             |
-| `bun run test:e2e`     | Run all Playwright E2E tests         |
-| `bun run db:migrate`   | Run Prisma migrations                |
-| `bun run db:seed`      | Seed database with test users        |
-| `bun run db:fresh`     | Reset DB + migrate + seed (one shot) |
-| `bun run db:studio`    | Open Prisma Studio GUI               |
-| `bun run db:push`      | Push schema without migration        |
-| `bun run db:generate`  | Regenerate Prisma client             |
-| `bun run docker:up`    | Start both Postgres containers       |
-| `bun run docker:down`  | Stop containers (data preserved)     |
-| `bun run docker:nuke`  | Stop containers and delete volumes   |
+| Command                  | Purpose                              |
+| ------------------------ | ------------------------------------ |
+| `bun run dev`            | Start dev server (port 5173)         |
+| `bun run build`          | Production build                     |
+| `bun run typecheck`      | Generate route types + run tsc       |
+| `bun run lint`           | ESLint check                         |
+| `bun run format`         | Prettier write                       |
+| `bun run format:check`   | Prettier check (no write)            |
+| `bun run validate`       | typecheck + lint + format:check      |
+| `bun run test`           | Run Vitest unit tests                |
+| `bun run test:watch`     | Run Vitest in watch mode             |
+| `bun run test:e2e`       | Run all Playwright E2E tests         |
+| `bun run db:migrate`     | Run Prisma migrations                |
+| `bun run db:seed`        | Seed database with test users        |
+| `bun run db:fresh`       | Reset DB + migrate + seed (one shot) |
+| `bun run db:studio`      | Open Prisma Studio GUI               |
+| `bun run db:push`        | Push schema without migration        |
+| `bun run db:generate`    | Regenerate Prisma client             |
+| `bun run trigger:dev`    | Run Trigger.dev tasks locally        |
+| `bun run trigger:deploy` | Deploy Trigger.dev tasks             |
+| `bun run docker:up`      | Start both Postgres containers       |
+| `bun run docker:down`    | Stop containers (data preserved)     |
+| `bun run docker:nuke`    | Stop containers and delete volumes   |
 
 Run a single Playwright test: `bunx playwright test tests/auth.spec.ts --project=chromium`
 
@@ -99,6 +101,7 @@ Plain async functions in `app/models/*.server.ts` — no classes, no ORM wrapper
 - API passthrough: `/api/auth/*` → `auth.handler` in `app/routes/api-auth.ts`
 - Middleware: `app/middleware/auth.ts` checks session, redirects to `/login`, stores user in `userContext`
 - Protect a route: `export const middleware: Route.MiddlewareFunction[] = [authMiddleware]`
+- Social login: GitHub and Google via `socialProviders` in `auth.server.ts`, gated on `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` and `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. The login loader passes `enabledSocialProviders` to `Turnstile`, which only renders buttons for configured providers
 - Account flows: `/forgot-password` + `/reset-password` (token emails via `sendResetPassword`), `/settings` (profile, change password, delete account). Verification emails send on sign-up but sign-in is not gated (`requireEmailVerification` stays off — the E2E fixtures rely on sign-up auto-login)
 - Admin: `/admin` (requireAdmin) lists users with search/pagination and supports role changes, ban/unban, and impersonation (`/stop-impersonating` ends it; banner renders from SiteHeader). Gotcha: the admin plugin's `adminRoles` AND its `roles` permission map must be re-keyed to the uppercase Role enum or every admin API call returns FORBIDDEN (see `auth.server.ts`)
 
@@ -120,7 +123,11 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Environment Validation
 
-`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
+`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `TRIGGER_SECRET_KEY`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
+
+### Background Jobs
+
+Trigger.dev v4 tasks live in `trigger/` (config in `trigger.config.ts`): `send-auth-email`, `generate-thread-title`, and the scheduled `purge-soft-deleted` (hard-deletes Threads/Notes soft-deleted 30+ days ago, daily). `app/lib/jobs.server.ts` is the only enqueue entry point: with `TRIGGER_SECRET_KEY` set it hands work to Trigger.dev, otherwise it runs the same shared functions inline (`app/lib/email-jobs.server.ts`, `app/lib/thread-title.server.ts`). Keep task files thin; put logic in those shared modules so the inline fallback and the worker never diverge. `bun run trigger:dev` / `bun run trigger:deploy`.
 
 ### Testing
 
@@ -155,6 +162,11 @@ Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs
 
 - `app/context.ts` — `userContext` via React Router's `createContext<SessionUser | null>`
 - `app/shared.ts` — shared className helpers (`listItemClassName`, `navLinkClassName`)
+- `app/hooks.ts` — shared hooks: `useDialog` (imperative `<dialog>` open/close + pending target + reopen-on-error; takes the ref from the call site — returning a ref inside the hook's object trips the react-hooks/refs compiler rule), `usePendingIntent`, `useIsSubmitting`
+
+### Shared UI building blocks
+
+Reuse these instead of re-rolling the markup: `Modal`/`ModalActions` (native dialog chrome), `SearchForm` (GET ?q= form, filters as children), `PageHeader` (h1 + action/subtitle slots), `Spinner`, `FormAlert` (error alert, accepts action-button children; also used by ErrorBoundaries), `ToolPartShell` + `isToolLoading`/`isToolDone` (chat tool-call chrome), `FormattedDate`, `EmptyState`, `Card`, `Pagination`.
 
 ### Layout
 

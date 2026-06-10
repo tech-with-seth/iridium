@@ -169,3 +169,15 @@ export function deleteThread(threadId: string) {
         data: { deletedAt: new Date() },
     });
 }
+
+/**
+ * Hard-delete threads that were soft-deleted more than `olderThanDays` days
+ * ago. Messages cascade at the DB level. Called by the purge background job.
+ */
+export function purgeSoftDeletedThreads(olderThanDays: number) {
+    const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
+
+    return prisma.thread.deleteMany({
+        where: { deletedAt: { lt: cutoff } },
+    });
+}

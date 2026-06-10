@@ -72,10 +72,40 @@ describe('countUsers', () => {
     it('counts with the same search filter', async () => {
         mockPrisma.user.count.mockResolvedValue(0);
 
-        await countUsers('bob');
+        await countUsers({ query: 'bob' });
 
         const args = mockPrisma.user.count.mock.calls[0][0];
         expect(args.where.OR).toHaveLength(2);
+    });
+});
+
+describe('user filters', () => {
+    it('filters by role', async () => {
+        mockPrisma.user.findMany.mockResolvedValue([]);
+
+        await listUsers({ role: 'ADMIN' });
+
+        const args = mockPrisma.user.findMany.mock.calls[0][0];
+        expect(args.where.role).toBe('ADMIN');
+        expect(args.where.OR).toBeUndefined();
+    });
+
+    it('filters banned users', async () => {
+        mockPrisma.user.findMany.mockResolvedValue([]);
+
+        await listUsers({ banned: true });
+
+        const args = mockPrisma.user.findMany.mock.calls[0][0];
+        expect(args.where.banned).toBe(true);
+    });
+
+    it('treats never-banned (null) users as active', async () => {
+        mockPrisma.user.count.mockResolvedValue(0);
+
+        await countUsers({ banned: false });
+
+        const args = mockPrisma.user.count.mock.calls[0][0];
+        expect(args.where.banned).toEqual({ not: true });
     });
 });
 

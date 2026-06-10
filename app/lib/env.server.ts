@@ -29,6 +29,21 @@ const envSchema = z.object({
      */
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().default('Iridium <onboarding@resend.dev>'),
+    /**
+     * Optional OAuth providers: a provider's login button only renders when
+     * both its client ID and secret are set. Callback URLs are
+     * <BETTER_AUTH_BASE_URL>/api/auth/callback/github and /callback/google.
+     */
+    GITHUB_CLIENT_ID: z.string().optional(),
+    GITHUB_CLIENT_SECRET: z.string().optional(),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    /**
+     * Optional: enables Trigger.dev background jobs (async auth emails,
+     * async thread titles; the scheduled purge runs on Trigger's side).
+     * When unset, jobs.server.ts runs the same work inline.
+     */
+    TRIGGER_SECRET_KEY: z.string().optional(),
     VOLTAGENT_DATABASE_URL: z.url({
         message: 'VOLTAGENT_DATABASE_URL must be a valid URL',
     }),

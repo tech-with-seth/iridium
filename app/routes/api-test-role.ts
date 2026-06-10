@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { env } from '~/lib/env.server';
-import prisma from '~/lib/prisma';
 import { Role } from '~/generated/prisma/client';
+import { updateUserRoleByEmail } from '~/models/user.server';
 import type { Route } from './+types/api-test-role';
 
 const schema = z.object({
@@ -27,10 +27,7 @@ export async function action({ request }: Route.ActionArgs) {
         return Response.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    await prisma.user.update({
-        where: { email: parsed.data.email },
-        data: { role: parsed.data.role },
-    });
+    await updateUserRoleByEmail(parsed.data.email, parsed.data.role);
 
     return Response.json({ ok: true });
 }

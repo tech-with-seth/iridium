@@ -2,17 +2,18 @@ import type { UIMessage } from 'ai';
 import z from 'zod';
 
 import { DEFAULT_MODEL_ID } from '~/lib/ai-models';
+import { enqueueThreadTitle } from '~/lib/jobs.server';
 import { log } from '~/lib/logger.server';
 import { rateLimit } from '~/lib/rate-limit.server';
+import { buildTitleContext } from '~/lib/thread-title.server';
 import { getUserFromSession } from '~/models/session.server';
 import {
     deleteTrailingAssistantMessages,
     getThreadById,
     saveChat,
-    updateThreadTitle,
 } from '~/models/thread.server';
 import { agent, memory } from '~/voltagent';
-import type { Route } from './+types/chat';
+import type { Route } from './+types/api-chat';
 
 const uiMessagePartSchema = z.object({
     type: z.string().max(50),
@@ -87,41 +88,13 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     // Auto-generate thread title once per thread, after a few messages.
+    // With Trigger.dev configured this runs as a background job; otherwise
+    // enqueueThreadTitle runs it inline (best-effort, never throws).
     if (messages.length > 3 && thread.title === 'Untitled') {
-        try {
-            const conversationContext = messages
-                .slice(0, 4)
-                .map((msg) => {
-                    const textParts = msg.parts
-                        .filter((part) => part.type === 'text')
-                        .map((part) => ('text' in part ? part.text : ''))
-                        .join(' ');
-
-                    return `${msg.role}: ${textParts}`;
-                })
-                .join('\n');
-
-            const titleResult = await agent.generateText(
-                `Generate a concise, descriptive title (max 6 words) for this conversation. The title should capture the main topic or question being discussed.\n\nConversation:\n${conversationContext}\n\nGenerate only the title, no quotes or extra text.`,
-                { allowSystemInMessages: true } as Parameters<
-                    typeof agent.generateText
-                >[1] & { allowSystemInMessages: boolean },
-            );
-
-            const title = (titleResult?.text ?? '')
-                .trim()
-                .replace(/^["']|["']$/g, '')
-                .slice(0, 100);
-
-            if (title) {
-                await updateThreadTitle(threadId, title);
-            }
-        } catch (error) {
-            log.exception('title_generation_failed', error, {
-                threadId,
-                userId: user.id,
-            });
-        }
+        await enqueueThreadTitle({
+            threadId,
+            context: buildTitleContext(messages),
+        });
     }
 
     // Only send the latest user message — VoltAgent memory provides

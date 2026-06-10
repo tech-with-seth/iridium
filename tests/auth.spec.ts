@@ -15,6 +15,19 @@ test.describe('Login', () => {
         ).toBeVisible();
     });
 
+    test('hides social login buttons when no provider is configured', async ({
+        page,
+    }) => {
+        // The E2E server sets no OAuth env vars, so the env-gated provider
+        // buttons must not render.
+        await page.goto('/login');
+
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        await expect(
+            page.getByRole('button', { name: /Continue with/ }),
+        ).toHaveCount(0);
+    });
+
     test('shows error for invalid credentials', async ({ page }) => {
         await page.goto('/login');
         await page.getByPlaceholder('name@example.com').fill(TEST_USER.email);

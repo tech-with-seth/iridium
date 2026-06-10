@@ -77,6 +77,18 @@ export function deleteNote(noteId: string) {
     });
 }
 
+/**
+ * Hard-delete notes that were soft-deleted more than `olderThanDays` days
+ * ago. Called by the purge background job.
+ */
+export function purgeSoftDeletedNotes(olderThanDays: number) {
+    const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
+
+    return prisma.note.deleteMany({
+        where: { deletedAt: { lt: cutoff } },
+    });
+}
+
 function noteSearchWhere(userId: string, query?: string) {
     return {
         userId,

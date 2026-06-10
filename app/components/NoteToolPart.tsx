@@ -1,10 +1,5 @@
-import {
-    CheckIcon,
-    FileTextIcon,
-    ListIcon,
-    LoaderCircleIcon,
-    SearchIcon,
-} from 'lucide-react';
+import { FileTextIcon, ListIcon, SearchIcon } from 'lucide-react';
+import { isToolDone, ToolPartShell } from '~/components/ToolPartShell';
 
 interface NoteToolPartProps {
     toolName: string;
@@ -31,31 +26,12 @@ interface NoteOutput {
 }
 
 export function NoteToolPart({ toolName, state, output }: NoteToolPartProps) {
-    const isLoading =
-        state === 'input-available' || state === 'input-streaming';
-    const isDone = state === 'output-available';
+    const isDone = isToolDone(state);
     const Icon = ICONS[toolName] ?? FileTextIcon;
     const label = LABELS[toolName] ?? toolName;
 
     return (
-        <div className="rounded-box border-base-300 bg-base-200 mt-2 border p-3 text-sm">
-            <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                <span className="font-medium">{label}</span>
-                {isLoading && (
-                    <LoaderCircleIcon
-                        className="h-3 w-3 animate-spin"
-                        aria-hidden="true"
-                    />
-                )}
-                {isDone && (
-                    <CheckIcon
-                        className="text-success h-3 w-3"
-                        aria-hidden="true"
-                    />
-                )}
-            </div>
-
+        <ToolPartShell icon={Icon} label={label} state={state}>
             {isDone && toolName === 'create_note' && output && (
                 <p className="mt-1 text-xs opacity-80">
                     Saved: {String(output.title)}
@@ -79,6 +55,6 @@ export function NoteToolPart({ toolName, state, output }: NoteToolPartProps) {
                         )}
                     </ul>
                 )}
-        </div>
+        </ToolPartShell>
     );
 }

@@ -10,7 +10,7 @@ export const cardVariants = cva({
             darker: 'bg-base-200',
             darkest: 'bg-base-300',
         },
-        bordererd: {
+        bordered: {
             true: 'card-border',
         },
     },
@@ -20,20 +20,20 @@ export const cardVariants = cva({
     compoundVariants: [],
 });
 
-interface CardProps extends VariantProps<typeof cardVariants> {
+type Props = VariantProps<typeof cardVariants> & {
     className?: string;
     title?: string;
-}
+};
 
 export function Card({
-    bordererd,
+    bordered,
     title,
     children,
     className,
     variant,
-}: PropsWithChildren<CardProps>) {
+}: PropsWithChildren<Props>) {
     return (
-        <div className={cx(cardVariants({ bordererd, variant, className }))}>
+        <div className={cx(cardVariants({ bordered, variant, className }))}>
             <div className="card-body min-h-0">
                 {title && <h2 className="card-title">{title}</h2>}
                 {children}

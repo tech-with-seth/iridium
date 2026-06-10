@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
     data,
     Form,
@@ -6,7 +6,7 @@ import {
     useFetcher,
     useRouteError,
 } from 'react-router';
-import { CircleXIcon, SearchIcon, ShieldIcon } from 'lucide-react';
+import { ShieldIcon } from 'lucide-react';
 import { z } from 'zod';
 import { APIError } from 'better-auth';
 import { auth } from '~/lib/auth.server';
@@ -18,11 +18,16 @@ import { requireAdmin } from '~/models/session.server';
 import { countUsers, listUsers, updateUserRole } from '~/models/user.server';
 import { Container } from '~/components/Container';
 import { EmptyState } from '~/components/EmptyState';
+import { FormattedDate } from '~/components/FormattedDate';
+import { Modal, ModalActions } from '~/components/Modal';
+import { PageHeader } from '~/components/PageHeader';
 import { Pagination } from '~/components/Pagination';
+import { SearchForm } from '~/components/SearchForm';
 import { Field } from '~/components/forms/Field';
 import { FormAlert } from '~/components/forms/FormAlert';
 import { Input } from '~/components/forms/Input';
 import { Select } from '~/components/forms/Select';
+import { useDialog } from '~/hooks';
 import type { Route } from './+types/admin';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
@@ -52,24 +57,44 @@ const userIdSchema = z.object({
     userId: z.string().min(1),
 });
 
+const STATUSES = ['active', 'banned'] as const;
+
+// Invalid values fall back to "no filter" rather than erroring.
+const filterSchema = z.object({
+    role: z.enum(ROLES).optional().catch(undefined),
+    status: z.enum(STATUSES).optional().catch(undefined),
+});
+
 export async function loader({ request }: Route.LoaderArgs) {
     const admin = await requireAdmin(request);
 
     const url = new URL(request.url);
     const query = url.searchParams.get('q')?.trim() ?? '';
+    const { role, status } = filterSchema.parse({
+        role: url.searchParams.get('role') || undefined,
+        status: url.searchParams.get('status') || undefined,
+    });
     const { page, pageSize, skip, take } = parsePage(url.searchParams, {
         defaultPageSize: PAGE_SIZE,
     });
 
+    const filters = {
+        query: query || undefined,
+        role,
+        banned: status === undefined ? undefined : status === 'banned',
+    };
+
     const [users, totalCount] = await Promise.all([
-        listUsers({ query: query || undefined, skip, take }),
-        countUsers(query || undefined),
+        listUsers({ ...filters, skip, take }),
+        countUsers(filters),
     ]);
 
     return {
         adminId: admin.id,
         users,
         query,
+        role: role ?? '',
+        status: status ?? '',
         page,
         totalCount,
         ...pageMeta(totalCount, page, pageSize),
@@ -210,59 +235,83 @@ export default function AdminRoute({
     loaderData,
     actionData,
 }: Route.ComponentProps) {
-    const { adminId, users, query, page, totalPages, totalCount } = loaderData;
+    const {
+        adminId,
+        users,
+        query,
+        role,
+        status,
+        page,
+        totalPages,
+        totalCount,
+    } = loaderData;
     const roleFetcher = useFetcher();
     const banDialogRef = useRef<HTMLDialogElement>(null);
-    const [banTarget, setBanTarget] = useState<{
-        id: string;
-        email: string;
-    } | null>(null);
+    const banDialog = useDialog<{ id: string; email: string }>(banDialogRef);
 
     const formError = actionData?.formError ?? null;
+    const banTarget = banDialog.target;
 
-    // Reopen the ban dialog when the server rejected the ban form.
+    // Reopen the ban dialog when the server rejected the ban form. Only
+    // while a target is set: other action errors have no row context.
     useEffect(() => {
-        if (formError && banDialogRef.current && banTarget) {
-            banDialogRef.current.showModal();
+        if (formError && banTarget) {
+            banDialogRef.current?.showModal();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formError]);
-
-    function openBanDialog(user: { id: string; email: string }) {
-        setBanTarget(user);
-        banDialogRef.current?.showModal();
-    }
+    }, [formError, banTarget]);
 
     return (
         <>
             <title>Admin | Iridium</title>
             <meta name="description" content="Manage users and roles." />
             <Container className="flex flex-col gap-4 p-4">
-                <h1 className="text-4xl font-bold">Admin</h1>
+                <PageHeader title="Admin" />
                 <FormAlert message={formError} />
 
-                <Form method="GET" role="search" className="join max-w-md">
-                    <label className="input join-item flex grow items-center gap-2">
-                        <SearchIcon
-                            aria-hidden="true"
-                            className="h-4 w-4 opacity-60"
-                        />
-                        <input
-                            type="search"
-                            name="q"
-                            placeholder="Search by name or email"
-                            defaultValue={query}
-                            aria-label="Search users"
-                        />
-                    </label>
-                    <button type="submit" className="btn join-item">
-                        Search
-                    </button>
-                </Form>
+                <SearchForm
+                    query={query}
+                    placeholder="Search by name or email"
+                    inputLabel="Search users"
+                    submitLabel="Search"
+                    groupClassName="max-w-md grow"
+                    className="flex flex-wrap items-center gap-2"
+                >
+                    <Select
+                        name="role"
+                        aria-label="Filter by role"
+                        defaultValue={role}
+                        className="w-auto"
+                        onChange={(event) =>
+                            event.currentTarget.form?.requestSubmit()
+                        }
+                    >
+                        <option value="">All roles</option>
+                        {ROLES.map((roleOption) => (
+                            <option key={roleOption} value={roleOption}>
+                                {roleOption}
+                            </option>
+                        ))}
+                    </Select>
+                    <Select
+                        name="status"
+                        aria-label="Filter by status"
+                        defaultValue={status}
+                        className="w-auto"
+                        onChange={(event) =>
+                            event.currentTarget.form?.requestSubmit()
+                        }
+                    >
+                        <option value="">All statuses</option>
+                        <option value="active">Active</option>
+                        <option value="banned">Banned</option>
+                    </Select>
+                </SearchForm>
 
                 <p className="text-base-content/60 text-sm">
                     {totalCount} user{totalCount === 1 ? '' : 's'}
                     {query ? ` matching "${query}"` : ''}
+                    {role ? ` with role ${role}` : ''}
+                    {status ? ` (${status})` : ''}
                 </p>
 
                 {users.length === 0 ? (
@@ -373,9 +422,9 @@ export default function AdminRoute({
                                                 )}
                                             </td>
                                             <td className="text-base-content/60 text-sm">
-                                                {new Date(
-                                                    user.createdAt,
-                                                ).toLocaleDateString()}
+                                                <FormattedDate
+                                                    date={user.createdAt}
+                                                />
                                             </td>
                                             <td>
                                                 {!isSelf && (
@@ -424,7 +473,7 @@ export default function AdminRoute({
                                                                 type="button"
                                                                 className="btn btn-ghost btn-xs text-error"
                                                                 onClick={() =>
-                                                                    openBanDialog(
+                                                                    banDialog.open(
                                                                         user,
                                                                     )
                                                                 }
@@ -450,57 +499,52 @@ export default function AdminRoute({
                 />
             </Container>
 
-            <dialog
+            <Modal
                 ref={banDialogRef}
-                className="modal"
-                onClose={() => setBanTarget(null)}
+                title={`Ban ${banTarget?.email ?? ''}`}
+                onClose={banDialog.clearTarget}
             >
-                <div className="modal-box">
-                    <h3 className="text-lg font-bold">
-                        Ban {banTarget?.email}
-                    </h3>
-                    <p className="py-2">
-                        Banning revokes the user&apos;s sessions and blocks
-                        sign-in until they are unbanned.
-                    </p>
-                    <Form
-                        method="POST"
-                        className="space-y-4"
-                        onSubmit={() => banDialogRef.current?.close()}
-                    >
-                        <input type="hidden" name="intent" value="ban-user" />
-                        <input
-                            type="hidden"
-                            name="userId"
-                            value={banTarget?.id ?? ''}
-                        />
-                        <Field label="Reason" name="banReason">
-                            {(controlProps) => (
-                                <Input
-                                    type="text"
-                                    name="banReason"
-                                    placeholder="Why is this user being banned?"
-                                    required
-                                    className="w-full"
-                                    {...controlProps}
-                                />
-                            )}
-                        </Field>
-                        <div className="modal-action">
-                            <button
-                                type="button"
-                                className="btn"
-                                onClick={() => banDialogRef.current?.close()}
-                            >
-                                Cancel
-                            </button>
-                            <button type="submit" className="btn btn-error">
-                                Ban user
-                            </button>
-                        </div>
-                    </Form>
-                </div>
-            </dialog>
+                <p className="py-2">
+                    Banning revokes the user&apos;s sessions and blocks sign-in
+                    until they are unbanned.
+                </p>
+                <Form
+                    method="POST"
+                    className="space-y-4"
+                    onSubmit={banDialog.close}
+                >
+                    <input type="hidden" name="intent" value="ban-user" />
+                    <input
+                        type="hidden"
+                        name="userId"
+                        value={banTarget?.id ?? ''}
+                    />
+                    <Field label="Reason" name="banReason">
+                        {(controlProps) => (
+                            <Input
+                                type="text"
+                                name="banReason"
+                                placeholder="Why is this user being banned?"
+                                required
+                                className="w-full"
+                                {...controlProps}
+                            />
+                        )}
+                    </Field>
+                    <ModalActions>
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={banDialog.close}
+                        >
+                            Cancel
+                        </button>
+                        <button type="submit" className="btn btn-error">
+                            Ban user
+                        </button>
+                    </ModalActions>
+                </Form>
+            </Modal>
         </>
     );
 }
@@ -516,10 +560,7 @@ export function ErrorBoundary() {
 
     return (
         <Container className="p-4">
-            <div role="alert" className="alert alert-error">
-                <CircleXIcon aria-hidden="true" className="h-6 w-6" />
-                <span>{message}</span>
-            </div>
+            <FormAlert message={message} />
         </Container>
     );
 }

@@ -2,10 +2,10 @@ import {
     CheckCircle2Icon,
     InfoIcon,
     ListOrderedIcon,
-    LoaderCircleIcon,
     ScaleIcon,
     XCircleIcon,
 } from 'lucide-react';
+import { isToolLoading, ToolPartShell } from '~/components/ToolPartShell';
 import type { CardData } from '~/voltagent/tools/cards';
 
 interface CardToolPartProps {
@@ -14,19 +14,8 @@ interface CardToolPartProps {
 }
 
 export function CardToolPart({ state, output }: CardToolPartProps) {
-    const isLoading =
-        state === 'input-available' || state === 'input-streaming';
-
-    if (isLoading) {
-        return (
-            <div className="rounded-box border-base-300 bg-base-200 mt-2 flex items-center gap-2 border p-3 text-sm">
-                <LoaderCircleIcon
-                    className="h-4 w-4 animate-spin"
-                    aria-hidden="true"
-                />
-                <span className="font-medium">Generating card...</span>
-            </div>
-        );
+    if (isToolLoading(state)) {
+        return <ToolPartShell label="Generating card..." state={state} />;
     }
 
     if (!output) return null;

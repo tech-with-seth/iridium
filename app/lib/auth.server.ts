@@ -2,15 +2,38 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
 import { adminAc, userAc } from 'better-auth/plugins/admin/access';
-import { createElement } from 'react';
 import prisma from '~/lib/prisma';
 import { env } from '~/lib/env.server';
-import { sendEmail } from '~/lib/email.server';
+import { enqueueAuthEmail } from '~/lib/jobs.server';
 import { log } from '~/lib/logger.server';
-import { ResetPasswordEmail } from '~/emails/ResetPasswordEmail';
-import { VerificationEmail } from '~/emails/VerificationEmail';
 
 const isProduction = env.NODE_ENV === 'production';
+
+export type SocialProvider = 'github' | 'google';
+
+const socialProviders = {
+    ...(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET
+        ? {
+              github: {
+                  clientId: env.GITHUB_CLIENT_ID,
+                  clientSecret: env.GITHUB_CLIENT_SECRET,
+              },
+          }
+        : {}),
+    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+        ? {
+              google: {
+                  clientId: env.GOOGLE_CLIENT_ID,
+                  clientSecret: env.GOOGLE_CLIENT_SECRET,
+              },
+          }
+        : {}),
+};
+
+/** Providers with credentials configured; drives which login buttons render. */
+export const enabledSocialProviders = Object.keys(
+    socialProviders,
+) as SocialProvider[];
 
 export const auth = betterAuth({
     secret: env.BETTER_AUTH_SECRET,
@@ -26,13 +49,11 @@ export const auth = betterAuth({
         maxPasswordLength: 128,
         autoSignIn: true,
         sendResetPassword: async ({ user, url }) => {
-            await sendEmail({
+            await enqueueAuthEmail({
+                kind: 'reset-password',
                 to: user.email,
-                subject: 'Reset your Iridium password',
-                react: createElement(ResetPasswordEmail, {
-                    name: user.name,
-                    url,
-                }),
+                name: user.name,
+                url,
             });
         },
     },
@@ -44,13 +65,11 @@ export const auth = betterAuth({
         sendOnSignUp: true,
         autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url }) => {
-            await sendEmail({
+            await enqueueAuthEmail({
+                kind: 'verify-email',
                 to: user.email,
-                subject: 'Verify your email address',
-                react: createElement(VerificationEmail, {
-                    name: user.name,
-                    url,
-                }),
+                name: user.name,
+                url,
             });
         },
     },
@@ -72,6 +91,7 @@ export const auth = betterAuth({
             },
         },
     },
+    socialProviders,
     database: prismaAdapter(prisma, {
         provider: 'postgresql',
     }),

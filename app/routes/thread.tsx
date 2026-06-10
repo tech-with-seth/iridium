@@ -2,7 +2,6 @@ import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import { DefaultChatTransport } from 'ai';
 import {
-    CircleXIcon,
     LoaderCircleIcon,
     RefreshCwIcon,
     SendHorizonalIcon,
@@ -14,6 +13,8 @@ import { CardToolPart } from '~/components/CardToolPart';
 import { ChatBubble } from '~/components/ChatBubble';
 import { Markdown } from '~/components/Markdown';
 import { NoteToolPart } from '~/components/NoteToolPart';
+import { isToolDone, isToolLoading } from '~/components/ToolPartShell';
+import { FormAlert } from '~/components/forms/FormAlert';
 import type { CardData } from '~/voltagent/tools/cards';
 import type { Route } from './+types/thread';
 import { getThreadById } from '~/models/thread.server';
@@ -122,10 +123,8 @@ function ToolPartFallback({ part }: { part: ToolPart }) {
             <WrenchIcon aria-hidden="true" className="h-3 w-3" />
             <span>
                 {part.toolName}
-                {part.state === 'output-available' && ' \u2713'}
-                {(part.state === 'input-available' ||
-                    part.state === 'input-streaming') &&
-                    ' \u2026'}
+                {isToolDone(part.state) && ' \u2713'}
+                {isToolLoading(part.state) && ' \u2026'}
             </span>
         </div>
     );
@@ -207,9 +206,7 @@ export default function ThreadRoute({
                 </select>
             </div>
             {error && (
-                <div role="alert" className="alert alert-error">
-                    <CircleXIcon aria-hidden="true" className="h-6 w-6" />
-                    <span>Something went wrong.</span>
+                <FormAlert message="Something went wrong.">
                     <div className="flex gap-1">
                         <button
                             className="btn btn-sm"
@@ -229,7 +226,7 @@ export default function ThreadRoute({
                             Dismiss
                         </button>
                     </div>
-                </div>
+                </FormAlert>
             )}
             <div
                 ref={messageRef}
@@ -424,23 +421,11 @@ export default function ThreadRoute({
 export function ErrorBoundary() {
     const error = useRouteError();
 
-    if (isRouteErrorResponse(error)) {
-        return (
-            <div role="alert" className="alert alert-error">
-                <CircleXIcon aria-hidden="true" className="h-6 w-6" />
-                <span>
-                    {error.status} {error.statusText}
-                </span>
-            </div>
-        );
-    }
+    const message = isRouteErrorResponse(error)
+        ? `${error.status} ${
+              typeof error.data === 'string' ? error.data : error.statusText
+          }`
+        : 'Experiencing technical difficulties. Please try again later.';
 
-    return (
-        <div role="alert" className="alert alert-error">
-            <CircleXIcon aria-hidden="true" className="h-6 w-6" />
-            <span>
-                Experiencing technical difficulties. Please try again later.
-            </span>
-        </div>
-    );
+    return <FormAlert message={message} />;
 }

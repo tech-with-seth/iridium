@@ -5,29 +5,54 @@ export function getUserById(id: string) {
     return prisma.user.findUnique({ where: { id } });
 }
 
-function userSearchWhere(query?: string) {
-    return query
-        ? {
-              OR: [
-                  { name: { contains: query, mode: 'insensitive' as const } },
-                  { email: { contains: query, mode: 'insensitive' as const } },
-              ],
-          }
-        : {};
+export type UserFilters = {
+    query?: string;
+    role?: Role;
+    banned?: boolean;
+};
+
+function userSearchWhere({ query, role, banned }: UserFilters = {}) {
+    return {
+        ...(query
+            ? {
+                  OR: [
+                      {
+                          name: {
+                              contains: query,
+                              mode: 'insensitive' as const,
+                          },
+                      },
+                      {
+                          email: {
+                              contains: query,
+                              mode: 'insensitive' as const,
+                          },
+                      },
+                  ],
+              }
+            : {}),
+        ...(role ? { role } : {}),
+        // Better Auth leaves `banned` null for users it never touched, so
+        // "active" means anything that is not explicitly banned.
+        ...(banned === undefined
+            ? {}
+            : banned
+              ? { banned: true }
+              : { banned: { not: true } }),
+    };
 }
 
-/** Admin: list users (safe fields only) with optional name/email search. */
+/** Admin: list users (safe fields only) with optional search and filters. */
 export function listUsers({
-    query,
     skip,
     take,
-}: {
-    query?: string;
+    ...filters
+}: UserFilters & {
     skip?: number;
     take?: number;
 } = {}) {
     return prisma.user.findMany({
-        where: userSearchWhere(query),
+        where: userSearchWhere(filters),
         select: {
             id: true,
             name: true,
@@ -43,14 +68,19 @@ export function listUsers({
     });
 }
 
-export function countUsers(query?: string) {
-    return prisma.user.count({ where: userSearchWhere(query) });
+export function countUsers(filters: UserFilters = {}) {
+    return prisma.user.count({ where: userSearchWhere(filters) });
 }
 
 export function updateUserRole(id: string, role: Role) {
     // Note: the role is cached in the Better Auth session cookie for up to
     // cookieCache.maxAge (5 min); the change applies to new sessions at once.
     return prisma.user.update({ where: { id }, data: { role } });
+}
+
+/** Test hook only (api-test-role): same caching caveat as updateUserRole. */
+export function updateUserRoleByEmail(email: string, role: Role) {
+    return prisma.user.update({ where: { email }, data: { role } });
 }
 
 export function updateUserBio(id: string, bio: string) {

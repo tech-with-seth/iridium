@@ -14,6 +14,8 @@ import { countNotesByUserId, getNotesByUserId } from '~/models/note.server';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { EmptyState } from '~/components/EmptyState';
+import { FormattedDate } from '~/components/FormattedDate';
+import { PageHeader } from '~/components/PageHeader';
 import type { Route } from './+types/dashboard';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
@@ -65,12 +67,11 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                 content="Your Iridium activity at a glance."
             />
             <Container className="flex flex-col gap-6 p-4">
-                <div>
-                    <h1 className="text-4xl font-bold">Hello {name}!</h1>
+                <PageHeader title={`Hello ${name}!`}>
                     <p className="text-base-content/60">
                         Here is what is happening in your workspace.
                     </p>
-                </div>
+                </PageHeader>
 
                 <div className="stats stats-vertical md:stats-horizontal bg-base-200 shadow">
                     <div className="stat">
@@ -84,7 +85,7 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                     <div className="stat">
                         <div className="stat-title">Member since</div>
                         <div className="stat-value text-lg">
-                            {new Date(memberSince).toLocaleDateString()}
+                            <FormattedDate date={memberSince} />
                         </div>
                     </div>
                 </div>
@@ -129,9 +130,9 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                                 {thread.title}
                                             </span>
                                             <span className="text-base-content/50 shrink-0 text-xs">
-                                                {new Date(
-                                                    thread.createdAt,
-                                                ).toLocaleDateString()}
+                                                <FormattedDate
+                                                    date={thread.createdAt}
+                                                />
                                             </span>
                                         </Link>
                                     </li>
@@ -159,9 +160,9 @@ export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
                                                 {note.title}
                                             </span>
                                             <span className="text-base-content/50 shrink-0 text-xs">
-                                                {new Date(
-                                                    note.updatedAt,
-                                                ).toLocaleDateString()}
+                                                <FormattedDate
+                                                    date={note.updatedAt}
+                                                />
                                             </span>
                                         </li>
                                     ))}

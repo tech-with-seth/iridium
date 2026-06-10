@@ -1,17 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-    data,
-    Form,
-    useNavigation,
-    useSearchParams,
-    useSubmit,
-} from 'react-router';
-import {
-    NotebookPenIcon,
-    PlusCircleIcon,
-    SearchIcon,
-    SearchXIcon,
-} from 'lucide-react';
+import { data, Form, useSearchParams } from 'react-router';
+import { NotebookPenIcon, PlusCircleIcon, SearchXIcon } from 'lucide-react';
 import { z } from 'zod';
 import { rateLimit } from '~/lib/rate-limit.server';
 import { pageMeta, parsePage } from '~/lib/pagination';
@@ -29,10 +18,15 @@ import {
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
 import { EmptyState } from '~/components/EmptyState';
+import { FormattedDate } from '~/components/FormattedDate';
+import { Modal, ModalActions } from '~/components/Modal';
+import { PageHeader } from '~/components/PageHeader';
 import { Pagination } from '~/components/Pagination';
+import { SearchForm } from '~/components/SearchForm';
 import { Field } from '~/components/forms/Field';
 import { Input } from '~/components/forms/Input';
 import { Textarea } from '~/components/forms/Textarea';
+import { useDialog, usePendingIntent } from '~/hooks';
 import type { Route } from './+types/notes';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
@@ -164,25 +158,10 @@ export default function NotesRoute({
     actionData,
 }: Route.ComponentProps) {
     const { notes, query, page, totalPages, totalCount } = loaderData;
-    const navigation = useNavigation();
-    const submit = useSubmit();
     const [searchParams] = useSearchParams();
+    const pendingIntent = usePendingIntent();
 
-    const editorRef = useRef<HTMLDialogElement>(null);
-    const deleteRef = useRef<HTMLDialogElement>(null);
     const [editor, setEditor] = useState<EditorState>({ mode: 'create' });
-    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
-    const pendingIntent =
-        navigation.state !== 'idle'
-            ? String(navigation.formData?.get('intent'))
-            : null;
-
-    // ?new=1 (e.g. the dashboard quick action) opens the create dialog.
-    const openOnLoad = searchParams.get('new') === '1';
-    useEffect(() => {
-        if (openOnLoad) editorRef.current?.showModal();
-    }, [openOnLoad]);
 
     // Server-side validation errors reopen the editor with messages shown.
     const editorErrors =
@@ -190,23 +169,27 @@ export default function NotesRoute({
         actionData?.intent === 'update-note'
             ? actionData.errors
             : null;
+
+    const editorRef = useRef<HTMLDialogElement>(null);
+    const editorDialog = useDialog(editorRef, { reopenOnError: editorErrors });
+    const deleteRef = useRef<HTMLDialogElement>(null);
+    const deleteDialog = useDialog<string>(deleteRef);
+
+    // ?new=1 (e.g. the dashboard quick action) opens the create dialog.
+    const openOnLoad = searchParams.get('new') === '1';
+    const { open: openEditor } = editorDialog;
     useEffect(() => {
-        if (editorErrors) editorRef.current?.showModal();
-    }, [editorErrors]);
+        if (openOnLoad) openEditor();
+    }, [openOnLoad, openEditor]);
 
     function openCreate() {
         setEditor({ mode: 'create' });
-        editorRef.current?.showModal();
+        editorDialog.open();
     }
 
     function openEdit(note: { id: string; title: string; content: string }) {
         setEditor({ mode: 'edit', note });
-        editorRef.current?.showModal();
-    }
-
-    function openDelete(noteId: string) {
-        setPendingDeleteId(noteId);
-        deleteRef.current?.showModal();
+        editorDialog.open();
     }
 
     const isSearching = query.length > 0;
@@ -219,39 +202,30 @@ export default function NotesRoute({
                 content="Browse, search, and manage your notes."
             />
             <Container className="flex flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-4xl font-bold">Notes</h1>
-                    <button
-                        type="button"
-                        className="btn btn-accent"
-                        onClick={openCreate}
-                    >
-                        <PlusCircleIcon
-                            aria-hidden="true"
-                            className="mr-2 h-6 w-6"
-                        />
-                        New Note
-                    </button>
-                </div>
+                <PageHeader
+                    title="Notes"
+                    action={
+                        <button
+                            type="button"
+                            className="btn btn-accent"
+                            onClick={openCreate}
+                        >
+                            <PlusCircleIcon
+                                aria-hidden="true"
+                                className="mr-2 h-6 w-6"
+                            />
+                            New Note
+                        </button>
+                    }
+                />
 
-                <Form method="GET" role="search" className="join max-w-md">
-                    <label className="input join-item flex grow items-center gap-2">
-                        <SearchIcon
-                            aria-hidden="true"
-                            className="h-4 w-4 opacity-60"
-                        />
-                        <input
-                            type="search"
-                            name="q"
-                            placeholder="Search notes"
-                            defaultValue={query}
-                            aria-label="Search notes"
-                        />
-                    </label>
-                    <button type="submit" className="btn join-item">
-                        Search
-                    </button>
-                </Form>
+                <SearchForm
+                    query={query}
+                    placeholder="Search notes"
+                    inputLabel="Search notes"
+                    submitLabel="Search"
+                    groupClassName="max-w-md"
+                />
 
                 {notes.length === 0 ? (
                     isSearching ? (
@@ -296,9 +270,9 @@ export default function NotesRoute({
                                         </p>
                                         <p className="text-base-content/50 text-xs">
                                             Updated{' '}
-                                            {new Date(
-                                                note.updatedAt,
-                                            ).toLocaleDateString()}
+                                            <FormattedDate
+                                                date={note.updatedAt}
+                                            />
                                         </p>
                                         <div className="card-actions justify-end">
                                             <button
@@ -318,7 +292,7 @@ export default function NotesRoute({
                                                 type="button"
                                                 className="btn btn-ghost btn-sm text-error"
                                                 onClick={() =>
-                                                    openDelete(note.id)
+                                                    deleteDialog.open(note.id)
                                                 }
                                             >
                                                 Delete
@@ -337,142 +311,137 @@ export default function NotesRoute({
                 )}
             </Container>
 
-            <dialog ref={editorRef} className="modal">
-                <div className="modal-box">
-                    <h3 className="text-lg font-bold">
-                        {editor.mode === 'edit' ? 'Edit note' : 'New note'}
-                    </h3>
-                    <Form
-                        method="POST"
-                        className="space-y-4 pt-4"
-                        onSubmit={() => editorRef.current?.close()}
-                    >
+            <Modal
+                ref={editorRef}
+                title={editor.mode === 'edit' ? 'Edit note' : 'New note'}
+            >
+                <Form
+                    method="POST"
+                    className="space-y-4 pt-4"
+                    onSubmit={editorDialog.close}
+                >
+                    <input
+                        type="hidden"
+                        name="intent"
+                        value={
+                            editor.mode === 'edit'
+                                ? 'update-note'
+                                : 'create-note'
+                        }
+                    />
+                    {editor.mode === 'edit' && (
                         <input
                             type="hidden"
-                            name="intent"
-                            value={
-                                editor.mode === 'edit'
-                                    ? 'update-note'
-                                    : 'create-note'
-                            }
+                            name="noteId"
+                            value={editor.note.id}
                         />
-                        {editor.mode === 'edit' && (
-                            <input
-                                type="hidden"
-                                name="noteId"
-                                value={editor.note.id}
+                    )}
+                    <Field
+                        label="Title"
+                        name="title"
+                        error={editorErrors?.title?.[0]}
+                    >
+                        {(controlProps) => (
+                            <Input
+                                key={
+                                    editor.mode === 'edit'
+                                        ? editor.note.id
+                                        : 'create'
+                                }
+                                type="text"
+                                name="title"
+                                defaultValue={
+                                    editor.mode === 'edit'
+                                        ? editor.note.title
+                                        : ''
+                                }
+                                placeholder="Note title"
+                                className="w-full"
+                                {...controlProps}
                             />
                         )}
-                        <Field
-                            label="Title"
-                            name="title"
-                            error={editorErrors?.title?.[0]}
-                        >
-                            {(controlProps) => (
-                                <Input
-                                    key={
-                                        editor.mode === 'edit'
-                                            ? editor.note.id
-                                            : 'create'
-                                    }
-                                    type="text"
-                                    name="title"
-                                    defaultValue={
-                                        editor.mode === 'edit'
-                                            ? editor.note.title
-                                            : ''
-                                    }
-                                    placeholder="Note title"
-                                    className="w-full"
-                                    {...controlProps}
-                                />
-                            )}
-                        </Field>
-                        <Field
-                            label="Content"
-                            name="content"
-                            error={editorErrors?.content?.[0]}
-                        >
-                            {(controlProps) => (
-                                <Textarea
-                                    key={
-                                        editor.mode === 'edit'
-                                            ? editor.note.id
-                                            : 'create'
-                                    }
-                                    name="content"
-                                    rows={6}
-                                    defaultValue={
-                                        editor.mode === 'edit'
-                                            ? editor.note.content
-                                            : ''
-                                    }
-                                    placeholder="Write something worth remembering"
-                                    className="w-full"
-                                    {...controlProps}
-                                />
-                            )}
-                        </Field>
-                        <div className="modal-action">
-                            <button
-                                type="button"
-                                className="btn"
-                                onClick={() => editorRef.current?.close()}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn btn-accent"
-                                disabled={pendingIntent !== null}
-                            >
-                                {editor.mode === 'edit'
-                                    ? 'Save changes'
-                                    : 'Create note'}
-                            </button>
-                        </div>
-                    </Form>
-                </div>
-            </dialog>
-
-            <dialog
-                ref={deleteRef}
-                className="modal"
-                onClose={() => setPendingDeleteId(null)}
-            >
-                <div className="modal-box">
-                    <h3 className="text-lg font-bold">Delete note</h3>
-                    <p className="py-4">This will delete the note.</p>
-                    <div className="modal-action">
+                    </Field>
+                    <Field
+                        label="Content"
+                        name="content"
+                        error={editorErrors?.content?.[0]}
+                    >
+                        {(controlProps) => (
+                            <Textarea
+                                key={
+                                    editor.mode === 'edit'
+                                        ? editor.note.id
+                                        : 'create'
+                                }
+                                name="content"
+                                rows={6}
+                                defaultValue={
+                                    editor.mode === 'edit'
+                                        ? editor.note.content
+                                        : ''
+                                }
+                                placeholder="Write something worth remembering"
+                                className="w-full"
+                                {...controlProps}
+                            />
+                        )}
+                    </Field>
+                    <ModalActions>
                         <button
                             type="button"
                             className="btn"
-                            onClick={() => deleteRef.current?.close()}
+                            onClick={editorDialog.close}
                         >
                             Cancel
                         </button>
                         <button
-                            type="button"
+                            type="submit"
+                            className="btn btn-accent"
+                            disabled={pendingIntent !== null}
+                        >
+                            {editor.mode === 'edit'
+                                ? 'Save changes'
+                                : 'Create note'}
+                        </button>
+                    </ModalActions>
+                </Form>
+            </Modal>
+
+            <Modal
+                ref={deleteRef}
+                title="Delete note"
+                onClose={deleteDialog.clearTarget}
+            >
+                <p className="py-4">This will delete the note.</p>
+                <ModalActions>
+                    <button
+                        type="button"
+                        className="btn"
+                        onClick={deleteDialog.close}
+                    >
+                        Cancel
+                    </button>
+                    <Form method="POST" onSubmit={deleteDialog.close}>
+                        <input
+                            type="hidden"
+                            name="intent"
+                            value="delete-note"
+                        />
+                        <input
+                            type="hidden"
+                            name="noteId"
+                            value={deleteDialog.target ?? ''}
+                        />
+                        <button
+                            type="submit"
                             className="btn btn-error"
                             disabled={pendingIntent === 'delete-note'}
-                            onClick={() => {
-                                if (pendingDeleteId) {
-                                    submit(
-                                        {
-                                            intent: 'delete-note',
-                                            noteId: pendingDeleteId,
-                                        },
-                                        { method: 'POST' },
-                                    );
-                                }
-                                deleteRef.current?.close();
-                            }}
                         >
                             Delete
                         </button>
-                    </div>
-                </div>
-            </dialog>
+                    </Form>
+                </ModalActions>
+            </Modal>
         </>
     );
 }

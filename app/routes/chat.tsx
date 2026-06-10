@@ -1,6 +1,10 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Container } from '~/components/Container';
 import { EmptyState } from '~/components/EmptyState';
+import { Modal, ModalActions } from '~/components/Modal';
+import { PageHeader } from '~/components/PageHeader';
+import { SearchForm } from '~/components/SearchForm';
+import { useDialog, usePendingIntent } from '~/hooks';
 import { authMiddleware } from '~/middleware/auth';
 import { rateLimit } from '~/lib/rate-limit.server';
 import { navLinkClassName } from '~/shared';
@@ -27,7 +31,6 @@ import {
     LoaderCircleIcon,
     MessagesSquareIcon,
     PlusCircleIcon,
-    SearchIcon,
     Trash2Icon,
 } from 'lucide-react';
 
@@ -150,73 +153,60 @@ function getThreadLabel(thread: {
 
 export default function ChatRoute({ loaderData }: Route.ComponentProps) {
     const navigation = useNavigation();
-    const dialogRef = useRef<HTMLDialogElement>(null);
-    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const pendingIntent = usePendingIntent();
+    const deleteDialogRef = useRef<HTMLDialogElement>(null);
+    const deleteDialog = useDialog<string>(deleteDialogRef);
 
-    const formData = navigation.formData;
-    const intent = formData?.get('intent');
-    const isCreating = navigation.state !== 'idle' && intent === 'new-thread';
+    const isCreating = pendingIntent === 'new-thread';
     const deletingThreadId =
-        navigation.state !== 'idle' && intent === 'delete-thread'
-            ? String(formData?.get('threadId'))
+        pendingIntent === 'delete-thread'
+            ? String(navigation.formData?.get('threadId'))
             : null;
-
-    function openDeleteDialog(threadId: string) {
-        setPendingDeleteId(threadId);
-        dialogRef.current?.showModal();
-    }
-
-    function closeDeleteDialog() {
-        dialogRef.current?.close();
-        setPendingDeleteId(null);
-    }
 
     return (
         <>
             <title>Chat | Iridium</title>
             <meta name="description" content="This is the chat page" />
             <Container className="flex min-h-0 grow flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-4xl font-bold">Chat</h1>
-                    <Form method="POST">
-                        <input type="hidden" name="intent" value="new-thread" />
-                        <button
-                            className="btn btn-accent"
-                            type="submit"
-                            disabled={isCreating}
-                        >
-                            {isCreating ? (
-                                <LoaderCircleIcon
-                                    aria-hidden="true"
-                                    className="mr-2 h-6 w-6 animate-spin"
-                                />
-                            ) : (
-                                <PlusCircleIcon
-                                    aria-hidden="true"
-                                    className="mr-2 h-6 w-6"
-                                />
-                            )}
-                            New Thread
-                        </button>
-                    </Form>
-                </div>
+                <PageHeader
+                    title="Chat"
+                    action={
+                        <Form method="POST">
+                            <input
+                                type="hidden"
+                                name="intent"
+                                value="new-thread"
+                            />
+                            <button
+                                className="btn btn-accent"
+                                type="submit"
+                                disabled={isCreating}
+                            >
+                                {isCreating ? (
+                                    <LoaderCircleIcon
+                                        aria-hidden="true"
+                                        className="mr-2 h-6 w-6 animate-spin"
+                                    />
+                                ) : (
+                                    <PlusCircleIcon
+                                        aria-hidden="true"
+                                        className="mr-2 h-6 w-6"
+                                    />
+                                )}
+                                New Thread
+                            </button>
+                        </Form>
+                    }
+                />
                 <div className="grid min-h-0 grow grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 md:grid-cols-12 md:grid-rows-1">
                     <div className="col-span-1 max-h-48 overflow-y-auto md:col-span-5 md:max-h-none lg:col-span-3">
-                        <Form method="GET" role="search" className="mb-3">
-                            <label className="input input-sm flex w-full items-center gap-2">
-                                <SearchIcon
-                                    aria-hidden="true"
-                                    className="h-4 w-4 opacity-60"
-                                />
-                                <input
-                                    type="search"
-                                    name="q"
-                                    placeholder="Search conversations"
-                                    defaultValue={loaderData.query}
-                                    aria-label="Search conversations"
-                                />
-                            </label>
-                        </Form>
+                        <SearchForm
+                            query={loaderData.query}
+                            placeholder="Search conversations"
+                            inputLabel="Search conversations"
+                            inputSize="sm"
+                            className="mb-3"
+                        />
                         <nav aria-label="Conversations">
                             <ul className="flex flex-col gap-4">
                                 {loaderData.threads &&
@@ -243,7 +233,7 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                                     thread.id
                                                 }
                                                 onClick={() =>
-                                                    openDeleteDialog(thread.id)
+                                                    deleteDialog.open(thread.id)
                                                 }
                                             >
                                                 {deletingThreadId ===
@@ -283,45 +273,40 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                 </div>
             </Container>
 
-            <dialog
-                ref={dialogRef}
-                className="modal"
-                onClose={() => setPendingDeleteId(null)}
+            <Modal
+                ref={deleteDialogRef}
+                title="Delete thread"
+                onClose={deleteDialog.clearTarget}
+                backdrop
             >
-                <div className="modal-box">
-                    <h3 className="text-lg font-bold">Delete thread</h3>
-                    <p className="py-4">
-                        This will delete this conversation and all its messages.
-                    </p>
-                    <div className="modal-action">
-                        <button
-                            type="button"
-                            className="btn"
-                            onClick={closeDeleteDialog}
-                        >
-                            Cancel
+                <p className="py-4">
+                    This will delete this conversation and all its messages.
+                </p>
+                <ModalActions>
+                    <button
+                        type="button"
+                        className="btn"
+                        onClick={deleteDialog.close}
+                    >
+                        Cancel
+                    </button>
+                    <Form method="POST" onSubmit={deleteDialog.close}>
+                        <input
+                            type="hidden"
+                            name="intent"
+                            value="delete-thread"
+                        />
+                        <input
+                            type="hidden"
+                            name="threadId"
+                            value={deleteDialog.target ?? ''}
+                        />
+                        <button type="submit" className="btn btn-error">
+                            Delete
                         </button>
-                        <Form method="POST" onSubmit={closeDeleteDialog}>
-                            <input
-                                type="hidden"
-                                name="intent"
-                                value="delete-thread"
-                            />
-                            <input
-                                type="hidden"
-                                name="threadId"
-                                value={pendingDeleteId ?? ''}
-                            />
-                            <button type="submit" className="btn btn-error">
-                                Delete
-                            </button>
-                        </Form>
-                    </div>
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button type="submit">close</button>
-                </form>
-            </dialog>
+                    </Form>
+                </ModalActions>
+            </Modal>
         </>
     );
 }

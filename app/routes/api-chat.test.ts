@@ -4,7 +4,7 @@ const {
     getUserFromSession,
     getThreadById,
     saveChat,
-    updateThreadTitle,
+    enqueueThreadTitle,
     streamText,
     generateText,
     clearMessages,
@@ -12,7 +12,7 @@ const {
     getUserFromSession: vi.fn(),
     getThreadById: vi.fn(),
     saveChat: vi.fn(),
-    updateThreadTitle: vi.fn(),
+    enqueueThreadTitle: vi.fn(),
     streamText: vi.fn(),
     generateText: vi.fn(),
     clearMessages: vi.fn(),
@@ -25,7 +25,16 @@ vi.mock('~/models/session.server', () => ({
 vi.mock('~/models/thread.server', () => ({
     getThreadById: (...args: unknown[]) => getThreadById(...args),
     saveChat: (...args: unknown[]) => saveChat(...args),
-    updateThreadTitle: (...args: unknown[]) => updateThreadTitle(...args),
+    deleteTrailingAssistantMessages: vi.fn(),
+}));
+
+vi.mock('~/lib/jobs.server', () => ({
+    enqueueThreadTitle: (...args: unknown[]) => enqueueThreadTitle(...args),
+}));
+
+// The real module pulls in VoltAgent + Prisma (and env validation with them).
+vi.mock('~/lib/thread-title.server', () => ({
+    buildTitleContext: () => 'mock conversation context',
 }));
 
 vi.mock('~/voltagent', () => ({
@@ -255,6 +264,35 @@ describe('/api/chat action', () => {
         await actionCall(makeRequest(longBody));
 
         expect(generateText).not.toHaveBeenCalled();
-        expect(updateThreadTitle).not.toHaveBeenCalled();
+        expect(enqueueThreadTitle).not.toHaveBeenCalled();
+    });
+
+    it('enqueues title generation for untitled threads after a few messages', async () => {
+        getUserFromSession.mockResolvedValue({ id: 'u1' });
+        getThreadById.mockResolvedValue({
+            id: 'thread-1',
+            createdById: 'u1',
+            title: 'Untitled',
+        });
+        streamText.mockResolvedValue({
+            toUIMessageStreamResponse: () =>
+                new Response('ok', { status: 200 }),
+        });
+
+        const longBody = {
+            id: 'thread-1',
+            messages: Array.from({ length: 4 }, (_, i) => ({
+                id: `m${i}`,
+                role: 'user' as const,
+                parts: [{ type: 'text', text: 'hi' }],
+            })),
+        };
+
+        await actionCall(makeRequest(longBody));
+
+        expect(enqueueThreadTitle).toHaveBeenCalledWith({
+            threadId: 'thread-1',
+            context: 'mock conversation context',
+        });
     });
 });

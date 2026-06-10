@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { data, Form, redirect, useNavigation } from 'react-router';
+import { useRef } from 'react';
+import { data, Form } from 'react-router';
 import { TriangleAlertIcon } from 'lucide-react';
 import { z } from 'zod';
 import { APIError } from 'better-auth';
@@ -11,10 +11,13 @@ import { authMiddleware } from '~/middleware/auth';
 import { getUserById, updateUserProfile } from '~/models/user.server';
 import { Card } from '~/components/Card';
 import { Container } from '~/components/Container';
+import { Modal, ModalActions } from '~/components/Modal';
+import { PageHeader } from '~/components/PageHeader';
 import { Field } from '~/components/forms/Field';
 import { FormAlert } from '~/components/forms/FormAlert';
 import { Input } from '~/components/forms/Input';
 import { Textarea } from '~/components/forms/Textarea';
+import { useDialog, usePendingIntent } from '~/hooks';
 import type { Route } from './+types/settings';
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
@@ -203,22 +206,17 @@ export default function SettingsRoute({
     actionData,
 }: Route.ComponentProps) {
     const { user } = loaderData;
-    const navigation = useNavigation();
-    const dialogRef = useRef<HTMLDialogElement>(null);
-
-    const pendingIntent =
-        navigation.state !== 'idle'
-            ? String(navigation.formData?.get('intent'))
-            : null;
+    const pendingIntent = usePendingIntent();
 
     const errorsFor = (intent: string) =>
         actionData?.intent === intent ? actionData : null;
 
     // Keep the delete dialog open when the password was wrong.
     const deleteError = errorsFor('delete-account')?.formError ?? null;
-    useEffect(() => {
-        if (deleteError) dialogRef.current?.showModal();
-    }, [deleteError]);
+    const deleteDialogRef = useRef<HTMLDialogElement>(null);
+    const deleteDialog = useDialog(deleteDialogRef, {
+        reopenOnError: deleteError,
+    });
 
     return (
         <>
@@ -228,7 +226,7 @@ export default function SettingsRoute({
                 content="Manage your Iridium profile, password, and account."
             />
             <Container className="flex flex-col gap-6 p-4">
-                <h1 className="text-4xl font-bold">Settings</h1>
+                <PageHeader title="Settings" />
 
                 <Card title="Profile" bordered>
                     <p className="text-base-content/60 text-sm">
@@ -370,7 +368,7 @@ export default function SettingsRoute({
                         <button
                             type="button"
                             className="btn btn-error btn-outline"
-                            onClick={() => dialogRef.current?.showModal()}
+                            onClick={() => deleteDialog.open()}
                         >
                             Delete account
                         </button>
@@ -378,67 +376,64 @@ export default function SettingsRoute({
                 </Card>
             </Container>
 
-            <dialog ref={dialogRef} className="modal">
-                <div className="modal-box">
-                    <h3 className="flex items-center gap-2 text-lg font-bold">
+            <Modal
+                ref={deleteDialogRef}
+                title={
+                    <>
                         <TriangleAlertIcon
                             aria-hidden="true"
                             className="text-error h-5 w-5"
                         />
                         Delete account
-                    </h3>
-                    <p className="py-4">
-                        This permanently deletes your account and everything in
-                        it. Enter your password to confirm.
-                    </p>
-                    <FormAlert message={deleteError} className="mb-2" />
-                    <Form method="POST" className="space-y-4">
-                        <input
-                            type="hidden"
-                            name="intent"
-                            value="delete-account"
-                        />
-                        <Field
-                            label="Password"
-                            name="password"
-                            error={
-                                errorsFor('delete-account')?.errors
-                                    ?.password?.[0]
-                            }
+                    </>
+                }
+            >
+                <p className="py-4">
+                    This permanently deletes your account and everything in it.
+                    Enter your password to confirm.
+                </p>
+                <FormAlert message={deleteError} className="mb-2" />
+                <Form method="POST" className="space-y-4">
+                    <input type="hidden" name="intent" value="delete-account" />
+                    <Field
+                        label="Password"
+                        name="password"
+                        error={
+                            errorsFor('delete-account')?.errors?.password?.[0]
+                        }
+                        disabled={pendingIntent === 'delete-account'}
+                    >
+                        {(controlProps) => (
+                            <Input
+                                type="password"
+                                name="password"
+                                autoComplete="current-password"
+                                required
+                                className="w-full"
+                                {...controlProps}
+                            />
+                        )}
+                    </Field>
+                    <ModalActions>
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={deleteDialog.close}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="btn btn-error"
                             disabled={pendingIntent === 'delete-account'}
                         >
-                            {(controlProps) => (
-                                <Input
-                                    type="password"
-                                    name="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="w-full"
-                                    {...controlProps}
-                                />
-                            )}
-                        </Field>
-                        <div className="modal-action">
-                            <button
-                                type="button"
-                                className="btn"
-                                onClick={() => dialogRef.current?.close()}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn btn-error"
-                                disabled={pendingIntent === 'delete-account'}
-                            >
-                                {pendingIntent === 'delete-account'
-                                    ? 'Deleting…'
-                                    : 'Delete my account'}
-                            </button>
-                        </div>
-                    </Form>
-                </div>
-            </dialog>
+                            {pendingIntent === 'delete-account'
+                                ? 'Deleting…'
+                                : 'Delete my account'}
+                        </button>
+                    </ModalActions>
+                </Form>
+            </Modal>
         </>
     );
 }

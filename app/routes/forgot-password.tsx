@@ -1,11 +1,13 @@
-import { data, Form, Link, useNavigation } from 'react-router';
+import { data, Form, Link } from 'react-router';
 import { MailCheckIcon } from 'lucide-react';
 import { z } from 'zod';
 import { auth } from '~/lib/auth.server';
 import { log } from '~/lib/logger.server';
 import { requireAnonymous } from '~/models/session.server';
+import { Spinner } from '~/components/Spinner';
 import { Field } from '~/components/forms/Field';
 import { Input } from '~/components/forms/Input';
+import { useIsSubmitting } from '~/hooks';
 import type { Route } from './+types/forgot-password';
 
 const schema = z.object({
@@ -47,8 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function ForgotPasswordRoute({
     actionData,
 }: Route.ComponentProps) {
-    const navigation = useNavigation();
-    const isSubmitting = navigation.state !== 'idle';
+    const isSubmitting = useIsSubmitting();
 
     return (
         <>
@@ -110,11 +111,7 @@ export default function ForgotPasswordRoute({
                                         disabled={isSubmitting}
                                     >
                                         {isSubmitting ? (
-                                            <span
-                                                role="status"
-                                                aria-label="Loading"
-                                                className="loading loading-spinner loading-sm"
-                                            />
+                                            <Spinner />
                                         ) : (
                                             'Send reset link'
                                         )}

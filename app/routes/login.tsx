@@ -1,14 +1,15 @@
 import type { Route } from './+types/login';
 import { Turnstile } from '~/components/Turnstile';
+import { enabledSocialProviders } from '~/lib/auth.server';
 import { OgMeta } from '~/lib/seo';
 import { requireAnonymous } from '~/models/session.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
     await requireAnonymous(request);
-    return null;
+    return { socialProviders: enabledSocialProviders };
 }
 
-export default function LoginRoute() {
+export default function LoginRoute({ loaderData }: Route.ComponentProps) {
     return (
         <>
             <title>Login | Iridium</title>
@@ -23,7 +24,9 @@ export default function LoginRoute() {
             <div className="grid h-full grid-cols-2">
                 <div className="bg-base-300 flex flex-col items-center justify-center gap-6 p-8">
                     <div className="bg-base-100 min-w-[500px] shadow-lg">
-                        <Turnstile />
+                        <Turnstile
+                            socialProviders={loaderData.socialProviders}
+                        />
                     </div>
                 </div>
                 <div>
