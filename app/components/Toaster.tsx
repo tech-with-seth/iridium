@@ -36,7 +36,7 @@ export function Toaster({ toast }: { toast: Toast | null }) {
                 <button
                     type="button"
                     aria-label="Dismiss notification"
-                    className="btn btn-ghost btn-xs"
+                    className="btn btn-ghost btn-xs pointer-coarse:btn-sm"
                     onClick={() => setDismissed(toast)}
                 >
                     ✕

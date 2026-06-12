@@ -442,7 +442,7 @@ export default function AdminRoute({
                                                             />
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-ghost btn-xs"
+                                                                className="btn btn-ghost btn-xs pointer-coarse:btn-sm"
                                                             >
                                                                 Impersonate
                                                             </button>
@@ -463,7 +463,7 @@ export default function AdminRoute({
                                                                 />
                                                                 <button
                                                                     type="submit"
-                                                                    className="btn btn-ghost btn-xs"
+                                                                    className="btn btn-ghost btn-xs pointer-coarse:btn-sm"
                                                                 >
                                                                     Unban
                                                                 </button>
@@ -471,7 +471,7 @@ export default function AdminRoute({
                                                         ) : (
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-ghost btn-xs text-error"
+                                                                className="btn btn-ghost btn-xs text-error pointer-coarse:btn-sm"
                                                                 onClick={() =>
                                                                     banDialog.open(
                                                                         user,

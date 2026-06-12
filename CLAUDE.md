@@ -20,6 +20,7 @@ Iridium is a full-stack AI chat application built with React Router v7 (SSR), Be
 | `bun run test`           | Run Vitest unit tests                |
 | `bun run test:watch`     | Run Vitest in watch mode             |
 | `bun run test:e2e`       | Run all Playwright E2E tests         |
+| `bun run test:visual`    | Visual inventory screenshot gallery  |
 | `bun run db:migrate`     | Run Prisma migrations                |
 | `bun run db:seed`        | Seed database with test users        |
 | `bun run db:fresh`       | Reset DB + migrate + seed (one shot) |
@@ -137,6 +138,10 @@ Trigger.dev v4 tasks live in `trigger/` (config in `trigger.config.ts`): `send-a
 
 Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs up a brand-new isolated user on demand (so every test starts with zero threads and parallel runs never share state), while a plain `page` stays logged out. `globalSetup` only ensures the seed users (Alice, Bob) exist for tests that log in as them. Fixtures also export `createAuthedContext` and `createThreadViaApi` for multi-user scenarios. Chat tests mock `/api/chat` with canned SSE responses (no AI service needed); tool-rendering tests stream `dynamic-tool` parts via helpers in `tests/chat-mock.ts`.
 
+**Responsive guardrails** (`tests/responsive.spec.ts`, runs in the default e2e projects) assert key surfaces stay usable on small screens: no horizontal document overflow across routes at phone/tablet viewports, the mobile nav drawer completes navigation, the chat composer stays usable in the stacked phone layout, the admin table scrolls inside its container, and (chromium-only, via `isMobile`/`hasTouch` emulation) touch affordances like the delete-thread button are visible without hover. Touch-emulation tests must stay chromium-gated; Firefox does not support `isMobile`.
+
+**Visual inventory** (`bun run test:visual`) captures a screenshot gallery of every major surface and state (~18 shots: landing/login, dashboard, notes, settings, chat, admin, with dark and mobile sampled on landing and dashboard). It lives in `tests/visual/`, runs only when `PW_VISUAL=1` enables the `visual` Playwright project (the default e2e projects ignore `tests/visual/`), and writes PNGs to `test-results/visual-inventory/` plus report attachments, so the Playwright HTML report doubles as a browsable gallery. CI runs it after e2e and uploads a `visual-inventory` artifact on every PR. Helpers in `tests/visual/helpers.ts` keep shots deterministic: `setTheme` pins the theme cookie via `/api/theme` (never leave the `system` default), `settle` waits for hydration + fonts + network idle, `createVisualContext` signs up a user with the fixed name "Visual Tester", and `snap` masks `<time>` elements (`FormattedDate` renders the current date) and disables animations. These are captures, not assertions; to add visual regression later, swap `snap()` for `expect(page).toHaveScreenshot()` and commit Linux-generated baselines.
+
 ## Conventions
 
 ### Imports
@@ -150,6 +155,7 @@ Auth is explicit per test: the `authedPage` fixture in `tests/fixtures.ts` signs
 - Export both variant definitions and a named function component
 - Type props with `PropsWithChildren<Props>`
 - Use DaisyUI v5 class names (`card`, `btn`, `chat-bubble`, `drawer`, `badge`, etc.)
+- No hover-only interactive controls: anything revealed by `group-hover:`/`hover:` also needs `focus-visible:` and `pointer-coarse:` fallbacks (touchscreens never hover). Use the `pointer-coarse:` variant for touch-only sizing too (e.g. `btn-xs pointer-coarse:btn-sm`)
 
 ### Routes
 

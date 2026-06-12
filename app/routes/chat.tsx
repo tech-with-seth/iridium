@@ -220,14 +220,14 @@ export default function ChatRoute({ loaderData }: Route.ComponentProps) {
                                                 to={thread.id}
                                                 className={navLinkClassName}
                                             >
-                                                <span className="truncate pr-6">
+                                                <span className="truncate pr-6 pointer-coarse:pr-10">
                                                     {getThreadLabel(thread)}
                                                 </span>
                                             </NavLink>
                                             <button
                                                 type="button"
                                                 aria-label="Delete thread"
-                                                className="btn btn-ghost btn-xs text-error absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                                                className="btn btn-ghost btn-xs text-error pointer-coarse:btn-sm absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
                                                 disabled={
                                                     deletingThreadId ===
                                                     thread.id

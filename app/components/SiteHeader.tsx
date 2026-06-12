@@ -47,7 +47,10 @@ export function SiteHeader() {
                 <div className="alert alert-warning min-h-0 justify-center gap-4 rounded-none py-1.5 text-sm">
                     <span>You are impersonating this account.</span>
                     <Form method="POST" action="/stop-impersonating">
-                        <button className="btn btn-xs" type="submit">
+                        <button
+                            className="btn btn-xs pointer-coarse:btn-sm"
+                            type="submit"
+                        >
                             Stop impersonating
                         </button>
                     </Form>

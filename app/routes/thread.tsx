@@ -337,7 +337,7 @@ export default function ThreadRoute({
                                     status === 'ready' && (
                                         <button
                                             type="button"
-                                            className="btn btn-ghost btn-xs mt-1"
+                                            className="btn btn-ghost btn-xs pointer-coarse:btn-sm mt-1"
                                             onClick={() => regenerate()}
                                         >
                                             <RefreshCwIcon
@@ -362,7 +362,7 @@ export default function ThreadRoute({
                         <button
                             key={label}
                             type="button"
-                            className="btn btn-content rounded-box btn-xs"
+                            className="btn btn-content rounded-box btn-xs pointer-coarse:btn-sm"
                             onClick={() => sendMessage({ text: value })}
                             disabled={status !== 'ready'}
                             title={value}
