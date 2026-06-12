@@ -159,6 +159,11 @@ with zero data and parallel runs never collide. API-level helpers
 (`createNoteViaApi`, `createThreadViaApi` in `tests/fixtures.ts`) seed data
 fast without driving the UI.
 
+**Visual inventory**: if the feature adds a durable user-facing surface or
+state, add a row to `tests/visual/inventory.spec.ts` (one `test()` per shot,
+using the `setTheme`/`settle`/`snap` helpers in `tests/visual/helpers.ts`).
+Check the result with `bun run test:visual`.
+
 Run everything before committing (the pre-commit hook lint-stages staged
 files, but tests are on you):
 

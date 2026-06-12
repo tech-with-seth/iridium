@@ -15,6 +15,7 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:e2e": "playwright test",
+        "test:visual": "PW_VISUAL=1 playwright test --project=visual",
         "db:generate": "bunx --bun prisma generate",
         "db:migrate": "bunx --bun prisma migrate dev",
         "db:push": "bunx --bun prisma db push",

@@ -25,22 +25,45 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
+            testIgnore: '**/visual/**',
             use: {
                 ...devices['Desktop Chrome'],
             },
         },
         {
             name: 'firefox',
+            testIgnore: '**/visual/**',
             use: {
                 ...devices['Desktop Firefox'],
             },
         },
         {
             name: 'webkit',
+            testIgnore: '**/visual/**',
             use: {
                 ...devices['Desktop Safari'],
             },
         },
+        // Visual inventory: a screenshot gallery of every major surface, only
+        // included when explicitly requested (bun run test:visual) so the
+        // default `playwright test` run is unaffected. Locale/timezone/scheme
+        // are pinned so shots are stable across machines.
+        ...(process.env.PW_VISUAL
+            ? [
+                  {
+                      name: 'visual',
+                      testMatch: 'visual/**/*.spec.ts',
+                      use: {
+                          ...devices['Desktop Chrome'],
+                          locale: 'en-US',
+                          timezoneId: 'UTC',
+                          colorScheme: 'light' as const,
+                          viewport: { width: 1280, height: 720 },
+                          deviceScaleFactor: 1,
+                      },
+                  },
+              ]
+            : []),
     ],
     webServer: {
         command: `bun run dev --port ${PORT}`,

@@ -113,6 +113,19 @@ bun run dev
 
 The app will be available at `http://localhost:5173`.
 
+### Testing
+
+```bash
+bun run test          # Vitest unit tests
+bun run test:e2e      # Playwright E2E suite (own server on port 7778)
+bun run test:visual   # Visual inventory: screenshot gallery of every surface
+```
+
+The visual inventory writes PNGs to `test-results/visual-inventory/` and
+attaches them to the Playwright HTML report, giving a browsable gallery of
+every page and state (light/dark, mobile, populated/empty). CI uploads it as
+an artifact on every PR.
+
 ### Background Jobs (optional)
 
 Background work runs through [Trigger.dev](https://trigger.dev) when
