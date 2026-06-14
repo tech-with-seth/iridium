@@ -25,21 +25,24 @@ You are an autonomous coding agent working on a software project.
 
 ```json
 {
-  "project": "MyApp",
-  "branchName": "ralph/feature-name",
-  "description": "One-line summary of the feature",
-  "userStories": [
-    {
-      "id": "US-001",
-      "title": "Story title",
-      "description": "As a ..., I want ... so that ...",
-      "acceptanceCriteria": ["...", "Typecheck passes (`bun run typecheck`)"],
-      "order": 1,
-      "status": "pending",
-      "blockedReason": "",
-      "notes": ""
-    }
-  ]
+    "project": "MyApp",
+    "branchName": "ralph/feature-name",
+    "description": "One-line summary of the feature",
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Story title",
+            "description": "As a ..., I want ... so that ...",
+            "acceptanceCriteria": [
+                "...",
+                "Typecheck passes (`bun run typecheck`)"
+            ],
+            "order": 1,
+            "status": "pending",
+            "blockedReason": "",
+            "notes": ""
+        }
+    ]
 }
 ```
 
@@ -68,7 +71,7 @@ When all stories in `prd.json` have `status` of `"done"`, write a file at
 `.ralph-status.json` (sibling of this CLAUDE.md) containing:
 
 ```json
-{"status": "complete"}
+{ "status": "complete" }
 ```
 
 Do not rely on free-form text in your reply — the ralph.sh loop looks at the
@@ -78,7 +81,7 @@ normally.
 If you cannot proceed and want the loop to stop instead of retrying, write:
 
 ```json
-{"status": "blocked", "reason": "short human-readable explanation"}
+{ "status": "blocked", "reason": "short human-readable explanation" }
 ```
 
 ## Progress Report Format
@@ -118,10 +121,10 @@ Before committing, check whether nearby agent-instruction files should learn fro
 1. Identify directories with edited files.
 2. Look for an existing `CLAUDE.md` or `AGENTS.md` in those directories or their parents.
 3. Add genuinely reusable knowledge:
-   - API patterns or conventions specific to that module
-   - Non-obvious requirements or gotchas
-   - Cross-file dependencies
-   - Testing setup specific to that area
+    - API patterns or conventions specific to that module
+    - Non-obvious requirements or gotchas
+    - Cross-file dependencies
+    - Testing setup specific to that area
 
 Do not add story-specific implementation details, temporary debugging notes, or anything already in `progress.txt`.
 

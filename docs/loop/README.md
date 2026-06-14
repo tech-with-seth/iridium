@@ -7,21 +7,21 @@ scheduled **heartbeat**.
 
 ## The pieces (and where they live)
 
-| Loop pillar    | In this repo                                                              |
-| -------------- | ------------------------------------------------------------------------- |
-| **Heartbeat**  | `.github/workflows/triage.yml` — scheduled discovery + triage             |
+| Loop pillar    | In this repo                                                                 |
+| -------------- | ---------------------------------------------------------------------------- |
+| **Heartbeat**  | `.github/workflows/triage.yml` — scheduled discovery + triage                |
 | **Memory**     | **GitHub Issues** (label `triage`) — queryable, merge-safe, outlives any run |
-| **Skills**     | `.claude/skills/` — incl. `triage` (the loop's brain) and `iridium-form`  |
-| **Sub-agents** | `.claude/agents/` — `staff-engineer`, `security-auditor`, `prisma`, …     |
-| **Worktrees**  | `scripts/ralph/ralph.sh` (run in one) + subagent `isolation: worktree`    |
-| **Connectors** | GitHub, Linear, context7 MCP servers                                      |
-| **Execution**  | `scripts/ralph/` — the autonomous loop that *does* the work               |
+| **Skills**     | `.claude/skills/` — incl. `triage` (the loop's brain) and `iridium-form`     |
+| **Sub-agents** | `.claude/agents/` — `staff-engineer`, `security-auditor`, `prisma`, …        |
+| **Worktrees**  | `scripts/ralph/ralph.sh` (run in one) + subagent `isolation: worktree`       |
+| **Connectors** | GitHub, Linear, context7 MCP servers                                         |
+| **Execution**  | `scripts/ralph/` — the autonomous loop that _does_ the work                  |
 
 **Why Issues and not a state file?** The loop's memory has to be queryable,
 merge-safe under parallel runs, and visible to humans. A markdown file is none of
 those — the agent would rewrite it whole every run and two runs would collide.
 GitHub Issues already gives us all three for free, and the loop is naturally
-idempotent because it dedups by *searching open issues* before filing. (If you
+idempotent because it dedups by _searching open issues_ before filing. (If you
 later turn on heavy autonomous multi-agent execution and want a dependency
 "ready-queue" to feed Ralph, [`beads`](https://github.com/steveyegge/beads) is
 the purpose-built upgrade — but Issues is the right call until then.)
@@ -45,14 +45,14 @@ Execution is a deliberately separate stage so the maker is never the checker.
 
 ## Operating it
 
-- **Run it now:** Actions tab → *Triage Loop* → *Run workflow* (`workflow_dispatch`).
+- **Run it now:** Actions tab → _Triage Loop_ → _Run workflow_ (`workflow_dispatch`).
 - **Run it locally / in a session:** invoke the `triage` skill (`/triage`).
 - **See its memory:** the open issues labeled `triage` _are_ the loop's state.
 - **Steer it:** open an issue labeled `triage-meta` titled
   "Triage loop — operator notes". The loop reads and obeys it (e.g. "ignore the
   legacy/ dir", "focus on auth"). It is the human steering wheel.
 - **Change cadence:** edit the `cron` in `triage.yml`.
-- **Turn it off:** delete `triage.yml`, or disable *Triage Loop* in the Actions tab.
+- **Turn it off:** delete `triage.yml`, or disable _Triage Loop_ in the Actions tab.
 
 ## Required setup
 
@@ -64,5 +64,5 @@ The workflow needs an `ANTHROPIC_API_KEY` repository secret. The built-in
 Scheduled agents spend tokens whether or not they find anything, so this loop
 runs on Sonnet, prefers cheap reads (`git log`, `--log-failed`) over reading the
 whole tree, and is capped at 15 minutes per run. It also does not replace you:
-every issue it files is a *claim*, and every fix that follows still needs a human
+every issue it files is a _claim_, and every fix that follows still needs a human
 review before it ships. Build the loop — stay the engineer.

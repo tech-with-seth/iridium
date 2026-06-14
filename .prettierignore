@@ -1,0 +1,18 @@
+# Build artifacts & generated output
+/node_modules/
+/.react-router/
+/build/
+app/generated/prisma
+/test-results/
+/playwright-report/
+/blob-report/
+
+# Lockfiles
+bun.lock
+skills-lock.json
+
+# Vendored / tool-generated agent & spec-kit scaffolding (not project source)
+.agents/
+.claude/
+.specify/
+.github/agents/
