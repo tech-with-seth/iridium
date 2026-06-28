@@ -8,30 +8,35 @@ Iridium is a full-stack AI chat application built with React Router v7 (SSR), Be
 
 ## Commands
 
-| Command                  | Purpose                              |
-| ------------------------ | ------------------------------------ |
-| `bun run dev`            | Start dev server (port 5173)         |
-| `bun run build`          | Production build                     |
-| `bun run typecheck`      | Generate route types + run tsc       |
-| `bun run lint`           | ESLint check                         |
-| `bun run format`         | Prettier write                       |
-| `bun run format:check`   | Prettier check (no write)            |
-| `bun run validate`       | typecheck + lint + format:check      |
-| `bun run test`           | Run Vitest unit tests                |
-| `bun run test:watch`     | Run Vitest in watch mode             |
-| `bun run test:e2e`       | Run all Playwright E2E tests         |
-| `bun run test:visual`    | Visual inventory screenshot gallery  |
-| `bun run db:migrate`     | Run Prisma migrations                |
-| `bun run db:seed`        | Seed database with test users        |
-| `bun run db:fresh`       | Reset DB + migrate + seed (one shot) |
-| `bun run db:studio`      | Open Prisma Studio GUI               |
-| `bun run db:push`        | Push schema without migration        |
-| `bun run db:generate`    | Regenerate Prisma client             |
-| `bun run trigger:dev`    | Run Trigger.dev tasks locally        |
-| `bun run trigger:deploy` | Deploy Trigger.dev tasks             |
-| `bun run docker:up`      | Start both Postgres containers       |
-| `bun run docker:down`    | Stop containers (data preserved)     |
-| `bun run docker:nuke`    | Stop containers and delete volumes   |
+| Command                  | Purpose                               |
+| ------------------------ | ------------------------------------- |
+| `bun run dev`            | Start dev server (port 5173)          |
+| `bun run dev:full`       | docker:up then dev (one command)      |
+| `bun run build`          | Production build                      |
+| `bun run start:migrate`  | migrate deploy then serve (prod boot) |
+| `bun run clean`          | Remove build + test output dirs       |
+| `bun run typecheck`      | Generate route types + run tsc        |
+| `bun run lint`           | ESLint check                          |
+| `bun run format`         | Prettier write                        |
+| `bun run format:check`   | Prettier check (no write)             |
+| `bun run validate`       | typecheck + lint + format:check       |
+| `bun run test`           | Run Vitest unit tests                 |
+| `bun run test:watch`     | Run Vitest in watch mode              |
+| `bun run test:e2e`       | Run all Playwright E2E tests          |
+| `bun run test:all`       | Unit + E2E tests                      |
+| `bun run test:visual`    | Visual inventory screenshot gallery   |
+| `bun run db:migrate`     | Run Prisma migrations (dev)           |
+| `bun run db:deploy`      | Apply migrations (prod/CI, no prompt) |
+| `bun run db:seed`        | Seed database with test users         |
+| `bun run db:fresh`       | Reset DB + migrate + seed (one shot)  |
+| `bun run db:studio`      | Open Prisma Studio GUI                |
+| `bun run db:push`        | Push schema without migration         |
+| `bun run db:generate`    | Regenerate Prisma client              |
+| `bun run trigger:dev`    | Run Trigger.dev tasks locally         |
+| `bun run trigger:deploy` | Deploy Trigger.dev tasks              |
+| `bun run docker:up`      | Start both Postgres containers        |
+| `bun run docker:down`    | Stop containers (data preserved)      |
+| `bun run docker:nuke`    | Stop containers and delete volumes    |
 
 Run a single Playwright test: `bunx playwright test tests/auth.spec.ts --project=chromium`
 
@@ -124,7 +129,15 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Environment Validation
 
-`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `TRIGGER_SECRET_KEY`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
+`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `TRIGGER_SECRET_KEY`, `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET`/`STRIPE_PRICE_ID`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
+
+### Billing (Stripe stub)
+
+`app/lib/billing.server.ts` wraps Stripe behind an interface the same way `email.server.ts` wraps Resend. Without `STRIPE_SECRET_KEY` it runs in **stub mode**: `createCheckoutSession`, `createBillingPortalSession`, and `constructWebhookEvent` return mocked results logged to the console, so dev and CI need no Stripe account. Wiring the real SDK is a localized edit confined to that file (install `stripe`, fill the `TODO` branches). Persisting customer/subscription state is left to the caller (add fields to the `User` model or a `Subscription` model and update them from the webhook handler).
+
+### Deployment
+
+Production runs the multi-stage `Dockerfile` (Node 20 Alpine runtime). The container CMD is `npm run start:migrate`, which applies pending Prisma migrations (`migrate deploy` — a no-op when current) before serving, so deploys self-migrate. `railway.json` configures the Railway build (Dockerfile) and start command, with `/healthcheck` as the health probe. CI (`.github/workflows/ci.yml`) has a `deploy` job that runs only on pushes to `main` after e2e passes; it deploys via the Railway CLI and no-ops unless a `RAILWAY_TOKEN` repo secret is set (set `RAILWAY_SERVICE` repo variable if the project has multiple services).
 
 ### Background Jobs
 

@@ -261,7 +261,21 @@ docker build -t iridium .
 docker run -p 3000:3000 iridium
 ```
 
-Deployable to Railway, Fly.io, AWS ECS, Google Cloud Run, or any Docker-compatible platform.
+The container's start command is `npm run start:migrate`, which applies pending
+Prisma migrations (`migrate deploy`) before serving, so deploys self-migrate.
+
+### Railway
+
+`railway.json` builds the Dockerfile and runs the migrate-on-boot start command,
+with `/healthcheck` as the health probe. Deploy manually with `railway up`, or
+let CI do it: the `deploy` job in `.github/workflows/ci.yml` runs on pushes to
+`main` after e2e passes. It stays a no-op until you add a `RAILWAY_TOKEN` repo
+secret (and, if the project has multiple services, a `RAILWAY_SERVICE` repo
+variable). Set the runtime env vars (both database URLs, `BETTER_AUTH_SECRET`,
+`ANTHROPIC_API_KEY`, etc.) in the Railway dashboard.
+
+The image is also deployable to any Docker-compatible platform (Fly.io, AWS ECS,
+Google Cloud Run, …).
 
 ## Routes
 

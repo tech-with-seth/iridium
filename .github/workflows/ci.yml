@@ -121,3 +121,30 @@ jobs:
                       test-results/visual-inventory/
                       playwright-report/
                   retention-days: 14
+
+    deploy:
+        name: Deploy (Railway)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        needs: [e2e]
+        # Only deploy on pushes to main (not PRs). The deploy step itself is a
+        # no-op until a RAILWAY_TOKEN repo secret exists, so forks and clones
+        # without Railway configured stay green.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+            RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+            - name: Deploy to Railway
+              if: ${{ env.RAILWAY_TOKEN != '' }}
+              # `railway up` builds the Dockerfile and runs the startCommand from
+              # railway.json (npm run start:migrate), so migrations apply on boot.
+              # Use a project-scoped token; set RAILWAY_SERVICE if the project has
+              # more than one service.
+              run: bunx @railway/cli up --ci ${RAILWAY_SERVICE:+--service "$RAILWAY_SERVICE"}
+              env:
+                  RAILWAY_SERVICE: ${{ vars.RAILWAY_SERVICE }}
+            - name: Skipped (no RAILWAY_TOKEN)
+              if: ${{ env.RAILWAY_TOKEN == '' }}
+              run: echo "RAILWAY_TOKEN not set — skipping deploy. Add it in repo secrets to enable."

@@ -32,4 +32,7 @@ USER app
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD wget -qO- http://127.0.0.1:3000/healthcheck > /dev/null || exit 1
-CMD ["npm", "run", "start"]
+# Apply pending migrations on boot, then serve. `migrate deploy` is a no-op
+# when the schema is already current, so restarts are safe. Needs DATABASE_URL
+# at runtime; the copied prisma CLI + engines (above) make this work.
+CMD ["npm", "run", "start:migrate"]

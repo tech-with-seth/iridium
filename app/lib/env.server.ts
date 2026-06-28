@@ -44,6 +44,15 @@ const envSchema = z.object({
      * When unset, jobs.server.ts runs the same work inline.
      */
     TRIGGER_SECRET_KEY: z.string().optional(),
+    /**
+     * Optional Stripe billing. When STRIPE_SECRET_KEY is unset, billing.server.ts
+     * runs in stub mode (mock checkout/portal sessions, logged to the console) so
+     * local dev and CI need no Stripe account. STRIPE_WEBHOOK_SECRET verifies
+     * incoming webhook signatures; STRIPE_PRICE_ID is the default plan price.
+     */
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    STRIPE_PRICE_ID: z.string().optional(),
     VOLTAGENT_DATABASE_URL: z.url({
         message: 'VOLTAGENT_DATABASE_URL must be a valid URL',
     }),
