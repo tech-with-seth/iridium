@@ -129,7 +129,9 @@ In-memory sliding window in `app/lib/rate-limit.server.ts`. Used for chat (20/mi
 
 ### Environment Validation
 
-`app/lib/env.server.ts` validates all required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `ANTHROPIC_API_KEY`, `VOLTAGENT_DATABASE_URL`) with Zod at startup, plus optional ones (`RESEND_API_KEY`, `EMAIL_FROM`, `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `TRIGGER_SECRET_KEY`, `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET`/`STRIPE_PRICE_ID`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`). Import `env` from this module instead of reading `process.env` directly in server code.
+`app/lib/env.server.ts` validates env with Zod at startup. Required **infra** vars (`DATABASE_URL`, `VOLTAGENT_DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`) plus **feature** keys that degrade gracefully when unset (`ANTHROPIC_API_KEY` → chat disabled, `RESEND_API_KEY` → email to console, OAuth pairs → buttons hidden, `TRIGGER_SECRET_KEY` → jobs inline, `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET`/`STRIPE_PRICE_ID` → billing stub) and `EMAIL_FROM`, `DISABLE_AUTH_RATE_LIMIT`, `E2E_TEST_HOOKS`. Import `env` from this module instead of reading `process.env` directly in server code.
+
+**Boot behavior is environment-dependent:** in **production**, missing/invalid vars fail fast (`process.exit(1)`) so misconfigured prod never runs. In **dev/test**, the app always boots — missing infra vars are swapped for placeholders (a console warning lists them) and missing feature keys just disable their feature. What's unset surfaces in a **dev-only banner** at the top of every page (`EnvBanner`, fed by `envWarnings`/`shouldShowEnvBanner` from `env.server.ts` via the root loader). The banner never renders in production or during E2E runs (gated on `E2E_TEST_HOOKS`), so it can't affect end users or test/visual snapshots.
 
 ### Billing (Stripe stub)
 

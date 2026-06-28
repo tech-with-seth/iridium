@@ -13,7 +13,9 @@ import { getSessionInfo } from '~/models/session.server';
 import { getTheme } from '~/lib/theme.server';
 import { THEME_NAMES } from '~/lib/theme';
 import { getToast } from '~/lib/toast.server';
+import { envWarnings, shouldShowEnvBanner } from '~/lib/env.server';
 import { Toaster } from '~/components/Toaster';
+import { EnvBanner } from '~/components/EnvBanner';
 import type { Route } from './+types/root';
 
 import './app.css';
@@ -49,6 +51,9 @@ export async function loader({ request }: Route.LoaderArgs) {
             isImpersonating: Boolean(session?.session.impersonatedBy),
             theme,
             toast,
+            // Dev-only: surfaces unset env vars in a top banner. Empty in
+            // production and during E2E runs so it never reaches end users.
+            envWarnings: shouldShowEnvBanner ? envWarnings : [],
         },
         // Clears the consumed toast flash cookie.
         { headers },
@@ -60,6 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     // loader data may be unavailable, so it must tolerate undefined.
     const loaderData = useRouteLoaderData<typeof loader>('root');
     const theme = loaderData?.theme ?? 'system';
+    const bannerWarnings = loaderData?.envWarnings ?? [];
 
     return (
         <html
@@ -78,6 +84,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="h-full">
+                <EnvBanner warnings={bannerWarnings} />
                 {children}
                 <ScrollRestoration />
                 <Scripts />

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { EnvWarning } from '~/lib/env-status';
 
 const envSchema = z.object({
     DATABASE_URL: z.url({ message: 'DATABASE_URL must be a valid URL' }),
@@ -22,7 +23,13 @@ const envSchema = z.object({
                       .filter(Boolean)
                 : [],
         ),
-    ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
+    /**
+     * Optional: when unset, AI chat is disabled but the app still boots. The
+     * Vercel AI SDK reads this from process.env at request time, so a missing
+     * key only fails the chat request (surfaced in the chat error UI), not
+     * startup. Set a real key to enable chat.
+     */
+    ANTHROPIC_API_KEY: z.string().optional(),
     /**
      * Optional: when unset, outgoing email is rendered and logged to the
      * console instead of sent. Set a real key in production.
@@ -78,20 +85,138 @@ const envSchema = z.object({
         .transform((value) => value === 'true'),
 });
 
-function validateEnv() {
-    const result = envSchema.safeParse(process.env);
+type Env = z.infer<typeof envSchema>;
 
-    if (!result.success) {
-        const formatted = result.error.issues
-            .map((i) => `  ✗ ${i.path.join('.')}: ${i.message}`)
-            .join('\n');
+const isProduction = process.env.NODE_ENV === 'production';
 
-        console.error(`\n❌ Invalid environment variables:\n${formatted}\n`);
-        console.error('→ Copy .env.example to .env and fill in the values.\n');
-        process.exit(1);
-    }
+/**
+ * Dev/test placeholders for required infrastructure vars. When one is missing
+ * or invalid outside production, we substitute a placeholder so the app still
+ * boots (and surface it in the dev banner) instead of crashing. Production
+ * never uses these — it fails fast on misconfiguration.
+ */
+const DEV_FALLBACKS: Record<string, string> = {
+    DATABASE_URL:
+        'postgresql://placeholder:placeholder@localhost:5432/placeholder',
+    VOLTAGENT_DATABASE_URL:
+        'postgresql://placeholder:placeholder@localhost:5433/placeholder',
+    BETTER_AUTH_SECRET: 'dev-only-placeholder-secret-change-me-please',
+    BETTER_AUTH_BASE_URL: 'http://localhost:5173',
+};
 
-    return result.data;
+/** Why a placeholdered infra var matters — shown in the dev banner. */
+const INFRA_EFFECTS: Record<string, string> = {
+    DATABASE_URL: 'App database is unreachable; most pages will error.',
+    VOLTAGENT_DATABASE_URL: 'AI memory store is unreachable; chat will error.',
+    BETTER_AUTH_SECRET: 'Sessions use an insecure placeholder secret.',
+    BETTER_AUTH_BASE_URL: 'Auth callbacks use a placeholder URL.',
+};
+
+function reportAndExit(error: z.ZodError): never {
+    const formatted = error.issues
+        .map((i) => `  ✗ ${i.path.join('.')}: ${i.message}`)
+        .join('\n');
+
+    console.error(`\n❌ Invalid environment variables:\n${formatted}\n`);
+    console.error('→ Copy .env.example to .env and fill in the values.\n');
+    process.exit(1);
 }
 
-export const env = validateEnv();
+function validateEnv(): { env: Env; placeholdered: string[] } {
+    const result = envSchema.safeParse(process.env);
+    if (result.success) return { env: result.data, placeholdered: [] };
+
+    // Production must never run misconfigured — fail fast.
+    if (isProduction) reportAndExit(result.error);
+
+    // Dev/test: substitute placeholders for failing infra vars so the app can
+    // still boot. The banner (and this warning) tells the developer what's off.
+    const patched: NodeJS.ProcessEnv = { ...process.env };
+    const placeholdered: string[] = [];
+    for (const issue of result.error.issues) {
+        const key = String(issue.path[0]);
+        if (key in DEV_FALLBACKS && !placeholdered.includes(key)) {
+            patched[key] = DEV_FALLBACKS[key];
+            placeholdered.push(key);
+        }
+    }
+
+    const retry = envSchema.safeParse(patched);
+    // A failure here means a required var we don't have a placeholder for —
+    // unrecoverable, so fall back to fail-fast even in dev.
+    if (!retry.success) reportAndExit(retry.error);
+
+    console.warn(
+        `\n⚠ Missing/invalid env: ${placeholdered.join(', ')} — using dev ` +
+            `placeholders so the app can boot. See the in-app banner.\n`,
+    );
+    return { env: retry.data, placeholdered };
+}
+
+const resolved = validateEnv();
+
+export const env = resolved.env;
+
+/**
+ * Build the list of notable unset env vars for the dev banner. Pure so it can
+ * be unit-tested without touching process.env.
+ */
+export function computeEnvWarnings(
+    e: Env,
+    placeholdered: string[],
+): EnvWarning[] {
+    const warnings: EnvWarning[] = [];
+
+    for (const key of placeholdered) {
+        warnings.push({
+            key,
+            severity: 'error',
+            effect: INFRA_EFFECTS[key] ?? 'Using a development placeholder.',
+        });
+    }
+
+    const feature = (unset: boolean, key: string, effect: string): void => {
+        if (unset) warnings.push({ key, severity: 'info', effect });
+    };
+
+    feature(!e.ANTHROPIC_API_KEY, 'ANTHROPIC_API_KEY', 'AI chat is disabled.');
+    feature(
+        !e.STRIPE_SECRET_KEY,
+        'STRIPE_SECRET_KEY',
+        'Billing runs in stub mode.',
+    );
+    feature(
+        !e.RESEND_API_KEY,
+        'RESEND_API_KEY',
+        'Emails are logged to the console.',
+    );
+    feature(
+        !e.GITHUB_CLIENT_ID || !e.GITHUB_CLIENT_SECRET,
+        'GITHUB_CLIENT_ID',
+        'GitHub social login is hidden.',
+    );
+    feature(
+        !e.GOOGLE_CLIENT_ID || !e.GOOGLE_CLIENT_SECRET,
+        'GOOGLE_CLIENT_ID',
+        'Google social login is hidden.',
+    );
+    feature(
+        !e.TRIGGER_SECRET_KEY,
+        'TRIGGER_SECRET_KEY',
+        'Background jobs run inline.',
+    );
+
+    return warnings;
+}
+
+export const envWarnings: EnvWarning[] = computeEnvWarnings(
+    env,
+    resolved.placeholdered,
+);
+
+/**
+ * Whether the in-app dev env banner should render: only outside production,
+ * and never during E2E runs (which set E2E_TEST_HOOKS) so it can't perturb
+ * test interactions or visual snapshots.
+ */
+export const shouldShowEnvBanner = !isProduction && !env.E2E_TEST_HOOKS;
