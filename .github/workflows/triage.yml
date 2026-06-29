@@ -1,0 +1,59 @@
+name: Triage Loop
+
+# The "heartbeat" of the loop-engineered workflow (see docs/loop/README.md).
+# Runs the `triage` skill on a schedule: it discovers work and files actionable
+# items as `triage`-labeled GitHub issues — the issue tracker is the loop's
+# memory, so this job writes nothing back to the repo. It does NOT fix anything;
+# execution is a separate stage.
+
+on:
+    schedule:
+        # 13:00 UTC on weekdays (~8am ET). Adjust or delete to change cadence.
+        - cron: '0 13 * * 1-5'
+    workflow_dispatch:
+
+# Only one triage run at a time; a new run cancels nothing but waits its turn.
+concurrency:
+    group: triage-loop
+    cancel-in-progress: false
+
+permissions:
+    contents: read # checkout + git log only; the loop commits nothing
+    issues: write # file actionable findings (the loop's memory)
+    actions: read # read CI run results + prior triage run timestamps
+    pull-requests: read
+
+jobs:
+    triage:
+        name: Discover + triage
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 50 # enough history for `git log` since last run
+
+            - uses: oven-sh/setup-bun@v2
+
+            # Install so the skill can run cheap health probes (typecheck/lint)
+            # when a finding needs confirming. e2e is left to the CI workflow.
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Generate Prisma client
+              run: bunx --bun prisma generate
+
+            - name: Run triage loop
+              uses: anthropics/claude-code-action@v1
+              env:
+                  # gh CLI (used by the skill) authenticates via this token.
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  # Sonnet keeps the recurring token cost low; triage is a
+                  # reading/judgement task, not heavy generation.
+                  prompt: '/triage'
+                  claude_args: |
+                      --model claude-sonnet-4-6
+                      --allowedTools "Bash,Read,Write,Edit,Glob,Grep,mcp__github"
