@@ -36,32 +36,31 @@ describe('computeEnvWarnings', () => {
         expect(dbWarning?.effect).toMatch(/database/i);
     });
 
-    it('flags a missing feature key as info, not error', () => {
-        const warnings = computeEnvWarnings(
-            { ...base, ANTHROPIC_API_KEY: undefined },
-            [],
-        );
-        const aiWarning = warnings.find((w) => w.key === 'ANTHROPIC_API_KEY');
-        expect(aiWarning?.severity).toBe('info');
+    it('reports every placeholdered infra var as an error', () => {
+        const warnings = computeEnvWarnings(base, [
+            'DATABASE_URL',
+            'BETTER_AUTH_SECRET',
+        ]);
+        expect(warnings.map((w) => w.key)).toEqual([
+            'DATABASE_URL',
+            'BETTER_AUTH_SECRET',
+        ]);
+        expect(warnings.every((w) => w.severity === 'error')).toBe(true);
     });
 
-    it('flags missing Stripe as a stub-mode info warning', () => {
+    it('does not surface unset optional feature keys', () => {
         const warnings = computeEnvWarnings(
-            { ...base, STRIPE_SECRET_KEY: undefined },
+            {
+                ...base,
+                ANTHROPIC_API_KEY: undefined,
+                STRIPE_SECRET_KEY: undefined,
+                RESEND_API_KEY: undefined,
+                GITHUB_CLIENT_SECRET: undefined,
+                GOOGLE_CLIENT_ID: undefined,
+                TRIGGER_SECRET_KEY: undefined,
+            },
             [],
         );
-        expect(
-            warnings.some(
-                (w) => w.key === 'STRIPE_SECRET_KEY' && w.severity === 'info',
-            ),
-        ).toBe(true);
-    });
-
-    it('flags OAuth when only one half of the pair is set', () => {
-        const warnings = computeEnvWarnings(
-            { ...base, GITHUB_CLIENT_SECRET: undefined },
-            [],
-        );
-        expect(warnings.some((w) => w.key === 'GITHUB_CLIENT_ID')).toBe(true);
+        expect(warnings).toEqual([]);
     });
 });

@@ -158,55 +158,21 @@ const resolved = validateEnv();
 export const env = resolved.env;
 
 /**
- * Build the list of notable unset env vars for the dev banner. Pure so it can
- * be unit-tested without touching process.env.
+ * Build the list of notable unset env vars for the dev banner. Only the
+ * required infrastructure vars are surfaced — when one is missing it's running
+ * on a dev placeholder and the app genuinely won't work. Optional feature keys
+ * degrade gracefully and are intentionally left out of the banner. Pure so it
+ * can be unit-tested without touching process.env.
  */
 export function computeEnvWarnings(
-    e: Env,
+    _e: Env,
     placeholdered: string[],
 ): EnvWarning[] {
-    const warnings: EnvWarning[] = [];
-
-    for (const key of placeholdered) {
-        warnings.push({
-            key,
-            severity: 'error',
-            effect: INFRA_EFFECTS[key] ?? 'Using a development placeholder.',
-        });
-    }
-
-    const feature = (unset: boolean, key: string, effect: string): void => {
-        if (unset) warnings.push({ key, severity: 'info', effect });
-    };
-
-    feature(!e.ANTHROPIC_API_KEY, 'ANTHROPIC_API_KEY', 'AI chat is disabled.');
-    feature(
-        !e.STRIPE_SECRET_KEY,
-        'STRIPE_SECRET_KEY',
-        'Billing runs in stub mode.',
-    );
-    feature(
-        !e.RESEND_API_KEY,
-        'RESEND_API_KEY',
-        'Emails are logged to the console.',
-    );
-    feature(
-        !e.GITHUB_CLIENT_ID || !e.GITHUB_CLIENT_SECRET,
-        'GITHUB_CLIENT_ID',
-        'GitHub social login is hidden.',
-    );
-    feature(
-        !e.GOOGLE_CLIENT_ID || !e.GOOGLE_CLIENT_SECRET,
-        'GOOGLE_CLIENT_ID',
-        'Google social login is hidden.',
-    );
-    feature(
-        !e.TRIGGER_SECRET_KEY,
-        'TRIGGER_SECRET_KEY',
-        'Background jobs run inline.',
-    );
-
-    return warnings;
+    return placeholdered.map((key) => ({
+        key,
+        severity: 'error',
+        effect: INFRA_EFFECTS[key] ?? 'Using a development placeholder.',
+    }));
 }
 
 export const envWarnings: EnvWarning[] = computeEnvWarnings(

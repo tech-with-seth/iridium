@@ -17,5 +17,5 @@
 @plugin 'daisyui' {
     themes:
         emerald --default,
-        night --prefersdark;
+        dracula --prefersdark;
 }

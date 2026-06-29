@@ -96,7 +96,9 @@ export function SiteHeader() {
                                         <NavLink
                                             to={item.to}
                                             className={({ isActive }) =>
-                                                isActive ? 'menu-active' : ''
+                                                isActive
+                                                    ? 'menu-active bg-neutral-content/15 font-semibold'
+                                                    : ''
                                             }
                                         >
                                             {item.label}
